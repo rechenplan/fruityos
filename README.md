@@ -1,6 +1,14 @@
 # CitrusOS
 
+## intro
+
 This is the begining of a smol OS called CitrusOS. The plan is to first develop a programming language called yuzu and write a bootstrap compiler. Then I'm going to write userland stuff in yuzu. Finally, I'll write the kernel in yuzu. This document is a roadmap of the things that need to be done immediately.
+
+## requirements
+
+  gcc
+  nasm
+  linux kernel x86-64
 
 ## peel (userland)
 
