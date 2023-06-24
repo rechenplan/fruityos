@@ -1,0 +1,3 @@
+/*
+	Takes sequence of tokens and produces AST. Checks that variables are declared before use.
+*/

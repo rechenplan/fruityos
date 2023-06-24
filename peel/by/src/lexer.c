@@ -1,0 +1,3 @@
+/*
+	Takes source file and produces sequence of tokens.
+*/
