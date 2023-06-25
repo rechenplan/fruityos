@@ -1,3 +1,4 @@
+mkdir bin
 nasm src/linux-x86-64/_start.asm -felf64 -o src/linux-x86-64/_start.o
 nasm src/linux-x86-64/open.asm -felf64 -o src/linux-x86-64/open.o
 nasm src/linux-x86-64/read.asm -felf64 -o src/linux-x86-64/read.o
