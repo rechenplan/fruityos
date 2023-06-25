@@ -2,21 +2,15 @@
 
 by is a bootstrap compiler for the y;uzu language. yuzu is inspired by lua and the b programming language. specifically, the version of the b programming language presented at https://web.archive.org/web/20150611114427/https://www.bell-labs.com/usr/dmr/www/kbman.pdf. this directory will be the home of the yuzu bootstrapping compiler. the yuzu bootstrapping compiler will be written in c, with a later rewrite of the yuzu compiler written in yuzu planned down the road.
 
-## lexer notes
-
-### reserved keywords
-
-	local, return, if, then, else, while, do, end, deref, ref
-
 ## parser notes
 
 ### grammar
 
-non-terminals are enclosed in <>. terminals are enclosed in "". a term is a terminal, non-terminal, or concatenation of two terms. {} around a ebnf term denote that this term can be repeated 0 or more times. [] around a ebnf term denote that this term can be repeated 0 or 1 times. Between all terms is an implicit { `<WS>` } with the exception of the definitions of `<NAME>` and `<CONSTANT>`. `<WS>` denotes white space, `<ALPHA>` denotes alphabetic characters, and `<NUM>` denotes numeric characters.
+non-terminals are enclosed in <>. terminals are enclosed in "". a term is a terminal, non-terminal, or concatenation of two terms. {} around a ebnf term denote that this term can be repeated 0 or more times. [] around a ebnf term denote that this term can be repeated 0 or 1 times.
 
 	<PROGRAM>	::= { <DEFINITION> }
 	
-	<DEFINITION>	::= <NAME> <LPAREN> [ <NAME> { <COMMA> <NAME> } ] <RPAREN> { <STATEMENT> } <END>
+	<DEFINITION>	::= <DEF> <NAME> <LPAREN> [ <NAME> { <COMMA> <NAME> } ] <RPAREN> { <STATEMENT> } <END>
 	
 	<STATEMENT>	::= <LOCAL> <NAME> [ <LBRACKET> <NUMBER> <RBRACKET> ] { <COMMA> <NAME> [ <LBRACKET> <NUMBER> <RBRACKET> ] }
 			| <IF> <RVALUE> <THEN> { <STATEMENT> } [ <ELSE> { <STATEMENT> } ] <END>
@@ -61,7 +55,9 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 
 	<CONSTANT>	::= <NUMBER> | <STRLIT>
 
-Tokens scanned by lexer (*):
+## lexer notes
+
+tokens scanned by lexer (note if a string appears as a prefix of another, then it must come after it):
 
 	<LPAREN> 	::= "(" 
 	<RPAREN> 	::= ")" 
@@ -78,30 +74,91 @@ Tokens scanned by lexer (*):
 	<OR> 		::= "|" 
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
-	<NOTEQUAL> 	::= "~=" 
-	<NOT> 		::= "~" 
-	<LESSTHAN> 	::= "<" 
+	<NOTEQUAL1> 	::= "!=" 
+	<NOT> 		::= "!" 
 	<LSHIFT> 	::= "<<" 
 	<LEQ> 		::= "<=" 
-	<GREATERTHAN> 	::= ">" 
+	<LESSTHAN> 	::= "<"
 	<RSHIFT> 	::= ">>" 
 	<GEQ> 		::= ">="
+	<GREATERTHAN> 	::= ">"
+	<LOCAL>		::= "LOCAL"
+	<IF>		::= "IF"
+	<THEN>		::= "THEN"
+	<ELSE>		::= "ELSE"
+	<END>		::= "END"
+	<WHILE>		::= "WHILE"
+	<DO>		::= "DO"
+	<DEF>		::= "DEF"
+	<DEREF>		::= "DEREF"
+	<REF>		::= "REF"
+	<RETURN>	::= "RETURN"
 
-	<LOCAL>		::= "local"
-	<RETURN>	::= "return"
-	<IF>		::= "if"
-	<THEN>		::= "then"
-	<ELSE>		::= "else"
-	<WHILE>		::= "while"
-	<DO>		::= "do"
-	<END>		::= "end"
-	<DEREF>		::= "deref"
-	<REF>		::= "ref"
-
-
-	<STRLIT> 	::= <QUOTE> { <CHAR> } <QUOTE>
-	<NAME> 		::= <ALPHA> { <ALPHADIGIT> }
+	<STRLIT> 	::= "\"" { <CHAR> } "\""
 	<NUMBER> 	::= <DIGIT> { <DIGIT> }
+	<NAME> 		::= <LOWERALPHA> { <ALPHADIGIT> }
+
+
+Example code:
+
+	DEF eliminateCats(numCats)
+
+		{ this will eliminate cats }
+		IF numCats > 5 THEN numCats := ( numCats - 1 ) END
+		RETURN numCats
+
+	END
+
+### lexer algorithm
+
+	/* returns non-zero if a is a prefix of b, zero otherwise */
+	int isPrefix(char* a, char* b) {
+		while (*a == *b && *a && *b) {
+			a++;
+			b++;
+		}
+		if (!*a)
+			return 1;
+		else
+			return 0;
+	}
+
+	/* returns chars consumed */
+	int scan(char* buffer, int* symbol /* out */) {
+		int i = 0, consumed = 0;
+		while (isWhiteSpace(*buffer) && *buffer) buffer++;
+
+		for (i = 0; i < numKeywords; i++) {
+			if (isPrefix(keyword[i], buffer)) {
+				consumed = strlen(keyword[i]);
+				*symbol = i;
+				break;
+			}
+		}
+		if (!consumed) {
+			if (isQuote(*buffer)) {
+				*symbol = numKeywords + 1;
+				do {
+					buffer++; 
+					consumed++;
+				} while(!isQuote(*buffer) && *buffer);
+				consumed++;
+			} else if (isDigit(*buffer)) {
+				*symbol = numKeywords + 2;
+				do { 
+					buffer++; 
+					consumed++;
+				} while(isDigit(*buffer));
+			} else if (isNameChar(*buffer)) {
+				*symbol = numKeywords + 3;
+				do {
+					buffer++;
+					consumed++;
+				} while(isNextNameChar(*buffer));
+			}
+		}
+		return consumed;
+	}
 
 
 ## intermediate language
