@@ -40,7 +40,9 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 			| <DIVIDE>
 			| <MODULUS>
 			| <AND>
+			| <BAND>
 			| <OR>
+			| <BOR>
 			| <XOR>
 			| <LSHIFT>
 			| <RSHIFT>
@@ -51,7 +53,7 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 			| <GEQ>
 			| <LEQ>
 
-	<UNARY>		::= <MINUS> | <NOT>
+	<UNARY>		::= <MINUS> | <NOT> | <BNOT>
 
 	<CONSTANT>	::= <NUMBER> | <STRLIT>
 
@@ -70,12 +72,15 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<MULTIPLY> 	::= "*" 
 	<DIVIDE> 	::= "/" 
 	<MODULUS> 	::= "%" 
+	<BAND>		::= "&&"
 	<AND> 		::= "&" 
+	<BOR>		::= "||"
 	<OR> 		::= "|" 
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
-	<NOTEQUAL1> 	::= "!=" 
-	<NOT> 		::= "!" 
+	<NOTEQUAL> 	::= "!="
+	<BNOT>		::= "!"
+	<NOT>		::= "~"
 	<LSHIFT> 	::= "<<" 
 	<LEQ> 		::= "<=" 
 	<LESSTHAN> 	::= "<"
@@ -108,58 +113,6 @@ Example code:
 		RETURN numCats
 
 	END
-
-### lexer algorithm
-
-	/* returns non-zero if a is a prefix of b, zero otherwise */
-	int isPrefix(char* a, char* b) {
-		while (*a == *b && *a && *b) {
-			a++;
-			b++;
-		}
-		if (!*a)
-			return 1;
-		else
-			return 0;
-	}
-
-	/* returns chars consumed */
-	int scan(char* buffer, int* symbol /* out */) {
-		int i = 0, consumed = 0;
-		while (isWhiteSpace(*buffer) && *buffer) buffer++;
-
-		for (i = 0; i < numKeywords; i++) {
-			if (isPrefix(keyword[i], buffer)) {
-				consumed = strlen(keyword[i]);
-				*symbol = i;
-				break;
-			}
-		}
-		if (!consumed) {
-			if (isQuote(*buffer)) {
-				*symbol = numKeywords + 1;
-				do {
-					buffer++; 
-					consumed++;
-				} while(!isQuote(*buffer) && *buffer);
-				consumed++;
-			} else if (isDigit(*buffer)) {
-				*symbol = numKeywords + 2;
-				do { 
-					buffer++; 
-					consumed++;
-				} while(isDigit(*buffer));
-			} else if (isNameChar(*buffer)) {
-				*symbol = numKeywords + 3;
-				do {
-					buffer++;
-					consumed++;
-				} while(isNextNameChar(*buffer));
-			}
-		}
-		return consumed;
-	}
-
 
 ## intermediate language
 
