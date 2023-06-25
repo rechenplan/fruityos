@@ -1,59 +1,17 @@
-char* tokens[] = {
-	"(",
-	")",
-	"[",
-	"]",
-	",",
-	":=",
-	"+",
-	"-",
-	"*",
-	"/",
-	"%",
-	"&&",
-	"&",
-	"||",
-	"|",
-	"^",
-	"==",
-	"!=",
-	"!",
-	"~",
-	"<<",
-	"<=",
-	"<",
-	">>",
-	">=",
-	">",
-	"LOCAL",
-	"IF",
-	"THEN",
-	"ELSE",
-	"END",
-	"WHILE",
-	"DO",
-	"DEF",
-	"DEREF",
-	"REF",
-	"RETURN"
-};
+#include "lexer.h"
 
-static int isDigit(char c) {
-	return (c >= '0' && c <= '9');
-}
+/* a list of all valid yuzu tokens */
+char* tokens[] = {"(",")","[","]",",",":=","+","-","*","/","%","&&","&","||","|","^","==","!=","!","~","<<","<=",
+	"<",">>",">=",">","LOCAL","IF","THEN","ELSE","END","WHILE","DO","DEF","DEREF","REF","RETURN"};
 
-static int isQuote(char c) {
-	return (c == '"');
-}
+/* check character classes */
+static int isDigit(char c) { return (c >= '0' && c <= '9'); }
+static int isQuote(char c) { return (c == '"'); }
+static int isNameChar(char c) { return (c >= 'a' && c <= 'z') || (c == '_'); }
+static int isNextNameChar(char c) { return isNameChar(c) || (c >= 'A' && c <= 'Z') || isDigit(c); }
+static int isSkipable(char c) { return c == '\t' || c == ' ' || c == '\n' || c == '\r' || c == '{' || c == '}'; }
 
-static int isNameChar(char c) {
-	return (c >= 'a' && c <= 'z') || (c == '_');
-}
-
-static int isNextNameChar(char c) {
-	return isNameChar(c) || (c >= 'A' && c <= 'Z') || isDigit(c);
-}
-
+/* compute string length */
 static int stringLength(char* str) {
 	int length = 0;
 	while (*str) { str++; length++; }
@@ -73,16 +31,13 @@ static int isPrefix(char* a, char* b) {
 	return ret;
 }
 
-static int isSkipable(char c) {
-	return c == '\t' || c == ' ' || c == '\n' || c == '\r' || c == '{' || c == '}';
-}
-
 /* returns symbol index */
 int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 
-	int i = 0, symbol = -4, inComment = 0, read = 0;
+	int i = 0, symbol = -1, inComment = 0, read = 0;
 	int numTokens = sizeof(tokens) / sizeof(tokens[0]);
 
+	/* skip whitespace and comments */
 	while ((isSkipable(*buffer) || inComment) && *buffer) {
 		if (inComment) {
 			inComment = (*buffer != '}');
@@ -94,6 +49,7 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 		read++;
 	}
 
+	/* is a token in the tokens array a prefix? */
 	for (i = 0; i < numTokens; i++) {
 		if (isPrefix(tokens[i], buffer)) {
 			read += stringLength(tokens[i]);
@@ -102,9 +58,10 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 		}
 	}
 
-	if (symbol == -4) {
+	if (symbol == -1) {
+		/* string */
 		if (isQuote(*buffer) && *buffer) {
-			symbol = -1;
+			symbol = TOKEN_STRING;
 			do {
 				*outBuf = *buffer;
 				outBuf++;
@@ -115,16 +72,18 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 			outBuf++;
 			buffer++;
 			read++;
+		/* number */
 		} else if (isDigit(*buffer) && *buffer) {
-			symbol = -2;
+			symbol = TOKEN_NUMBER;
 			do {
 				*outBuf = *buffer;
 				outBuf++;
 				buffer++;
 				read++;
 			} while(isDigit(*buffer) && *buffer);
+		/* name */
 		} else if (isNameChar(*buffer) && *buffer) {
-			symbol = -3;
+			symbol = TOKEN_NAME;
 			do {
 				*outBuf = *buffer;
 				outBuf++;
