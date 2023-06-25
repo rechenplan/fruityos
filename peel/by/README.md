@@ -1,6 +1,6 @@
 # by bootstrap compiler
 
-by is a bootstrap compiler for the y;uzu language. yuzu is inspired by lua and the b programming language. specifically, the version of the b programming language presented at https://web.archive.org/web/20150611114427/https://www.bell-labs.com/usr/dmr/www/kbman.pdf. this directory will be the home of the yuzu bootstrapping compiler. the yuzu bootstrapping compiler will be written in c, with a later rewrite of the yuzu compiler written in yuzu planned down the road.
+by is a bootstrap compiler for the yuzu language. yuzu is inspired by lua and the b programming language. specifically, the version of the b programming language presented at https://web.archive.org/web/20150611114427/https://www.bell-labs.com/usr/dmr/www/kbman.pdf. this directory will be the home of the yuzu bootstrapping compiler. the yuzu bootstrapping compiler will be written in c, with a later rewrite of the yuzu compiler written in yuzu planned down the road.
 
 ## parser notes
 
@@ -113,6 +113,12 @@ Example code:
 		RETURN numCats
 
 	END
+
+Note that spaces are typically optional:
+
+ 	DEFeliminateCats(numCats)IFnumCats>5THENnumCats:=(numCats-1)ENDRETURNnumCats END
+
+also parses fine (though is hideous).
 
 ## intermediate language
 
