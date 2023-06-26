@@ -10,48 +10,28 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 
 	<PROGRAM>	::= { <DEFINITION> }
 	
-	<DEFINITION>	::= <DEF> <NAME> <LPAREN> [ <NAME> { <COMMA> <NAME> } ] <RPAREN> { <STATEMENT> } <END>
+	<DEFINITION>	::= <DEF> <ID> <LPAREN> [ <ID> { <COMMA> <ID> } ] <RPAREN> { <STATEMENT> } <END>
 	
-	<STATEMENT>	::= <LOCAL> <NAME> [ <LBRACKET> <NUMBER> <RBRACKET> ] { <COMMA> <NAME> [ <LBRACKET> <NUMBER> <RBRACKET> ] }
+	<STATEMENT>	::= <LOCAL> <ID> { <COMMA> <ID> }
 			| <IF> <RVALUE> <THEN> { <STATEMENT> } [ <ELSE> { <STATEMENT> } ] <END>
 			| <WHILE> <RVALUE> <DO> { <STATEMENT> } <END>
 			| <RETURN> <RVALUE>
+			| <RVALUE>
+
+	<LVALUE>	::= <ID>
+			| <LBRACKET> <RVALUE> <RBRACKET>
+
+	<RVALUE>	::= <LVALUE> <LPAREN> [ <RVALUE> { <COMMA> <RVALUE> } ] <RPAREN>
 			| <LVALUE> <ASSIGN> <RVALUE>
-			| <RVALUE> <LPAREN> [ <RVALUELIST> ] <RPAREN>
-	
-	<LVALUE>	::= <NAME> <LBRACKET> <RVALUE> <RBRACKET>
-			| <NAME>
-			| <DEREF> <RVALUE>
-
-	<RVALUELIST>	::= <RVALUE> { <COMMA> <RVALUE> }
-
-	<RVALUE>	::= <NAME> <LBRACKET> <RVALUE> <RBRACKET>
-			| <NAME> <LPAREN> [ <RVALUELIST> ] <RPAREN>
-			| <NAME>
-			| <DEREF> <NAME>
-			| <REF> <NAME>
-			| <CONSTANT>
-			| <LPAREN> <RVALUE> <BINARY> <RVALUE> <RPAREN>
+			| <LVALUE>
 			| <UNARY> <RVALUE>
+			| <LPAREN> <RVALUE> <BINOP> <RVALUE> <RPAREN>
+			| <LPAREN> <RVALUE> <RPAREN>
+			| <CONSTANT>
 
-	<BINARY>	::= <PLUS>
-			| <MINUS>
-			| <MULTIPLY>
-			| <DIVIDE>
-			| <MODULUS>
-			| <AND>
-			| <BAND>
-			| <OR>
-			| <BOR>
-			| <XOR>
-			| <LSHIFT>
-			| <RSHIFT>
-			| <EQUAL>
-			| <NOTEQUAL>
-			| <GREATERTHAN>
-			| <LESSTHAN>
-			| <GEQ>
-			| <LEQ>
+	<BINOP>		::= <PLUS> | <MINUS> | <ASTERISK> | <DIVIDE> | <MODULUS>
+			| <AND> | <BAND> | <OR> | <BOR> | <XOR> | <LSHIFT> | <RSHIFT>
+			| <EQUAL> | <NOTEQUAL> | <GREATERTHAN> | <LESSTHAN> | <GEQ> | <LEQ>
 
 	<UNARY>		::= <MINUS> | <NOT> | <BNOT>
 
@@ -66,10 +46,9 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<LBRACKET> 	::= "[" 
 	<RBRACKET> 	::= "]" 
 	<COMMA> 	::= "," 
-	<ASSIGN> 	::= ":=" 
 	<PLUS> 		::= "+" 
 	<MINUS> 	::= "-" 
-	<MULTIPLY> 	::= "*" 
+	<ASTERISK> 	::= "*" 
 	<DIVIDE> 	::= "/" 
 	<MODULUS> 	::= "%" 
 	<BAND>		::= "&&"
@@ -78,6 +57,7 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<OR> 		::= "|" 
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
+	<ASSIGN> 	::= "=" 
 	<NOTEQUAL> 	::= "!="
 	<BNOT>		::= "!"
 	<NOT>		::= "~"
@@ -95,13 +75,11 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<WHILE>		::= "WHILE"
 	<DO>		::= "DO"
 	<DEF>		::= "DEF"
-	<DEREF>		::= "DEREF"
-	<REF>		::= "REF"
 	<RETURN>	::= "RETURN"
 
 	<STRLIT> 	::= "\"" { <CHAR> } "\""
 	<NUMBER> 	::= <DIGIT> { <DIGIT> }
-	<NAME> 		::= <LOWERALPHA> { <ALPHADIGIT> }
+	<ID> 		::= <LOWERALPHA> { <ALPHADIGIT> }
 
 
 Example code:
@@ -109,14 +87,14 @@ Example code:
 	DEF eliminateCats(numCats)
 
 		{ this will eliminate cats }
-		IF numCats > 5 THEN numCats := ( numCats - 1 ) END
+		IF (numCats > 5) THEN numCats = (numCats - 1) END
 		RETURN numCats
 
 	END
 
 Note that spaces are typically optional:
 
- 	DEFeliminateCats(numCats)IFnumCats>5THENnumCats:=(numCats-1)ENDRETURNnumCats END
+ 	DEFeliminateCats(numCats)IFnumCats>5THENnumCats=(numCats-1)ENDRETURNnumCats END
 
 also parses fine (though is hideous).
 

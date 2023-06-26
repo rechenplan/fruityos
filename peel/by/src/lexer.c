@@ -1,8 +1,8 @@
 #include "lexer.h"
 
 /* a list of all valid yuzu tokens */
-char* tokens[] = {"(",")","[","]",",",":=","+","-","*","/","%","&&","&","||","|","^","==","!=","!","~","<<","<=",
-	"<",">>",">=",">","LOCAL","IF","THEN","ELSE","END","WHILE","DO","DEF","DEREF","REF","RETURN"};
+char* tokens[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
+	"<",">>",">=",">","LOCAL","IF","THEN","ELSE","END","WHILE","DO","DEF","RETURN"};
 
 /* check character classes */
 static int isDigit(char c) { return (c >= '0' && c <= '9'); }
