@@ -94,7 +94,7 @@ Example code:
 
 Note that spaces are typically optional:
 
- 	DEFeliminateCats(numCats)IFnumCats>5THENnumCats=(numCats-1)ENDRETURNnumCats END
+ 	DEFeliminateCats(numCats)IF(numCats>5)THENnumCats=(numCats-1)ENDRETURNnumCats END
 
 also parses fine (though is hideous).
 
