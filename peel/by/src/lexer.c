@@ -83,7 +83,7 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 			} while(isDigit(*buffer) && *buffer);
 		/* name */
 		} else if (isNameChar(*buffer) && *buffer) {
-			symbol = TOKEN_NAME;
+			symbol = TOKEN_ID;
 			do {
 				*outBuf = *buffer;
 				outBuf++;

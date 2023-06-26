@@ -15,7 +15,7 @@ int printProgram(char* program) {
 		program += read;
 		if (tokenIdx < 0) {
 			return -1;
-		} else if (tokenIdx == TOKEN_STRING || tokenIdx == TOKEN_NUMBER || tokenIdx == TOKEN_NAME) {
+		} else if (tokenIdx == TOKEN_STRING || tokenIdx == TOKEN_NUMBER || tokenIdx == TOKEN_ID) {
 			printf("%s\n", buffer);
 		} else {
 			printf("%s\n", tokens[tokenIdx]);

@@ -40,7 +40,7 @@ enum token_t {
 	TOKEN_RETURN,
 	TOKEN_STRING,
 	TOKEN_NUMBER,
-	TOKEN_NAME
+	TOKEN_ID
 };
 
 int nextToken(char* buffer, int* read /* out */, char* out /* out */);
