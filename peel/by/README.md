@@ -86,15 +86,15 @@ Example code:
 
 	DEF eliminateCats(numCats)
 
-		{ this will eliminate cats }
-		IF (numCats > 5) THEN numCats = numCats - 1 END
+		{ this is a comment }
+		IF numCats > 5 THEN numCats = numCats - 1 END
 		RETURN numCats
 
 	END
 
 Note that spaces are typically optional:
 
- 	DEFeliminateCats(numCats)IF(numCats>5)THENnumCats=numCats-1ENDRETURNnumCats END
+ 	DEFeliminateCats(numCats)IFnumCats>5THENnumCats=numCats-1ENDRETURNnumCats END
 
 also parses fine (though is hideous).
 
