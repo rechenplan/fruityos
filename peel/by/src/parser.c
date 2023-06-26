@@ -1,175 +1,276 @@
 #include "lexer.h"
+#include "parser.h"
 
 extern char* tokens[];
 extern void error(char* missing);
-extern void report(char *token);
+extern void* allocMemory(int size);
+extern void freeMemory(void* mem);
 
-static int parseLvalue(char** lvalue, int expected);
+static int stringLength(char* str) {
+	int length = 0;
+	while (*str) { str++; length++; }
+	return length;
+}
 
-static int accept(char** buffer, int token) {
-	int read;
+astnode_t* createNode(int type) {
+	astnode_t* node = (astnode_t*) allocMemory(sizeof(astnode_t));
+	node->type = type;
+	node->token = 0;
+	node->value = 0;
+	node->kid = 0;
+	node->sibling = 0;
+	return node;
+}
+
+void destroyNode(astnode_t* node) {
+	if (!node) return;
+	destroyNode(node->kid);
+	destroyNode(node->sibling);
+	freeMemory(node->value);
+	freeMemory(node);
+}
+
+void appendKid(astnode_t* node, astnode_t* kid) {
+	astnode_t* kidList = node->kid;
+	if (!kidList) {
+		node->kid = kid;
+	}
+	else {
+		while (kidList->sibling) {
+			kidList = kidList->sibling;
+		}
+		kidList->sibling = kid;
+	}
+}
+
+static int parseLvalue(char** lvalue, int expected, astnode_t* parent);
+
+static int accept(char** buffer, int token, astnode_t *parent) {
+	int read, i;
 	char out[256];
+	astnode_t* leafNode = createNode(AST_LEAF);
 	if (token == nextToken(*buffer, &read, out)) {
+		leafNode->token = token;
 		if (token == TOKEN_STRING || token == TOKEN_ID || token == TOKEN_NUMBER) {
-			report(out);
+			leafNode->value = allocMemory(stringLength(out) + 1);
+			for (i = 0; i < stringLength(out); i++)
+				leafNode->value[i] = out[i];
+			leafNode->value[i] = 0;
 		}
-		else {
-			report(tokens[token]);
-		}
+		appendKid(parent, leafNode);
 		*buffer += read;
 		return 1;
 	}
 	return 0;
 }
 
-static int expect(char** buffer, int token) {
-	if (accept(buffer, token)) {
+static int expect(char** buffer, int token, astnode_t *parent) {
+	if (accept(buffer, token, parent)) {
 		return 1;
 	}
-	error(tokens[token]);
+	if (token == TOKEN_STRING) {
+		error("string");
+	} else if (token == TOKEN_ID) {
+		error("identifier");
+	} else if (token == TOKEN_NUMBER) {
+		error("number");
+	} else {
+		error(tokens[token]);
+	}
 }
 
-static int parseConstant(char** op, int expected) {
-	int r = accept(op, TOKEN_NUMBER) || accept(op, TOKEN_STRING);
+static int parseConstant(char** op, int expected, astnode_t *parent) {
+	astnode_t* conNode = createNode(AST_CONSTANT);
+	int r = accept(op, TOKEN_NUMBER, conNode) || accept(op, TOKEN_STRING, conNode);
 	if (expected && !r) {
 		error("constant");
 	}
+	if (r) appendKid(parent, conNode); else destroyNode(conNode);
 	return r;
 }
 
-static int parseUnary(char** op, int expected) {
-	int r = accept(op, TOKEN_MINUS) || accept(op, TOKEN_NOT) || accept(op, TOKEN_BNOT);
+static int parseUnary(char** op, int expected, astnode_t* parent) {
+	astnode_t* unNode = createNode(AST_UNARY);
+	int r = accept(op, TOKEN_MINUS, unNode) || accept(op, TOKEN_NOT, unNode) || accept(op, TOKEN_BNOT, unNode);
 	if (expected && !r) {
+		destroyNode(unNode);
 		error("unary");
 	}
+	if (r) appendKid(parent, unNode); else destroyNode(unNode);
 	return r;
 }
 
-static int parseBinary(char** op, int expected) {
-	int r = accept(op, TOKEN_PLUS) || accept(op, TOKEN_MINUS) || accept(op, TOKEN_ASTERISK) || accept(op, TOKEN_DIVIDE)
-		|| accept(op, TOKEN_MODULUS) || accept(op, TOKEN_AND) || accept(op, TOKEN_BAND) || accept(op, TOKEN_OR)
-		|| accept(op, TOKEN_BOR) || accept(op, TOKEN_XOR) || accept(op, TOKEN_RSHIFT) || accept(op, TOKEN_EQUAL) 
-		|| accept(op, TOKEN_NOTEQUAL) || accept(op, TOKEN_GEQ) || accept(op, TOKEN_LEQ) || accept(op, TOKEN_GREATERTHAN)
-		|| accept(op, TOKEN_LESSTHAN);
+static int parseBinary(char** op, int expected, astnode_t* parent) {
+	astnode_t* binNode = createNode(AST_BINOP);
+	int r = accept(op, TOKEN_PLUS, binNode)
+		|| accept(op, TOKEN_MINUS, binNode)
+		|| accept(op, TOKEN_ASTERISK, binNode)
+		|| accept(op, TOKEN_DIVIDE, binNode)
+		|| accept(op, TOKEN_MODULUS, binNode)
+		|| accept(op, TOKEN_AND, binNode)
+		|| accept(op, TOKEN_BAND, binNode)
+		|| accept(op, TOKEN_OR, binNode)
+		|| accept(op, TOKEN_BOR, binNode)
+		|| accept(op, TOKEN_XOR, binNode)
+		|| accept(op, TOKEN_RSHIFT, binNode)
+		|| accept(op, TOKEN_EQUAL, binNode)
+		|| accept(op, TOKEN_NOTEQUAL, binNode)
+		|| accept(op, TOKEN_GEQ, binNode)
+		|| accept(op, TOKEN_LEQ, binNode)
+		|| accept(op, TOKEN_GREATERTHAN, binNode)
+		|| accept(op, TOKEN_LESSTHAN, binNode);
 	if (expected && !r) {
+		destroyNode(binNode);
 		error("binary");
 	}
+	if (r) appendKid(parent, binNode); else destroyNode(binNode);
 	return r;
 }
 
-static int parseRvalue(char** rvalue, int expected, int leftRecursive) {
+static int parseRvalue(char** rvalue, int expected, int leftRecursive, astnode_t *parent) {
 	int r = 1;
+	astnode_t* rNode = createNode(AST_RVALUE);
 	if (!leftRecursive) {
-		r = parseRvalue(rvalue, expected, 1);
-		if (parseBinary(rvalue, 0)) {
-			parseRvalue(rvalue, 1, 0);
+		r = parseRvalue(rvalue, expected, 1, rNode);
+		if (parseBinary(rvalue, 0, rNode)) {
+			rNode->subType = RVALUE_BINOP;
+			parseRvalue(rvalue, 1, 0, rNode);
 		}
-	}
-	else if (parseLvalue(rvalue, 0)) {
-		if (accept(rvalue, TOKEN_LPAREN)) {
-			while (parseRvalue(rvalue, 0, 0));
-			expect(rvalue, TOKEN_RPAREN);
-		}
-		else if (accept(rvalue, TOKEN_ASSIGN)) {
-			parseRvalue(rvalue, 1, 0);
-		}
-		else {
-			// just an lvalue
-		}
-	}
-	else if (parseUnary(rvalue, 0)) {
-		parseRvalue(rvalue, 1, 0);
-	}
-	else if (accept(rvalue, TOKEN_LPAREN)) {
-		parseRvalue(rvalue, 1, 0);
-		expect(rvalue, TOKEN_RPAREN);
-	}
-	else if (parseConstant(rvalue, 0)) {
-	}
-	else if (expected) {
-		error("rvalue");
 	}
 	else {
-		r = 0;
+		if (parseLvalue(rvalue, 0, rNode)) {
+			if (accept(rvalue, TOKEN_LPAREN, rNode)) {
+				rNode->subType = RVALUE_FUNCTION_CALL;
+				while (parseRvalue(rvalue, 0, 0, rNode));
+				expect(rvalue, TOKEN_RPAREN, rNode);
+			}
+			else if (accept(rvalue, TOKEN_ASSIGN, rNode)) {
+				rNode->subType = RVALUE_ASSIGN;
+				parseRvalue(rvalue, 1, 0, rNode);
+			}
+			else {
+				rNode->subType = RVALUE_LVALUE;
+			}
+		}
+		else if (parseUnary(rvalue, 0, rNode)) {
+			rNode->subType = RVALUE_UNARY;
+			parseRvalue(rvalue, 1, 0, rNode);
+		}
+		else if (accept(rvalue, TOKEN_LPAREN, rNode)) {
+			rNode->subType = RVALUE_PARENS;
+			parseRvalue(rvalue, 1, 0, rNode);
+			expect(rvalue, TOKEN_RPAREN, rNode);
+		}
+		else if (parseConstant(rvalue, 0, rNode)) {
+			rNode->subType = RVALUE_CONSTANT;
+		}
+		else if (expected) {
+			destroyNode(rNode);
+			error("rvalue");
+		}
+		else {
+			r = 0;
+		}
 	}
+	if (r) appendKid(parent, rNode); else destroyNode(rNode);
 	return r;
 }
 
 
-static int parseLvalue(char** lvalue, int expected) {
-	if (accept(lvalue, TOKEN_ID)) {
+static int parseLvalue(char** lvalue, int expected, astnode_t *parent) {
+	astnode_t* lNode = createNode(AST_LVALUE);
+	if (accept(lvalue, TOKEN_ID, lNode)) {
+		lNode->subType = LVALUE_ID;
 	}
-	else if (accept(lvalue, TOKEN_LBRACKET)) {
-		parseRvalue(lvalue, 1, 0);
-		expect(lvalue, TOKEN_RBRACKET);
+	else if (accept(lvalue, TOKEN_LBRACKET, lNode)) {
+		lNode->subType = LVALUE_INDIRECTION;
+		parseRvalue(lvalue, 1, 0, lNode);
+		expect(lvalue, TOKEN_RBRACKET, lNode);
 	}
 	else if (expected) {
+		destroyNode(lNode);
 		error("lvalue");
 	}
 	else {
+		destroyNode(lNode);
 		return 0;
 	}
+	appendKid(parent, lNode);
 	return 1;
 }
 
-static int parseStatement(char** state, int expected) {
-	if (accept(state, TOKEN_LOCAL)) {
-		expect(state, TOKEN_ID);
-		while (accept(state, TOKEN_COMMA)) {
-			expect(state, TOKEN_ID);
+static int parseStatement(char** state, int expected, astnode_t* parent) {
+	astnode_t* stateNode = createNode(AST_STATEMENT);
+	if (accept(state, TOKEN_LOCAL, stateNode)) {
+		stateNode->subType = STATEMENT_LOCAL;
+		expect(state, TOKEN_ID, stateNode);
+		while (accept(state, TOKEN_COMMA, stateNode)) {
+			expect(state, TOKEN_ID, stateNode);
 		}
 	}
-	else if (accept(state, TOKEN_IF)) {
-		parseRvalue(state, 1, 0);
-		expect(state, TOKEN_THEN);
-		while (parseStatement(state, 0));
-		if (accept(state, TOKEN_ELSE)) {
-			while (parseStatement(state, 0));
+	else if (accept(state, TOKEN_IF, stateNode)) {
+		stateNode->subType = STATEMENT_IF;
+		parseRvalue(state, 1, 0, stateNode);
+		expect(state, TOKEN_THEN, stateNode);
+		while (parseStatement(state, 0, stateNode));
+		if (accept(state, TOKEN_ELSE, stateNode)) {
+			while (parseStatement(state, 0, stateNode));
 		}
-		expect(state, TOKEN_END);
+		expect(state, TOKEN_END, stateNode);
 	}
-	else if (accept(state, TOKEN_WHILE)) {
-		parseRvalue(state, 1, 0);
-		expect(state, TOKEN_DO);
-		while (parseStatement(state, 0));
-		expect(state, TOKEN_END);
+	else if (accept(state, TOKEN_WHILE, stateNode)) {
+		stateNode->subType = STATEMENT_WHILE;
+		parseRvalue(state, 1, 0, stateNode);
+		expect(state, TOKEN_DO, stateNode);
+		while (parseStatement(state, 0, stateNode));
+		expect(state, TOKEN_END, stateNode);
 	}
-	else if (accept(state, TOKEN_RETURN)) {
-		parseRvalue(state, 1, 0);
+	else if (accept(state, TOKEN_RETURN, stateNode)) {
+		stateNode->subType = STATEMENT_RETURN;
+		parseRvalue(state, 1, 0, stateNode);
 	}
-	else if (parseRvalue(state, 0, 0)) {
+	else if (parseRvalue(state, 0, 0, stateNode)) {
+		stateNode->subType = STATEMENT_RVALUE;
 	}
 	else if (expected) {
+		destroyNode(stateNode);
 		error("statement");
 	}
 	else {
+		destroyNode(stateNode);
 		return 0;
 	}
+	appendKid(parent, stateNode);
 	return 1;
 }
 
-static int parseDefinition(char** def, int expected) {
-	if (accept(def, TOKEN_DEF)) {
-		expect(def, TOKEN_ID);
-		expect(def, TOKEN_LPAREN);
-		if (accept(def, TOKEN_ID)) {
-			while (accept(def, TOKEN_COMMA)) {
-				expect(def, TOKEN_ID);
+static int parseDefinition(char** def, int expected, astnode_t* parent) {
+	astnode_t* defNode = createNode(AST_DEFINITION);
+	if (accept(def, TOKEN_DEF, defNode)) {
+		expect(def, TOKEN_ID, defNode);
+		expect(def, TOKEN_LPAREN, defNode);
+		if (accept(def, TOKEN_ID, defNode)) {
+			while (accept(def, TOKEN_COMMA, defNode)) {
+				expect(def, TOKEN_ID, defNode);
 			}
 		}
-		expect(def, TOKEN_RPAREN);
-		while (parseStatement(def, 0));
-		expect(def, TOKEN_END);
+		expect(def, TOKEN_RPAREN, defNode);
+		while (parseStatement(def, 0, defNode));
+		expect(def, TOKEN_END, defNode);
 	} else if (expected) {
+		destroyNode(defNode);
 		error("definition");
 	}
 	else {
+		destroyNode(defNode);
 		return 0;
 	}
+	appendKid(parent, defNode);
 	return 1;
 }
 
-int parseProgram(char** program) {
-	while (parseDefinition(program, 0));
-	return 1;
+astnode_t* parseProgram(char** program) {
+	astnode_t* progNode = createNode(AST_PROGRAM);
+	while (parseDefinition(program, 0, progNode));
+	return progNode;
 }
