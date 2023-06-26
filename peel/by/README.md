@@ -21,11 +21,11 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 	<LVALUE>	::= <ID>
 			| <LBRACKET> <RVALUE> <RBRACKET>
 
-	<RVALUE>	::= <LVALUE> <LPAREN> [ <RVALUE> { <COMMA> <RVALUE> } ] <RPAREN>
+	<RVALUE>	::= <RVALUE> <BINOP> <RVALUE>
+			| <LVALUE> <LPAREN> [ <RVALUE> { <COMMA> <RVALUE> } ] <RPAREN>
 			| <LVALUE> <ASSIGN> <RVALUE>
 			| <LVALUE>
 			| <UNARY> <RVALUE>
-			| <LPAREN> <RVALUE> <BINOP> <RVALUE> <RPAREN>
 			| <LPAREN> <RVALUE> <RPAREN>
 			| <CONSTANT>
 
@@ -87,14 +87,14 @@ Example code:
 	DEF eliminateCats(numCats)
 
 		{ this will eliminate cats }
-		IF (numCats > 5) THEN numCats = (numCats - 1) END
+		IF (numCats > 5) THEN numCats = numCats - 1 END
 		RETURN numCats
 
 	END
 
 Note that spaces are typically optional:
 
- 	DEFeliminateCats(numCats)IF(numCats>5)THENnumCats=(numCats-1)ENDRETURNnumCats END
+ 	DEFeliminateCats(numCats)IF(numCats>5)THENnumCats=numCats-1ENDRETURNnumCats END
 
 also parses fine (though is hideous).
 

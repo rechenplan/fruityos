@@ -8,6 +8,10 @@ void error(char* missing) {
 	exit(1);
 }
 
+void report(char* token) {
+	printf("%s\n", token);
+}
+
 int main(int argc, char** argv) {
 	char* prog = argv[1];
 	if (argc == 2) {

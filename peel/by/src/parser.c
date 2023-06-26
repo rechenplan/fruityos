@@ -2,6 +2,7 @@
 
 extern char* tokens[];
 extern void error(char* missing);
+extern void report(char *token);
 
 static int parseLvalue(char** lvalue, int expected);
 
@@ -9,6 +10,12 @@ static int accept(char** buffer, int token) {
 	int read;
 	char out[256];
 	if (token == nextToken(*buffer, &read, out)) {
+		if (token == TOKEN_STRING || token == TOKEN_ID || token == TOKEN_NUMBER) {
+			report(out);
+		}
+		else {
+			report(tokens[token]);
+		}
 		*buffer += read;
 		return 1;
 	}
@@ -50,33 +57,32 @@ static int parseBinary(char** op, int expected) {
 	return r;
 }
 
-static int parseRvalue(char** rvalue, int expected) {
-	if (parseLvalue(rvalue, 0)) {
+static int parseRvalue(char** rvalue, int expected, int leftRecursive) {
+	int r = 1;
+	if (!leftRecursive) {
+		r = parseRvalue(rvalue, expected, 1);
+		if (parseBinary(rvalue, 0)) {
+			parseRvalue(rvalue, 1, 0);
+		}
+	}
+	else if (parseLvalue(rvalue, 0)) {
 		if (accept(rvalue, TOKEN_LPAREN)) {
-			while (parseRvalue(rvalue, 0));
+			while (parseRvalue(rvalue, 0, 0));
 			expect(rvalue, TOKEN_RPAREN);
 		}
 		else if (accept(rvalue, TOKEN_ASSIGN)) {
-			parseRvalue(rvalue, 1);
+			parseRvalue(rvalue, 1, 0);
 		}
 		else {
 			// just an lvalue
 		}
 	}
 	else if (parseUnary(rvalue, 0)) {
-		parseRvalue(rvalue, 1);
+		parseRvalue(rvalue, 1, 0);
 	}
 	else if (accept(rvalue, TOKEN_LPAREN)) {
-		parseRvalue(rvalue, 1);
-		if (parseBinary(rvalue, 0)) {
-			parseRvalue(rvalue, 1);
-			expect(rvalue, TOKEN_RPAREN);
-		}
-		else if (accept(rvalue, TOKEN_RPAREN)) {
-		}
-		else if (expected) {
-			error("rvalue");
-		}
+		parseRvalue(rvalue, 1, 0);
+		expect(rvalue, TOKEN_RPAREN);
 	}
 	else if (parseConstant(rvalue, 0)) {
 	}
@@ -84,9 +90,9 @@ static int parseRvalue(char** rvalue, int expected) {
 		error("rvalue");
 	}
 	else {
-		return 0;
+		r = 0;
 	}
-	return 1;
+	return r;
 }
 
 
@@ -94,7 +100,7 @@ static int parseLvalue(char** lvalue, int expected) {
 	if (accept(lvalue, TOKEN_ID)) {
 	}
 	else if (accept(lvalue, TOKEN_LBRACKET)) {
-		parseRvalue(lvalue, 1);
+		parseRvalue(lvalue, 1, 0);
 		expect(lvalue, TOKEN_RBRACKET);
 	}
 	else if (expected) {
@@ -114,7 +120,7 @@ static int parseStatement(char** state, int expected) {
 		}
 	}
 	else if (accept(state, TOKEN_IF)) {
-		parseRvalue(state, 1);
+		parseRvalue(state, 1, 0);
 		expect(state, TOKEN_THEN);
 		while (parseStatement(state, 0));
 		if (accept(state, TOKEN_ELSE)) {
@@ -123,15 +129,15 @@ static int parseStatement(char** state, int expected) {
 		expect(state, TOKEN_END);
 	}
 	else if (accept(state, TOKEN_WHILE)) {
-		parseRvalue(state, 1);
+		parseRvalue(state, 1, 0);
 		expect(state, TOKEN_DO);
 		while (parseStatement(state, 0));
 		expect(state, TOKEN_END);
 	}
 	else if (accept(state, TOKEN_RETURN)) {
-		parseRvalue(state, 1);
+		parseRvalue(state, 1, 0);
 	}
-	else if (parseRvalue(state, 0)) {
+	else if (parseRvalue(state, 0, 0)) {
 	}
 	else if (expected) {
 		error("statement");
