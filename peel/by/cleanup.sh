@@ -1,1 +1,1 @@
-rm src/*.o bin/*
+rm -rf bin/

@@ -3,6 +3,14 @@
 #include "lexer.h"
 #include "parser.h"
 
+/*
+	Bytecode
+
+	00: null-terminator
+	01: identifier (next word is index in table)
+	02: deffunc (00 if 00 { 01 } 01 deffunc
+*/
+
 extern astnode_t* parseProgram(char** program);
 
 void error(char* missing) { printf("syntax error: expected %s\n", missing); exit(1); }
