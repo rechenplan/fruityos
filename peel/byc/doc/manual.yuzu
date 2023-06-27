@@ -1,0 +1,23 @@
+{
+this file is an introduction to the yuzu language and bootstrap compiler. it doubles both as a yuzu source file,
+and as a document. text enclosed within curly braces is a comment in the yuzu language. you are reading one now!
+
+a yuzu program consists of function definitions. each function definitions contains a number of statements. the
+simplest function definition is an empty function. for example:
+}
+
+def emptyFunction()
+end
+
+{
+"end" denotes the completion of the function. newlines don't carry any special significance in yuzu, so we could
+have written that as
+}
+
+def emptyFunction2() end
+
+{
+here is our main
+}
+
+def main() end

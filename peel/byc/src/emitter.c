@@ -265,6 +265,9 @@ static void emitDefinition(astnode_t* definition, int fd) {
 	memset(symbols, 0, sizeof(symbols));
 	printf("\nglobal %s\n", functionId->value);
 	printf("%s:\n", functionId->value);
+	printf("\tpush\trbp\n");
+	printf("\tmov\trbp, rsp\n");
+
 	if (parameter && parameter->token == TOKEN_RPAREN) parameter = parameter->sibling;
 	while (parameter && parameter->token == TOKEN_ID) {
 		int j = 0;
@@ -290,8 +293,6 @@ static void emitDefinition(astnode_t* definition, int fd) {
 		}
 		else {
 			if (!frameSetup) {
-				printf("\tpush\trbp\n");
-				printf("\tmov\trbp, rsp\n");
 				printf("\tsub\trsp, %d\n", m * 8);
 				int i;
 				for (i = 0; i < n; i++) {
@@ -306,6 +307,9 @@ static void emitDefinition(astnode_t* definition, int fd) {
 		}
 		statement = statement->sibling;
 	}
+	printf("\tmov\trsp, rbp\n");
+	printf("\tpop\trbp\n");
+	printf("\tret\n");
 }
 
 void emitProgram(astnode_t* program, int fd) {

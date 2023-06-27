@@ -1,7 +1,6 @@
 #include "lexer.h"
 #include "parser.h"
 
-extern char* tokens[];
 extern void error(char* missing);
 extern void* allocMemory(int size);
 extern void freeMemory(void* mem);
@@ -75,7 +74,7 @@ static int expect(char** buffer, int token, astnode_t *parent) {
 	} else if (token == TOKEN_NUMBER) {
 		error("number");
 	} else {
-		error(tokens[token]);
+		error("token");
 	}
 }
 

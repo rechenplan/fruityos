@@ -71,15 +71,15 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<RSHIFT> 	::= ">>" 
 	<GEQ> 		::= ">="
 	<GREATERTHAN> 	::= ">"
-	<LOCAL>		::= "LOCAL"
-	<IF>		::= "IF"
-	<THEN>		::= "THEN"
-	<ELSE>		::= "ELSE"
-	<END>		::= "END"
-	<WHILE>		::= "WHILE"
-	<DO>		::= "DO"
-	<DEF>		::= "DEF"
-	<RETURN>	::= "RETURN"
+	<LOCAL>		::= "local"
+	<IF>		::= "if"
+	<THEN>		::= "then"
+	<ELSE>		::= "else"
+	<END>		::= "end"
+	<WHILE>		::= "while"
+	<DO>		::= "do"
+	<DEF>		::= "def"
+	<RETURN>	::= "return"
 
 	<STRLIT> 	::= "\"" { <CHAR> } "\""
 	<NUMBER> 	::= <DIGIT> { <DIGIT> }
@@ -88,19 +88,13 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 
 Example code:
 
-	DEF eliminateCats(numCats)
+	def eliminateCats(numCats)
 
 		{ this is a comment }
-		IF numCats > 5 THEN numCats = numCats - 1 END
-		RETURN numCats
+		if numCats > 5 then numCats = numCats - 1 end
+		return numCats
 
-	END
-
-Note that spaces are typically optional:
-
- 	DEFeliminateCats(numCats)IFnumCats>5THENnumCats=numCats-1ENDRETURNnumCats END
-
-also parses fine (though is hideous).
+	end
 
 ## intermediate language
 

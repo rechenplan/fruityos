@@ -1,14 +1,16 @@
 #include "lexer.h"
 
 /* a list of all valid yuzu tokens */
-char* tokens[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
-	"<",">>",">=",">","LOCAL","IF","THEN","ELSE","END","WHILE","DO","DEF","RETURN"};
+static char* tokens[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
+	"<",">>",">=",">"};
+
+static char* keywords[] = {"local","if","then","else","end","while","do","def","return"};
 
 /* check character classes */
 static int isDigit(char c) { return (c >= '0' && c <= '9'); }
 static int isQuote(char c) { return (c == '"'); }
-static int isNameChar(char c) { return (c >= 'a' && c <= 'z') || (c == '_'); }
-static int isNextNameChar(char c) { return isNameChar(c) || (c >= 'A' && c <= 'Z') || isDigit(c); }
+static int isNameChar(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_'); }
+static int isNextNameChar(char c) { return isNameChar(c) || isDigit(c); }
 static int isSkipable(char c) { return c == '\t' || c == ' ' || c == '\n' || c == '\r' || c == '{' || c == '}'; }
 
 /* compute string length */
@@ -33,9 +35,10 @@ static int isPrefix(char* a, char* b) {
 
 /* returns symbol index */
 int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
-
+	char* out = outBuf;
 	int i = 0, symbol = -1, inComment = 0, read = 0;
 	int numTokens = sizeof(tokens) / sizeof(tokens[0]);
+	int numKeywords = sizeof(keywords) / sizeof(keywords[0]);
 
 	/* skip whitespace and comments */
 	while (*buffer && (isSkipable(*buffer) || inComment)) {
@@ -93,6 +96,9 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 		}
 	}
 	*outBuf = 0;
+	for (i = 0; i < numKeywords; i++)
+		if (isPrefix(out, keywords[i]) && isPrefix(keywords[i], out))
+			symbol = numTokens + i;
 	*consumed = read;
 	return symbol;
 }
