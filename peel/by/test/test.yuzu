@@ -1,9 +1,11 @@
-{ identity function }
-DEF i(x)
-	RETURN x
+
+DEF sqr(x) RETURN x*x END
+DEF i(x) RETURN x END
+
+
+DEF main()
+	putch(sqr(8)+1)
+	putch(10)
+	RETURN 0
 END
 
-{ square function }
-DEF square(x)
-	RETURN x * x
-END

@@ -5,4 +5,4 @@ global exit
 exit:	push	byte 60
 	pop	rax
 	syscall
-	ret
+	hlt

@@ -5,4 +5,6 @@ extern main
 extern exit
 
 _start:	call	main
+	push	rax
+	pop	rdi
 	call	exit

@@ -1,0 +1,9 @@
+#!/bin/bash
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+if test -f "$1"; then
+	$SCRIPT_DIR/by $1 > $1.asm
+	nasm $1.asm -felf64 -o $1.o
+	ld -n -s $1.o $SCRIPT_DIR/../../../pith/libpith/bin/linux-x86-64/libpith.a -o $1.exe
+else
+	echo "usage: byc yuzufile"
+fi

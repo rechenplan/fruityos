@@ -2,7 +2,11 @@ cd pith
 cd libpith
 ./clean.sh
 cd ../../
-cd peel/tests
+cd peel
+cd by
+./clean.sh
+cd ..
+cd tests
 cd io
 ./clean.sh
 cd ..

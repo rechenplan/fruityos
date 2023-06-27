@@ -2,7 +2,11 @@ cd pith
 cd libpith
 ./build.sh
 cd ../../
-cd peel/tests
+cd peel
+cd by
+./build.sh
+cd ../
+cd tests
 cd io
 ./build.sh
 cd ..
