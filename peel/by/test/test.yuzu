@@ -4,7 +4,11 @@ DEF i(x) RETURN x END
 
 
 DEF main()
-	putch(sqr(8)+1)
+	LOCAL x
+	WHILE x < 26 DO
+		putch(x + 65 { A })
+		x = x + 1
+	END
 	putch(10)
 	RETURN 0
 END
