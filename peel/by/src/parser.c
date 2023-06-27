@@ -113,6 +113,7 @@ static int parseBinary(char** op, int expected, astnode_t* parent) {
 		|| accept(op, TOKEN_BOR, binNode)
 		|| accept(op, TOKEN_XOR, binNode)
 		|| accept(op, TOKEN_RSHIFT, binNode)
+		|| accept(op, TOKEN_LSHIFT, binNode)
 		|| accept(op, TOKEN_EQUAL, binNode)
 		|| accept(op, TOKEN_NOTEQUAL, binNode)
 		|| accept(op, TOKEN_GEQ, binNode)

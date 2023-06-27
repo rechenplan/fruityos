@@ -31,21 +31,79 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 				case TOKEN_PLUS: printf("\tadd\trax, rdi\n"); break;
 				case TOKEN_MINUS: printf("\tsub\trax, rdi\n"); break;
 				case TOKEN_ASTERISK: printf("\tmul\trdi\n"); break;
-				case TOKEN_DIVIDE: break;
-				case TOKEN_MODULUS: break;
+				case TOKEN_DIVIDE: printf("\txor\trdx, rdx\n\tdiv\trdi\n"); break;
+				case TOKEN_MODULUS: printf("\txor\trdx, rdx\n\tdiv\trdi\n\tmov\trax, rdx\n"); break;
 				case TOKEN_AND: printf("\tand\trax, rdi\n"); break;
-				case TOKEN_BAND: break;
+				case TOKEN_BAND: {
+					printf("\txor\trdx, rdx\n");
+					printf("\ttest\trax, rax\n");
+					printf("\tsetnz\tdl\n");
+					printf("\tmov\trax, rdx\n");
+					printf("\txor\trdx, rdx\n");
+					printf("\ttest\trdi, rdi\n");
+					printf("\tsetnz\tdl\n");
+					printf("\tmov\trdi, rdx\n");
+					printf("\tand\trax, rdi\n");
+				}
+				break;
 				case TOKEN_OR: printf("\tor\trax, rdi\n"); break;
-				case TOKEN_BOR: break;
+				case TOKEN_BOR: {
+					printf("\txor\trdx, rdx\n");
+					printf("\ttest\trax, rax\n");
+					printf("\tsetnz\tdl\n");
+					printf("\tmov\trax, rdx\n");
+					printf("\txor\trdx, rdx\n");
+					printf("\ttest\trdi, rdi\n");
+					printf("\tsetnz\tdl\n");
+					printf("\tmov\trdi, rdx\n");
+					printf("\tor\trax, rdi\n");
+				}
+				break;
 				case TOKEN_XOR: printf("\txor\trax, rdi\n"); break;
-				case TOKEN_LSHIFT: break;
-				case TOKEN_RSHIFT: break;
-				case TOKEN_EQUAL: break;
-				case TOKEN_NOTEQUAL: break;
-				case TOKEN_GREATERTHAN: break;
-				case TOKEN_LESSTHAN: break;
-				case TOKEN_GEQ: break;
-				case TOKEN_LEQ: break;
+				case TOKEN_LSHIFT: printf("\tmov\trcx, rdi\n\tshl\trax, cl\n"); break;
+				case TOKEN_RSHIFT: printf("\tmov\trcx, rdi\n\tshr\trax, cl\n"); break;
+				case TOKEN_EQUAL: {
+					printf("\txor\trdx, rdx\n");
+					printf("\tcmp\trax, rdi\n");
+					printf("\tsete\tdl\n");
+					printf("\tmov\trax, rdx\n");
+				}
+				break;
+				case TOKEN_NOTEQUAL: {
+					printf("\txor\trdx, rdx\n");
+					printf("\tcmp\trax, rdi\n");
+					printf("\tsetne\tdl\n");
+					printf("\tmov\trax, rdx\n");
+				}
+				break;
+				case TOKEN_GREATERTHAN: {
+					printf("\txor\trdx, rdx\n");
+					printf("\tcmp\trax, rdi\n");
+					printf("\tsetg\tdl\n");
+					printf("\tmov\trax, rdx\n");
+				}
+				break;
+				case TOKEN_LESSTHAN: {
+					printf("\txor\trdx, rdx\n");
+					printf("\tcmp\trax, rdi\n");
+					printf("\tsetl\tdl\n");
+					printf("\tmov\trax, rdx\n");
+				}
+				break;
+				case TOKEN_GEQ: {
+					printf("\txor\trdx, rdx\n");
+					printf("\tcmp\trax, rdi\n");
+					printf("\tsetge\tdl\n");
+					printf("\tmov\trax, rdx\n");
+				}
+				break;
+				case TOKEN_LEQ: {
+					printf("\txor\trdx, rdx\n");
+					printf("\tcmp\trax, rdi\n");
+					printf("\tsetle\tdl\n");
+					printf("\tmov\trax, rdx\n");
+				}
+				break;
 			}
 		}
 		break;
@@ -73,8 +131,27 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			printf("\tmov\tqword [rdi], rax\n");
 		}
 		break;
-		case RVALUE_LVALUE: emitLvalue(rvalue->kid, fd, symbols, n); printf("\tmov\trax, qword [rax]\n"); break;
-		case RVALUE_UNARY: break;
+		case RVALUE_LVALUE: {
+			emitLvalue(rvalue->kid, fd, symbols, n);
+			printf("\tmov\trax, qword [rax]\n");
+		}
+		break;
+		case RVALUE_UNARY: {
+			astnode_t* op = rvalue->kid;
+			emitRvalue(rvalue->kid->sibling, fd, symbols, n);
+			switch(op->kid->token) {
+				case TOKEN_MINUS:
+				printf("\tneg\trax\n");
+				break;
+				case TOKEN_NOT:
+				printf("\tnot\trax\n");
+				break;
+				case TOKEN_BNOT:
+				printf("\t; BNOT\n");
+				break;
+			}
+		}
+		break;
 		case RVALUE_PARENS: emitRvalue(rvalue->kid->sibling, fd, symbols, n); break;
 		case RVALUE_CONSTANT: printf("\tmov\trax, %s\n", rvalue->kid->kid->value); break;
 	}
@@ -108,23 +185,55 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 	}
 }
 
-static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SYM_LEN], int n) {
+static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l) {
 	switch(statement->subType) {
 		case STATEMENT_LOCAL: {
 			// should have appeared at the begining of the function!
 		}
 		break;
 		case STATEMENT_IF: {
+			astnode_t* rvalue = statement->kid->sibling;
+			emitRvalue(rvalue, fd, symbols, n);
+			int l1 = (*l)++;
+			int l2 = (*l)++;
+			printf("\ttest\trax, rax\n\tjz\tL%d\n", l1);
+			astnode_t* substate = statement->kid->sibling->sibling->sibling;
+			while (substate && substate->token != TOKEN_ELSE && substate->token != TOKEN_END) {
+				emitStatement(substate, fd, symbols, n, l);
+				substate = substate->sibling;
+			}
+			printf("\tjmp L%d\n", l2);
+			printf("L%d:\n", l1);
+			if (substate && substate->token == TOKEN_ELSE) {
+				substate = substate->sibling;
+				while (substate && substate->kid && substate->kid->token != TOKEN_END) {
+					emitStatement(substate, fd, symbols, n, l);
+					substate = substate->sibling;
+				}
+			}
+			printf("L%d:\n", l2);
 		}
 		break;
 		case STATEMENT_WHILE: {
+			astnode_t* rvalue = statement->kid->sibling;
+			int l1 = (*l)++;
+			int l2 = (*l)++;
+			astnode_t* substate = statement->kid->sibling->sibling->sibling;
+			printf("\tjmp\tL%d\nL%d:\n", l2, l1);
+			while (substate && substate->token != TOKEN_END) {
+				emitStatement(substate, fd, symbols, n, l);
+				substate = substate->sibling;
+			}
+			printf("L%d:\n", l2);
+			emitRvalue(rvalue, fd, symbols, n);
+			printf("\ttest\trax, rax\n\tjnz\tL%d\n", l1);
 		}
 		break;
 		case STATEMENT_RETURN: {
 			astnode_t* rvalue = statement->kid->sibling;
 			emitRvalue(rvalue, fd, symbols, n);
 			printf("\tmov\trsp, rbp\n");
-			printf("\tret\n\n");
+			printf("\tret\n");
 		}
 		break;
 		case STATEMENT_RVALUE: {
@@ -138,11 +247,13 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 static void emitDefinition(astnode_t* definition, int fd) {
 	astnode_t* functionId = definition->kid->sibling;
 	char symbols[SYM_CNT][SYM_LEN];
+	int l = 0;
+	int n = 0;
+	astnode_t* parameter = functionId->sibling->sibling;
+
 	memset(symbols, 0, sizeof(symbols));
 	printf("global %s\n", functionId->value);
 	printf("%s:", functionId->value);
-	astnode_t* parameter = functionId->sibling->sibling;
-	int n = 0;
 	if (parameter && parameter->token == TOKEN_RPAREN) parameter = parameter->sibling;
 	while (parameter && parameter->token == TOKEN_ID) {
 		int j = 0;
@@ -180,7 +291,7 @@ static void emitDefinition(astnode_t* definition, int fd) {
 				}
 				frameSetup = 1;
 			}
-			emitStatement(statement, fd, symbols, m);
+			emitStatement(statement, fd, symbols, m, &l);
 		}
 		statement = statement->sibling;
 	}
