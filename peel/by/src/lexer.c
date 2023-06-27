@@ -38,7 +38,7 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 	int numTokens = sizeof(tokens) / sizeof(tokens[0]);
 
 	/* skip whitespace and comments */
-	while ((isSkipable(*buffer) || inComment) && *buffer) {
+	while (*buffer && (isSkipable(*buffer) || inComment)) {
 		if (inComment) {
 			inComment = (*buffer != '}');
 		}

@@ -1,0 +1,9 @@
+{ identity function }
+DEF i(x)
+	RETURN x
+END
+
+{ square function }
+DEF square(x)
+	RETURN x * x
+END
