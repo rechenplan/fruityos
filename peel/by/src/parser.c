@@ -131,6 +131,7 @@ static int parseRvalue(char** rvalue, int expected, int leftRecursive, astnode_t
 	int r = 1;
 	astnode_t* rNode = createNode(AST_RVALUE);
 	if (!leftRecursive) {
+		rNode->subType = -1;
 		r = parseRvalue(rvalue, expected, 1, rNode);
 		if (parseBinary(rvalue, 0, rNode)) {
 			rNode->subType = RVALUE_BINOP;
@@ -139,6 +140,7 @@ static int parseRvalue(char** rvalue, int expected, int leftRecursive, astnode_t
 	}
 	else {
 		if (parseLvalue(rvalue, 0, rNode)) {
+			rNode->subType = RVALUE_LVALUE;
 			if (accept(rvalue, TOKEN_LPAREN, rNode)) {
 				rNode->subType = RVALUE_FUNCTION_CALL;
 				while (parseRvalue(rvalue, 0, 0, rNode));
@@ -147,9 +149,6 @@ static int parseRvalue(char** rvalue, int expected, int leftRecursive, astnode_t
 			else if (accept(rvalue, TOKEN_ASSIGN, rNode)) {
 				rNode->subType = RVALUE_ASSIGN;
 				parseRvalue(rvalue, 1, 0, rNode);
-			}
-			else {
-				rNode->subType = RVALUE_LVALUE;
 			}
 		}
 		else if (parseUnary(rvalue, 0, rNode)) {

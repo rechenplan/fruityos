@@ -23,8 +23,8 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 
 	<RVALUE>	::= <RVALUE> <BINOP> <RVALUE>
 			| <LVALUE> <LPAREN> [ <RVALUE> { <COMMA> <RVALUE> } ] <RPAREN>
-			| <LVALUE> <ASSIGN> <RVALUE>
 			| <LVALUE>
+			| <LVALUE> <ASSIGN> <RVALUE>
 			| <UNARY> <RVALUE>
 			| <LPAREN> <RVALUE> <RPAREN>
 			| <CONSTANT>
