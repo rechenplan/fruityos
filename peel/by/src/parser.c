@@ -143,7 +143,10 @@ static int parseRvalue(char** rvalue, int expected, int leftRecursive, astnode_t
 			rNode->subType = RVALUE_LVALUE;
 			if (accept(rvalue, TOKEN_LPAREN, rNode)) {
 				rNode->subType = RVALUE_FUNCTION_CALL;
-				while (parseRvalue(rvalue, 0, 0, rNode));
+				parseRvalue(rvalue, 0, 0, rNode);
+				while (accept(rvalue, TOKEN_COMMA, rNode)) {
+					parseRvalue(rvalue, 1, 0, rNode);
+				}
 				expect(rvalue, TOKEN_RPAREN, rNode);
 			}
 			else if (accept(rvalue, TOKEN_ASSIGN, rNode)) {

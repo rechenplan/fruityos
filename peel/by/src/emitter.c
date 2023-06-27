@@ -7,6 +7,8 @@
 #define SYM_CNT	256
 #define SYM_LEN 256
 
+static char* inRegOrder[] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
+
 extern astnode_t* parseProgram(char** program);
 static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n);
 
@@ -28,7 +30,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			switch (op->kid->token) {
 				case TOKEN_PLUS: printf("\tadd\trax, rdi\n"); break;
 				case TOKEN_MINUS: printf("\tsub\trax, rdi\n"); break;
-				case TOKEN_ASTERISK: break;
+				case TOKEN_ASTERISK: printf("\tmul\trdi\n"); break;
 				case TOKEN_DIVIDE: break;
 				case TOKEN_MODULUS: break;
 				case TOKEN_AND: printf("\tand\trax, rdi\n"); break;
@@ -47,7 +49,20 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			}
 		}
 		break;
-		case RVALUE_FUNCTION_CALL: break;
+		case RVALUE_FUNCTION_CALL: {
+			astnode_t* f = rvalue->kid;
+			astnode_t* param = f->sibling->sibling;
+			emitLvalue(f, fd, symbols, n);
+			printf("\tpush\trax\n");
+			int i = 0;
+			while (param && param->type == AST_RVALUE) {
+				emitRvalue(param, fd, symbols, n);
+				printf("\tmov\t%s, rax\n", inRegOrder[i++]);
+				param = param->sibling->sibling;
+			}
+			printf("\tpop\trax\n\tcall\trax\n");
+		}
+		break;
 		case RVALUE_ASSIGN: {
 			astnode_t* lvalue = rvalue->kid;
 			rvalue = lvalue->sibling->sibling;
@@ -119,8 +134,6 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 		break;
 	}
 }
-
-static char* inRegOrder[] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9", "rbp+8", "rbp+16", "rbp+24"};
 
 static void emitDefinition(astnode_t* definition, int fd) {
 	astnode_t* functionId = definition->kid->sibling;
