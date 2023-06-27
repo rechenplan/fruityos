@@ -3,7 +3,7 @@ cd libpith
 ./clean.sh
 cd ../../
 cd peel
-cd by
+cd byc
 ./clean.sh
 cd ..
 cd tests

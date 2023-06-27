@@ -14,7 +14,7 @@ this is the begining of a smol OS called citrusos. the plan is to first develop 
 
 ### peel (userland)
 
-1. by: program to compile yuzu to assembly (nasm) - bootstrap compiler (C)
+1. byc: program to compile yuzu to assembly (nasm) - bootstrap yuzu compiler (C)
 2. bergamot: shell (yuzu)
 3. olio: a line editor (yuzu)
 4. yuzu: final compiler frontend (yuzu)

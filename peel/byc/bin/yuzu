@@ -3,7 +3,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 o=""
 for yuzu in "$@"
 do
-	$SCRIPT_DIR/by $yuzu > $yuzu.asm
+	$SCRIPT_DIR/byc $yuzu > $yuzu.asm
 	nasm $yuzu.asm -felf64 -o $yuzu.o
 	o="${o} ${yuzu}.o"
 done

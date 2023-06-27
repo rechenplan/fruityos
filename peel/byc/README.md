@@ -1,6 +1,10 @@
-# by bootstrap compiler
+# byc bootstrap compiler
 
-by is a bootstrap compiler for the yuzu language. yuzu is inspired by lua and the b programming language. specifically, the version of the b programming language presented at https://web.archive.org/web/20150611114427/https://www.bell-labs.com/usr/dmr/www/kbman.pdf. this directory will be the home of the yuzu bootstrapping compiler. the yuzu bootstrapping compiler will be written in c, with a later rewrite of the yuzu compiler written in yuzu planned down the road.
+byc is a bootstrap compiler for the yuzu language. yuzu is inspired by lua and the b programming language. specifically, the version of the b programming language presented at https://web.archive.org/web/20150611114427/https://www.bell-labs.com/usr/dmr/www/kbman.pdf. this directory will be the home of the yuzu bootstrapping compiler. the yuzu bootstrapping compiler will be written in c, with a later rewrite of the yuzu compiler written in yuzu planned down the road. there is a script in the bin directory called "yuzu" that can compile and link yuzu files if gnu ld and nasm are present on your system. for example
+
+	bin/yuzu test.yuzu test2.yuzu
+
+the yuzu script will write to a.out.
 
 ## parser notes
 
@@ -100,4 +104,4 @@ also parses fine (though is hideous).
 
 ## intermediate language
 
-More thoughts to come
+byc compiles to nasm style assembly
