@@ -10,8 +10,6 @@
 extern astnode_t* parseProgram(char** program);
 static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n);
 
-
-
 void error(char* missing) { printf("syntax error: expected %s\n", missing); exit(1); }
 void* allocMemory(int size) { return malloc(size); }
 void freeMemory(void* ptr) { free(ptr); }
@@ -52,7 +50,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case RVALUE_FUNCTION_CALL: break;
 		case RVALUE_ASSIGN: {
 			astnode_t* lvalue = rvalue->kid;
-			rvalue = lvalue->sibling->sibling->kid;
+			rvalue = lvalue->sibling->sibling;
 			emitLvalue(lvalue, fd, symbols, n);
 			printf("\tpush\trax\n");
 			emitRvalue(rvalue, fd, symbols, n);
@@ -63,7 +61,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case RVALUE_LVALUE: emitLvalue(rvalue->kid, fd, symbols, n); printf("\tmov\trax, qword [rax]\n"); break;
 		case RVALUE_UNARY: break;
 		case RVALUE_PARENS: emitRvalue(rvalue->kid->sibling, fd, symbols, n); break;
-		case RVALUE_CONSTANT: break;
+		case RVALUE_CONSTANT: printf("\tmov\trax, %s\n", rvalue->kid->kid->value); break;
 	}
 }
 
@@ -90,7 +88,6 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case LVALUE_INDIRECTION: {
 			astnode_t* rvalue = lvalue->kid->sibling;
 			emitRvalue(rvalue, fd, symbols, n);
-			printf("\tmov\trax, qword [rax]\n");
 		}
 		break;
 	}
@@ -99,6 +96,7 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SYM_LEN], int n) {
 	switch(statement->subType) {
 		case STATEMENT_LOCAL: {
+			// should have appeared at the begining of the function!
 		}
 		break;
 		case STATEMENT_IF: {
@@ -127,11 +125,9 @@ static char* inRegOrder[] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9", "rbp+8", "
 static void emitDefinition(astnode_t* definition, int fd) {
 	astnode_t* functionId = definition->kid->sibling;
 	char symbols[SYM_CNT][SYM_LEN];
-
 	memset(symbols, 0, sizeof(symbols));
-
 	printf("global %s\n", functionId->value);
-	printf("%s: ; ", functionId->value);
+	printf("%s:", functionId->value);
 	astnode_t* parameter = functionId->sibling->sibling;
 	int n = 0;
 	if (parameter && parameter->token == TOKEN_RPAREN) parameter = parameter->sibling;
@@ -143,8 +139,6 @@ static void emitDefinition(astnode_t* definition, int fd) {
 		parameter = parameter->sibling->sibling;
 		n++;
 	}
-
-
 	int frameSetup = 0, m = n;
 	astnode_t* statement = parameter;
 	while (statement->type == AST_STATEMENT) {
