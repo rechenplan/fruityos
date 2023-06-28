@@ -8,5 +8,5 @@ do
 	rm $yuzu.asm
 	o="${o} ${yuzu}.o"
 done
-ld -n -s $o $SCRIPT_DIR/../../pith/libpith/bin/linux-x86-64/_start.o $SCRIPT_DIR/../../pith/libpith/bin/linux-x86-64/libpith.a -o a.out
+ld -n -s $o $SCRIPT_DIR/../lib/_start.o $SCRIPT_DIR/../lib/libpith.a -o a.out
 rm $o
