@@ -14,7 +14,7 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 
 	<PROGRAM>	::= { <DEFINITION> }
 	
-	<DEFINITION>	::= <DEF> <ID> <LPAREN> [ <ID> { <COMMA> <ID> } ] <RPAREN> { <STATEMENT> } <END>
+	<DEFINITION>	::= <SUB> <ID> <LPAREN> [ <ID> { <COMMA> <ID> } ] <RPAREN> { <STATEMENT> } <END>
 	
 	<STATEMENT>	::= <LOCAL> <ID> { <COMMA> <ID> }
 			| <IF> <RVALUE> <THEN> { <STATEMENT> } [ <ELSE> { <STATEMENT> } ] <END>
@@ -78,7 +78,7 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<END>		::= "end"
 	<WHILE>		::= "while"
 	<DO>		::= "do"
-	<DEF>		::= "def"
+	<SUB>		::= "sub"
 	<RETURN>	::= "return"
 
 	<STRLIT> 	::= "\"" { <CHAR> } "\""

@@ -1,14 +1,14 @@
 #include "lexer.h"
 
 char* LEX_TOKENS[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
-        "<",">>",">=",">", "local","if","then","else","end","while","do","def","return"};
+        "<",">>",">=",">", "local","if","then","else","end","while","do","sub","return"};
 
 
 /* a list of all valid yuzu tokens */
 static char* tokens[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
 	"<",">>",">=",">"};
 
-static char* keywords[] = {"local","if","then","else","end","while","do","def","return"};
+static char* keywords[] = {"local","if","then","else","end","while","do","sub","return"};
 
 /* check character classes */
 static int isDigit(char c) { return (c >= '0' && c <= '9'); }
