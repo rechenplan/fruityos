@@ -16,7 +16,6 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 
 static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n) {
 	switch (rvalue->subType) {
-		case -1: emitRvalue(rvalue->kid, fd, symbols, n); break;
 		case RVALUE_BINOP: {
 			astnode_t* a = rvalue->kid;
 			astnode_t* op = rvalue->kid->sibling;

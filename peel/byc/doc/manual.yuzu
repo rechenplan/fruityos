@@ -20,4 +20,12 @@ def emptyFunction2() end
 here is our main
 }
 
-def main() end
+def main()
+	local x
+	x = 3 - (5+5*-3) - 33
+	while x < 26 do
+		putch(x + 65)
+		x = x + 1
+	end
+	putch(10)
+end

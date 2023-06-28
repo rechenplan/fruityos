@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "parser.h"
 
+extern char* LEX_TOKENS[];
 extern void error(char* missing);
 extern void* allocMemory(int size);
 extern void freeMemory(void* mem);
@@ -74,7 +75,7 @@ static int expect(char** buffer, int token, astnode_t *parent) {
 	} else if (token == TOKEN_NUMBER) {
 		error("number");
 	} else {
-		error("token");
+		error(LEX_TOKENS[token]);
 	}
 }
 
@@ -127,54 +128,60 @@ static int parseBinary(char** op, int expected, astnode_t* parent) {
 	return r;
 }
 
-static int parseRvalue(char** rvalue, int expected, int leftRecursive, astnode_t *parent) {
+static int parseRvalue(char** rvalue, int expected, int recursive, astnode_t *parent) {
 	int r = 1;
 	astnode_t* rNode = createNode(AST_RVALUE);
-	if (!leftRecursive) {
-		rNode->subType = -1;
-		r = parseRvalue(rvalue, expected, 1, rNode);
-		if (parseBinary(rvalue, 0, rNode)) {
-			rNode->subType = RVALUE_BINOP;
-			parseRvalue(rvalue, 1, 0, rNode);
-		}
-	}
-	else {
-		if (parseLvalue(rvalue, 0, rNode)) {
-			rNode->subType = RVALUE_LVALUE;
-			if (accept(rvalue, TOKEN_LPAREN, rNode)) {
-				rNode->subType = RVALUE_FUNCTION_CALL;
-				parseRvalue(rvalue, 0, 0, rNode);
-				while (accept(rvalue, TOKEN_COMMA, rNode)) {
-					parseRvalue(rvalue, 1, 0, rNode);
-				}
-				expect(rvalue, TOKEN_RPAREN, rNode);
-			}
-			else if (accept(rvalue, TOKEN_ASSIGN, rNode)) {
-				rNode->subType = RVALUE_ASSIGN;
+	if (parseLvalue(rvalue, 0, rNode)) {
+		rNode->subType = RVALUE_LVALUE;
+		if (accept(rvalue, TOKEN_LPAREN, rNode)) {
+			rNode->subType = RVALUE_FUNCTION_CALL;
+			parseRvalue(rvalue, 0, 0, rNode);
+			while (accept(rvalue, TOKEN_COMMA, rNode)) {
 				parseRvalue(rvalue, 1, 0, rNode);
 			}
-		}
-		else if (parseUnary(rvalue, 0, rNode)) {
-			rNode->subType = RVALUE_UNARY;
-			parseRvalue(rvalue, 1, 0, rNode);
-		}
-		else if (accept(rvalue, TOKEN_LPAREN, rNode)) {
-			rNode->subType = RVALUE_PARENS;
-			parseRvalue(rvalue, 1, 0, rNode);
 			expect(rvalue, TOKEN_RPAREN, rNode);
 		}
-		else if (parseConstant(rvalue, 0, rNode)) {
-			rNode->subType = RVALUE_CONSTANT;
-		}
-		else if (expected) {
-			destroyNode(rNode);
-			error("rvalue");
-		}
-		else {
-			r = 0;
+		else if (accept(rvalue, TOKEN_ASSIGN, rNode)) {
+			rNode->subType = RVALUE_ASSIGN;
+			parseRvalue(rvalue, 1, 0, rNode);
 		}
 	}
-	if (r) appendKid(parent, rNode); else destroyNode(rNode);
+	else if (parseUnary(rvalue, 0, rNode)) {
+		rNode->subType = RVALUE_UNARY;
+		parseRvalue(rvalue, 1, 1, rNode);
+	}
+	else if (accept(rvalue, TOKEN_LPAREN, rNode)) {
+		rNode->subType = RVALUE_PARENS;
+		parseRvalue(rvalue, 1, 0, rNode);
+		expect(rvalue, TOKEN_RPAREN, rNode);
+	}
+	else if (parseConstant(rvalue, 0, rNode)) {
+		rNode->subType = RVALUE_CONSTANT;
+	}
+	else if (expected) {
+		destroyNode(rNode);
+		error("rvalue");
+	}
+	else {
+		r = 0;
+	}
+	if (r) {
+		astnode_t* binNode = createNode(AST_RVALUE);
+		binNode->subType = RVALUE_BINOP;
+		appendKid(binNode, rNode);
+		while (!recursive && parseBinary(rvalue, 0, binNode)) {
+			parseRvalue(rvalue, 1, 1, binNode);
+			rNode = binNode;
+			binNode = createNode(AST_RVALUE);
+			binNode->subType = RVALUE_BINOP;
+			appendKid(binNode, rNode);
+		}
+		freeMemory(binNode);
+		appendKid(parent, rNode);
+	}
+	else {
+		destroyNode(rNode);
+	}
 	return r;
 }
 
