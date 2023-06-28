@@ -138,13 +138,16 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			emitRvalue(rvalue->kid->sibling, fd, symbols, n, l);
 			switch(op->kid->token) {
 				case TOKEN_MINUS:
-				printf("\tneg\trax\n");
+					printf("\tneg\trax\n");
 				break;
 				case TOKEN_NOT:
-				printf("\tnot\trax\n");
+					printf("\tnot\trax\n");
 				break;
 				case TOKEN_BNOT:
-				printf("\t; BNOT\n");
+					printf("\txor\trdx, rdx\n");
+					printf("\ttest\trax, rax\n");
+					printf("\tsetz\tdl\n");
+					printf("\tmov\trax, rdx\n");
 				break;
 			}
 		}

@@ -21,7 +21,7 @@ here is our main
 }
 
 
-def println(x)
+def puts(x)
 	while [x] & 255 do
 		putch([x])
 		x = x + 1
@@ -30,11 +30,15 @@ end
 
 def main()
 	local i
+	if !i then
+		puts("i is automatically initialized to zero")
+		putch(10)
+	end
 	while i < 20 do
-		println("Hello, World!")
+		puts("Hello, World!")
 		putch(10)
 		i = i + 1
 	end
-	println("Thanks for playing!")
+	puts("Thanks for playing!")
 	putch(10)
 end
