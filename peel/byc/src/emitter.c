@@ -12,17 +12,17 @@ static int gCnt;
 
 static char* inRegOrder[] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
 
-static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n);
+static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l);
 
-static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n) {
+static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l) {
 	switch (rvalue->subType) {
 		case RVALUE_BINOP: {
 			astnode_t* a = rvalue->kid;
 			astnode_t* op = rvalue->kid->sibling;
 			astnode_t* b = rvalue->kid->sibling->sibling;
-			emitRvalue(b, fd, symbols, n);
+			emitRvalue(b, fd, symbols, n, l);
 			printf("\tpush\trax\n");
-			emitRvalue(a, fd, symbols, n);
+			emitRvalue(a, fd, symbols, n, l);
 			printf("\tpop\trdi\n");
 			switch (op->kid->token) {
 				case TOKEN_PLUS: printf("\tadd\trax, rdi\n"); break;
@@ -107,11 +107,11 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case RVALUE_FUNCTION_CALL: {
 			astnode_t* f = rvalue->kid;
 			astnode_t* param = f->sibling->sibling;
-			emitLvalue(f, fd, symbols, n);
+			emitLvalue(f, fd, symbols, n, l);
 			printf("\tpush\trax\n");
 			int i = 0;
 			while (param && param->type == AST_RVALUE) {
-				emitRvalue(param, fd, symbols, n);
+				emitRvalue(param, fd, symbols, n, l);
 				printf("\tmov\t%s, rax\n", inRegOrder[i++]);
 				param = param->sibling->sibling;
 			}
@@ -121,21 +121,21 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case RVALUE_ASSIGN: {
 			astnode_t* lvalue = rvalue->kid;
 			rvalue = lvalue->sibling->sibling;
-			emitLvalue(lvalue, fd, symbols, n);
+			emitLvalue(lvalue, fd, symbols, n, l);
 			printf("\tpush\trax\n");
-			emitRvalue(rvalue, fd, symbols, n);
+			emitRvalue(rvalue, fd, symbols, n, l);
 			printf("\tpop\trdi\n");
 			printf("\tmov\tqword [rdi], rax\n");
 		}
 		break;
 		case RVALUE_LVALUE: {
-			emitLvalue(rvalue->kid, fd, symbols, n);
+			emitLvalue(rvalue->kid, fd, symbols, n, l);
 			printf("\tmov\trax, qword [rax]\n");
 		}
 		break;
 		case RVALUE_UNARY: {
 			astnode_t* op = rvalue->kid;
-			emitRvalue(rvalue->kid->sibling, fd, symbols, n);
+			emitRvalue(rvalue->kid->sibling, fd, symbols, n, l);
 			switch(op->kid->token) {
 				case TOKEN_MINUS:
 				printf("\tneg\trax\n");
@@ -149,12 +149,28 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			}
 		}
 		break;
-		case RVALUE_PARENS: emitRvalue(rvalue->kid->sibling, fd, symbols, n); break;
-		case RVALUE_CONSTANT: printf("\tmov\trax, %s\n", rvalue->kid->kid->value); break;
+		case RVALUE_PARENS: emitRvalue(rvalue->kid->sibling, fd, symbols, n, l); break;
+		case RVALUE_CONSTANT: {
+			astnode_t* constant = rvalue->kid->kid;
+			switch (constant->token) {
+				case TOKEN_NUMBER: printf("\tmov\trax, %s\n", constant->value); break;
+				case TOKEN_STRING: {
+					int l1 = (*l)++;
+					int l2 = (*l)++;
+					printf("\tjmp\tL%d\n", l2);
+					printf("L%d:\n", l1);
+					printf("\tdb\t%s, 0\n", constant->value);
+					printf("L%d:\n", l2);
+					printf("\tmov\trax, L%d\n", l1);
+				}
+				break;
+			}
+		}
+		break;
 	}
 }
 
-static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n) {
+static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l) {
 	switch (lvalue->subType) {
 		case LVALUE_ID: {
 			char* id = lvalue->kid->value;
@@ -188,7 +204,7 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		break;
 		case LVALUE_INDIRECTION: {
 			astnode_t* rvalue = lvalue->kid->sibling;
-			emitRvalue(rvalue, fd, symbols, n);
+			emitRvalue(rvalue, fd, symbols, n, l);
 		}
 		break;
 	}
@@ -202,7 +218,7 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 		break;
 		case STATEMENT_IF: {
 			astnode_t* rvalue = statement->kid->sibling;
-			emitRvalue(rvalue, fd, symbols, n);
+			emitRvalue(rvalue, fd, symbols, n, l);
 			int l1 = (*l)++;
 			int l2 = (*l)++;
 			printf("\ttest\trax, rax\n\tjz\tL%d\n", l1);
@@ -234,13 +250,13 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 				substate = substate->sibling;
 			}
 			printf("L%d:\n", l2);
-			emitRvalue(rvalue, fd, symbols, n);
+			emitRvalue(rvalue, fd, symbols, n, l);
 			printf("\ttest\trax, rax\n\tjnz\tL%d\n", l1);
 		}
 		break;
 		case STATEMENT_RETURN: {
 			astnode_t* rvalue = statement->kid->sibling;
-			emitRvalue(rvalue, fd, symbols, n);
+			emitRvalue(rvalue, fd, symbols, n, l);
 			printf("\tmov\trsp, rbp\n");
 			printf("\tpop\trbp\n");
 			printf("\tret\n");
@@ -248,16 +264,15 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 		break;
 		case STATEMENT_RVALUE: {
 			astnode_t* rvalue = statement->kid;
-			emitRvalue(rvalue, fd, symbols, n);
+			emitRvalue(rvalue, fd, symbols, n, l);
 		}
 		break;
 	}
 }
 
-static void emitDefinition(astnode_t* definition, int fd) {
+static void emitDefinition(astnode_t* definition, int fd, int *l) {
 	astnode_t* functionId = definition->kid->sibling;
 	char symbols[SYM_CNT][SYM_LEN];
-	int l = 0;
 	int n = 0;
 	astnode_t* parameter = functionId->sibling->sibling;
 
@@ -302,7 +317,7 @@ static void emitDefinition(astnode_t* definition, int fd) {
 				}
 				frameSetup = 1;
 			}
-			emitStatement(statement, fd, symbols, m, &l);
+			emitStatement(statement, fd, symbols, m, l);
 		}
 		statement = statement->sibling;
 	}
@@ -314,12 +329,13 @@ static void emitDefinition(astnode_t* definition, int fd) {
 void emitProgram(astnode_t* program, int fd) {
 	astnode_t* definition = program ? program->kid : 0;
 	gCnt = 0;
+	int l = 0;
 	printf("; this code was generated by a tool. assemble with nasm.\n");
 	printf("bits 64\n\n");
 	printf("section .text\n");
 	while (definition) {
 		strcpy(globals[gCnt++], definition->kid->sibling->value);
-		emitDefinition(definition, fd);
+		emitDefinition(definition, fd, &l);
 		definition = definition->sibling;
 	}
 	printf("\n");
