@@ -6,16 +6,8 @@ cd peel
 cd byc
 ./clean.sh
 cd ..
-cd tests
-cd io
-./clean.sh
-cd ..
+cd utils
 cd cat
 ./clean.sh
 cd ..
-cd hello
-./clean.sh
-cd ..
-cd args
-./clean.sh
 cd ../../

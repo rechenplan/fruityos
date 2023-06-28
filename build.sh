@@ -6,14 +6,9 @@ cd peel
 cd byc
 ./build.sh
 cd ../
-cd tests
-cd io
-./build.sh
-cd ..
+cd utils/
 cd cat
 ./build.sh
 cd ..
-cd hello
-./build.sh
-cd ../../../
-ls -la ./peel/tests/*/bin/*
+
+cd ../../
