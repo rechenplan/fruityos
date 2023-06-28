@@ -8,6 +8,7 @@ char* LEX_TOKENS[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|",
 static char* tokens[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
 	"<",">>",">=",">"};
 
+/* a list of all valid yuzu keywords */
 static char* keywords[] = {"local","if","then","else","end","while","do","sub","return"};
 
 /* check character classes */

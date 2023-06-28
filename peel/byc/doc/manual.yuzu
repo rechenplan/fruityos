@@ -6,7 +6,8 @@ and as a document. text enclosed within curly braces is a comment in the yuzu la
 sub puts(x)
 
 	{ local variables are declared with the local keyword. all others are assumed
-	  global or external. local variables are initialized to zero. }
+	  global or external. local variables are initialized to zero. local statements
+	  must appear first in the subroutine. }
 
 	local c
 

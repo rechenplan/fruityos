@@ -2,7 +2,7 @@
 #include "parser.h"
 
 extern char* LEX_TOKENS[];
-extern void error(char* missing);
+extern void error(char* msg);
 extern void* allocMemory(int size);
 extern void freeMemory(void* mem);
 
@@ -69,11 +69,11 @@ static int expect(char** buffer, int token, astnode_t *parent) {
 		return 1;
 	}
 	if (token == TOKEN_STRING) {
-		error("string");
+		error("expected string");
 	} else if (token == TOKEN_ID) {
-		error("identifier");
+		error("expected identifier");
 	} else if (token == TOKEN_NUMBER) {
-		error("number");
+		error("expected number");
 	} else {
 		error(LEX_TOKENS[token]);
 	}
