@@ -1,0 +1,55 @@
+{
+
+  usage: cut firstline numlines
+
+  prints length lines begining at line start coming from stdin
+
+}
+
+sub puts(strPtr)
+	local c
+	while c = [strPtr] & 255 do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+end
+
+sub nextarg(args)
+	while [args] & 255 do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub atoi(strPtr)
+	local n, c
+	while c = [strPtr] & 255 do
+		n = n * 10
+		n = n + c - (["0"] & 255)
+		strPtr = strPtr + 1
+	end
+	return n
+end
+
+sub main(argc, args)
+	local c, line, s, e
+	if argc == 3 then
+		args = nextarg(args)
+		s = atoi(args)
+		args = nextarg(args)
+		e = s + atoi(args)
+	else
+		puts("usage: cut firstline numlines")
+		putch(10)
+		exit()
+	end
+	while c = getch() & 255 do
+		if (line >= s) && (line < e) then
+			putch(c)
+		end
+		if c == 10 then
+			line = line + 1
+		end
+	end
+	return 0
+end

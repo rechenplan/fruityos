@@ -7,8 +7,16 @@ cd byc
 ./build.sh
 cd ../
 cd utils/
-cd cat
-./build.sh
-cd ..
-
+	cd cat
+	./build.sh
+	cd ..
+	cd num
+	./build.sh
+	cd ..
+	cd cut
+	./build.sh
+	cd ..
+	cd echo
+	./build.sh
+	cd ..
 cd ../../
