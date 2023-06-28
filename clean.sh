@@ -10,7 +10,7 @@ cd utils
 	cd cat
 	./clean.sh
 	cd ..
-	cd echo
+	cd say
 	./clean.sh
 	cd ..
 	cd cut

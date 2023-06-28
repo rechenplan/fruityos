@@ -16,7 +16,7 @@ cd utils/
 	cd cut
 	./build.sh
 	cd ..
-	cd echo
+	cd say
 	./build.sh
 	cd ..
 cd ../../

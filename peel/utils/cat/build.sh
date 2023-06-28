@@ -1,3 +1,3 @@
 mkdir bin
-../../../peel/byc/bin/yuzu src/cat.yuzu
+../../bin/yuzu src/cat.yuzu
 mv ./a.out bin/cat
