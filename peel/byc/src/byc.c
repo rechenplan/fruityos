@@ -10,9 +10,18 @@ void puts(char* s) {
 
 static void putn(int n) {
 	int m, i = 100000000;
+	int trailing = 1;
 	while (i > 0) {
 		m = n / i;
-		putch(m + '0');
+		if (trailing) {
+			if (m != 0) {
+				trailing = 0;
+				putch(m + '0');
+			}
+		}
+		else {
+			putch(m + '0');
+		}
 		n %= i;
 		i = i / 10;
 	}
