@@ -1,14 +1,28 @@
 { this file is an introduction to the yuzu language and bootstrap compiler. it doubles both as a yuzu source file,
 and as a document. text enclosed within curly braces is a comment in the yuzu language. you are reading one now! }
 
-
 { this is our first function. it prints a string to the screen }
+
 def puts(x)
-	{ brackets denote indirection, [x] is the contents of memory at address x }
-	while [x] & 255 do 
-		putch([x])
+
+	{ local variables are declared with the local keyword. all others are assumed
+	  global or external. local variables are initialized to zero. }
+
+	local c
+
+	{ brackets denote indirection, [x] is the contents of memory at address x
+	  moreover, yuzu is untyped- that is to say that every identifier is of type
+	  int matching the native machine integer width, so we have to bitmask with
+	  255 if we want the lowest byte on a little endian machine. like c, a single
+	  equals sign denotes assignment. also like c, assignment is an expression
+	  with a value equal to the assigned value. zero evaluates as false.
+	  non-zero evaluates as true. strings are 0 terminated. }
+
+	while c = [x] & 255 do 
+		putch(c)
 		x = x + 1
 	end
+
 end
 
 
@@ -16,16 +30,22 @@ end
 you have to define it earlier in the file }
 
 def main()
+
 	local i
+
+	{ the usual boolean operators are present. again, unlike c variables are initialized to zero }
 	if !i then
 		puts("i is automatically initialized to zero")
 		putch(10)
 	end
-	while i < 20 do
+
+	{ print hello world to the screen 5 times }
+	while i < 5 do
 		puts("Hello, World!")
 		putch(10)
 		i = i + 1
 	end
 	puts("Thanks for playing!")
 	putch(10)
+
 end
