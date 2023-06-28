@@ -1,12 +1,12 @@
 #!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 o=""
-#for yuzu in "$@"
-#do
-	$SCRIPT_DIR/byc > manual.yuzu.asm
-	nasm manual.yuzu.asm -felf64 -o manual.yuzu.o
-	rm manual.yuzu.asm
-	o="manual.yuzu.o"
-#done
+for yuzu in "$@"
+do
+	$SCRIPT_DIR/byc $yuzu > $yuzu.asm
+	nasm $yuzu.asm -felf64 -o $yuzu.o
+	rm $yuzu.asm
+	o="${o} ${yuzu}.o"
+done
 ld -n -s $o $SCRIPT_DIR/../../../pith/libpith/bin/linux-x86-64/_start.o $SCRIPT_DIR/../../../pith/libpith/bin/linux-x86-64/libpith.a -o a.out
 rm $o

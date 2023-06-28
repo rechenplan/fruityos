@@ -15,4 +15,7 @@ cd cat
 cd ..
 cd hello
 ./clean.sh
+cd ..
+cd args
+./clean.sh
 cd ../../

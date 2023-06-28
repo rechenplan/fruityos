@@ -49,19 +49,30 @@ void* sbrk(unsigned int size) { void* t = brk(-1); brk(t + size); return t; }
 void* allocMemory(int size) { return sbrk(size); }
 void freeMemory(void* ptr) { }
 
-int main() {
-	int fd = open("manual.yuzu", 0);
-	if (fd < 0) {
-		puts("Unable to open \"manual.yuzu\"\n");
-		exit();
+
+char* getNextArg(char* arg) {
+	while (*(arg++));
+	return arg;
+}
+
+int main(int argc, char* arg) {
+	if (argc == 2) {
+		char* fname = getNextArg(arg);
+		int fd = open(fname, 0);
+		if (fd < 0) {
+			printf("Unable to open \"%s\"\n", 0, fname);
+			exit();
+		}
+		char* buf = allocMemory(1024 * 1024);
+		char* prog = buf;
+		*prog = 1;
+		while (read(fd, prog++, 1) > 0 && (prog - buf < 1024 * 1024)) {}
+		close(fd);
+		*prog = 0;
+		prog = buf;
+		emitProgram(parseProgram(&prog), 0);
+		freeMemory(buf);
+	} else {
+		printf("usage: %s filename\n", 0, arg);
 	}
-	char* buf = allocMemory(1024 * 1024);
-	char* prog = buf;
-	*prog = 1;
-	while (read(fd, prog++, 1) > 0 && (prog - buf < 1024 * 1024)) {}
-	close(fd);
-	*prog = 0;
-	prog = buf;
-	emitProgram(parseProgram(&prog), 0);
-	freeMemory(buf);
 }

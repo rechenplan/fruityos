@@ -1,1 +1,1 @@
-rm -rf bin/byc
+rm -rf bin/byc src/*.o

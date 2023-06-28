@@ -4,7 +4,9 @@ global _start
 extern main
 extern exit
 
-_start:	call	main
+_start: pop	rdi
+	pop	rsi
+	call	main
 	push	rax
 	pop	rdi
 	call	exit
