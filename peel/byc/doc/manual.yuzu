@@ -1,32 +1,19 @@
-{
-this file is an introduction to the yuzu language and bootstrap compiler. it doubles both as a yuzu source file,
-and as a document. text enclosed within curly braces is a comment in the yuzu language. you are reading one now!
-
-a yuzu program consists of function definitions. each function definitions contains a number of statements. the
-simplest function definition is an empty function. for example:
-}
-
-def emptyFunction()
-end
-
-{
-"end" denotes the completion of the function. newlines don't carry any special significance in yuzu, so we could
-have written that as
-}
-
-def emptyFunction2() end
-
-{
-here is our main
-}
+{ this file is an introduction to the yuzu language and bootstrap compiler. it doubles both as a yuzu source file,
+and as a document. text enclosed within curly braces is a comment in the yuzu language. you are reading one now! }
 
 
+{ this is our first function. it prints a string to the screen }
 def puts(x)
-	while [x] & 255 do
+	{ brackets denote indirection, [x] is the contents of memory at address x }
+	while [x] & 255 do 
 		putch([x])
 		x = x + 1
 	end
 end
+
+
+{ notice that there is no forward declaration, and yuzu is single pass, so to use a function
+you have to define it earlier in the file }
 
 def main()
 	local i
