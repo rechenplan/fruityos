@@ -11,6 +11,10 @@ void puts(char* s) {
 static void putn(int n) {
 	int m, i = 100000000;
 	int trailing = 1;
+	if (!n) {
+		putch('0');
+		return;
+	}
 	while (i > 0) {
 		m = n / i;
 		if (trailing) {

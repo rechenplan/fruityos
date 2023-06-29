@@ -1,0 +1,263 @@
+sub lex_get_keyword_str()
+	return "push$pop$mov$lea$add$sub$mul$div$and$or$xor$shl$shr$neg$not$test$cmp$setcc$call$ret$jmp$jnz$jz$db$extern$global$bits$rax$rdi$rsi$rdx$rcx$r8$r9$rbp$rsp$cl$dl$bits$syscall$qword$,$[$]$-$+$"
+end
+
+sub lex_is_numeric(c)
+	return (c >= (["0"] & 255)) && (c <= (["9"] & 255))
+end
+
+sub lex_is_alpha(c)
+	return  ((c >= (["A"] & 255)) && (c <= (["Z"] & 255))) ||
+		((c >= (["a"] & 255)) && (c <= (["z"] & 255)))
+end
+
+sub lex_get_next_keyword(keywordStr)
+	while (([keywordStr] & 255) != (["$"] & 255)) do
+		keywordStr = keywordStr + 1
+	end
+	return keywordStr + 1
+end
+
+sub lex_print_keyword(keywordStr)
+	while (([keywordStr] & 255) != (["$"] & 255)) do
+		putch([keywordStr] & 255)
+		keywordStr = keywordStr + 1
+	end
+end
+
+sub lex_keyword_compare(str, k, n)
+	local i
+	while (([str] & 255) == ([k] & 255)) && (i < n) do
+		str = str + 1
+		k = k + 1
+		i = i + 1
+	end
+	return ([k] & 255) == (["$"] & 255)
+end
+
+sub lex_keyword_lookup(str, n)
+	local k, i, ret
+	ret = -1
+	k = lex_get_keyword_str()
+	while [k] & 255 do
+		if lex_keyword_compare(str, k, n) then
+			ret = i
+		end
+		k = lex_get_next_keyword(k)
+		i = i + 1
+	end
+	return ret
+end
+
+sub lex_get_next_token(buffer, out)
+	local c, len
+	while c = [buffer] & 255 do
+
+		if c == ([";"] & 255) then
+			len = 0
+			while c && (c != 10) do
+				c = [buffer + len] & 255
+				len = len + 1
+			end
+			buffer = buffer + len - 1 { we're going to add 1 later }
+		end
+
+		if lex_is_alpha(c) then
+			while lex_is_alpha(c) || lex_is_numeric(c) || (c == (["_"] & 255)) do
+				[out] = c
+				buffer = buffer + 1
+				out = out + 1
+				c = [buffer] & 255
+			end
+			[out] = 0
+			return buffer
+		end
+
+		if lex_is_numeric(c) then
+			while lex_is_numeric(c) do
+				[out] = c
+				buffer = buffer + 1
+				out = out + 1
+				c = [buffer] & 255
+			end
+			[out] = 0
+			return buffer
+		end
+
+		if (c == ([","] & 255)) || 
+		   (c == (["["] & 255)) ||
+	           (c == (["]"] & 255)) ||
+		   (c == (["-"] & 255)) ||
+		   (c == (["+"] & 255))
+		then
+			[out] = c
+			[out + 1] = 0
+			return buffer + 1
+		end
+
+		buffer = buffer + 1
+	end
+	return 0
+end
+
+sub lex_puts(str)
+	local c
+	putch(["'"]&255)
+	while c = [str] & 255 do
+		putch(c)
+		str = str + 1
+	end
+	putch(["'"]&255)
+end
+
+sub main()
+	local buffer, ptr, token, c
+
+	buffer = brk(-1)
+	token = brk(buffer + 1024 * 64)
+	brk(token + 256)
+
+	ptr = buffer
+	while c = getch() & 255 do
+		[ptr] = c
+		ptr = ptr + 1
+	end
+	[ptr] = 0
+	ptr = buffer
+
+	ptr = lex_get_next_token(ptr, token)
+	while ptr do
+		lex_puts(token)
+		putch(10)
+		ptr = lex_get_next_token(ptr, token)
+	end
+		
+
+end
+
+{
+Instructions:
+
+	symbols  = ",[]-+", 10
+
+	/* must also scan for numbers and symbols */
+
+	I. PASS 1- symbol table = "string", value, global?, external?
+	II. PASS 2- assemble
+
+	1. Skip whitespace (but newlines are valid tokens), and everything between semicolons and newlines
+	2. If it starts with a number, scan until we reach a non num. TOKEN_NUM
+	3. If it starts with a letter, scan until we reach a non alphanum, then compare keywords to determine if keyword or symbol. If it ends in a colon, then it's a label.
+	4. If it starts with a quote, scan for a string.
+	5. Otherwise check for ",", "[", "]", "-", "+"
+
+	push r64 \n
+	pop r64 \n
+	mov r64, # \n
+	mov r64, r64 \n
+	mov [r64 (-/+ off)], r64 \n
+	mov r64, [r64 (-/+ off)] \n
+	lea r64, [r64 (-/+ off)] \n
+
+	add r64, r64 \n
+	sub r64, r64 \n
+	and r64, r64 \n
+	or  r64, r64 \n
+	xor r64, r64 \n
+
+	mul r64 \n
+	div r64 \n
+	shl r64, cl \n
+	shr r64, cl \n
+	neg r64 \n
+	not r64 \n
+
+	test  r64, r64 \n
+	cmp   r64, r64 \n
+	setcc r8 \n
+
+	call rax \n
+	ret \n
+	jmp SYM \n
+	jnz SYM \n
+	jz  SYM \n
+	SYM: \n
+
+	db "STRING" \n
+	db 0 \n
+
+	extern SYMBOL \n
+	global SYMBOL \n
+	bits 64 \n
+
+push rax
+pop rdi
+pop rbp
+push rbp
+
+mov rax, SYMBOL
+mov rax, rdx
+mov rdi, rdx
+mov rcx, rdi
+mov rdi, rax
+mov rsi, rax
+mov rdx, rax
+mov rcx, rax
+mov r8, rax
+mov r9, rax
+mov qword [rbp - #], rdi
+mov qword [rbp - #], rsi
+mov qword [rbp - #], rdx
+mov qword [rbp - #], rcx
+mov qword [rbp - #], r8
+mov qword [rbp - #], r9
+mov qword [rbp - #], 0
+mov rsp, rbp
+mov rbp, rsp
+mov qword [rdi], rax
+mov rax, qword [rax]
+
+lea rax, qword [rbp - ##]
+
+add rax, rdi
+sub rax, rdi
+sub rsp, ##
+mul rdi
+div rdi
+and rax, rdi
+or rax, rdi
+xor rax, rdi
+xor rdx, rdx
+shl rax, cl
+shr rax, cl
+neg rax
+not rax
+
+test rax, rax
+test rdi, rdi
+cmp rax, rdi
+
+setz dl
+setnz dl
+sete dl
+setne dl
+setg dl
+setl dl
+setge dl
+setle dl
+
+call rax
+ret
+
+jmp SYMBOL
+jz SYMBOL
+jnz SYMBOL
+LABEL:
+db "STRING", 0
+
+extern SYMBOL
+global SYMBOL
+bits 64
+section .text
+
+}

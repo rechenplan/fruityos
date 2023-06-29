@@ -1,0 +1,196 @@
+{ parse elf header }
+
+sub malloc(size)
+	local ptr
+	ptr = brk(-1)
+	brk(ptr + size)
+	return ptr
+end
+
+sub mask(width)
+	return (1 << width) - 1
+end
+
+sub nextArg(args)
+	while [args] & mask(8) do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub puts(str)
+	local c
+	while c = [str] & mask(8) do
+		putch(c)
+		str = str + 1
+	end
+end
+
+sub puthex(n, w)
+	local i, m
+	i = 1 << (w - 4)
+	while i > 0 do
+		m = n / i
+		n = n % i
+		i = i / 16
+		putch(["0123456789ABCDEF" + m] & 255)
+	end
+end
+
+sub isElfFile(fileHeader)
+	{ Does file start with 0x7F "ELF" }
+	return ([fileHeader] & mask(32) == 1179403647)
+end
+
+sub isCompatibleObjectFile(fileHeader)
+	local r, m8, m16
+	local class, data, osabi, type
+
+	m8 = mask(8)
+	m16 = mask(16)
+
+	class = [fileHeader + 4] & m8
+	data = [fileHeader + 5] & m8
+	osabi = [fileHeader + 7] & m8
+	type = [fileHeader + 16] & m16
+
+	{ 64bit SysV little-endian object file }
+	r = (class == 2) && (data == 1) && (osabi == 0) && (type == 1)
+	return r
+end
+
+sub getPHOffset(fileHeader)
+	return [fileHeader + 32]
+end
+
+sub getSHOffset(fileHeader)
+	return [fileHeader + 40]
+end
+
+sub getPHEntSize(fileHeader)
+	return [fileHeader + 54] & 65535
+end
+
+sub getPHNum(fileHeader)
+	return [fileHeader + 56] & 65535
+end
+
+sub getSHEntSize(fileHeader)
+	return [fileHeader + 58] & 65535
+end
+
+sub getSHNum(fileHeader)
+	return [fileHeader + 60] & 65535
+end
+
+sub getSectionName(sectionHeader)
+	return [sectionHeader] & mask(32)
+end
+
+sub getSectionType(sectionHeader)
+	return [sectionHeader + 4] & mask(32)
+end
+
+sub getSectionOffset(sectionHeader)
+	return [sectionHeader + 24]
+end
+
+sub getSectionSize(sectionHeader)
+	return [sectionHeader + 32]
+end
+
+sub lookupString(strOffset, sectionHeaders, shEntSize, shNum)
+	local i, strTabOffset, secType
+	while i < shNum do
+		secType = getSectionType(sectionHeaders + (i * shEntSize))
+		if secType == 3 then { STRTAB }
+			strTabOffset = getSectionOffset(sectionHeaders + (i * shEntSize))
+			return strOffset + strTabOffset
+		end		
+		i = i + 1
+	end
+end
+
+sub printSymbolTable(fd, i, sectionHeaders, shEntSize, shNum)
+	local offset, size, tabBuf
+
+	offset = getSectionOffset(sectionHeaders + (i * shEntSize))
+	size = getSectionSize(sectionHeaders + (i * shEntSize))
+	tabBuf = malloc(size)
+	seek(fd, offset, 0)
+	read(fd, tabBuf, size)
+	
+
+end
+
+sub printSectionHeaders(fd, fileHeader)
+	local i, shNum, shEntSize, shSize, secType, secSize, secNameOff
+	local strOff, c, sectionHeaders
+
+	c = malloc(1)
+
+	seek(fd, getSHOffset(fileHeader), 0)
+	shEntSize = getSHEntSize(fileHeader)
+	shNum = getSHNum(fileHeader)
+	shSize = shEntSize * shNum
+	sectionHeaders = malloc(shSize)
+	read(fd, sectionHeaders, shSize)
+	puts("## Name     Type     Offset           Size")
+	putch(10)
+	while i < shNum do
+		puthex(i, 8)
+		puts(" ")
+		secNameOff = getSectionName(sectionHeaders + (i * shEntSize))
+		puthex(secNameOff, 32)
+		puts(" ")
+		secType = getSectionType(sectionHeaders + (i * shEntSize))
+		puthex(secType, 32)
+		puts(" ")
+		puthex(getSectionOffset(sectionHeaders + (i * shEntSize)), 64)
+		puts(" ")
+		secSize = getSectionSize(sectionHeaders + (i * shEntSize))
+		puthex(secSize, 64)
+		puts(" ")
+
+		strOff = lookupString(secNameOff, sectionHeaders, shEntSize, shNum)
+		seek(fd, strOff, 0)
+		read(fd, c, 1)
+		while [c] & 255 do
+			putch([c] & 255)
+			read(fd, c, 1)
+		end
+		putch(10)
+		if (secType == 2) then { symtab }
+			printSymbolTable(fd, i, sectionHeaders, shEntSize, shNum)
+		end
+		i = i + 1
+	end
+end
+
+sub main (argc, args)
+
+	local fileHeader, fd
+
+	fd = open(nextArg(args), 0)
+	if fd < 0 then
+		puts("Unable to open file.")
+		putch(10)
+		return 1
+	end
+
+	fileHeader = malloc(64)
+	read(fd, fileHeader, 64)
+	if !isElfFile(fileHeader) || !isCompatibleObjectFile(fileHeader) then
+		puts("Is not an object file.")
+		putch(10)
+		return 1
+	end
+
+	puts("Verified ELF64 object file.")
+	putch(10)
+	puts("Sections:")
+	putch(10)
+	printSectionHeaders(fd, fileHeader)
+
+	close(fd)
+end
