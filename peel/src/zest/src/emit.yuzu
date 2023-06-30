@@ -1,0 +1,39 @@
+
+{ zest emitter }
+
+{ op: 0 = ret, 1 = syscall }
+sub emit_no_args(op, fd)
+end
+
+{ op: 2 = push, 3 = pop, 4 = mul, 5 = div, 6 = neg, 7 = not }
+sub emit_one_reg(op, fd, reg)
+end
+
+{ op: 8 = add, 9 = sub, 10 = and, 11 = xor, 12 = or, 13 = test, 14 = cmp }
+sub emit_two_reg(op, fd, srcReg, dstReg)
+end
+
+{ op: 15 = shl, 16 = shr }
+sub emit_shift(op, fd, dstReg)
+end
+
+{ op: 17 = sete, 18 = setne, 19 = setz 20 = setnz, 21 = setg, 22 = setl, 23 = setge, 24 = setle }
+sub emit_setcc(op, fd)
+end
+
+sub emit_call(fd)
+end
+
+{ op: 28 = jmp, 29 = jnz, 30 = jz }
+sub emit_branch(op, fd, token)
+end
+
+{
+if k == 25 then parse_mov(fd, ptr, token) end
+if k == 26 then parse_lea(fd, ptr, token) end
+
+if k == 31 then parse_db(fd, ptr, token) end
+if k == 32 then parse_extern(fd, ptr, token) end
+if k == 33 then parse_global(fd, ptr, token) end
+if k == 34 then parse_bits(fd, ptr, token) end
+}

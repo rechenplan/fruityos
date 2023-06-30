@@ -6,6 +6,9 @@ cd peel/src
 cd byc
 ./build.sh
 cd ../
+cd zest
+./build.sh
+cd ../
 cd utils/
 	cd cat
 	./build.sh

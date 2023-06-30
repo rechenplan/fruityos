@@ -1,24 +1,3 @@
 sub main()
-
-	local buffer, ptr, token, c
-
-	buffer = brk(-1)
-	token = brk(buffer + 1024 * 64)
-	brk(token + 256)
-
-	ptr = buffer
-	while c = getch() & 255 do
-		[ptr] = c
-		ptr = ptr + 1
-	end
-	[ptr] = 0
-	ptr = buffer
-
-	ptr = lex_get_next_token(ptr, token)
-	while ptr do
-		lex_puts(token)
-		putch(10)
-		ptr = lex_get_next_token(ptr, token)
-	end
-
+	parse_stdin()
 end

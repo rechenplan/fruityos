@@ -1,11 +1,7 @@
-{
-
-	the zest lexer
-
-}
+{ zest lexer }
 
 sub lex_get_keyword_str()
-	return "push$pop$mov$lea$add$sub$mul$div$and$or$xor$shl$shr$neg$not$test$cmp$setcc$call$ret$jmp$jnz$jz$db$extern$global$bits$rax$rdi$rsi$rdx$rcx$r8$r9$rbp$rsp$cl$dl$bits$syscall$qword$,$[$]$-$+$"
+	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$cl$dl$,$[$]$-$+$"
 end
 
 sub lex_is_numeric(c)
@@ -31,22 +27,21 @@ sub lex_print_keyword(keywordStr)
 	end
 end
 
-sub lex_keyword_compare(str, k, n)
+sub lex_keyword_compare(str, k)
 	local i
-	while (([str] & 255) == ([k] & 255)) && (i < n) do
+	while (([str] & 255) == ([k] & 255)) && ([k] & 255) && ([str] & 255) do
 		str = str + 1
 		k = k + 1
-		i = i + 1
 	end
-	return ([k] & 255) == (["$"] & 255)
+	return (([k] & 255) == (["$"] & 255)) && ([str] & 255 == 0)
 end
 
-sub lex_keyword_lookup(str, n)
+sub lex_keyword_lookup(str)
 	local k, i, ret
 	ret = -1
 	k = lex_get_keyword_str()
 	while [k] & 255 do
-		if lex_keyword_compare(str, k, n) then
+		if lex_keyword_compare(str, k) then
 			ret = i
 		end
 		k = lex_get_next_keyword(k)
@@ -83,6 +78,20 @@ sub lex_get_next_token(buffer, out)
 			return buffer
 		end
 
+		if c == 34 then
+			[out] = c
+			out = out + 1
+			buffer = buffer + 1
+			while (c = [buffer] & 255) != 34 do
+				[out] = c
+				out = out + 1
+				buffer = buffer + 1
+			end
+			[out] = c
+			[out + 1] = 0
+			return buffer + 1
+		end
+
 		if lex_is_numeric(c) then
 			while lex_is_numeric(c) do
 				[out] = c
@@ -98,7 +107,8 @@ sub lex_get_next_token(buffer, out)
 		   (c == (["["] & 255)) ||
 	           (c == (["]"] & 255)) ||
 		   (c == (["-"] & 255)) ||
-		   (c == (["+"] & 255))
+		   (c == (["+"] & 255)) ||
+		   (c == 10)
 		then
 			[out] = c
 			[out + 1] = 0
@@ -112,10 +122,8 @@ end
 
 sub lex_puts(str)
 	local c
-	putch(["'"]&255)
 	while c = [str] & 255 do
 		putch(c)
 		str = str + 1
 	end
-	putch(["'"]&255)
 end

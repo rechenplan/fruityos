@@ -314,7 +314,8 @@ static void emitDefinition(astnode_t* definition, int fd, int *l) {
 		}
 		else {
 			if (!frameSetup) {
-				printf("\tsub\trsp, %d\n", m * 8, 0);
+				printf("\tmov\trax, %d\n", m * 8, 0);
+				printf("\tsub\trsp, rax\n", m * 8, 0);
 				int i;
 				for (i = 0; i < n; i++) {
 					printf("\tmov\tqword [rbp - %d], %s\n", (i + 1) * 8, inRegOrder[i]);

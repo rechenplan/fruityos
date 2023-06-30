@@ -1,0 +1,169 @@
+
+{ zest parser }
+
+sub parse_expect_register(token)
+	local reg
+	reg = lex_keyword_lookup(token) - 36
+	if (reg < 0) || (reg > 7) then
+		lex_puts("expected register")
+		putch(10)
+		exit()
+	end
+	return reg
+end
+
+sub parse_expect_newline(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if ptr && ([token] & 255 != 10) then
+		lex_puts("expected newline")
+		putch(10)
+		exit()
+	end
+	return ptr
+end
+
+sub parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != 48 then
+		lex_puts("expected comma")
+		putch(10)
+		exit()
+	end
+	return ptr
+end
+
+
+sub parse_no_args(op, fd, ptr, token)
+	ptr = parse_expect_newline(ptr, token)
+	emit_no_args(op, fd)
+end
+
+sub parse_one_reg(op, fd, ptr, token)
+	local reg
+	ptr = lex_get_next_token(ptr, token)
+	reg = parse_expect_register(token)
+	ptr = parse_expect_newline(ptr, token)
+	emit_one_reg(op, fd, reg)
+end
+
+sub parse_two_reg(op, fd, ptr, token) 
+	local srcReg, dstReg
+	ptr = lex_get_next_token(ptr, token)
+	dstReg = parse_expect_register(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	srcReg = parse_expect_register(token)
+	ptr = parse_expect_newline(ptr, token)
+	emit_two_reg(op, fd, srcReg, dstReg)
+end
+
+sub parse_setcc(op, fd, ptr, token)
+	local dl
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != 47 then
+		lex_puts("expected dl")
+		putch(10)
+		exit()
+	end
+	ptr = parse_expect_newline(ptr, token)
+	emit_setcc(op, fd)
+end
+
+sub parse_shift(op, fd, ptr, token)
+	local dstReg, cl
+	ptr = lex_get_next_token(ptr, token)
+	dstReg = parse_expect_register(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != 46 then
+		lex_puts("expected cl")
+		putch(10)
+		exit()
+	end
+	ptr = parse_expect_newline(ptr, token)
+	emit_shift(op, fd, dstReg)
+end
+
+sub parse_call(op, fd, ptr, token)
+	local reg
+	ptr = lex_get_next_token(ptr, token)
+	reg = parse_expect_register(token)
+	if reg != 0 then
+		lex_puts("expected rax")
+		putch(10)
+		exit()
+	end
+	ptr = parse_expect_newline(ptr, token)
+	emit_call(fd)
+end
+
+sub parse_branch(op, fd, ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != -1 then
+		lex_puts("expected symbol")
+		putch(10)
+		exit()
+	end
+	emit_branch(op, fd, token)
+end
+
+sub parse_mov(fd, ptr) end
+sub parse_lea(fd, ptr) end
+
+sub parse_db(fd, ptr) end
+sub parse_extern(fd, ptr) end
+sub parse_global(fd, ptr) end
+sub parse_bits(fd, ptr) end
+
+sub parse_stdin(fd)
+
+	local buffer, ptr, token, c, k
+
+	buffer = brk(-1)
+	token = brk(buffer + 256)
+	brk(token + 256)
+	while c = getch() & 255 do
+		ptr = buffer
+		while (c) && (c != 10) do
+			[ptr] = c
+			ptr = ptr + 1
+			c = getch() & 255
+		end
+		[ptr] = 0
+		ptr = buffer
+
+		ptr = lex_get_next_token(ptr, token)
+		if ptr then
+			k = lex_keyword_lookup(token)
+
+			{ ret, syscall }
+			if (k >= 0) && (k <= 1) then parse_no_args(k, fd, ptr, token) end
+
+			{ push, pop, mul, div, neg, not }
+			if (k >= 2) && (k <= 7) then parse_one_reg(k, fd, ptr, token) end
+
+			{ add, sub, and, xor, or, test, cmp }
+			if (k >= 8) && (k <= 14) then parse_two_reg(k, fd, ptr, token) end
+
+			{ shl, shr }
+			if (k >= 15) && (k <= 16) then parse_shift(k, fd, ptr, token) end
+
+			{ sete, setne, setz, setnz, setg, setl, setge, setle }
+			if (k >= 17) && (k <= 24) then parse_setcc(k, fd, ptr, token) end
+
+			if k == 25 then parse_mov(fd, ptr, token) end
+			if k == 26 then parse_lea(fd, ptr, token) end
+
+			if k == 27 then parse_call(k, fd, ptr, token) end
+
+			{ jmp, jnz, jz }
+			if (k >= 28) && (k <= 30) then parse_branch(k, fd, ptr, token) end
+
+			if k == 31 then parse_db(fd, ptr, token) end
+			if k == 32 then parse_extern(fd, ptr, token) end
+			if k == 33 then parse_global(fd, ptr, token) end
+			if k == 34 then parse_bits(fd, ptr, token) end
+
+		end
+	end
+end
