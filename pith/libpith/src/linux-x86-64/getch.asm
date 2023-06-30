@@ -1,9 +1,13 @@
 bits 64
+
+global fgetch
 global getch
 extern read
-getch:	push	rax
-	push	byte 0		; stdin
+
+getch:  push	byte 0		; stdin
 	pop	rdi
+
+fgetch:	push	rax
 	push	rsp
 	pop	rsi
 	push	byte 1		; 1 byte

@@ -17,6 +17,8 @@ extern	auto_t	close	(auto_t file);
 extern	auto_t	seek	(auto_t file, auto_t offset, auto_t pointer);
 extern	auto_t	getch	();
 extern	auto_t	putch	(auto_t c);
+extern	auto_t	fgetch	(auto_t fd);
+extern	auto_t	fputch	(auto_t fd, auto_t c);
 extern	auto_t	brk	(auto_t addr);
 extern	auto_t	exit	();
 

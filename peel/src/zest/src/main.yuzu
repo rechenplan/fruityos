@@ -1,3 +1,11 @@
 sub main()
-	parse_stdin()
+	local symtab, i
+
+	symtab = brk(-1)
+	brk(symtab + 65536)
+	while i < 65536 do
+		[symtab + i] = -1
+		i = i + 64
+	end
+	parse_file(-1, 0, symtab)
 end

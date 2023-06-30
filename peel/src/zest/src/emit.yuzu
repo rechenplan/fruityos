@@ -25,7 +25,7 @@ sub emit_call(fd)
 end
 
 { op: 28 = jmp, 29 = jnz, 30 = jz }
-sub emit_branch(op, fd, token)
+sub emit_branch(op, fd, offset)
 end
 
 {

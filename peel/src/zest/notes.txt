@@ -16,10 +16,12 @@ Instructions:
 
 	push r64 \n
 	pop r64 \n
-	mov r64, # \n
-	mov r64, r64 \n
-	mov [r64 (-/+ off)], r64 \n
-	mov r64, [r64 (-/+ off)] \n
+
+	mov r64 , # \n
+	mov r64 , r64 \n
+	mov r64 , [ r64 (-/+ off) ] \n
+
+	mov [ r64 (-/+ off) ], r64 \n
 	lea r64, [r64 (-/+ off)] \n
 
 	add r64, r64 \n
