@@ -19,13 +19,16 @@ end
 
 { op: 17 = sete, 18 = setne, 19 = setz 20 = setnz, 21 = setg, 22 = setl, 23 = setge, 24 = setle }
 sub emit_setcc(op, fd)
+	if fd == -1 then
+		return 0
+	end
 end
 
 sub emit_call(fd)
 end
 
 { op: 28 = jmp, 29 = jnz, 30 = jz }
-sub emit_branch(op, fd, offset)
+sub emit_branch(op, fd, offset, pos)
 end
 
 {

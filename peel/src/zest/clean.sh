@@ -1,1 +1,1 @@
-rm a.out
+rm -f bin/zest

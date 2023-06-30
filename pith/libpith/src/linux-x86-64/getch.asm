@@ -13,5 +13,9 @@ fgetch:	push	rax
 	push	byte 1		; 1 byte
 	pop	rdx
 	call	read
+	pop	rdx
+	test	rax, rax
+	jle	bail
+	push	rdx
 	pop	rax
-	ret
+bail:	ret

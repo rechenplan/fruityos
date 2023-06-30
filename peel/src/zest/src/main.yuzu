@@ -1,5 +1,26 @@
-sub main()
-	local symtab, i
+sub main_next_arg(args)
+	while [args] & 255 do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub main_print_symtab(symtab)
+	while [symtab] != -1 do
+		lex_puts(symtab + 8)
+		putch(10)
+		symtab = symtab + 64
+	end
+end
+
+sub main(argc, args)
+	local symtab, i, fin, fout
+
+	if argc != 3 then
+		lex_puts("usage: zest infile outfile")
+		putch(10)
+		exit()
+	end
 
 	symtab = brk(-1)
 	brk(symtab + 65536)
@@ -7,5 +28,22 @@ sub main()
 		[symtab + i] = -1
 		i = i + 64
 	end
-	parse_file(-1, 0, symtab)
+
+	args = main_next_arg(args)
+	fin = open(args, 0)
+	args = main_next_arg(args)
+	fout = creat(args)
+
+	if (fin < 0) || (fout < 0) then
+		lex_puts("error opening files")
+		putch(10)
+		exit()
+	end
+
+	parse_file(-1, fin, symtab)
+	seek(fin, 0, 0)
+	parse_file(fout, fin, symtab)
+
+	close(fin)
+	close(fout)
 end

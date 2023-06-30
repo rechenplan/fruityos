@@ -159,11 +159,11 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 				case TOKEN_STRING: {
 					int l1 = (*l)++;
 					int l2 = (*l)++;
-					printf("\tjmp\tL%d\n", l2, 0);
-					printf("L%d:\n", l1, 0);
+					printf("\tjmp\t_L%d\n", l2, 0);
+					printf("_L%d:\n", l1, 0);
 					printf("\tdb\t%s, 0\n", 0, constant->value);
-					printf("L%d:\n", l2, 0);
-					printf("\tmov\trax, L%d\n", l1, 0);
+					printf("_L%d:\n", l2, 0);
+					printf("\tmov\trax, _L%d\n", l1, 0);
 				}
 				break;
 			}
@@ -223,14 +223,14 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 			emitRvalue(rvalue, fd, symbols, n, l);
 			int l1 = (*l)++;
 			int l2 = (*l)++;
-			printf("\ttest\trax, rax\n\tjz\tL%d\n", l1, 0);
+			printf("\ttest\trax, rax\n\tjz\t_L%d\n", l1, 0);
 			astnode_t* substate = statement->kid->sibling->sibling->sibling;
 			while (substate && substate->token != TOKEN_ELSE && substate->token != TOKEN_END) {
 				emitStatement(substate, fd, symbols, n, l);
 				substate = substate->sibling;
 			}
-			printf("\tjmp L%d\n", l2, 0);
-			printf("L%d:\n", l1, 0);
+			printf("\tjmp _L%d\n", l2, 0);
+			printf("_L%d:\n", l1, 0);
 			if (substate && substate->token == TOKEN_ELSE) {
 				substate = substate->sibling;
 				while (substate && substate->kid && substate->kid->token != TOKEN_END) {
@@ -238,7 +238,7 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 					substate = substate->sibling;
 				}
 			}
-			printf("L%d:\n", l2, 0);
+			printf("_L%d:\n", l2, 0);
 		}
 		break;
 		case STATEMENT_WHILE: {
@@ -246,15 +246,15 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 			int l1 = (*l)++;
 			int l2 = (*l)++;
 			astnode_t* substate = statement->kid->sibling->sibling->sibling;
-			printf("\tjmp\tL%d\n", l2, 0);
-			printf("L%d:\n", l1, 0);
+			printf("\tjmp\t_L%d\n", l2, 0);
+			printf("_L%d:\n", l1, 0);
 			while (substate && substate->token != TOKEN_END) {
 				emitStatement(substate, fd, symbols, n, l);
 				substate = substate->sibling;
 			}
-			printf("L%d:\n", l2, 0);
+			printf("_L%d:\n", l2, 0);
 			emitRvalue(rvalue, fd, symbols, n, l);
-			printf("\ttest\trax, rax\n\tjnz\tL%d\n", l1, 0);
+			printf("\ttest\trax, rax\n\tjnz\t_L%d\n", l1, 0);
 		}
 		break;
 		case STATEMENT_RETURN: {

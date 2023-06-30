@@ -6,6 +6,9 @@ cd peel/src
 cd byc
 ./clean.sh
 cd ..
+cd zest
+./clean.sh
+cd ..
 cd utils
 	cd cat
 	./clean.sh
