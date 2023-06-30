@@ -110,9 +110,13 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			puts("\tpush\trax\n");
 			int i = 0;
 			while (param && param->type == AST_RVALUE) {
+				i++;
 				emitRvalue(param, fd, symbols, n, l);
-				printf("\tmov\t%s, rax\n", 0, inRegOrder[i++]);
+				puts("\tpush\trax\n");
 				param = param->sibling->sibling;
+			}
+			while (i > 0) {
+				printf("\tpop\t%s\n", 0, inRegOrder[--i]);
 			}
 			puts("\tpop\trax\n\tcall\trax\n");
 		}

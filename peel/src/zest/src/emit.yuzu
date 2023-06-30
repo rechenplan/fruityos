@@ -1,12 +1,42 @@
 
+
 { zest emitter }
 
 { op: 0 = ret, 1 = syscall }
 sub emit_no_args(op, fd)
+	local bytes
+	if op == 0 then
+		if fd != -1 then
+			fputch(fd, 195) { 0xC3 }
+		end
+		bytes = 1
+	end
+	if op == 1 then
+		if fd != -1 then
+			fputch(fd, 15) { 0x0F }
+			fputch(fd, 5)  { 0x05 }
+		end
+		bytes = 2
+	end
+	return bytes
 end
 
 { op: 2 = push, 3 = pop, 4 = mul, 5 = div, 6 = neg, 7 = not }
 sub emit_one_reg(op, fd, reg)
+	local bytes
+	if op == 2 then
+		if fd != -1 then 
+			fputch(fd, reg + 80) { 0x50 + reg }
+		end
+		bytes = 1
+	end
+	if op == 3 then
+		if fd != -1 then
+			fputch(fd, reg + 88) { 0x58 + reg }
+		end
+		bytes = 1
+	end
+	return bytes
 end
 
 { op: 8 = add, 9 = sub, 10 = and, 11 = xor, 12 = or, 13 = test, 14 = cmp }
