@@ -9,7 +9,7 @@ sub main_print_symtab(symtab)
 	while [symtab] != -1 do
 		lex_puts(symtab + 8)
 		putch(10)
-		symtab = symtab + 64
+		symtab = symtab + 32
 	end
 end
 
@@ -26,7 +26,7 @@ sub main(argc, args)
 	brk(symtab + 65536)
 	while i < 65536 do
 		[symtab + i] = -1
-		i = i + 64
+		i = i + 32
 	end
 
 	args = main_next_arg(args)

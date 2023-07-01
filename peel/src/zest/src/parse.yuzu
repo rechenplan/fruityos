@@ -1,50 +1,62 @@
 
 { zest parser }
 
+sub parse_is_digit(c)
+	return (c >= (["0"] & 255)) && (c <= (["9"] & 255))
+end
+
 sub parse_atoi(str)
 	local c, value
 	c = [str] & 255
-	while ((c >= (["0"] & 255)) && (c <= (["9"] & 255))) do
+	while parse_is_digit(c) do
 		value = value * 10
-		value = value + (c - (["0"] & 255))
+		value = value + (c - ["0"] & 255)
 		str = str + 1
 		c = [str] & 255
 	end
 	return value
 end
 
+sub parse_lookup_symbol(symbol, symtab)
+	local name, value, tempSymbol, match
+	while (value = [symtab]) != -1 do
+		name = symtab + 8
+		tempSymbol = symbol
+		match = ([tempSymbol] & 255) == ([name] & 255)
+		while match && ([name] & 255) do
+			name = name + 1 
+			tempSymbol = tempSymbol + 1 
+			match = ([tempSymbol] & 255) == ([name] & 255)
+		end
+		if match then
+			return value
+		end
+		symtab = symtab + 32
+	end
+	return value
+end
+
 sub parse_insert_symbol(value, symbol, symtab)
 	local i, c
+	if parse_lookup_symbol(symbol, symtab) != -1 then
+		return 0
+	end
 	while [symtab] != -1 do
-		symtab = symtab + 64
+		symtab = symtab + 32
 	end
 	[symtab] = value
 	i = 8
-	while c = [symbol] & 255 do
-		if c != ([":"] & 255) then
+	while (c = ([symbol] & 255)) && (i < 31) do
+		if c != 58 then { ":" }
 			[symtab + i] = c
 			i = i + 1
 		end
 		symbol = symbol + 1
 	end
-	[symtab + i] = 0
-end
-
-sub parse_lookup_symbol(symbol, symtab)
-	local name, value, t
-	while (value = [symtab]) != -1 do
-		name = symtab + 8
-		t = symbol
-		while ([name] & 255) == ([t] & 255) && ([name] & 255) do
-			name = name + 1
-			t = t + 1
-		end
-		if ([name] & 255) == ([t] & 255) then
-			return value
-		end
-		symtab = symtab + 64
+	while (i < 32) do
+		[symtab + i] = 0
+		i = i + 1
 	end
-	return value
 end
 
 sub parse_expect_register(token)
@@ -149,7 +161,7 @@ sub parse_call(op, fout, ptr, token)
 	return emit_call(fout)
 end
 
-sub parse_branch(op, fout, ptr, token, pos, symbols)
+sub parse_branch(op, fout, ptr, token, pos, symtab)
 	local value
 
 	ptr = lex_get_next_token(ptr, token)
@@ -159,7 +171,7 @@ sub parse_branch(op, fout, ptr, token, pos, symbols)
 		putch(10)
 		exit()
 	end
-	value = parse_lookup_symbol(token, symbols)
+	value = parse_lookup_symbol(token, symtab)
 	if (value == -1) && (fout != -1) then
 		lex_puts("expected symbol got ")
 		lex_puts(token)
@@ -170,16 +182,16 @@ sub parse_branch(op, fout, ptr, token, pos, symbols)
 end
 
 
-sub parse_label(fout, pos, ptr, token, symbols)
+sub parse_label(fout, pos, ptr, token, symtab)
 	if fout == -1 then
-		parse_insert_symbol(pos, token, symbols)
+		parse_insert_symbol(pos, token, symtab)
 	end
 	ptr = parse_expect_newline(ptr, token)
 end
 
 sub parse_db(fout, ptr, token) end
 
-sub parse_mov(fout, ptr, token, symbols)
+sub parse_mov(fout, ptr, token, symtab)
 	local dstReg, srcReg, value
 
 	ptr = lex_get_next_token(ptr, token)
@@ -219,13 +231,13 @@ sub parse_mov(fout, ptr, token, symbols)
 
 		{ load imm }
 		if lex_keyword_lookup(token) == -1 then
-			value = parse_lookup_symbol(token, symbols)
-			if value == -1 then
-				value = parse_atoi(token)
-			end
+			value = parse_lookup_symbol(token, symtab)
 			{ if value is -2, the symbol is external! }
 			if value == -2 then
 				value = 0
+			end
+			if value == -1 then
+				value = parse_atoi(token)
 			end
 			return emit_load_imm(fout, dstReg, value)
 		end
@@ -238,7 +250,7 @@ sub parse_mov(fout, ptr, token, symbols)
 	end
 end
 
-sub parse_extern(fout, pos, ptr, token, symbols)
+sub parse_extern(fout, pos, ptr, token, symtab)
 	ptr = lex_get_next_token(ptr, token)
 	if lex_keyword_lookup(token) != -1 then
 		lex_puts("expected symbol got keyword ")
@@ -247,12 +259,12 @@ sub parse_extern(fout, pos, ptr, token, symbols)
 		exit()
 	end
 	if fout == -1 then
-		parse_insert_symbol(0, token, symbols)
+		parse_insert_symbol(0, token, symtab)
 	end
 end
 
-{ if fout is -1, then we will simply build a symbol table, f >= 0 indicates second pass }
-sub parse_file(fout, fin, symbols)
+{ if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass }
+sub parse_file(fout, fin, symtab)
 
 	local buffer, ptr, token, c, k, pos
 
@@ -295,20 +307,19 @@ sub parse_file(fout, fin, symbols)
 			if k == 27 then pos = pos + parse_call(k, fout, ptr, token) end
 
 			{ jmp, jnz, jz }
-			if (k >= 28) && (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symbols) end
+			if (k >= 28) && (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
 
 			{ label: }
-			if k == -1 then parse_label(fout, pos, ptr, token, symbols) end
+			if k == -1 then parse_label(fout, pos, ptr, token, symtab) end
 
 			{ extern }
-			if k == 32 then parse_extern(fout, pos, ptr, token, symbols) end
+			if k == 32 then parse_extern(fout, pos, ptr, token, symtab) end
 
 			{ mov }
-			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symbols) end
+			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab) end
 
 			{ db }
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end
-
 		end
 	end
 end
