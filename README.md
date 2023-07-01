@@ -2,7 +2,7 @@
 
 ## intro
 
-this is the userland portion of a smol os called citrusos. the plan is to first develop a programming language called yuzu and write a bootstrap compiler. then I'm going to write userland stuff in yuzu. finally, i'll write the kernel in yuzu. this document is a roadmap of the things that need to be done.
+this is the userland portion of a smol os called juicyos. the plan is to first develop a programming language called yuzu and write a bootstrap compiler. then I'm going to write userland stuff in yuzu. finally, i'll write the kernel in yuzu. this document is a roadmap of the things that need to be done.
 
 ## requirements
 
