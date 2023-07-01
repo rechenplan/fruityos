@@ -1,6 +1,18 @@
 
 { zest parser }
 
+sub parse_atoi(str)
+	local c, value
+	c = [str] & 255
+	while ((c >= (["0"] & 255)) && (c <= (["9"] & 255))) do
+		value = value * 10
+		value = value + (c - (["0"] & 255))
+		str = str + 1
+		c = [str] & 255
+	end
+	return value
+end
+
 sub parse_insert_symbol(value, symbol, symtab)
 	local i, c
 	while [symtab] != -1 do
@@ -19,8 +31,8 @@ sub parse_insert_symbol(value, symbol, symtab)
 end
 
 sub parse_lookup_symbol(symbol, symtab)
-	local name, offset, t
-	while (offset = [symtab]) != -1 do
+	local name, value, t
+	while (value = [symtab]) != -1 do
 		name = symtab + 8
 		t = symbol
 		while ([name] & 255) == ([t] & 255) && ([name] & 255) do
@@ -28,11 +40,11 @@ sub parse_lookup_symbol(symbol, symtab)
 			t = t + 1
 		end
 		if ([name] & 255) == ([t] & 255) then
-			return offset
+			return value
 		end
 		symtab = symtab + 64
 	end
-	return offset
+	return value
 end
 
 sub parse_expect_register(token)
@@ -158,17 +170,73 @@ sub parse_branch(op, fout, ptr, token, pos, symbols)
 end
 
 
-sub parse_label(fout, pos, token, symbols)
+sub parse_label(fout, pos, ptr, token, symbols)
 	if fout == -1 then
 		parse_insert_symbol(pos, token, symbols)
 	end
+	ptr = parse_expect_newline(ptr, token)
 end
 
 sub parse_db(fout, ptr, token) end
 
+sub parse_mov(fout, ptr, token, symbols)
+	local dstReg, srcReg, value
 
-sub parse_mov(fout, ptr) end
-sub parse_lea(fout, ptr) end
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) == 49 then { "[" }
+		{ store }
+		ptr = lex_get_next_token(ptr, token)
+		dstReg = parse_expect_register(token)
+		ptr = lex_get_next_token(ptr, token)
+		if lex_keyword_lookup(token) != 50 then
+			lex_puts("expected ]")
+			putch(10)
+			exit()
+		end
+		ptr = parse_expect_comma(ptr, token)
+		ptr = lex_get_next_token(ptr, token)
+		srcReg = parse_expect_register(token)
+		ptr = parse_expect_newline(ptr, token)
+		return emit_store(fout, srcReg, dstReg)
+	else
+		dstReg = parse_expect_register(token)
+		ptr = parse_expect_comma(ptr, token)
+		ptr = lex_get_next_token(ptr, token)
+
+		{ load }
+		if lex_keyword_lookup(token) == 49 then { "[" }
+			ptr = lex_get_next_token(ptr, token)
+			srcReg = parse_expect_register(token)
+			ptr = lex_get_next_token(ptr, token)
+			if lex_keyword_lookup(token) != 50 then
+				lex_puts("expected ]")
+				putch(10)
+				exit()
+			end
+			ptr = parse_expect_newline(ptr, token)
+			return emit_load(fout, srcReg, dstReg)
+		end
+
+		{ load imm }
+		if lex_keyword_lookup(token) == -1 then
+			value = parse_lookup_symbol(token, symbols)
+			if value == -1 then
+				value = parse_atoi(token)
+			end
+			{ if value is -2, the symbol is external! }
+			if value == -2 then
+				value = 0
+			end
+			return emit_load_imm(fout, dstReg, value)
+		end
+
+		{ two reg }
+		srcReg = parse_expect_register(token)
+		ptr = parse_expect_newline(ptr, token)
+		emit_two_reg(25, fout, srcReg, dstReg)		
+
+	end
+end
 
 sub parse_extern(fout, pos, ptr, token, symbols)
 	ptr = lex_get_next_token(ptr, token)
@@ -203,7 +271,9 @@ sub parse_file(fout, fin, symbols)
 		ptr = buffer
 
 		ptr = lex_get_next_token(ptr, token)
+
 		if ptr then
+
 			k = lex_keyword_lookup(token)
 
 			{ ret, syscall }
@@ -228,14 +298,13 @@ sub parse_file(fout, fin, symbols)
 			if (k >= 28) && (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symbols) end
 
 			{ label: }
-			if k == -1 then parse_label(fout, pos, token, symbols) end
+			if k == -1 then parse_label(fout, pos, ptr, token, symbols) end
 
 			{ extern }
 			if k == 32 then parse_extern(fout, pos, ptr, token, symbols) end
 
-			{ mov, lea }
+			{ mov }
 			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symbols) end
-			if k == 26 then pos = pos + parse_lea(fout, ptr, token) end
 
 			{ db }
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end

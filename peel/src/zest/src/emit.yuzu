@@ -1,5 +1,4 @@
 
-
 { zest emitter }
 
 { op: 0 = ret, 1 = syscall }
@@ -26,40 +25,165 @@ sub emit_one_reg(op, fd, reg)
 	local bytes
 	if op == 2 then
 		if fd != -1 then 
+			if reg > 7 then
+				fputch(fd, 65)
+				reg = reg - 8
+				bytes = bytes + 1
+			end
 			fputch(fd, reg + 80) { 0x50 + reg }
 		end
-		bytes = 1
+		bytes = bytes + 1
 	end
 	if op == 3 then
 		if fd != -1 then
+			if reg > 7 then
+				fputch(fd, 65)
+				reg = reg - 8
+				bytes = bytes + 1
+			end
 			fputch(fd, reg + 88) { 0x58 + reg }
 		end
-		bytes = 1
+		bytes = bytes + 1
+	end
+	if op == 4 then
+		if fd != -1 then
+			fputch(fd, 72) { 0x48 }
+			fputch(fd, 247) { 0xF7 }
+			fputch(fd, 224 + reg) { 0xE0 + reg }
+		end
+		bytes = bytes + 3
+	end
+	if op == 5 then
+		if fd != -1 then
+			fputch(fd, 72) { 0x48 }
+			fputch(fd, 247) { 0xF7 }
+			fputch(fd, 240 + reg) { 0xE0 + reg }
+		end
+		bytes = bytes + 3
+	end
+	if op == 6 then
+		if fd != -1 then
+			fputch(fd, 72) { 0x48 }
+			fputch(fd, 247) { 0xF7 }
+			fputch(fd, 216 + reg) { 0xD8 + reg }
+		end
+		bytes = 3
+	end
+	if op == 7 then
+		if fd != -1 then
+			fputch(fd, 72) { 0x48 }
+			fputch(fd, 247) { 0xF7 }
+			fputch(fd, 208 + reg) { 0xD0 + reg }
+		end
+		bytes = bytes + 3
 	end
 	return bytes
 end
 
 { op: 8 = add, 9 = sub, 10 = and, 11 = xor, 12 = or, 13 = test, 14 = cmp }
 sub emit_two_reg(op, fd, srcReg, dstReg)
+	local mod
+	if fd != -1 then
+		mod = srcReg * 8 + dstReg + 192 { 0xC0 }
+		fputch(fd, 72) { 0x48 }
+		if (op == 8) then fputch(fd, 1) end
+		if (op == 9) then fputch(fd, 41) end
+		if (op == 10) then fputch(fd, 33) end
+		if (op == 11) then fputch(fd, 49) end
+		if (op == 12) then fputch(fd, 9) end
+		if (op == 13) then fputch(fd, 133) end
+		if (op == 14) then fputch(fd, 57) end
+		if (op == 25) then fputch(fd, 137) end
+		fputch(fd, mod)
+	end
+	return 3
 end
 
 { op: 15 = shl, 16 = shr }
 sub emit_shift(op, fd, dstReg)
+	local mod
+	if fd != -1 then
+		mod = dstReg + 224 { 0xE0 }
+		fputch(fd, 72) { 0x48 }
+		fputch(fd, 211) { 0xD3 }
+		if (op == 15) then fputch(fd, mod) end
+		if (op == 16) then fputch(fd, mod + 8) end
+	end
+	return 3
 end
 
 { op: 17 = sete, 18 = setne, 19 = setz 20 = setnz, 21 = setg, 22 = setl, 23 = setge, 24 = setle }
 sub emit_setcc(op, fd)
-	if fd == -1 then
-		return 0
+	if fd != -1 then
+		fputch(fd, 15) { 0x0f }
+		if op == 17 then fputch(fd, 148) { 0x94 } end
+		if op == 18 then fputch(fd, 149) { 0x95 } end
+		if op == 19 then fputch(fd, 148) { 0x94 } end
+		if op == 20 then fputch(fd, 149) { 0x95 } end
+		if op == 21 then fputch(fd, 159) { 0x9F } end
+		if op == 22 then fputch(fd, 156) { 0x9C } end
+		if op == 23 then fputch(fd, 157) { 0x9D } end
+		if op == 24 then fputch(fd, 158) { 0x9E } end
+		fputch(fd, 194) { 0xc2 }
 	end
+	return 3
 end
 
 sub emit_call(fd)
+	if fd != -1 then
+		fputch(fd, 255)
+		fputch(fd, 208)
+	end
+	return 2
 end
 
 { op: 28 = jmp, 29 = jnz, 30 = jz }
-sub emit_branch(op, fd, offset, pos)
+sub emit_branch(op, fd, target, pos)
+	if fd != -1 then
+		if op == 28 then fputch(fd, 235) end { 0xEB }
+		if op == 29 then fputch(fd, 117) end { 0x75 }
+		if op == 30 then fputch(fd, 116) end { 0x74 }
+		fputch(fd, (target - (pos + 2)) & 255)
+	end
+	return 2
 end
+
+sub emit_load(fd, srcReg, dstReg)
+	local mod
+	if fd != -1 then
+		mod = dstReg + srcReg * 8
+		fputch(fd, 72)  { 0x48 }
+		fputch(fd, 139) { 0x8B }
+		fputch(fd, mod)
+	end
+	return 3
+end
+
+sub emit_load_imm(fd, dstReg, val)
+	local i
+	if fd != -1 then
+		fputch(fd, 72) { 0x48 }
+		fputch(fd, 184 + dstReg) { 0xB8 + reg }
+		while i < 8 do
+			fputch(fd, val & 255)
+			val = val >> 8
+			i = i + 1
+		end
+	end
+	return 10
+end
+
+sub emit_store(fd, srcReg, dstReg)
+	local mod
+	if fd != -1 then
+		mod = dstReg + srcReg * 8
+		fputch(fd, 72)  { 0x48 }
+		fputch(fd, 137) { 0x89 }
+		fputch(fd, mod)
+	end
+	return 3
+end
+
 
 {
 if k == 25 then parse_mov(fd, ptr, token) end
