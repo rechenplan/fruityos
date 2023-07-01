@@ -139,11 +139,17 @@ end
 
 { op: 28 = jmp, 29 = jnz, 30 = jz }
 sub emit_branch(op, fd, target, pos)
+	local offset, i
+	offset = target - pos
 	if fd != -1 then
-		if op == 28 then fputch(fd, 235) end { 0xEB }
-		if op == 29 then fputch(fd, 117) end { 0x75 }
-		if op == 30 then fputch(fd, 116) end { 0x74 }
-		fputch(fd, (target - (pos + 2)) & 255)
+		if op == 28 then fputch(fd, 233) offset = offset - 5 end { 0xE9 }
+		if op == 29 then fputch(fd, 15) fputch(fd, 133) offset = offset - 6 end { 0x0F 0x85 }
+		if op == 30 then fputch(fd, 15) fputch(fd, 132) offset = offset - 6 end { 0x0F 0x84 }
+		while i < 4 do
+			fputch(fd, offset & 255)
+			offset = offset >> 8
+			i = i + 1
+		end
 	end
 	return 2
 end
@@ -182,6 +188,19 @@ sub emit_store(fd, srcReg, dstReg)
 		fputch(fd, mod)
 	end
 	return 3
+end
+
+sub emit_string(fd, str)
+	str = str + 1 { skip initial quote }
+	while [str] & 255 != 34 do
+		fputch(fd, [str] & 255)
+		str = str + 1
+	end
+end
+
+sub emit_byte(fd, value)
+	fputch(fd, value & 255)
+	return 1
 end
 
 

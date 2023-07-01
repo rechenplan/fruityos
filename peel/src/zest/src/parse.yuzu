@@ -189,7 +189,14 @@ sub parse_label(fout, pos, ptr, token, symtab)
 	ptr = parse_expect_newline(ptr, token)
 end
 
-sub parse_db(fout, ptr, token) end
+sub parse_db(fout, ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if [token] & 255 == 34 then
+		return emit_string(fout, token)
+	else
+		return emit_byte(fout, parse_atoi(token))
+	end
+end
 
 sub parse_mov(fout, ptr, token, symtab)
 	local dstReg, srcReg, value
