@@ -1,1 +1,1 @@
-rm -rf bin/byc src/*.o src/_.asm
+rm -rf ../../bin/byc src/*.o src/_.*

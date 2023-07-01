@@ -1,7 +1,7 @@
 # zest
 
 zest is a nasm style assembler written in yuzu that assembles the subset of x86-64 assembly needed to assemble
-byc output and just enough to assemble libpith as well. it outputs flat files and uses 0x100000 as the origin.
+byc/yc output and just enough to assemble libpith as well. it outputs flat files and uses 0x100000 as the origin.
 
 ## usage
 

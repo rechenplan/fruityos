@@ -1,1 +1,1 @@
-rm -f bin/zest bin/zest.o src/zest.asm src/_.asm src/_.yuzu src/*.o
+rm -f ../../bin/zest src/*.o src/*.asm src/_.yuzu
