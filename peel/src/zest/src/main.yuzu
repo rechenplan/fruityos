@@ -14,7 +14,7 @@ sub main_print_symtab(symtab)
 end
 
 sub main(argc, args)
-	local symtab, i, fin, fout
+	local symtab, reltab, i, fin, fout
 
 	if argc != 3 then
 		lex_puts("usage: zest infile outfile")
@@ -23,9 +23,12 @@ sub main(argc, args)
 	end
 
 	symtab = brk(-1)
-	brk(symtab + 65536)
+	reltab = brk(symtab + 65536)
+	brk(reltab + 65536)
+
 	while i < 65536 do
 		[symtab + i] = -1
+		[reltab + i] = -1
 		i = i + 32
 	end
 
@@ -40,9 +43,20 @@ sub main(argc, args)
 		exit()
 	end
 
-	parse_file(-1, fin, symtab)
+	parse_file(-1, fin, symtab, reltab)
 	seek(fin, 0, 0)
-	parse_file(fout, fin, symtab)
+	parse_file(fout, fin, symtab, reltab)
+
+	{
+		lex_puts("global symbols:")
+		putch(10)
+		parse_print_table(symtab)
+		putch(10)
+		lex_puts("relocations:")
+		putch(10)
+		parse_print_table(reltab)
+		putch(10)
+	}
 
 	close(fin)
 	close(fout)

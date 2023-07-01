@@ -17,10 +17,10 @@ sub parse_atoi(str)
 	return value
 end
 
-sub parse_lookup_symbol(symbol, symtab)
+sub parse_lookup_table(symbol, tab)
 	local name, value, tempSymbol, match
-	while (value = [symtab]) != -1 do
-		name = symtab + 8
+	while (value = [tab]) != -1 do
+		name = tab + 8
 		tempSymbol = symbol
 		match = ([tempSymbol] & 255) == ([name] & 255)
 		while match && ([name] & 255) do
@@ -31,32 +31,52 @@ sub parse_lookup_symbol(symbol, symtab)
 		if match then
 			return value
 		end
-		symtab = symtab + 32
+		tab = tab + 32
 	end
 	return value
 end
 
-sub parse_insert_symbol(value, symbol, symtab)
+sub parse_puthex(n)
+	local d
+	d = 60
+	while d >= 0 do
+		putch(["0123456789ABCDEF" + ((n >> d) & 15)])
+		d = d - 4
+	end		
+end
+
+sub parse_print_table(tab)
+	local i, c, v
+	while (v = [tab]) != -1 do
+		putch(34)
+		lex_puts(tab + 8)
+		putch(34)
+		putch(32)
+		parse_puthex(v)
+		putch(10)
+		tab = tab + 32
+	end
+end
+
+sub parse_insert_table(value, symbol, tab)
 	local i, c
-	if parse_lookup_symbol(symbol, symtab) != -1 then
-		return 0
+	while [tab] != -1 do
+		tab = tab + 32
 	end
-	while [symtab] != -1 do
-		symtab = symtab + 32
-	end
-	[symtab] = value
+	[tab] = value
 	i = 8
 	while (c = ([symbol] & 255)) && (i < 31) do
 		if c != 58 then { ":" }
-			[symtab + i] = c
+			[tab + i] = c
 			i = i + 1
 		end
 		symbol = symbol + 1
 	end
 	while (i < 32) do
-		[symtab + i] = 0
+		[tab + i] = 0
 		i = i + 1
 	end
+	[tab + 32] = -1 { fix what we broke! }
 end
 
 sub parse_expect_register(token)
@@ -171,9 +191,15 @@ sub parse_branch(op, fout, ptr, token, pos, symtab)
 		putch(10)
 		exit()
 	end
-	value = parse_lookup_symbol(token, symtab)
+	value = parse_lookup_table(token, symtab)
 	if (value == -1) && (fout != -1) then
 		lex_puts("expected symbol got ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	if (value == -2) then
+		lex_puts("no support for branching to extern ")
 		lex_puts(token)
 		putch(10)
 		exit()
@@ -184,7 +210,10 @@ end
 
 sub parse_label(fout, pos, ptr, token, symtab)
 	if fout == -1 then
-		parse_insert_symbol(pos, token, symtab)
+		if parse_lookup_table(token, symtab) != -1 then
+			return 0
+		end
+		parse_insert_table(pos, token, symtab)
 	end
 	ptr = parse_expect_newline(ptr, token)
 end
@@ -198,7 +227,7 @@ sub parse_db(fout, ptr, token)
 	end
 end
 
-sub parse_mov(fout, ptr, token, symtab)
+sub parse_mov(fout, ptr, token, symtab, reltab, pos)
 	local dstReg, srcReg, value
 
 	ptr = lex_get_next_token(ptr, token)
@@ -238,14 +267,21 @@ sub parse_mov(fout, ptr, token, symtab)
 
 		{ load imm }
 		if lex_keyword_lookup(token) == -1 then
-			value = parse_lookup_symbol(token, symtab)
+			value = parse_lookup_table(token, symtab)
+
 			{ if value is -2, the symbol is external! }
 			if value == -2 then
 				value = 0
 			end
+
+			{ if symbol not found, assume its a number }
 			if value == -1 then
 				value = parse_atoi(token)
+			else
+				{ otherwise record relocation }
+				parse_insert_table(pos + 2, token, reltab)
 			end
+
 			return emit_load_imm(fout, dstReg, value)
 		end
 
@@ -266,12 +302,12 @@ sub parse_extern(fout, pos, ptr, token, symtab)
 		exit()
 	end
 	if fout == -1 then
-		parse_insert_symbol(0, token, symtab)
+		parse_insert_table(-2, token, symtab)
 	end
 end
 
 { if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass }
-sub parse_file(fout, fin, symtab)
+sub parse_file(fout, fin, symtab, reltab)
 
 	local buffer, ptr, token, c, k, pos
 
@@ -323,7 +359,7 @@ sub parse_file(fout, fin, symtab)
 			if k == 32 then parse_extern(fout, pos, ptr, token, symtab) end
 
 			{ mov }
-			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab) end
+			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab, reltab, pos) end
 
 			{ db }
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end
