@@ -24,26 +24,33 @@ end
 sub emit_one_reg(op, fd, reg)
 	local bytes
 	if op == 2 then
+		if reg > 7 then
+			bytes = 2
+		else
+			bytes = 1
+		end
 		if fd != -1 then 
 			if reg > 7 then
 				fputch(fd, 65)
 				reg = reg - 8
-				bytes = bytes + 1
 			end
 			fputch(fd, reg + 80) { 0x50 + reg }
+
 		end
-		bytes = bytes + 1
 	end
 	if op == 3 then
+		if reg > 7 then
+			bytes = 2
+		else
+			bytes = 1
+		end
 		if fd != -1 then
 			if reg > 7 then
 				fputch(fd, 65)
 				reg = reg - 8
-				bytes = bytes + 1
 			end
 			fputch(fd, reg + 88) { 0x58 + reg }
 		end
-		bytes = bytes + 1
 	end
 	if op == 4 then
 		if fd != -1 then
@@ -51,7 +58,7 @@ sub emit_one_reg(op, fd, reg)
 			fputch(fd, 247) { 0xF7 }
 			fputch(fd, 224 + reg) { 0xE0 + reg }
 		end
-		bytes = bytes + 3
+		bytes = 3
 	end
 	if op == 5 then
 		if fd != -1 then
@@ -59,7 +66,7 @@ sub emit_one_reg(op, fd, reg)
 			fputch(fd, 247) { 0xF7 }
 			fputch(fd, 240 + reg) { 0xE0 + reg }
 		end
-		bytes = bytes + 3
+		bytes = 3
 	end
 	if op == 6 then
 		if fd != -1 then
@@ -75,7 +82,7 @@ sub emit_one_reg(op, fd, reg)
 			fputch(fd, 247) { 0xF7 }
 			fputch(fd, 208 + reg) { 0xD0 + reg }
 		end
-		bytes = bytes + 3
+		bytes = 3
 	end
 	return bytes
 end
@@ -139,19 +146,29 @@ end
 
 { op: 28 = jmp, 29 = jnz, 30 = jz }
 sub emit_branch(op, fd, target, pos)
-	local offset, i
+	local offset, i, bytes
 	offset = target - pos
+	if op == 28 then 
+		if fd != -1 then fputch(fd, 233) end
+		bytes = 5 
+	end { 0xE9 }
+	if op == 29 then
+		if fd != -1 then fputch(fd, 15) fputch(fd, 133) end
+		bytes = 6
+	end { 0x0F 0x85 }
+	if op == 30 then 
+		if fd != -1 then fputch(fd, 15) fputch(fd, 132) end
+		bytes = 6 
+	end { 0x0F 0x84 }
 	if fd != -1 then
-		if op == 28 then fputch(fd, 233) offset = offset - 5 end { 0xE9 }
-		if op == 29 then fputch(fd, 15) fputch(fd, 133) offset = offset - 6 end { 0x0F 0x85 }
-		if op == 30 then fputch(fd, 15) fputch(fd, 132) offset = offset - 6 end { 0x0F 0x84 }
+		offset = offset - bytes
 		while i < 4 do
 			fputch(fd, offset & 255)
 			offset = offset >> 8
 			i = i + 1
 		end
 	end
-	return 2
+	return bytes
 end
 
 sub emit_load(fd, srcReg, dstReg)
@@ -191,11 +208,14 @@ sub emit_store(fd, srcReg, dstReg)
 end
 
 sub emit_string(fd, str)
+	local bytes
 	str = str + 1 { skip initial quote }
 	while [str] & 255 != 34 do
 		fputch(fd, [str] & 255)
 		str = str + 1
+		bytes = bytes + 1
 	end
+	return bytes
 end
 
 sub emit_byte(fd, value)

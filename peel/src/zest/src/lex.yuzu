@@ -11,7 +11,7 @@ end
 sub lex_is_alpha(c)
 	return  ((c >= (["A"] & 255)) && (c <= (["Z"] & 255))) ||
 		((c >= (["a"] & 255)) && (c <= (["z"] & 255))) ||
-		(c == (["_"] & 255))
+		(c == (["_"] & 255)) || (c == (["."] & 255))
 end
 
 sub lex_get_next_keyword(keywordStr)
