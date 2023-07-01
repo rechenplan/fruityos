@@ -1,8 +1,4 @@
-cd pith
-cd libpith
-./clean.sh
-cd ../../
-cd peel/src
+cd src
 cd byc
 ./clean.sh
 cd ..

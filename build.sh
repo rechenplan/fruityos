@@ -1,8 +1,4 @@
-cd pith
-cd libpith
-./build.sh
-cd ../../
-cd peel/src
+cd src
 cd byc
 ./build.sh
 cd ../
@@ -22,4 +18,4 @@ cd utils/
 	cd say
 	./build.sh
 	cd ..
-cd ../../../
+cd ../../
