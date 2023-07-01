@@ -16,11 +16,13 @@ end
 sub main(argc, args)
 	local symtab, reltab, i, fin, fout, org
 
-	if argc != 4 then
-		lex_puts("usage: zest org infile outfile")
+	if argc != 3 then
+		lex_puts("usage: zest infile outfile")
 		putch(10)
 		exit()
 	end
+
+	org = 1048576 { 0x100000 }
 
 	symtab = brk(-1)
 	reltab = brk(symtab + 16384)
@@ -29,8 +31,6 @@ sub main(argc, args)
 	[symtab] = -1
 	[reltab] = -1
 
-	args = main_next_arg(args)
-	org = parse_atoi(args)
 	args = main_next_arg(args)
 	fin = open(args, 0)
 	args = main_next_arg(args)

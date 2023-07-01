@@ -1,9 +1,8 @@
 # zest
 
 zest is a nasm style assembler written in yuzu that assembles the subset of x86-64 assembly needed to assemble
-byc output and just enough to assemble libpith as well. it outputs flat files and accepts the org in decimal
-as an argument.
+byc output and just enough to assemble libpith as well. it outputs flat files and uses 0x100000 as the origin.
 
 ## usage
 
-	bin/zest org in.asm out.bin
+	bin/zest in.asm out.bin
