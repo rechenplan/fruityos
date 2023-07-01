@@ -1,10 +1,9 @@
 # zest
 
-zest will be a nasm style assembler written in yuzu that assembles the subset of x86-64 assembly needed to assemble
-yuzu/byc output and just enough to assemble libpith as well
+zest is a nasm style assembler written in yuzu that assembles the subset of x86-64 assembly needed to assemble
+yuzu/byc output and just enough to assemble libpith as well. it outputs flat files and accepts the org in decimal
+as an argument.
 
-## todos
+## usage
 
-1. Compile list of all x86-64 assembly instructions that need to be assembled currently.
-2. Write flat assembler (no object code yet). Compare output with nasm for testing.
-3. Write ELF64 object file wrapper.
+	bin/zest org in.asm out.bin

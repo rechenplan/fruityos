@@ -18,8 +18,8 @@ sub parse_atoi(str)
 end
 
 sub parse_lookup_table(symbol, tab)
-	local name, value, tempSymbol, match
-	while (value = [tab]) != -1 do
+	local name, value, tempSymbol, match, i
+	while (value = [tab]) != -1 && (i < 512) do
 		name = tab + 8
 		tempSymbol = symbol
 		match = ([tempSymbol] & 255) == ([name] & 255)
@@ -32,6 +32,7 @@ sub parse_lookup_table(symbol, tab)
 			return value
 		end
 		tab = tab + 32
+		i = i + 1
 	end
 	return value
 end
@@ -47,7 +48,7 @@ end
 
 sub parse_print_table(tab)
 	local i, c, v
-	while (v = [tab]) != -1 do
+	while (v = [tab]) != -1 && (i < 512) do
 		putch(34)
 		lex_puts(tab + 8)
 		putch(34)
@@ -55,13 +56,16 @@ sub parse_print_table(tab)
 		parse_puthex(v)
 		putch(10)
 		tab = tab + 32
+		i = i + 1
 	end
+	parse_puthex(i)
 end
 
 sub parse_insert_table(value, symbol, tab)
 	local i, c
-	while [tab] != -1 do
+	while [tab] != -1 && (i < 511) do
 		tab = tab + 32
+		i = i + 1
 	end
 	[tab] = value
 	i = 8
@@ -276,7 +280,16 @@ sub parse_mov(fout, ptr, token, symtab, reltab, pos)
 
 			{ if symbol not found, assume its a number }
 			if value == -1 then
-				value = parse_atoi(token)
+				if parse_is_digit([token] & 255) then
+					value = parse_atoi(token)
+				else
+					if fout != -1 then
+						lex_puts("undefined symbol ")
+						lex_puts(token)
+						putch(10)
+						exit()
+					end
+				end
 			else
 				{ otherwise record relocation }
 				parse_insert_table(pos + 2, token, reltab)
@@ -302,12 +315,15 @@ sub parse_extern(fout, pos, ptr, token, symtab)
 		exit()
 	end
 	if fout == -1 then
-		parse_insert_table(-2, token, symtab)
+		if parse_lookup_table(token, symtab) == -1 then
+			{ don't include externs in symbol table for now }
+			{ parse_insert_table(-2, token, symtab) }
+		end
 	end
 end
 
 { if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass }
-sub parse_file(fout, fin, symtab, reltab)
+sub parse_file(fout, fin, symtab, reltab, org)
 
 	local buffer, ptr, token, c, k, pos
 
@@ -315,6 +331,7 @@ sub parse_file(fout, fin, symtab, reltab)
 	token = brk(buffer + 256)
 	brk(token + 256)
 
+	pos = org
 	while c = fgetch(fin) & 255 do
 		ptr = buffer
 		while (c) && (c != 10) do
@@ -363,6 +380,12 @@ sub parse_file(fout, fin, symtab, reltab)
 
 			{ db }
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end
+
+			{ org }
+			if k == 53 then
+				ptr = lex_get_next_token(ptr, token)
+				pos = parse_atoi(token)
+			end
 		end
 	end
 end

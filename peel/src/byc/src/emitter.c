@@ -201,13 +201,16 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 				printf("\tmov\trax, rbp\n\tmov\trdi, %d\n\tsub\trax, rdi\n", (i + 1) * 8, 0);
 				//printf("\tlea\trax, qword [rbp - %d]\n", (i + 1) * 8, 0);
 			} else {
+				/*
 				for (i = 0; i < gCnt; i++) {
 					if (stringsAreEqual(id, globals[i]))
 						break;
 				}
 				if (i == gCnt) {
-					printf("\textern\t%s\n", 0, id);
+					printf("Undefined symbol %s\n", 0, id);
+					exit();
 				}
+				*/
 				printf("\tmov\trax, %s\n", 0, id);
 			}
 		}
