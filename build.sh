@@ -1,4 +1,3 @@
-rm -rf bin
 mkdir bin
 cd src
 cd byc
