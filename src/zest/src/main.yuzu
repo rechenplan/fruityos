@@ -14,15 +14,13 @@ sub main_write_table(fd, tab)
 end
 
 sub main(argc, args)
-	local symtab, reltab, i, fin, fout, org
+	local symtab, reltab, i, fin, fout, textSize, vaddr
 
 	if argc != 3 then
 		lex_puts("usage: zest infile outfile")
 		putch(10)
 		exit()
 	end
-
-	org = 1048576 { 0x100000 }
 
 	symtab = brk(-1)
 	reltab = brk(symtab + 16384)
@@ -42,13 +40,12 @@ sub main(argc, args)
 		exit()
 	end
 
-	parse_file(-1, fin, symtab, reltab, org)
+	vaddr = 134512640 { 0x8048000 }
+	textSize = parse_file(-1, fin, symtab, reltab, vaddr + 120)
 	seek(fin, 0, 0)
-	{
-		main_write_table(fout, symtab)
-		main_write_table(fout, reltab)
-	}
-	parse_file(fout, fin, symtab, reltab, org)
+
+	elf_write_header(fout, textSize, vaddr)
+	parse_file(fout, fin, symtab, reltab, vaddr)
 
 	close(fin)
 	close(fout)

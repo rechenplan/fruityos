@@ -381,11 +381,7 @@ sub parse_file(fout, fin, symtab, reltab, org)
 			{ db }
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end
 
-			{ org }
-			if k == 53 then
-				ptr = lex_get_next_token(ptr, token)
-				pos = parse_atoi(token)
-			end
 		end
 	end
+	return pos - org
 end

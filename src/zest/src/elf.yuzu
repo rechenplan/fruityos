@@ -1,0 +1,109 @@
+
+sub elf_write_header(fd, size, vaddr)
+	local temp
+
+	temp = brk(-1)
+	brk(temp + 8)
+
+{ elf header }
+
+	{ e_ident }
+	fputch(fd, 127)
+	fputch(fd, ["E"] & 255)
+	fputch(fd, ["L"] & 255)
+	fputch(fd, ["F"] & 255)
+	fputch(fd, 2)
+	fputch(fd, 1)
+	fputch(fd, 1)
+	fputch(fd, 0)
+	[temp] = 0
+	write(fd, temp, 8)
+
+	{ e_type }
+	[temp] = 2
+	write(fd, temp, 2)
+
+	{ e_machine }
+	[temp] = 62
+	write(fd, temp, 2)
+
+	{ e_version }
+	[temp] = 1
+	write(fd, temp, 4)
+
+	{ e_entry }
+	[temp] = vaddr + 120
+	write(fd, temp, 8)
+	
+	{ e_phoff }
+	[temp] = 64
+	write(fd, temp, 8)
+
+	{ e_shoff }
+	[temp] = 0
+	write(fd, temp, 8)
+
+	{ e_flags }
+	[temp] = 0
+	write(fd, temp, 4)
+
+	{ e_ehsize }
+	[temp] = 64
+	write(fd, temp, 2)
+
+	{ e_phentsize }
+	[temp] = 56
+	write(fd, temp, 2)
+
+	{ e_phnum }
+	[temp] = 1
+	write(fd, temp, 2)
+
+	{ e_shentsize }
+	[temp] = 0
+	write(fd, temp, 2)
+
+	{ e_shnum }
+	[temp] = 0
+	write(fd, temp, 2)
+
+	{ e_shstrndx }
+	[temp] = 0
+	write(fd, temp, 2)
+
+{ program header }
+
+	{ p_type }
+	[temp] = 1
+	write(fd, temp, 4)
+
+	{ p_flags }
+	[temp] = 5
+	write(fd, temp, 4)
+
+	{ p_offset }
+	[temp] = 0
+	write(fd, temp, 8)
+
+	{ p_vaddr }
+	[temp] = vaddr
+	write(fd, temp, 8)
+
+	{ p_paddr }
+	[temp] = vaddr
+	write(fd, temp, 8)
+
+	{ p_filesz }
+	[temp] = size + 120
+	write(fd, temp, 8)
+
+	{ p_memsz }
+	[temp] = size + 120
+	write(fd, temp, 8)
+
+	{ p_memsz }
+	[temp] = 4096
+	write(fd, temp, 8)
+
+end
+

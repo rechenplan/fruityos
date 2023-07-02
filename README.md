@@ -2,7 +2,7 @@
 
 ## intro
 
-this is a smol system language for juicyos.
+a smol system language for juicyos.
 
 ## requirements
 
@@ -17,7 +17,7 @@ yuzu transpiles to x86-64 assembly.
 1. byc: a bootstrapping compiler for yuzu written in c
 2. zest: an assembler written in yuzu
 3. yc: a yuzu compiler written in yuzu
-4. libpith.asm: a standard library for linux
+4. libpith.asm: a standard library for x86-64 linux
 
 ## bootstrapping sequence
 
