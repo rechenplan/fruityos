@@ -19,7 +19,7 @@ end
 
 sub parse_lookup_table(symbol, tab)
 	local name, value, tempSymbol, match, i
-	while (value = [tab]) != -1 && (i < 512) do
+	while (value = [tab]) != -1 && (i < 1024) do
 		name = tab + 8
 		tempSymbol = symbol
 		match = ([tempSymbol] & 255) == ([name] & 255)
@@ -31,7 +31,7 @@ sub parse_lookup_table(symbol, tab)
 		if match then
 			return value
 		end
-		tab = tab + 32
+		tab = tab + 64
 		i = i + 1
 	end
 	return value
@@ -48,14 +48,16 @@ end
 
 sub parse_print_table(tab)
 	local i, c, v
-	while (v = [tab]) != -1 && (i < 512) do
+	while (v = [tab]) != -1 && (i < 1024) do
+		parse_puthex(i)
+		putch(32)
 		putch(34)
 		lex_puts(tab + 8)
 		putch(34)
 		putch(32)
 		parse_puthex(v)
 		putch(10)
-		tab = tab + 32
+		tab = tab + 64
 		i = i + 1
 	end
 	parse_puthex(i)
@@ -63,24 +65,24 @@ end
 
 sub parse_insert_table(value, symbol, tab)
 	local i, c
-	while [tab] != -1 && (i < 511) do
-		tab = tab + 32
+	while [tab] != -1 && (i < 1023) do
+		tab = tab + 64
 		i = i + 1
 	end
 	[tab] = value
 	i = 8
-	while (c = ([symbol] & 255)) && (i < 31) do
+	while (c = ([symbol] & 255)) && (i < 63) do
 		if c != 58 then { ":" }
 			[tab + i] = c
 			i = i + 1
 		end
 		symbol = symbol + 1
 	end
-	while (i < 32) do
+	while (i < 64) do
 		[tab + i] = 0
 		i = i + 1
 	end
-	[tab + 32] = -1 { fix what we broke! }
+	[tab + 64] = -1 { fix what we broke! }
 end
 
 sub parse_expect_register(token)
@@ -231,7 +233,7 @@ sub parse_db(fout, ptr, token)
 	end
 end
 
-sub parse_mov(fout, ptr, token, symtab, reltab, pos)
+sub parse_mov(fout, ptr, token, symtab, pos)
 	local dstReg, srcReg, value
 
 	ptr = lex_get_next_token(ptr, token)
@@ -290,9 +292,6 @@ sub parse_mov(fout, ptr, token, symtab, reltab, pos)
 						exit()
 					end
 				end
-			else
-				{ otherwise record relocation }
-				parse_insert_table(pos + 2, token, reltab)
 			end
 
 			return emit_load_imm(fout, dstReg, value)
@@ -323,7 +322,7 @@ sub parse_extern(fout, pos, ptr, token, symtab)
 end
 
 { if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass }
-sub parse_file(fout, fin, symtab, reltab, org)
+sub parse_file(fout, fin, symtab, org)
 
 	local buffer, ptr, token, c, k, pos
 
@@ -376,7 +375,7 @@ sub parse_file(fout, fin, symtab, reltab, org)
 			if k == 32 then parse_extern(fout, pos, ptr, token, symtab) end
 
 			{ mov }
-			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab, reltab, pos) end
+			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab, pos) end
 
 			{ db }
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end

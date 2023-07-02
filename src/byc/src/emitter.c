@@ -12,17 +12,17 @@ extern void error(char* msg);
 static char globals[SYM_CNT][SYM_LEN];
 static int gCnt;
 static char* inRegOrder[] = { "rdi", "rsi", "rdx", "rcx", "r8", "r9" };
-static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l);
+static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l, char* fcn);
 
-static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l) {
+static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l, char* fcn) {
 	switch (rvalue->subType) {
 		case RVALUE_BINOP: {
 			astnode_t* a = rvalue->kid;
 			astnode_t* op = rvalue->kid->sibling;
 			astnode_t* b = rvalue->kid->sibling->sibling;
-			emitRvalue(b, fd, symbols, n, l);
+			emitRvalue(b, fd, symbols, n, l, fcn);
 			puts("\tpush\trax\n");
-			emitRvalue(a, fd, symbols, n, l);
+			emitRvalue(a, fd, symbols, n, l, fcn);
 			puts("\tpop\trdi\n");
 			switch (op->kid->token) {
 				case TOKEN_PLUS: puts("\tadd\trax, rdi\n"); break;
@@ -107,12 +107,12 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case RVALUE_FUNCTION_CALL: {
 			astnode_t* f = rvalue->kid;
 			astnode_t* param = f->sibling->sibling;
-			emitLvalue(f, fd, symbols, n, l);
+			emitLvalue(f, fd, symbols, n, l, fcn);
 			puts("\tpush\trax\n");
 			int i = 0;
 			while (param && param->type == AST_RVALUE) {
 				i++;
-				emitRvalue(param, fd, symbols, n, l);
+				emitRvalue(param, fd, symbols, n, l, fcn);
 				puts("\tpush\trax\n");
 				param = param->sibling->sibling;
 			}
@@ -125,21 +125,21 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		case RVALUE_ASSIGN: {
 			astnode_t* lvalue = rvalue->kid;
 			rvalue = lvalue->sibling->sibling;
-			emitLvalue(lvalue, fd, symbols, n, l);
+			emitLvalue(lvalue, fd, symbols, n, l, fcn);
 			puts("\tpush\trax\n");
-			emitRvalue(rvalue, fd, symbols, n, l);
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
 			puts("\tpop\trdi\n");
 			puts("\tmov\t[rdi], rax\n");
 		}
 		break;
 		case RVALUE_LVALUE: {
-			emitLvalue(rvalue->kid, fd, symbols, n, l);
+			emitLvalue(rvalue->kid, fd, symbols, n, l, fcn);
 			puts("\tmov\trax, [rax]\n");
 		}
 		break;
 		case RVALUE_UNARY: {
 			astnode_t* op = rvalue->kid;
-			emitRvalue(rvalue->kid->sibling, fd, symbols, n, l);
+			emitRvalue(rvalue->kid->sibling, fd, symbols, n, l, fcn);
 			switch(op->kid->token) {
 				case TOKEN_MINUS:
 					puts("\tneg\trax\n");
@@ -156,7 +156,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			}
 		}
 		break;
-		case RVALUE_PARENS: emitRvalue(rvalue->kid->sibling, fd, symbols, n, l); break;
+		case RVALUE_PARENS: emitRvalue(rvalue->kid->sibling, fd, symbols, n, l, fcn); break;
 		case RVALUE_CONSTANT: {
 			astnode_t* constant = rvalue->kid->kid;
 			switch (constant->token) {
@@ -164,12 +164,12 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 				case TOKEN_STRING: {
 					int l1 = (*l)++;
 					int l2 = (*l)++;
-					printf("\tjmp\t.L%d\n", l2, 0);
-					printf(".L%d:\n", l1, 0);
+					printf("\tjmp\t%s_L%d\n", l2, fcn);
+					printf("%s_L%d:\n", l1, fcn);
 					printf("\tdb\t%s\n", 0, constant->value);
 					puts("\tdb 0\n");
-					printf(".L%d:\n", l2, 0);
-					printf("\tmov\trax, .L%d\n", l1, 0);
+					printf("%s_L%d:\n", l2, fcn);
+					printf("\tmov\trax, %s_L%d\n", l1, fcn);
 				}
 				break;
 			}
@@ -186,7 +186,7 @@ static int stringsAreEqual(char* a, char* b) {
 	return *a == *b;
 }
 
-static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l) {
+static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l, char* fcn) {
 	switch (lvalue->subType) {
 		case LVALUE_ID: {
 			char* id = lvalue->kid->value;
@@ -217,13 +217,13 @@ static void emitLvalue(astnode_t* lvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 		break;
 		case LVALUE_INDIRECTION: {
 			astnode_t* rvalue = lvalue->kid->sibling;
-			emitRvalue(rvalue, fd, symbols, n, l);
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
 		}
 		break;
 	}
 }
 
-static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l) {
+static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SYM_LEN], int n, int* l, char* fcn) {
 	switch(statement->subType) {
 		case STATEMENT_LOCAL: {
 			error("local encounter after begining of subroutine");
@@ -231,25 +231,25 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 		break;
 		case STATEMENT_IF: {
 			astnode_t* rvalue = statement->kid->sibling;
-			emitRvalue(rvalue, fd, symbols, n, l);
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
 			int l1 = (*l)++;
 			int l2 = (*l)++;
-			printf("\ttest\trax, rax\n\tjz\t.L%d\n", l1, 0);
+			printf("\ttest\trax, rax\n\tjz\t%s_L%d\n", l1, fcn);
 			astnode_t* substate = statement->kid->sibling->sibling->sibling;
 			while (substate && substate->token != TOKEN_ELSE && substate->token != TOKEN_END) {
-				emitStatement(substate, fd, symbols, n, l);
+				emitStatement(substate, fd, symbols, n, l, fcn);
 				substate = substate->sibling;
 			}
-			printf("\tjmp .L%d\n", l2, 0);
-			printf(".L%d:\n", l1, 0);
+			printf("\tjmp %s_L%d\n", l2, fcn);
+			printf("%s_L%d:\n", l1, fcn);
 			if (substate && substate->token == TOKEN_ELSE) {
 				substate = substate->sibling;
 				while (substate && substate->kid && substate->kid->token != TOKEN_END) {
-					emitStatement(substate, fd, symbols, n, l);
+					emitStatement(substate, fd, symbols, n, l, fcn);
 					substate = substate->sibling;
 				}
 			}
-			printf(".L%d:\n", l2, 0);
+			printf("%s_L%d:\n", l2, fcn);
 		}
 		break;
 		case STATEMENT_WHILE: {
@@ -257,20 +257,20 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 			int l1 = (*l)++;
 			int l2 = (*l)++;
 			astnode_t* substate = statement->kid->sibling->sibling->sibling;
-			printf("\tjmp\t.L%d\n", l2, 0);
-			printf(".L%d:\n", l1, 0);
+			printf("\tjmp\t%s_L%d\n", l2, fcn);
+			printf("%s_L%d:\n", l1, fcn);
 			while (substate && substate->token != TOKEN_END) {
-				emitStatement(substate, fd, symbols, n, l);
+				emitStatement(substate, fd, symbols, n, l, fcn);
 				substate = substate->sibling;
 			}
-			printf(".L%d:\n", l2, 0);
-			emitRvalue(rvalue, fd, symbols, n, l);
-			printf("\ttest\trax, rax\n\tjnz\t.L%d\n", l1, 0);
+			printf("%s_L%d:\n", l2, fcn);
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
+			printf("\ttest\trax, rax\n\tjnz\t%s_L%d\n", l1, fcn);
 		}
 		break;
 		case STATEMENT_RETURN: {
 			astnode_t* rvalue = statement->kid->sibling;
-			emitRvalue(rvalue, fd, symbols, n, l);
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
 			puts("\tmov\trsp, rbp\n");
 			puts("\tpop\trbp\n");
 			puts("\tret\n");
@@ -278,7 +278,7 @@ static void emitStatement(astnode_t* statement, int fd, char symbols[SYM_CNT][SY
 		break;
 		case STATEMENT_RVALUE: {
 			astnode_t* rvalue = statement->kid;
-			emitRvalue(rvalue, fd, symbols, n, l);
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
 		}
 		break;
 	}
@@ -346,7 +346,7 @@ static void emitDefinition(astnode_t* definition, int fd, int *l) {
 				}
 				frameSetup = 1;
 			}
-			emitStatement(statement, fd, symbols, m, l);
+			emitStatement(statement, fd, symbols, m, l, functionId->value);
 		}
 		statement = statement->sibling;
 	}
@@ -379,6 +379,7 @@ void emitProgram(astnode_t* program, int fd) {
 	}
 	definition = program ? program->kid : 0;
 	while (definition) {
+		l = 0;
 		emitDefinition(definition, fd, &l);
 		definition = definition->sibling;
 	}

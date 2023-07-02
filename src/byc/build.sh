@@ -6,3 +6,4 @@ echo "extern main" > src/_.asm
 cat ../../lib/_start.asm ../../lib/libpith.asm >> src/_.asm
 nasm src/_.asm -felf64 -o src/_.o
 ld -s -n src/lexer.o src/parser.o src/emitter.o src/byc.o src/_.o -o ../../bin/byc
+rm src/_.asm src/*.o
