@@ -2,7 +2,7 @@
 
 ## intro
 
-a smol system language for juicyos.
+a smol system language
 
 ## requirements
 
