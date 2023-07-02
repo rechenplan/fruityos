@@ -45,7 +45,7 @@ sub main(argc, args)
 	seek(fin, 0, 0)
 
 	elf_write_header(fout, textSize, vaddr)
-	parse_file(fout, fin, symtab, reltab, vaddr)
+	parse_file(fout, fin, symtab, reltab, vaddr + 120)
 
 	close(fin)
 	close(fout)
