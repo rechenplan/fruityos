@@ -1,7 +1,7 @@
 
 {
 
-  usage: cat file [ file ]
+  usage: read file [ file ]
 
   print the contents of file(s) to stdout
 
@@ -34,7 +34,7 @@ end
 sub main(argc, argv)
 	local fd, bufPtr
 	if argc < 2 then
-		puts("usage: cat file { file }")
+		puts("usage: read file { file }")
 		putch(10)
 		exit()
 	end

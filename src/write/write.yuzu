@@ -1,0 +1,83 @@
+{
+
+  usage: write file
+
+  write stdin to file
+
+}
+
+sub str_is_equal(a, b)
+	while ([a] & 255) == ([b] & 255) do
+		if !([a] & 255) then
+			return 1
+		end
+		a = a + 1
+		b = b + 1
+	end
+	return 0
+end
+
+sub fputs(fd, str)
+	local c
+	while c = ([str] & 255) do
+		fputch(fd, c)
+		str = str + 1
+	end
+end
+
+sub atoi(str)
+	local c, v
+	c = ([str] & 255)
+	while (c >= (["0"] & 255)) && (c <= (["9"] & 255)) do
+		v = v * 10
+		v = v + (c - (["0"] & 255))
+		str = str + 1
+		c = ([str] & 255)
+	end
+	return v
+end
+
+sub next_arg(args)
+	while [args] & 255 do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub main(argc, args)
+	local d, line, fout, buf, ptr, done
+
+	buf = brk(-1)
+	brk(buf + 1024)
+
+	if argc == 2 then
+		fout = creat(next_arg(args))
+	else
+		fputs(1, "usage: write file")
+		putch(10)
+		exit()
+	end
+
+	ptr = buf
+	d = getch() & 255
+	while d && !done do
+		if (d == 10) then
+			[ptr] = 0
+			ptr = buf
+			if str_is_equal(ptr, ".") then
+				done = 1
+			else
+				fputs(fout, ptr)
+				fputch(fout, 10)
+				line = line + 1
+				d = getch() & 255
+			end
+		else
+			[ptr] = d
+			ptr = ptr + 1
+			d = getch() & 255
+		end
+	end
+	close(fout)
+	return 0
+end
