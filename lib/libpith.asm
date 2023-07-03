@@ -122,3 +122,25 @@ getdents64:
 	mov	rax, 217
 	syscall
 	ret
+
+unlink:
+	mov	rax, 87
+	syscall
+	ret
+
+rename:
+	mov	rax, 82
+	syscall
+	ret
+
+mkdir:
+	mov	rax, 83
+	mov	rsi, 511
+	syscall
+	ret
+
+rmdir:
+	mov	rax, 84
+	syscall
+	ret
+
