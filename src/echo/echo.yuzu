@@ -1,0 +1,37 @@
+{
+
+  usage: echo
+
+  prints the arguments passed to it
+
+}
+
+sub puts(strPtr)
+	local c
+	while c = [strPtr] & 255 do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = [strPtr] & 255 do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	local fd, bufPtr
+	while argc > 1 do
+		argv = nextarg(argv)
+		puts(argv)
+		putch(32)
+		argc = argc - 1
+	end
+	putch(10)
+	putch(0)
+	return 0
+end

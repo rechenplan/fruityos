@@ -71,7 +71,7 @@ sub pish_parse_line(line, argv)
 			tempLine = tempLine + 1
 			c = [tempLine] & 255
 		end
-		if c != 10 then
+		if c && c != 10 then
 			[tempArgv] = tempLine
 			tempArgv = tempArgv + 8
 		end
@@ -83,8 +83,15 @@ sub pish_parse_line(line, argv)
 	[tempArgv] = 0
 end
 
-sub main()
-	local dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
+sub nextArg(args)
+	while [args] & 255 do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub main(argc, args)
+	local fin, dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
 
 	dirBuf = brk(-1)
 	lineBuf = dirBuf + 1024
@@ -92,27 +99,39 @@ sub main()
 	tempBuf = argvBuf + 1024
 	brk(tempBuf + 1024)
 
-	while 1 do
-		getcwd(dirBuf, 1024)
-		pish_puts(dirBuf)
-		putch([">"])
-		putch(32)
+	if argc == 2 then
+		fin = open(nextArg(args), 0)
+	else
+		fin = 0
+	end
 
-		c = getch() & 255
+	c = 32
+	while c && (fin >= 0) do
+		if fin == 0 then
+			getcwd(dirBuf, 1024)
+			pish_puts(dirBuf)
+			putch([">"])
+			putch(32)
+		end
+
+		c = fgetch(fin) & 255	
+
 		tempLine = lineBuf
 		while c && (c != 10) do
 			[tempLine] = c
 			tempLine = tempLine + 1
-			c = getch() & 255
+			c = fgetch(fin) & 255
 		end
 		[tempLine] = 0
 		pish_parse_line(lineBuf, argvBuf)
-		recognized = 0
-		if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
-		if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
-		if !recognized then pish_exec(tempBuf, argvBuf) end
-		
-	end
+		if [argvBuf] && ([lineBuf] & 255 != (["#"] & 255)) then
+			recognized = 0
+			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
+			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
+			if !recognized then pish_exec(tempBuf, argvBuf) end
 
+		end
+	end
+	close(fin)
 end
 
