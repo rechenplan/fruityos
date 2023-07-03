@@ -10,3 +10,18 @@ mv a.out bin/cat
 
 ../yuzu/bin/yuzu src/dir/dir.yuzu
 mv a.out bin/dir
+
+../yuzu/bin/yuzu src/del/del.yuzu
+mv a.out bin/del
+
+../yuzu/bin/yuzu src/move/move.yuzu
+mv a.out bin/move
+
+../yuzu/bin/yuzu src/mkdir/mkdir.yuzu
+mv a.out bin/mkdir
+
+../yuzu/bin/yuzu src/rmdir/rmdir.yuzu
+mv a.out bin/rmdir
+
+../yuzu/bin/yuzu src/copy/copy.yuzu
+mv a.out bin/copy

@@ -1,0 +1,40 @@
+
+{
+
+  usage: rename file newfile
+
+  rename files
+
+}
+
+sub puts(strPtr)
+	local c
+	while c = [strPtr] & 255 do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = [strPtr] & 255 do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	local file
+	if argc != 3 then
+		puts("usage: rename file newfile")
+		putch(10)
+		exit()
+	end
+	while argc == 3 do
+		file = nextarg(argv)
+		argv = nextarg(file)
+		rename(file, argv)
+	end
+	return 0
+end
