@@ -21,5 +21,7 @@ extern	auto_t	fgetch	(auto_t fd);
 extern	auto_t	fputch	(auto_t fd, auto_t c);
 extern	auto_t	brk	(auto_t addr);
 extern	auto_t	exit	();
-
+extern	auto_t	getcwd	(auto_t buffer, auto_t size);
+extern	auto_t	exec	(auto_t path, auto_t argv);
+extern	auto_t	fork	();
 #endif

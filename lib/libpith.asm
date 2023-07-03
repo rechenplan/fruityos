@@ -86,3 +86,29 @@ write:
 	mov	rax, 1
 	syscall
 	ret
+
+getcwd:
+	mov	rax, 79
+	syscall
+	ret
+
+exec:
+	mov	rax, 59
+	xor	rdx, rdx
+	syscall
+	ret
+
+fork:
+	mov	rax, 57
+	syscall
+	ret
+
+waitpid:
+	mov	rax, 61
+	xor	rsi, rsi
+	push	rsi
+	pop	rdx
+	push	rsi
+	pop	r10
+	syscall
+	ret

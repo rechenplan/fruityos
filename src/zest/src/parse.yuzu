@@ -88,7 +88,7 @@ end
 sub parse_expect_register(token)
 	local reg
 	reg = lex_keyword_lookup(token) - 36
-	if (reg < 0) || (reg > 9) then
+	if (reg < 0) || (reg > 10) then
 		lex_puts("expected register got ")
 		lex_puts(token)
 		putch(10)
@@ -110,7 +110,7 @@ end
 
 sub parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) != 48 then
+	if lex_keyword_lookup(token) != 49 then
 		lex_puts("expected comma got ")
 		lex_puts(token)
 		putch(10)
@@ -147,7 +147,7 @@ end
 sub parse_setcc(op, fout, ptr, token)
 	local dl
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) != 47 then
+	if lex_keyword_lookup(token) != 48 then
 		lex_puts("expected dl got ")
 		lex_puts(token)
 		putch(10)
@@ -163,7 +163,7 @@ sub parse_shift(op, fout, ptr, token)
 	dstReg = parse_expect_register(token)
 	ptr = parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) != 46 then
+	if lex_keyword_lookup(token) != 47 then
 		lex_puts("expected cl got ")
 		lex_puts(token)
 		putch(10)
@@ -237,12 +237,12 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 	local dstReg, srcReg, value
 
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) == 49 then { "[" }
+	if lex_keyword_lookup(token) == 50 then { "[" }
 		{ store }
 		ptr = lex_get_next_token(ptr, token)
 		dstReg = parse_expect_register(token)
 		ptr = lex_get_next_token(ptr, token)
-		if lex_keyword_lookup(token) != 50 then
+		if lex_keyword_lookup(token) != 51 then
 			lex_puts("expected ]")
 			putch(10)
 			exit()
@@ -258,11 +258,11 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 		ptr = lex_get_next_token(ptr, token)
 
 		{ load }
-		if lex_keyword_lookup(token) == 49 then { "[" }
+		if lex_keyword_lookup(token) == 50 then { "[" }
 			ptr = lex_get_next_token(ptr, token)
 			srcReg = parse_expect_register(token)
 			ptr = lex_get_next_token(ptr, token)
-			if lex_keyword_lookup(token) != 50 then
+			if lex_keyword_lookup(token) != 51 then
 				lex_puts("expected ]")
 				putch(10)
 				exit()
