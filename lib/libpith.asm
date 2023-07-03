@@ -144,3 +144,7 @@ rmdir:
 	syscall
 	ret
 
+dup2:
+	mov	rax, 33
+	syscall
+	ret

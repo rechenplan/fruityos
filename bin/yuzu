@@ -1,10 +1,13 @@
 #!/bin/sh
 D=$(dirname "$0")
 cat $D/../lib/_start.asm > a.asm
+o=""
 for v in "$@"
 do
-	$D/byc $v >> a.asm
+	$D/byc $v $v.asm
+	o="${o} ${v}.asm"
 done
+cat $o >> a.asm
 cat $D/../lib/libpith.asm >> a.asm
 $D/zest a.asm a.out
-rm a.asm
+rm ${o} a.asm

@@ -2,17 +2,17 @@
 #include "lexer.h"
 #include "parser.h"
 
-void puts(char* s) {
+void fputs(int fd, char* s) {
 	while (*s) {
-		putch(*(s++));
+		fputch(fd, *(s++));
 	}
 }
 
-static void putn(int n) {
+static void fputn(int fd, int n) {
 	int m, i = 100000000;
 	int trailing = 1;
 	if (!n) {
-		putch('0');
+		fputch(fd, '0');
 		return;
 	}
 	while (i > 0) {
@@ -20,36 +20,36 @@ static void putn(int n) {
 		if (trailing) {
 			if (m != 0) {
 				trailing = 0;
-				putch(m + '0');
+				fputch(fd, m + '0');
 			}
 		}
 		else {
-			putch(m + '0');
+			fputch(fd, m + '0');
 		}
 		n %= i;
 		i = i / 10;
 	}
 }
 
-void printf(char* fmt, int n, char* s) {
+void fprintf(int fd, char* fmt, int n, char* s) {
 	while (*fmt) {
 		char c = *(fmt++);
 		if (c == '\\') {
 			c = *(fmt++);
 			switch (c) {
-				case 't': putch('\t'); break;
-				case 'n': putch('\n'); break;
+				case 't': fputch(fd, '\t'); break;
+				case 'n': fputch(fd, '\n'); break;
 			}
 		}
 		else if (c == '%') {
 			c = *(fmt++);
 			switch (c) {
-				case 's': puts(s); break;
-				case 'd': putn(n); break;
+				case 's': fputs(fd, s); break;
+				case 'd': fputn(fd, n); break;
 			}
 		}
 		else {
-			putch(c);
+			fputch(fd, c);
 		}
 	}
 }
@@ -57,7 +57,7 @@ void printf(char* fmt, int n, char* s) {
 extern astnode_t* parseProgram(char** program);
 extern void emitProgram(astnode_t* program, int fd);
 
-void error(char* msg) { printf("err: %s\n", 0, msg); exit(); }
+void error(char* msg) { fprintf(0, "err: %s\n", 0, msg); exit(); }
 void* sbrk(unsigned int size) { void* t = brk(-1); brk(t + size); return t; }
 void* allocMemory(int size) { return sbrk(size); }
 void freeMemory(void* ptr) { }
@@ -69,13 +69,15 @@ char* getNextArg(char* arg) {
 }
 
 int main(int argc, char* arg) {
-	if (argc == 2) {
+	if (argc == 3) {
 		char* fname = getNextArg(arg);
 		int fd = open(fname, 0);
 		if (fd < 0) {
-			printf("Unable to open \"%s\"\n", 0, fname);
+			fprintf(0, "Unable to open \"%s\"\n", 0, fname);
 			exit();
 		}
+		char* oname = getNextArg(fname);
+		int fout = creat(oname);
 		char* buf = allocMemory(1024 * 1024);
 		char* prog = buf;
 		*prog = 1;
@@ -83,9 +85,10 @@ int main(int argc, char* arg) {
 		close(fd);
 		*prog = 0;
 		prog = buf;
-		emitProgram(parseProgram(&prog), 0);
+		emitProgram(parseProgram(&prog), fout);
+		close(fout);
 		freeMemory(buf);
 	} else {
-		printf("usage: %s filename\n", 0, arg);
+		fprintf(0, "usage: %s in.yuzu out.asm\n", 0, arg);
 	}
 }
