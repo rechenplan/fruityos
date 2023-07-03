@@ -112,3 +112,13 @@ waitpid:
 	pop	r10
 	syscall
 	ret
+
+chdir:
+	mov	rax, 80
+	syscall
+	ret
+
+getdents64:
+	mov	rax, 217
+	syscall
+	ret
