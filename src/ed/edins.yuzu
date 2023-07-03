@@ -45,7 +45,7 @@ sub next_arg(args)
 end
 
 sub main(argc, args)
-	local c, line, fin, num, buf, ptr, done
+	local c, d, line, fin, num, buf, ptr, done
 
 	buf = brk(-1)
 	brk(buf + 1024)
@@ -60,31 +60,33 @@ sub main(argc, args)
 	end
 
 	while c = fgetch(fin) & 255 do
+		if line == num then
+			ptr = buf
+			d = getch() & 255
+			while d && !done do
+				if (d == 10) then
+					[ptr] = 0
+					ptr = buf
+					if str_is_equal(ptr, ".") then
+							done = 1
+					else
+						puts(ptr)
+						putch(10)
+						line = line + 1
+						d = getch() & 255
+					end
+				else
+					[ptr] = d
+					ptr = ptr + 1
+					d = getch() & 255
+				end
+			end
+		end
+
+
 		putch(c)
 		if c == 10 then
 			line = line + 1
-			if line == num then
-				ptr = buf
-				c = getch() & 255
-				while c && !done do
-					if (c == 10) then
-						[ptr] = 0
-						ptr = buf
-						if str_is_equal(ptr, ".") then
-
-							done = 1
-						else
-							puts(ptr)
-							putch(10)
-							c = getch() & 255
-						end
-					else
-						[ptr] = c
-						ptr = ptr + 1
-						c = getch() & 255
-					end
-				end
-			end
 		end
 	end
 	close(fin)
