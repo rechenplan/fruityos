@@ -1,0 +1,55 @@
+sub dir_equal_string(a, b)
+	while ([a] & 255) == ([b] & 255) do
+		if !([a] & 255) then
+			return 1
+		end
+		a = a + 1
+		b = b + 1
+	end
+	return 0
+end
+
+sub dir_puts(str)
+	local c
+	while c = ([str] & 255) do
+		putch(c)
+		str = str + 1
+	end
+end
+
+sub main()
+	local buf, fd, pos, bread, ent, type
+
+	buf = brk(-1)
+	brk(buf + 65536)
+
+	getcwd(buf, 65536)
+	fd = open(buf, 0)
+	bread = getdents64(fd, buf, 65536)
+	close(fd)
+
+	dir_puts("[.] [..] ")
+	while pos < bread do
+		ent = buf + pos
+		type = [ent + 18] & 255
+		if type == 4 then
+			if !(dir_equal_string(ent + 19, "..") || dir_equal_string(ent + 19, ".")) then
+				dir_puts("[")
+				dir_puts(ent + 19)
+				dir_puts("] ")
+			end
+		end
+		pos = pos + ([ent + 16] & 65535)
+	end
+	pos = 0
+	while pos < bread do
+		ent = buf + pos
+		type = [ent + 18] & 255
+		if type != 4 then
+			dir_puts(ent + 19)
+			putch(32)
+		end
+		pos = pos + ([ent + 16] & 65535)
+	end
+	putch(10)
+end
