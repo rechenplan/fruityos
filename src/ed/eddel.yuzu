@@ -1,0 +1,57 @@
+{
+
+  usage: eddel line
+
+  prints stdin omitting line number
+
+}
+
+sub puts(str)
+	local c
+	while c = ([str] & 255) do
+		putch(c)
+		str = str + 1
+	end
+end
+
+sub atoi(str)
+	local c, v
+	c = ([str] & 255)
+	while (c >= (["0"] & 255)) && (c <= (["9"] & 255)) do
+		v = v * 10
+		v = v + (c - (["0"] & 255))
+		str = str + 1
+		c = ([str] & 255)
+	end
+	return v
+end
+
+sub next_arg(args)
+	while [args] & 255 do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub main(argc, args)
+	local c, line, fin, num
+
+	if argc == 2 then
+		num = atoi(next_arg(args))
+		fin = 0
+	else
+		puts("usage: eddel line")
+		putch(10)
+		exit()
+	end
+
+	while c = fgetch(fin) & 255 do
+		if (line != num) then putch(c) end
+		if c == 10 then
+			line = line + 1
+		end
+	end
+	close(fin)
+	putch(0)
+	return 0
+end

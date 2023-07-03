@@ -28,3 +28,12 @@ mv a.out bin/copy
 
 ../yuzu/bin/yuzu src/echo/echo.yuzu
 mv a.out bin/echo
+
+../yuzu/bin/yuzu src/ed/edlist.yuzu
+mv a.out bin/edlist
+
+../yuzu/bin/yuzu src/ed/eddel.yuzu
+mv a.out bin/eddel
+
+../yuzu/bin/yuzu src/ed/edins.yuzu
+mv a.out bin/edins
