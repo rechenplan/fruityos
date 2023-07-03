@@ -1,3 +1,10 @@
+sub pish_chdir(argv)
+	if chdir([argv + 8]) < 0 then
+		pish_puts([argv + 8])
+		pish_puts("?")
+		putch(10)
+	end
+end
 
 sub pish_puts(str)
 	local c
@@ -18,8 +25,40 @@ sub pish_str_equal(a, b)
 	return 0
 end
 
-sub pish_exec(line, argv)
-	local pid, tempLine, tempArgv, c
+sub pish_path(buf, dir, file)
+	local c
+	while c = ([dir] & 255) do
+		[buf] = c
+		buf = buf + 1
+		dir = dir + 1
+	end
+	while c = ([file] & 255) do
+		[buf] = c
+		buf = buf + 1
+		file = file + 1
+	end
+	[buf] = 0
+end
+
+sub pish_exec(buf, argv)
+	local pid
+	pid = fork()
+	if pid == 0 then
+		exec([argv], argv)
+		pish_path(buf, "./", [argv])
+		exec(buf, argv)
+		pish_path(buf, "/bin/", [argv])
+		exec(buf, argv)
+		pish_puts("?")
+		putch(10)
+		exit()
+	else
+		waitpid(pid)
+	end
+end
+
+sub pish_parse_line(line, argv)
+	local tempLine, tempArgv, c
 
 	tempLine = line
 	tempArgv = argv
@@ -41,27 +80,16 @@ sub pish_exec(line, argv)
 		end
 	end
 	[tempArgv] = 0
-	
-
-	pid = fork()
-	if pid == 0 then
-		exec([argv], argv)
-		pish_puts("?")
-		putch(10)
-		exit()
-	else
-		waitpid(pid)
-	end
 end
 
 sub main()
-	local dirBuf, lineBuf, tempLine, argvBuf, c
+	local dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
 
 	dirBuf = brk(-1)
-	lineBuf = brk(dirBuf + 1024)
-	argvBuf = brk(lineBuf + 1024)
-	brk(argvBuf + 1024)
-
+	lineBuf = dirBuf + 1024
+	argvBuf = lineBuf + 1024
+	tempBuf = argvBuf + 1024
+	brk(tempBuf + 1024)
 
 	while 1 do
 		getcwd(dirBuf, 1024)
@@ -77,11 +105,11 @@ sub main()
 			c = getch() & 255
 		end
 		[tempLine] = 0
-		if pish_str_equal(lineBuf, "exit") then
-			exit()
-		else
-			pish_exec(lineBuf, argvBuf)
-		end
+		pish_parse_line(lineBuf, argvBuf)
+		recognized = 0
+		if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
+		if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
+		if !recognized then pish_exec(tempBuf, argvBuf) end
 		
 	end
 
