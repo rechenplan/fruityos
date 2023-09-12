@@ -1,11 +1,10 @@
 
-{
+;
+; usage: concat outfile [ infile ]
+;
+; writes a series of files in order to an output file
+;
 
-  usage: concat outfile [ infile ]
-
-  writes a series of files in order to an output file
-
-}
 
 sub malloc(size)
 	local ptr
@@ -34,7 +33,7 @@ end
 sub main(argc, argv)
 	local fd, fout, bufPtr
 	if argc < 2 then
-		puts("usage: concat outfile { infile }")
+		puts("usage: concat outfile ; infile ")
 		putch(10)
 		exit()
 	end

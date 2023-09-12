@@ -1,10 +1,9 @@
-{
 
-  usage: write file
 
-  write stdin to file
+;  usage: write file
 
-}
+;  write stdin to file
+
 
 sub str_is_equal(a, b)
 	while ([a] & 255) == ([b] & 255) do

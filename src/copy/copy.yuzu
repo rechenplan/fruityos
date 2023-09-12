@@ -1,11 +1,7 @@
+;  usage: copy file destfile
+;  copy files
 
-{
 
-  usage: copy file destfile
-
-  copy files
-
-}
 
 sub puts(strPtr)
 	local c

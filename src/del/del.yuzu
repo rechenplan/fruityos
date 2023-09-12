@@ -1,11 +1,8 @@
 
-{
 
-  usage: del file [ file ]
 
-  delete files
-
-}
+;  usage: del file [ file ]
+;  delete files
 
 sub puts(strPtr)
 	local c
@@ -26,7 +23,7 @@ end
 
 sub main(argc, argv)
 	if argc < 2 then
-		puts("usage: del file { file }")
+		puts("usage: del file ; file ")
 		putch(10)
 		exit()
 	end

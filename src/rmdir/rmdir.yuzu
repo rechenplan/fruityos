@@ -1,11 +1,10 @@
 
-{
 
-  usage: rmdir dir
 
-  delete directory
+;  usage: rmdir dir
 
-}
+;  delete directory
+
 
 sub puts(strPtr)
 	local c

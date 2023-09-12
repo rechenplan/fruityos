@@ -1,11 +1,11 @@
 
-{
 
-  usage: mkdir dir
 
-  create directory
+;  usage: mkdir dir
 
-}
+;  create directory
+
+
 
 sub puts(strPtr)
 	local c

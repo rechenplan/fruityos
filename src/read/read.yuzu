@@ -1,11 +1,10 @@
 
-{
 
-  usage: read file [ file ]
 
-  print the contents of file(s) to stdout
+;  usage: read file [ file ]
 
-}
+;  print the contents of file(s) to stdout
+
 
 sub malloc(size)
 	local ptr
@@ -34,7 +33,7 @@ end
 sub main(argc, argv)
 	local fd, bufPtr
 	if argc < 2 then
-		puts("usage: read file { file }")
+		puts("usage: read file ; file ")
 		putch(10)
 		exit()
 	end
@@ -50,6 +49,6 @@ sub main(argc, argv)
 		end
 		argc = argc - 1
 	end
-	putch(0) { 0 indicates end of stream }
+	putch(0) ; 0 indicates end of stream 
 	return 0
 end
