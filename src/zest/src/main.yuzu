@@ -38,7 +38,7 @@ sub main(argc, args)
 		exit()
 	end
 
-	vaddr = 134512640 { 0x8048000 }
+	vaddr = 134512640 ; 0x8048000 
 	textSize = parse_file(-1, fin, symtab, vaddr + 120)
 	seek(fin, 0, 0)
 

@@ -1,4 +1,4 @@
-{ zest lexer }
+; zest lexer 
 
 sub lex_get_keyword_str()
 	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$r10$cl$dl$,$[$]$-$+$org$"
@@ -61,7 +61,7 @@ sub lex_get_next_token(buffer, out)
 				c = [buffer + len] & 255
 				len = len + 1
 			end
-			buffer = buffer + len - 1 { we're going to add 1 later }
+			buffer = buffer + len - 1 ; we're going to add 1 later 
 		end
 
 		if lex_is_alpha(c) then

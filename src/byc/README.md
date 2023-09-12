@@ -86,9 +86,9 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 
 Example code:
 
-	def eliminateCats(numCats)
+	sub eliminateCats(numCats)
 
-		{ this is a comment }
+		; this is a comment
 		if numCats > 5 then numCats = numCats - 1 end
 		return numCats
 

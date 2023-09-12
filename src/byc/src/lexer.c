@@ -16,7 +16,7 @@ static int isDigit(char c) { return (c >= '0' && c <= '9'); }
 static int isQuote(char c) { return (c == '"'); }
 static int isNameChar(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_'); }
 static int isNextNameChar(char c) { return isNameChar(c) || isDigit(c); }
-static int isSkipable(char c) { return c == '\t' || c == ' ' || c == '\n' || c == '\r' || c == '{' || c == '}'; }
+static int isSkipable(char c) { return c == '\t' || c == ' ' || c == '\n' || c == '\r' || c == ';'; }
 
 /* compute string length */
 static int stringLength(char* str) {
@@ -48,10 +48,10 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 	/* skip whitespace and comments */
 	while (*buffer && (isSkipable(*buffer) || inComment)) {
 		if (inComment) {
-			inComment = (*buffer != '}');
+			inComment = (*buffer != '\n');
 		}
 		else {
-			inComment = (*buffer == '{');
+			inComment = (*buffer == ';');
 		}
 		buffer++;
 		read++;

@@ -1,5 +1,5 @@
 
-{ zest parser }
+; zest parser 
 
 sub parse_is_digit(c)
 	return (c >= (["0"] & 255)) && (c <= (["9"] & 255))
@@ -72,7 +72,7 @@ sub parse_insert_table(value, symbol, tab)
 	[tab] = value
 	i = 8
 	while (c = ([symbol] & 255)) && (i < 63) do
-		if c != 58 then { ":" }
+		if c != 58 then ; ":" 
 			[tab + i] = c
 			i = i + 1
 		end
@@ -82,7 +82,7 @@ sub parse_insert_table(value, symbol, tab)
 		[tab + i] = 0
 		i = i + 1
 	end
-	[tab + 64] = -1 { fix what we broke! }
+	[tab + 64] = -1 ; fix what we broke! 
 end
 
 sub parse_expect_register(token)
@@ -237,8 +237,8 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 	local dstReg, srcReg, value
 
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) == 50 then { "[" }
-		{ store }
+	if lex_keyword_lookup(token) == 50 then ; "[" 
+		; store 
 		ptr = lex_get_next_token(ptr, token)
 		dstReg = parse_expect_register(token)
 		ptr = lex_get_next_token(ptr, token)
@@ -257,8 +257,8 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 		ptr = parse_expect_comma(ptr, token)
 		ptr = lex_get_next_token(ptr, token)
 
-		{ load }
-		if lex_keyword_lookup(token) == 50 then { "[" }
+		; load 
+		if lex_keyword_lookup(token) == 50 then ; "[" 
 			ptr = lex_get_next_token(ptr, token)
 			srcReg = parse_expect_register(token)
 			ptr = lex_get_next_token(ptr, token)
@@ -271,16 +271,16 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 			return emit_load(fout, srcReg, dstReg)
 		end
 
-		{ load imm }
+		; load imm 
 		if lex_keyword_lookup(token) == -1 then
 			value = parse_lookup_table(token, symtab)
 
-			{ if value is -2, the symbol is external! }
+			; if value is -2, the symbol is external! 
 			if value == -2 then
 				value = 0
 			end
 
-			{ if symbol not found, assume its a number }
+			; if symbol not found, assume its a number 
 			if value == -1 then
 				if parse_is_digit([token] & 255) then
 					value = parse_atoi(token)
@@ -297,7 +297,7 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 			return emit_load_imm(fout, dstReg, value)
 		end
 
-		{ two reg }
+		; two reg 
 		srcReg = parse_expect_register(token)
 		ptr = parse_expect_newline(ptr, token)
 		emit_two_reg(25, fout, srcReg, dstReg)		
@@ -315,13 +315,13 @@ sub parse_extern(fout, pos, ptr, token, symtab)
 	end
 	if fout == -1 then
 		if parse_lookup_table(token, symtab) == -1 then
-			{ don't include externs in symbol table for now }
-			{ parse_insert_table(-2, token, symtab) }
+			; don't include externs in symbol table for now 
+			; parse_insert_table(-2, token, symtab) 
 		end
 	end
 end
 
-{ if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass }
+; if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass 
 sub parse_file(fout, fin, symtab, org)
 
 	local buffer, ptr, token, c, k, pos
@@ -347,37 +347,37 @@ sub parse_file(fout, fin, symtab, org)
 
 			k = lex_keyword_lookup(token)
 
-			{ ret, syscall }
+			; ret, syscall 
 			if (k >= 0) && (k <= 1) then pos = pos + parse_no_args(k, fout, ptr, token) end
 
-			{ push, pop, mul, div, neg, not }
+			; push, pop, mul, div, neg, not 
 			if (k >= 2) && (k <= 7) then pos = pos + parse_one_reg(k, fout, ptr, token) end
 
-			{ add, sub, and, xor, or, test, cmp }
+			; add, sub, and, xor, or, test, cmp 
 			if (k >= 8) && (k <= 14) then pos = pos + parse_two_reg(k, fout, ptr, token) end
 
-			{ shl, shr }
+			; shl, shr 
 			if (k >= 15) && (k <= 16) then pos = pos + parse_shift(k, fout, ptr, token) end
 
-			{ sete, setne, setz, setnz, setg, setl, setge, setle }
+			; sete, setne, setz, setnz, setg, setl, setge, setle 
 			if (k >= 17) && (k <= 24) then pos = pos + parse_setcc(k, fout, ptr, token) end
 
-			{ call }
+			; call 
 			if k == 27 then pos = pos + parse_call(k, fout, ptr, token) end
 
-			{ jmp, jnz, jz }
+			; jmp, jnz, jz 
 			if (k >= 28) && (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
 
-			{ label: }
+			; label: 
 			if k == -1 then parse_label(fout, pos, ptr, token, symtab) end
 
-			{ extern }
+			; extern 
 			if k == 32 then parse_extern(fout, pos, ptr, token, symtab) end
 
-			{ mov }
+			; mov 
 			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab, pos) end
 
-			{ db }
+			; db 
 			if k == 31 then pos = pos + parse_db(fout, ptr, token) end
 
 		end
