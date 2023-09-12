@@ -1,5 +1,5 @@
 sub main_next_arg(args)
-	while [args] & 255 do
+	while byte [args] do
 		args = args + 1
 	end
 	return args + 1

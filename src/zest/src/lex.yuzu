@@ -5,43 +5,43 @@ sub lex_get_keyword_str()
 end
 
 sub lex_is_numeric(c)
-	return (c >= (["0"] & 255)) && (c <= (["9"] & 255))
+	return (c >= byte ["0"]) && (c <= byte ["9"])
 end
 
 sub lex_is_alpha(c)
-	return  ((c >= (["A"] & 255)) && (c <= (["Z"] & 255))) ||
-		((c >= (["a"] & 255)) && (c <= (["z"] & 255))) ||
-		(c == (["_"] & 255)) || (c == (["."] & 255))
+	return  ((c >= byte ["A"]) && (c <= byte ["Z"])) ||
+		((c >= byte ["a"]) && (c <= byte ["z"])) ||
+		(c == byte ["_"]) || (c == byte ["."])
 end
 
 sub lex_get_next_keyword(keywordStr)
-	while (([keywordStr] & 255) != (["$"] & 255)) do
+	while byte [keywordStr] != byte ["$"] do
 		keywordStr = keywordStr + 1
 	end
 	return keywordStr + 1
 end
 
 sub lex_print_keyword(keywordStr)
-	while (([keywordStr] & 255) != (["$"] & 255)) do
-		putch([keywordStr] & 255)
+	while byte [keywordStr] != byte ["$"] do
+		putch(byte [keywordStr])
 		keywordStr = keywordStr + 1
 	end
 end
 
 sub lex_keyword_compare(str, k)
 	local i
-	while (([str] & 255) == ([k] & 255)) && ([k] & 255) && ([str] & 255) do
+	while (byte [str] == byte [k]) && byte [k] && byte [str] do
 		str = str + 1
 		k = k + 1
 	end
-	return (([k] & 255) == (["$"] & 255)) && ([str] & 255 == 0)
+	return (byte [k] == byte ["$"]) && (byte [str] == 0)
 end
 
 sub lex_keyword_lookup(str)
 	local k, i, ret
 	ret = -1
 	k = lex_get_keyword_str()
-	while [k] & 255 do
+	while byte [k] do
 		if lex_keyword_compare(str, k) then
 			ret = i
 		end
@@ -53,12 +53,12 @@ end
 
 sub lex_get_next_token(buffer, out)
 	local c, len
-	while c = [buffer] & 255 do
+	while c = byte [buffer] do
 
-		if c == ([";"] & 255) then
+		if c == byte [";"] then
 			len = 0
 			while c && (c != 10) do
-				c = [buffer + len] & 255
+				c = byte [buffer + len]
 				len = len + 1
 			end
 			buffer = buffer + len - 1 ; we're going to add 1 later 
@@ -67,13 +67,13 @@ sub lex_get_next_token(buffer, out)
 		if lex_is_alpha(c) then
 			while lex_is_alpha(c) ||
                               lex_is_numeric(c) || 
-                              (c == ([":"] & 255)) ||
-                              (c == (["_"] & 255))
+                              (c == byte [":"]) ||
+                              (c == byte ["_"])
 			do
 				[out] = c
 				buffer = buffer + 1
 				out = out + 1
-				c = [buffer] & 255
+				c = byte [buffer]
 			end
 			[out] = 0
 			return buffer
@@ -83,7 +83,7 @@ sub lex_get_next_token(buffer, out)
 			[out] = c
 			out = out + 1
 			buffer = buffer + 1
-			while (c = [buffer] & 255) != 34 do
+			while (c = byte [buffer]) != 34 do
 				[out] = c
 				out = out + 1
 				buffer = buffer + 1
@@ -98,17 +98,17 @@ sub lex_get_next_token(buffer, out)
 				[out] = c
 				buffer = buffer + 1
 				out = out + 1
-				c = [buffer] & 255
+				c = byte [buffer]
 			end
 			[out] = 0
 			return buffer
 		end
 
-		if (c == ([","] & 255)) || 
-		   (c == (["["] & 255)) ||
-	           (c == (["]"] & 255)) ||
-		   (c == (["-"] & 255)) ||
-		   (c == (["+"] & 255)) ||
+		if (c == byte [","]) || 
+		   (c == byte ["["]) ||
+	           (c == byte ["]"]) ||
+		   (c == byte ["-"]) ||
+		   (c == byte ["+"]) ||
 		   (c == 10)
 		then
 			[out] = c
@@ -123,7 +123,7 @@ end
 
 sub lex_puts(str)
 	local c
-	while c = [str] & 255 do
+	while c = byte [str] do
 		putch(c)
 		str = str + 1
 	end

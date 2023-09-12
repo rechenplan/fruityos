@@ -1,7 +1,7 @@
 #include "lexer.h"
 
 char* LEX_TOKENS[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
-        "<",">>",">=",">", "local","if","then","else","end","while","do","sub","return"};
+        "<",">>",">=",">","local","if","then","else","end","while","do","sub","return","byte"};
 
 
 /* a list of all valid yuzu tokens */
@@ -9,7 +9,7 @@ static char* tokens[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","
 	"<",">>",">=",">"};
 
 /* a list of all valid yuzu keywords */
-static char* keywords[] = {"local","if","then","else","end","while","do","sub","return"};
+static char* keywords[] = {"local","if","then","else","end","while","do","sub","return","byte"};
 
 /* check character classes */
 static int isDigit(char c) { return (c >= '0' && c <= '9'); }

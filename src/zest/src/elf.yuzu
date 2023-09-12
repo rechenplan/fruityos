@@ -9,9 +9,9 @@ sub elf_write_header(fd, size, vaddr)
 
 	; e_ident 
 	fputch(fd, 127)
-	fputch(fd, ["E"] & 255)
-	fputch(fd, ["L"] & 255)
-	fputch(fd, ["F"] & 255)
+	fputch(fd, byte ["E"])
+	fputch(fd, byte ["L"])
+	fputch(fd, byte ["F"])
 	fputch(fd, 2)
 	fputch(fd, 1)
 	fputch(fd, 1)

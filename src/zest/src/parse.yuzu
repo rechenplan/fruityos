@@ -2,17 +2,17 @@
 ; zest parser 
 
 sub parse_is_digit(c)
-	return (c >= (["0"] & 255)) && (c <= (["9"] & 255))
+	return (c >= byte ["0"]) && (c <= byte ["9"])
 end
 
 sub parse_atoi(str)
 	local c, value
-	c = [str] & 255
+	c = byte [str]
 	while parse_is_digit(c) do
 		value = value * 10
-		value = value + (c - ["0"] & 255)
+		value = value + (c - byte ["0"])
 		str = str + 1
-		c = [str] & 255
+		c = byte [str]
 	end
 	return value
 end
@@ -22,11 +22,11 @@ sub parse_lookup_table(symbol, tab)
 	while (value = [tab]) != -1 && (i < 1024) do
 		name = tab + 8
 		tempSymbol = symbol
-		match = ([tempSymbol] & 255) == ([name] & 255)
-		while match && ([name] & 255) do
+		match = byte [tempSymbol] == byte [name]
+		while match && byte [name] do
 			name = name + 1 
 			tempSymbol = tempSymbol + 1 
-			match = ([tempSymbol] & 255) == ([name] & 255)
+			match = byte [tempSymbol] == byte [name]
 		end
 		if match then
 			return value
@@ -71,7 +71,7 @@ sub parse_insert_table(value, symbol, tab)
 	end
 	[tab] = value
 	i = 8
-	while (c = ([symbol] & 255)) && (i < 63) do
+	while (c = byte [symbol]) && (i < 63) do
 		if c != 58 then ; ":" 
 			[tab + i] = c
 			i = i + 1
@@ -99,7 +99,7 @@ end
 
 sub parse_expect_newline(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if ptr && ([token] & 255 != 10) then
+	if ptr && (byte [token] != 10) then
 		lex_puts("expected newline got ")
 		lex_puts(token)
 		putch(10)
@@ -226,7 +226,7 @@ end
 
 sub parse_db(fout, ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if [token] & 255 == 34 then
+	if byte [token] == 34 then
 		return emit_string(fout, token)
 	else
 		return emit_byte(fout, parse_atoi(token))
@@ -282,7 +282,7 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 
 			; if symbol not found, assume its a number 
 			if value == -1 then
-				if parse_is_digit([token] & 255) then
+				if parse_is_digit(byte [token]) then
 					value = parse_atoi(token)
 				else
 					if fout != -1 then

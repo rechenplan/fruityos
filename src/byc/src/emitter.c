@@ -122,7 +122,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			fputs(fd, "\tpop\trax\n\tcall\trax\n");
 		}
 		break;
-		case RVALUE_ASSIGN: {
+		case RVALUE_ASSIGN_WORD: {
 			astnode_t* lvalue = rvalue->kid;
 			rvalue = lvalue->sibling->sibling;
 			emitLvalue(lvalue, fd, symbols, n, l, fcn);
@@ -132,9 +132,27 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			fputs(fd, "\tmov\t[rdi], rax\n");
 		}
 		break;
-		case RVALUE_LVALUE: {
+		case RVALUE_ASSIGN_BYTE: {
+			astnode_t* lvalue = rvalue->kid->sibling;
+			rvalue = lvalue->sibling->sibling;
+			emitLvalue(lvalue, fd, symbols, n, l, fcn);
+			fputs(fd, "\tpush\trax\n");
+			emitRvalue(rvalue, fd, symbols, n, l, fcn);
+			fputs(fd, "\tpop\trdi\n");
+			fputs(fd, "\tmov\tbyte [rdi], al\n");
+		}
+		break;
+		case RVALUE_LVALUE_WORD: {
 			emitLvalue(rvalue->kid, fd, symbols, n, l, fcn);
 			fputs(fd, "\tmov\trax, [rax]\n");
+		}
+                break;
+		case RVALUE_LVALUE_BYTE: {
+			emitLvalue(rvalue->kid->sibling, fd, symbols, n, l, fcn);
+			fputs(fd, "\tpush\trax\n");
+			fputs(fd, "\tpop\trdi\n");
+			fputs(fd, "\txor\trax, rax\n");
+			fputs(fd, "\tmov\tal, byte [rdi]\n");
 		}
 		break;
 		case RVALUE_UNARY: {

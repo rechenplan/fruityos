@@ -27,6 +27,8 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 			| <LVALUE> <LPAREN> [ <RVALUE> { <COMMA> <RVALUE> } ] <RPAREN>
 			| <LVALUE>
 			| <LVALUE> <ASSIGN> <RVALUE>
+			| <BYTE> <LVALUE>
+			| <BYTE> <LVALUE> <ASSIGN> <RVALUE>
 			| <UNARY> <RVALUE>
 			| <LPAREN> <RVALUE> <RPAREN>
 			| <CONSTANT>
@@ -59,7 +61,8 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<OR> 		::= "|" 
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
-	<ASSIGN> 	::= "=" 
+	<ASSIGN> 	::= "="
+	<BASSIGN>	::= ".="
 	<NOTEQUAL> 	::= "!="
 	<BNOT>		::= "!"
 	<NOT>		::= "~"
@@ -69,6 +72,7 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<RSHIFT> 	::= ">>" 
 	<GEQ> 		::= ">="
 	<GREATERTHAN> 	::= ">"
+	<BYTE>		::= "byte"
 	<LOCAL>		::= "local"
 	<IF>		::= "if"
 	<THEN>		::= "then"
