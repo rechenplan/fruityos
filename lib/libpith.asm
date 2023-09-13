@@ -12,6 +12,17 @@ global fputch
 global read
 global seek
 global write
+global getcwd
+global exec
+global fork
+global waitpid
+global chdir
+global getdents64
+global unlink
+global rename
+global mkdir
+global rmdir
+global dup2
 
 brk:
 	mov	rax, 12
