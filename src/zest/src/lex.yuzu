@@ -1,7 +1,7 @@
 ; zest lexer 
 
 sub lex_get_keyword_str()
-	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$r10$cl$dl$,$[$]$-$+$org$"
+	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$r10$cl$dl$,$[$]$-$+$org$al$"
 end
 
 sub lex_is_numeric(c)

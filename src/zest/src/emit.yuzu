@@ -182,6 +182,16 @@ sub emit_load(fd, srcReg, dstReg)
 	return 3
 end
 
+sub emit_load_byte(fd, srcReg)
+	local mod
+	if fd != -1 then
+		mod = srcReg
+		fputch(fd, 138) ; 0x8A
+		fputch(fd, mod)
+	end
+	return 2
+end
+
 sub emit_load_imm(fd, dstReg, val)
 	local i
 	if fd != -1 then
@@ -205,6 +215,16 @@ sub emit_store(fd, srcReg, dstReg)
 		fputch(fd, mod)
 	end
 	return 3
+end
+
+sub emit_store_byte(fd, dstReg)
+	local mod
+	if fd != -1 then
+		mod = dstReg
+		fputch(fd, 136) ; 0x88
+		fputch(fd, mod)
+	end
+	return 2
 end
 
 sub emit_string(fd, str)

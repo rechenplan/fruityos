@@ -139,7 +139,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			fputs(fd, "\tpush\trax\n");
 			emitRvalue(rvalue, fd, symbols, n, l, fcn);
 			fputs(fd, "\tpop\trdi\n");
-			fputs(fd, "\tmov\tbyte [rdi], al\n");
+			fputs(fd, "\tmov\t[rdi], al\n");
 		}
 		break;
 		case RVALUE_LVALUE_WORD: {
@@ -152,7 +152,7 @@ static void emitRvalue(astnode_t* rvalue, int fd, char symbols[SYM_CNT][SYM_LEN]
 			fputs(fd, "\tpush\trax\n");
 			fputs(fd, "\tpop\trdi\n");
 			fputs(fd, "\txor\trax, rax\n");
-			fputs(fd, "\tmov\tal, byte [rdi]\n");
+			fputs(fd, "\tmov\tal, [rdi]\n");
 		}
 		break;
 		case RVALUE_UNARY: {

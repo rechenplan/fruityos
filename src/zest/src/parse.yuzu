@@ -249,59 +249,85 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 		end
 		ptr = parse_expect_comma(ptr, token)
 		ptr = lex_get_next_token(ptr, token)
-		srcReg = parse_expect_register(token)
-		ptr = parse_expect_newline(ptr, token)
-		return emit_store(fout, srcReg, dstReg)
-	else
-		dstReg = parse_expect_register(token)
-		ptr = parse_expect_comma(ptr, token)
-		ptr = lex_get_next_token(ptr, token)
-
-		; load 
-		if lex_keyword_lookup(token) == 50 then ; "[" 
-			ptr = lex_get_next_token(ptr, token)
-			srcReg = parse_expect_register(token)
-			ptr = lex_get_next_token(ptr, token)
-			if lex_keyword_lookup(token) != 51 then
-				lex_puts("expected ]")
-				putch(10)
-				exit()
-			end
+                ; byte width
+		if lex_keyword_lookup(token) == 55 then ; "al"
 			ptr = parse_expect_newline(ptr, token)
-			return emit_load(fout, srcReg, dstReg)
+			return emit_store_byte(fout, dstReg)
+                ; word width
+                else
+			srcReg = parse_expect_register(token)
+			ptr = parse_expect_newline(ptr, token)
+			return emit_store(fout, srcReg, dstReg)
 		end
+	else
+		if lex_keyword_lookup(token) == 55 then ; "al"
+			ptr = parse_expect_comma(ptr, token)
+			ptr = lex_get_next_token(ptr, token)
 
-		; load imm 
-		if lex_keyword_lookup(token) == -1 then
-			value = parse_lookup_table(token, symtab)
-
-			; if value is -2, the symbol is external! 
-			if value == -2 then
-				value = 0
+			; load 
+			if lex_keyword_lookup(token) == 50 then ; "[" 
+				ptr = lex_get_next_token(ptr, token)
+				srcReg = parse_expect_register(token)
+				ptr = lex_get_next_token(ptr, token)
+				if lex_keyword_lookup(token) != 51 then
+					lex_puts("expected ]")
+					putch(10)
+					exit()
+				end
+				ptr = parse_expect_newline(ptr, token)
+				return emit_load_byte(fout, srcReg)
 			end
 
-			; if symbol not found, assume its a number 
-			if value == -1 then
-				if parse_is_digit(byte [token]) then
-					value = parse_atoi(token)
-				else
-					if fout != -1 then
-						lex_puts("undefined symbol ")
-						lex_puts(token)
-						putch(10)
-						exit()
+		else
+			dstReg = parse_expect_register(token)
+			ptr = parse_expect_comma(ptr, token)
+			ptr = lex_get_next_token(ptr, token)
+
+			; load 
+			if lex_keyword_lookup(token) == 50 then ; "[" 
+				ptr = lex_get_next_token(ptr, token)
+				srcReg = parse_expect_register(token)
+				ptr = lex_get_next_token(ptr, token)
+				if lex_keyword_lookup(token) != 51 then
+					lex_puts("expected ]")
+					putch(10)
+					exit()
+				end
+				ptr = parse_expect_newline(ptr, token)
+				return emit_load(fout, srcReg, dstReg)
+			end
+	
+			; load imm 
+			if lex_keyword_lookup(token) == -1 then
+				value = parse_lookup_table(token, symtab)
+	
+				; if value is -2, the symbol is external! 
+				if value == -2 then
+					value = 0
+				end
+
+				; if symbol not found, assume its a number 
+				if value == -1 then
+					if parse_is_digit(byte [token]) then
+						value = parse_atoi(token)
+					else
+						if fout != -1 then
+							lex_puts("undefined symbol ")
+							lex_puts(token)
+							putch(10)
+							exit()
+						end
 					end
 				end
+	
+				return emit_load_imm(fout, dstReg, value)
 			end
 
-			return emit_load_imm(fout, dstReg, value)
+			; two reg 
+			srcReg = parse_expect_register(token)
+			ptr = parse_expect_newline(ptr, token)
+			return emit_two_reg(25, fout, srcReg, dstReg)
 		end
-
-		; two reg 
-		srcReg = parse_expect_register(token)
-		ptr = parse_expect_newline(ptr, token)
-		emit_two_reg(25, fout, srcReg, dstReg)		
-
 	end
 end
 
