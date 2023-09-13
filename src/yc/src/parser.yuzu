@@ -137,6 +137,22 @@ sub yc_parse_lvalue(lvalue, expected, parent)
 end
 
 sub yc_parse_statement(state, expected, parent)
+	local stateNode 
+	stateNode = yc_create_node(AST_STATEMENT())
+	if yc_accept(state, TOKEN_LOCAL(), stateNode) then
+		ast_set_subtype(stateNode, STATEMENT_LOCAL())
+		yc_expect(state, TOKEN_ID(), stateNode)
+		while yc_accept(state, TOKEN_COMMA(), stateNode) do
+			yc_expect(state, TOKEN_ID(), stateNode)
+		end
+		yc_append_kid(parent, stateNode)
+		return 1
+	end
+
+	yc_destroy_node(stateNode)
+	if expected then
+		yc_error("statement")
+	end
 	return 0
 end
 
@@ -157,12 +173,10 @@ sub yc_parse_definition(def, expected, parent)
 		yc_append_kid(parent, defNode)
 		return 1
 	end
-	if expected then
-		yc_destroy_node(defNode)
-		yc_error("definition")
-		return 0
-	end
 	yc_destroy_node(defNode)
+	if expected then
+		yc_error("definition")
+	end
 	return 0
 end
 

@@ -27,7 +27,7 @@ sub main()
         out_ptr = brk(-1)
 	brk(out_ptr + 1024)
 
-	buffer = "sub main(a, b, c) end ; comment test"
+	buffer = "sub main(a, b, c) local x end ; comment test"
 	[buffer_ptr] = buffer
 
 	yc_parse_program(buffer_ptr)	
