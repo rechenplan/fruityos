@@ -92,10 +92,11 @@ sub yc_accept(buffer, token, parent)
 
 	leafNode = yc_create_node(AST_LEAF())
 	read = yc_alloc(8)
-	if token == yc_next_token([buffer], read, ast_get_value(leafNode)) then
+        i = yc_next_token([buffer], read, ast_get_value(leafNode))
+	if token == i then
 		ast_set_token(leafNode, token)
 		yc_append_kid(parent, leafNode)
-		buffer = buffer + [read]
+		[buffer] = [buffer] + [read]
 		yc_free(read)
 		return 1
 	end
@@ -136,9 +137,33 @@ sub yc_parse_lvalue(lvalue, expected, parent)
 end
 
 sub yc_parse_statement(state, expected, parent)
+	return 0
 end
 
 sub yc_parse_definition(def, expected, parent)
+	local defNode
+	defNode = yc_create_node(AST_DEFINITION())
+	if yc_accept(def, TOKEN_SUB(), defNode) then
+		yc_expect(def, TOKEN_ID(), defNode)
+		yc_expect(def, TOKEN_LPAREN(), defNode)
+		if yc_accept(def, TOKEN_ID(), defNode) then
+			while yc_accept(def, TOKEN_COMMA(), defNode) do
+				yc_expect(def, TOKEN_ID(), defNode)
+			end
+		end
+		yc_expect(def, TOKEN_RPAREN(), defNode)
+		while yc_parse_statement(def, 0, defNode) do end
+		yc_expect(def, TOKEN_END(), defNode)
+		yc_append_kid(parent, defNode)
+		return 1
+	end
+	if expected then
+		yc_destroy_node(defNode)
+		yc_error("definition")
+		return 0
+	end
+	yc_destroy_node(defNode)
+	return 0
 end
 
 sub yc_parse_program(program)

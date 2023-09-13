@@ -16,14 +16,21 @@ end
 
 
 sub main()
-	local out_ptr, read_ptr, buffer
+	local out_ptr, read_ptr, buffer, buffer_ptr
 
 	read_ptr = brk(-1)
 	brk(read_ptr + 8)
+
+	buffer_ptr = brk(-1)
+	brk(buffer_ptr + 8)
+
         out_ptr = brk(-1)
 	brk(out_ptr + 1024)
 
-	buffer = "sub main() puts(i+[d]+10) end ; comment test"
+	buffer = "sub main(a, b, c) end ; comment test"
+	[buffer_ptr] = buffer
+
+	yc_parse_program(buffer_ptr)	
 
 	while yc_next_token(buffer, read_ptr, out_ptr) >= 0 do
 		buffer = buffer + [read_ptr]
