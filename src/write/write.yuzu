@@ -1,13 +1,12 @@
 
 
 ;  usage: write file
-
 ;  write stdin to file
 
 
 sub str_is_equal(a, b)
-	while ([a] & 255) == ([b] & 255) do
-		if !([a] & 255) then
+	while byte [a] == byte [b] do
+		if byte [a] == 0 then
 			return 1
 		end
 		a = a + 1
@@ -18,7 +17,7 @@ end
 
 sub fputs(fd, str)
 	local c
-	while c = ([str] & 255) do
+	while c = byte [str] do
 		fputch(fd, c)
 		str = str + 1
 	end
@@ -26,18 +25,18 @@ end
 
 sub atoi(str)
 	local c, v
-	c = ([str] & 255)
-	while (c >= (["0"] & 255)) && (c <= (["9"] & 255)) do
+	c = byte [str]
+	while (c >= byte ["0"]) && (c <= byte ["9"]) do
 		v = v * 10
-		v = v + (c - (["0"] & 255))
+		v = v + (c - byte ["0"])
 		str = str + 1
-		c = ([str] & 255)
+		c = byte [str]
 	end
 	return v
 end
 
 sub next_arg(args)
-	while [args] & 255 do
+	while byte [args] do
 		args = args + 1
 	end
 	return args + 1

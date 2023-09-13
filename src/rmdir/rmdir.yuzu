@@ -8,7 +8,7 @@
 
 sub puts(strPtr)
 	local c
-	while c = [strPtr] & 255 do
+	while c = byte [strPtr] do
 		putch(c)
 		strPtr = strPtr + 1
 	end
@@ -17,7 +17,7 @@ end
 
 sub nextarg(strPtr)
 	local c
-	while c = [strPtr] & 255 do
+	while c = byte [strPtr] do
 		strPtr = strPtr + 1
 	end
 	return strPtr + 1

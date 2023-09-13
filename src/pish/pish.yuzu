@@ -8,15 +8,15 @@ end
 
 sub pish_puts(str)
 	local c
-	while c = [str] & 255 do
+	while c = byte [str] do
 		putch(c)
 		str = str + 1
 	end
 end
 
 sub pish_str_equal(a, b)
-	while ([a] & 255) == ([b] & 255) do
-		if !([a] & 255) then
+	while byte [a] == byte [b] do
+		if ! byte [a] then
 			return 1
 		end
 		a = a + 1
@@ -27,12 +27,12 @@ end
 
 sub pish_path(buf, dir, file)
 	local c
-	while c = ([dir] & 255) do
+	while c = byte [dir] do
 		[buf] = c
 		buf = buf + 1
 		dir = dir + 1
 	end
-	while c = ([file] & 255) do
+	while c = byte [file] do
 		[buf] = c
 		buf = buf + 1
 		file = file + 1
@@ -64,12 +64,12 @@ sub pish_parse_line(line, argv)
 	tempLine = line
 	tempArgv = argv
 
-	c = [tempLine] & 255
+	c = byte [tempLine]
 	while c != 10 && c do
 		while c == 32 do
 			[tempLine] = [tempLine] & (-256)
 			tempLine = tempLine + 1
-			c = [tempLine] & 255
+			c = byte [tempLine]
 		end
 		if c && c != 10 then
 			[tempArgv] = tempLine
@@ -77,14 +77,14 @@ sub pish_parse_line(line, argv)
 		end
 		while (c != 32) && (c != 10) && c do
 			tempLine = tempLine + 1
-			c = [tempLine] & 255
+			c = byte [tempLine]
 		end
 	end
 	[tempArgv] = 0
 end
 
 sub nextArg(args)
-	while [args] & 255 do
+	while byte [args] do
 		args = args + 1
 	end
 	return args + 1
@@ -124,7 +124,7 @@ sub main(argc, args)
 		end
 		[tempLine] = 0
 		pish_parse_line(lineBuf, argvBuf)
-		if [argvBuf] && ([lineBuf] & 255 != (["#"] & 255)) then
+		if [argvBuf] && (byte [lineBuf] != byte ["#"]) then
 			recognized = 0
 			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
 			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end

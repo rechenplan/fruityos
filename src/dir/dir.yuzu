@@ -1,6 +1,6 @@
 sub dir_equal_string(a, b)
-	while ([a] & 255) == ([b] & 255) do
-		if !([a] & 255) then
+	while byte [a] == byte [b] do
+		if ! byte [a] then
 			return 1
 		end
 		a = a + 1
@@ -11,7 +11,7 @@ end
 
 sub dir_puts(str)
 	local c
-	while c = ([str] & 255) do
+	while c = byte [str] do
 		putch(c)
 		str = str + 1
 	end
@@ -31,7 +31,7 @@ sub main()
 	dir_puts("[.] [..] ")
 	while pos < bread do
 		ent = buf + pos
-		type = [ent + 18] & 255
+		type = byte [ent + 18]
 		if type == 4 then
 			if !(dir_equal_string(ent + 19, "..") || dir_equal_string(ent + 19, ".")) then
 				dir_puts("[")
@@ -44,7 +44,7 @@ sub main()
 	pos = 0
 	while pos < bread do
 		ent = buf + pos
-		type = [ent + 18] & 255
+		type = byte [ent + 18]
 		if type != 4 then
 			dir_puts(ent + 19)
 			putch(32)

@@ -15,7 +15,7 @@ end
 
 sub puts(strPtr)
 	local c
-	while c = [strPtr] & 255 do
+	while c = byte [strPtr] do
 		putch(c)
 		strPtr = strPtr + 1
 	end
@@ -24,7 +24,7 @@ end
 
 sub nextarg(strPtr)
 	local c
-	while c = [strPtr] & 255 do
+	while c = byte [strPtr] do
 		strPtr = strPtr + 1
 	end
 	return strPtr + 1
@@ -45,7 +45,7 @@ sub main(argc, argv)
 		fd = open(argv, 0)
 		if fd > 0 then
 			while read(fd, bufPtr, 1) > 0 do
-				fputch(fout, [bufPtr] & 255)
+				fputch(fout, byte [bufPtr])
 			end
 			close(fd)
 		end
