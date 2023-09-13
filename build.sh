@@ -6,3 +6,6 @@ cd ../
 cd zest
 ./build.sh
 cd ../
+cd yc
+./build.sh
+cd ../

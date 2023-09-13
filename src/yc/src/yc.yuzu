@@ -15,7 +15,7 @@ sub main()
         out_ptr = brk(-1)
 	brk(out_ptr + 1024)
 
-	buffer = "sub main() puts(10) end"
+	buffer = "sub main() puts(i+[d]+10) end ; comment test"
 
 	while yc_next_token(buffer, read_ptr, out_ptr) >= 0 do
 		buffer = buffer + [read_ptr]
