@@ -1,0 +1,110 @@
+
+sub yc_num_char(str, c)
+	local cnt
+	while byte [str] do
+		if c == byte [str] then
+			cnt = cnt + 1
+		end
+		str = str + 1
+	end
+	return cnt
+end
+
+sub yc_get_tokens()
+
+        ; All valid non-alphanumeric symbols separated by $
+	return "($)$[$]$,$+$-$*$/$%$&&$&$||$|$^$==$=$!=$!$~$<<$<=$<$>>$>=$>$"
+
+end
+
+sub yc_get_keywords()
+
+	; All valid alphanumeric keywords separated by $
+	return "local$if$then$else$end$while$do$sub$return$byte$"
+
+end
+
+sub yc_is_digit(x) return (x >= byte ["0"]) && (x <= byte ["9"]) end
+
+sub yc_is_quote(x) return x == 34 end
+
+sub yc_is_name_char(x)
+	return
+		((x >= byte ["a"]) && (x <= byte ["z"])) ||
+		((x >= byte ["A"]) && (x <= byte ["Z"])) ||
+		(x == byte ["_"])
+end
+
+sub yc_is_next_name_char(x) return  yc_is_name_char(x) || yc_is_digit(x) end
+
+sub yc_is_skipable(x)
+	return (x == 9) || (x == 10) || (x == 13) || (x == 32)|| (x == byte [";"])
+end
+
+sub yc_strlen(str)
+	local len
+	while byte [str] && (byte [str] != byte ["$"]) do
+		str = str + 1
+		len = len + 1
+	end
+	return len
+end
+
+sub yc_is_prefix(a, b)
+	local r
+
+	r = 1
+	while 
+		(byte [a] == byte [b]) && 
+		byte [a] &&
+		byte [b] && 
+		(byte [a] != byte ["$"]) && 
+		(byte [b] != byte ["$"]) do
+
+		a = a + 1
+		b = b + 1
+
+	end
+	if byte [a] && (byte [a] != byte ["$"]) then r = 0 end
+	return r
+end
+
+sub yc_next_token(buffer, consumed, outBuf)
+
+	local out, i, symbol, inComment, read, numTokens, numKeywords, tokens
+
+	symbol = -1
+	numTokens = yc_num_char(yc_get_tokens(), byte ["$"])
+	numKeywords = yc_num_char(yc_get_keywords(), byte ["$"])
+	
+	; skip whitespace and comments
+	while byte [buffer] && (yc_is_skipable(byte [buffer]) || inComment) do
+		if inComment then
+			inComment = byte [buffer] != 10
+		else
+			inComment = byte [buffer] == byte [";"]
+		end
+		buffer = buffer + 1
+		read = read + 1
+	end
+
+	tokens = yc_get_tokens()
+	while byte [tokens] do
+		if yc_is_prefix(tokens, buffer) then
+			read = read + yc_strlen(tokens)
+			symbol = i
+			i = numTokens
+		end
+		while byte [tokens] != byte ["$"] do
+			tokens = tokens + 1
+		end
+		tokens = tokens + 1
+		i = i + 1
+	end
+
+end
+
+sub main()
+
+
+end

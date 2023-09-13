@@ -69,11 +69,11 @@ static int expect(char** buffer, int token, astnode_t *parent) {
 		return 1;
 	}
 	if (token == TOKEN_STRING) {
-		error("expected string");
+		error("string");
 	} else if (token == TOKEN_ID) {
-		error("expected identifier");
+		error("identifier");
 	} else if (token == TOKEN_NUMBER) {
-		error("expected number");
+		error("number");
 	} else {
 		error(LEX_TOKENS[token]);
 	}

@@ -62,7 +62,6 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
 	<ASSIGN> 	::= "="
-	<BASSIGN>	::= ".="
 	<NOTEQUAL> 	::= "!="
 	<BNOT>		::= "!"
 	<NOT>		::= "~"
