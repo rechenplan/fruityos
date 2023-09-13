@@ -25,6 +25,7 @@ sub TOKEN_LESSTHAN()	return 22 end
 sub TOKEN_RSHIFT()	return 23 end
 sub TOKEN_GEQ()		return 24 end
 sub TOKEN_GREATERTHAN()	return 25 end
+
 sub TOKEN_LOCAL()	return 26 end
 sub TOKEN_IF()		return 27 end
 sub TOKEN_THEN()	return 28 end

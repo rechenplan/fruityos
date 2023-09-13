@@ -108,4 +108,42 @@ sub yc_expect(buffer, token, parent)
 	if yc_accept(buffer, token, parent) then
 		return 1
 	end
+	if token == TOKEN_STRING() then
+		yc_error("string")
+	end
+	if token == TOKEN_ID() then
+		yc_error("identifier")
+	end
+	if token == TOKEN_NUMBER() then
+		yc_error("number")
+	end
+	yc_error("todo")
+end
+
+sub yc_parse_constant(op, expected, parent)
+end
+
+sub yc_parse_unary(op, expected, parent)
+end
+
+sub yc_parse_binary(op, expected, parent)
+end
+
+sub yc_parse_rvalue(rvalue, expected, recursive, parent)
+end
+
+sub yc_parse_lvalue(lvalue, expected, parent)
+end
+
+sub yc_parse_statement(state, expected, parent)
+end
+
+sub yc_parse_definition(def, expected, parent)
+end
+
+sub yc_parse_program(program)
+	local progNode
+	progNode = yc_create_node(AST_PROGRAM())
+	while yc_parse_definition(program, 0, progNode) do end
+	return progNode
 end

@@ -6,6 +6,14 @@ sub yc_puts(str)
 	end
 end
 
+sub yc_error(str)
+	yc_puts("parse error (expected ")
+	yc_puts(str)
+	yc_puts(")")
+	putch(10)
+	exit(1)
+end
+
 
 sub main()
 	local out_ptr, read_ptr, buffer
