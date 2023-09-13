@@ -1,11 +1,6 @@
 
-
-
 ;  usage: mkdir dir
-
 ;  create directory
-
-
 
 sub puts(strPtr)
 	local c
