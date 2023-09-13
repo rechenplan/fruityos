@@ -1,0 +1,27 @@
+
+sub yc_puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+
+sub main()
+	local out_ptr, read_ptr, buffer
+
+	read_ptr = brk(-1)
+	brk(read_ptr + 8)
+        out_ptr = brk(-1)
+	brk(out_ptr + 1024)
+
+	buffer = "sub main() puts(10) end"
+
+	while yc_next_token(buffer, read_ptr, out_ptr) >= 0 do
+		buffer = buffer + [read_ptr]
+		yc_puts(out_ptr)
+		putch(10)
+	end
+	return 0
+
+end
