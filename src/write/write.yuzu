@@ -1,8 +1,7 @@
 
-
 ;  usage: write file
+;
 ;  write stdin to file
-
 
 sub str_is_equal(a, b)
 	while byte [a] == byte [b] do

@@ -1,11 +1,7 @@
 
-
-
 ;  usage: rename file newfile
-
+;
 ;  rename files
-
-
 
 sub puts(strPtr)
 	local c

@@ -33,7 +33,7 @@ end
 sub main(argc, argv)
 	local fd, bufPtr
 	if argc < 2 then
-		puts("usage: read file ; file ")
+		puts("usage: read file { file }")
 		putch(10)
 		exit()
 	end
