@@ -34,18 +34,17 @@ sub RVALUE_CONSTANT()		return 15 end
 sub ast_get_type(node)		return [node] end
 sub ast_get_subtype(node)	return [node + 8] end
 sub ast_get_token(node)		return [node + 16] end
-sub ast_get_value(node)		return [node + 24] end
-sub ast_get_kid(node)		return [node + 32] end
-sub ast_get_sibling(node)	return [node + 40] end
+sub ast_get_kid(node)		return [node + 24] end
+sub ast_get_sibling(node)	return [node + 32] end
+sub ast_get_value(node)		return node + 40 end
 
 sub ast_set_type(node,v)	[node] = v end
 sub ast_set_subtype(node,v)	[node + 8] = v end
 sub ast_set_token(node,v)	[node + 16] = v end
-sub ast_set_value(node,v)	[node + 24] = v end
-sub ast_set_kid(node,v)		[node + 32] = v end
-sub ast_set_sibling(node,v)	[node + 40] = v end
+sub ast_set_kid(node,v)		[node + 24] = v end
+sub ast_set_sibling(node,v)	[node + 32] = v end
 
-sub AST_SIZE()			return 48 end
+sub AST_SIZE()			return 104 end
 
 sub yc_alloc(size)
 	local ptr
@@ -62,7 +61,6 @@ sub yc_create_node(type)
 	node = yc_alloc(AST_SIZE())
 	ast_set_type(node, type)
 	ast_set_token(node, 0)
-	ast_set_value(node, 0)
 	ast_set_kid(node, 0)
 	ast_set_sibling(node, 0)
 	return node	
@@ -76,4 +74,38 @@ sub yc_destroy_node(node)
 	yc_free(node)
 end
 
+sub yc_append_kid(node, kid)
+	local kidList
+	kidList = ast_get_kid(node)
+	if !kidList then
+		ast_set_kid(node, kid)
+	else
+		while ast_get_sibling(kidList) do
+			kidList = ast_get_sibling(kidList)
+		end
+		ast_set_sibling(kidList, kid)
+	end
+end
 
+sub yc_accept(buffer, token, parent)
+	local i, leafNode, read
+
+	leafNode = yc_create_node(AST_LEAF())
+	read = yc_alloc(8)
+	if token == yc_next_token([buffer], read, ast_get_value(leafNode)) then
+		ast_set_token(leafNode, token)
+		yc_append_kid(parent, leafNode)
+		buffer = buffer + [read]
+		yc_free(read)
+		return 1
+	end
+	yc_destroy_node(leafNode)
+	yc_free(read)
+	return 0
+end
+
+sub yc_expect(buffer, token, parent)
+	if yc_accept(buffer, token, parent) then
+		return 1
+	end
+end
