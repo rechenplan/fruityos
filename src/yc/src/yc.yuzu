@@ -16,7 +16,7 @@ end
 
 
 sub main()
-	local out_ptr, read_ptr, buffer, buffer_ptr
+	local out_ptr, read_ptr, buffer, buffer_ptr, t
 
 	read_ptr = brk(-1)
 	brk(read_ptr + 8)
@@ -27,12 +27,12 @@ sub main()
         out_ptr = brk(-1)
 	brk(out_ptr + 1024)
 
-	buffer = "sub main(a, b, c) local x,y,z if 1 then return main(-a,2,3) end end ; comment test"
+	buffer = "sub main(a, b, c) return b + a + (c * ~c) end ; comment test"
 	[buffer_ptr] = buffer
 
 	yc_parse_program(buffer_ptr)	
 
-	while yc_next_token(buffer, read_ptr, out_ptr) >= 0 do
+	while (t = yc_next_token(buffer, read_ptr, out_ptr)) >= 0 do
 		buffer = buffer + [read_ptr]
 		yc_puts(out_ptr)
 		putch(10)

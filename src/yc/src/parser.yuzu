@@ -253,6 +253,25 @@ sub yc_parse_binary(op, expected, parent)
 	return 0
 end
 
+sub yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
+	local binNode
+
+	binNode = yc_create_node(AST_RVALUE())
+	ast_set_subtype(binNode, RVALUE_BINOP())
+	yc_append_kid(binNode, rNode)
+	if !recursive then
+		while yc_parse_binary(rvalue, 0, binNode) do
+			yc_parse_rvalue(rvalue, 1, 1, binNode)
+			rNode = binNode
+			binNode = yc_create_node(AST_RVALUE())
+			ast_set_subtype(binNode, RVALUE_BINOP())
+			yc_append_kid(binNode, rNode)
+		end
+	end
+	yc_free(binNode)
+	yc_append_kid(parent, rNode)
+end
+
 sub yc_parse_rvalue(rvalue, expected, recursive, parent)
 	local r, rNode
 
@@ -266,19 +285,19 @@ sub yc_parse_rvalue(rvalue, expected, recursive, parent)
 				yc_parse_rvalue(rvalue, 1, 0, rNode)
 			end
 			yc_expect(rvalue, TOKEN_RPAREN(), rNode)
-			yc_append_kid(parent, rNode)
+			yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 			return 1
 		end
 
 		if yc_accept(rvalue, TOKEN_ASSIGN(), rNode) then
 			ast_set_subtype(rNode, RVALUE_ASSIGN_WORD)
 			yc_parse_rvalue(rvalue, 1, 0, rNode)
-			yc_append_kid(parent, rNode)
+			yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 			return 1
 		end
 
 		ast_set_subtype(rNode, RVALUE_LVALUE_WORD())
-		yc_append_kid(parent, rNode)
+		yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 		return 1
 
 	end
@@ -289,31 +308,31 @@ sub yc_parse_rvalue(rvalue, expected, recursive, parent)
 		if yc_accept(rvalue, TOKEN_ASSIGN(), rNode) then
 			ast_set_subtype(rNode, RVALUE_ASSIGN_BYTE)
 			yc_parse_rvalue(rvalue, 1, 0, rNode)
-			yc_append_kid(parent, rNode)
+			yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 			return 1
 		end 
 
 		ast_set_subtype(rNode, RVALUE_LVALUE_BYTE())
-		yc_append_kid(parent, rNode)
+		yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 		return 1
 
 	end
 	if yc_parse_unary(rvalue, 0, rNode) then
 		ast_set_subtype(rNode, RVALUE_UNARY())
 		yc_parse_rvalue(rvalue, 1, 1, rNode)
-		yc_append_kid(parent, rNode)
+		yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 		return 1
 	end
 	if yc_accept(rvalue, TOKEN_LPAREN(), rNode) then
 		ast_set_subtype(rNode, RVALUE_PARENS())
 		yc_parse_rvalue(rvalue, 1, 0, rNode)
 		yc_expect(rvalue, TOKEN_RPAREN(), rNode)
-		yc_append_kid(parent, rNode)
+		yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 		return 1
 	end
 	if yc_parse_constant(rvalue, 0, rNode) then
 		ast_set_subtype(rNode, RVALUE_CONSTANT())
-		yc_append_kid(parent, rNode)
+		yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 		return 1
 	end
 	yc_destroy_node(rNode)
