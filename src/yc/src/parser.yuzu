@@ -131,6 +131,12 @@ sub yc_parse_binary(op, expected, parent)
 end
 
 sub yc_parse_rvalue(rvalue, expected, recursive, parent)
+	local r, rNode
+
+	r = 1
+	rNode = yc_create_node(AST_RVALUE())
+
+	return 0
 end
 
 sub yc_parse_lvalue(lvalue, expected, parent)
@@ -138,13 +144,51 @@ end
 
 sub yc_parse_statement(state, expected, parent)
 	local stateNode 
+
 	stateNode = yc_create_node(AST_STATEMENT())
+
 	if yc_accept(state, TOKEN_LOCAL(), stateNode) then
 		ast_set_subtype(stateNode, STATEMENT_LOCAL())
 		yc_expect(state, TOKEN_ID(), stateNode)
 		while yc_accept(state, TOKEN_COMMA(), stateNode) do
 			yc_expect(state, TOKEN_ID(), stateNode)
 		end
+		yc_append_kid(parent, stateNode)
+		return 1
+	end
+
+	if yc_accept(state, TOKEN_IF(), stateNode) then
+		ast_set_subtype(stateNode, STATEMENT_IF())
+		yc_parse_rvalue(state, 1, 0, stateNode)
+		yc_expect(state, TOKEN_THEN(), stateNode)
+		while yc_parse_statement(state, 0, stateNode) do end
+		if yc_accept(state, TOKEN_ELSE(), stateNode) then
+			while yc_parse_statement(state, 0, stateNode) do end
+		end
+		yc_expect(state, TOKEN_END(), stateNode)
+		yc_append_kid(parent, stateNode)
+		return 1
+	end
+
+	if yc_accept(state, TOKEN_WHILE(), stateNode) then
+		ast_set_subtype(stateNode, STATEMENT_WHILE())
+		yc_parse_rvalue(state, 1, 0, stateNode)
+		yc_expect(state, TOKEN_DO(), stateNode)
+		while yc_parse_statement(state, 0, stateNode) do end
+		yc_expect(state, TOKEN_END(), stateNode)
+		yc_append_kid(parent, stateNode)
+		return 1
+	end
+
+	if yc_accept(state, TOKEN_RETURN(), stateNode) then
+		ast_set_subtype(stateNode, STATEMENT_RETURN())
+		yc_parse_rvalue(state, 1, 0, stateNode)
+		yc_append_kid(parent, stateNode)
+		return 1
+	end
+
+	if yc_parse_rvalue(state, 0, 0, stateNode) then
+		ast_set_subtype(stateNode, STATEMENT_RVALUE())
 		yc_append_kid(parent, stateNode)
 		return 1
 	end
