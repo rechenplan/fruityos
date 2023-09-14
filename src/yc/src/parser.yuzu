@@ -121,10 +121,54 @@ sub yc_expect(buffer, token, parent)
 	yc_error("todo")
 end
 
-sub yc_parse_constant(op, expected, parent)
+sub yc_parse_constant(const, expected, parent)
+	local conNode
+
+	conNode = yc_create_node(AST_CONSTANT())
+
+	if yc_accept(const, TOKEN_NUMBER(), conNode) then
+		yc_append_kid(parent, conNode)
+		return 1
+	end
+
+	if yc_accept(const, TOKEN_STRING(), conNode) then
+		yc_append_kid(parent, conNode)
+		return 1
+	end
+
+	yc_destroy_node(conNode)
+	if expected then
+		yc_error("constant")
+	end
+	return 0
 end
 
 sub yc_parse_unary(op, expected, parent)
+	local unNode
+
+	unNode = yc_create_node(AST_UNARY())
+
+	if yc_accept(op, TOKEN_MINUS(), unNode) then
+		yc_append_kid(parent, unNode)
+		return 1
+	end
+
+	if yc_accept(op, TOKEN_NOT(), unNode) then
+		yc_append_kid(parent, unNode)
+		return 1
+	end
+
+	if yc_accept(op, TOKEN_BNOT(), unNode) then
+		yc_append_kid(parent, unNode)
+		return 1
+	end
+
+	yc_destroy_node(unNode)
+	if expected then
+		yc_error("unary")
+	end
+	return 0
+
 end
 
 sub yc_parse_binary(op, expected, parent)
@@ -140,6 +184,29 @@ sub yc_parse_rvalue(rvalue, expected, recursive, parent)
 end
 
 sub yc_parse_lvalue(lvalue, expected, parent)
+	local lNode
+
+	lNode = yc_create_node(AST_LVALUE())
+
+	if yc_accept(lvalue, TOKEN_ID(), lNode) then
+		ast_set_subtype(lNode, LVALUE_ID())
+		yc_append_kid(parent, lNode)
+		return 1
+	end
+
+	if yc_accept(lvalue, TOKEN_LBRACKET(), lNode) then
+		ast_set_subtype(lNode, LVALUE_INDIRECTION);
+		yc_parse_rvalue(lvalue, 1, 0, lNode)
+		yc_expect(lvalue, TOKEN_RBRACKET(), lNode)
+		yc_append_kid(parent, lNode)
+		return 1
+	end
+
+	yc_destroy_node(lNode)
+	if expected then
+		yc_error("lvalue")
+	end
+	return 0
 end
 
 sub yc_parse_statement(state, expected, parent)
