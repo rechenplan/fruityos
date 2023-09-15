@@ -1,4 +1,11 @@
 
+sub yc_fputs(fd, str)
+	while byte [str] do
+		fputch(fd, byte [str])
+		str = str + 1
+	end
+end
+
 sub yc_puts(str)
 	while byte [str] do
 		putch(byte [str])
@@ -16,6 +23,7 @@ end
 
 
 sub main()
+
 	local out_ptr, read_ptr, buffer, buffer_ptr, t
 
 	read_ptr = brk(-1)

@@ -44,7 +44,7 @@ sub ast_set_token(node,v)	[node + 16] = v end
 sub ast_set_kid(node,v)		[node + 24] = v end
 sub ast_set_sibling(node,v)	[node + 32] = v end
 
-sub AST_SIZE()			return 104 end
+sub AST_SIZE()			return 104 end ; 64 bytes for value field
 
 sub yc_alloc(size)
 	local ptr
@@ -70,7 +70,6 @@ sub yc_destroy_node(node)
 	if !node then return 0 end
 	yc_destroy_node(ast_get_kid(node))
 	yc_destroy_node(ast_get_sibling(node))
-	yc_free(ast_get_value(node))
 	yc_free(node)
 end
 
