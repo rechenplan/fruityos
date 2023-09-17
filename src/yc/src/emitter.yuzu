@@ -159,19 +159,42 @@ sub yc_emit_rvalue(rvalue, fd, symbols, n, label, fcn)
 		yc_emit_rvalue_unary(op_token, fd)
 		return 0
 	end
-	if ast_get_subtype(rvalue) == RVALUE_FUNCTION_CALL() then
-		return 0
-	end
-	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_WORD() then
-		return 0
-	end
-	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_BYTE() then
-		return 0
-	end
 	if ast_get_subtype(rvalue) == RVALUE_LVALUE_WORD() then
+		param1 = ast_get_kid(rvalue)
+		yc_emit_lvalue(param1, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "mov rax, [rax]") fputch(fd, 10)
 		return 0
 	end
 	if ast_get_subtype(rvalue) == RVALUE_LVALUE_BYTE() then
+		param1 = ast_get_sibling(ast_get_kid(rvalue))
+		yc_emit_lvalue(param1, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_fputs(fd, "xor rax, rax") fputch(fd, 10)
+		yc_fputs(fd, "mov al, [rdi]") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_WORD() then
+		param1 = ast_get_kid(rvalue)
+		param2 = ast_get_sibling(ast_get_sibling(param1))
+		yc_emit_lvalue(param1, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_emit_rvalue(param2, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_fputs(fd, "mov [rdi], rax") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_BYTE() then
+		param1 = ast_get_sibling(ast_get_kid(rvalue))
+		param2 = ast_get_sibling(ast_get_sibling(param1))
+		yc_emit_lvalue(param1, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_emit_rvalue(param2, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_fputs(fd, "mov [rdi], al") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_FUNCTION_CALL() then
 		return 0
 	end
 	if ast_get_subtype(rvalue) == RVALUE_CONSTANT() then
