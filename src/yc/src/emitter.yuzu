@@ -2,69 +2,132 @@
 
 sub yc_emit_rvalue_unary(op_token, fd)
 	if op_token == TOKEN_MINUS() then
+		fputs(fd, "neg rax") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_NOT() then
+		fputs(fd, "not rax") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_BNOT() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "test rax, rax") fputch(fd, 10)
+		fputs(fd, "setz dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 end
 
 sub yc_emit_rvalue_binop(op_token, fd)
 	if op_token == TOKEN_PLUS() then
+		fputs(fd, "add rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_MINUS() then
+		fputs(fd, "sub rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_ASTERISK() then
+		fputs(fd, "mul rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_DIVIDE() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "div rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_MODULUS() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "div rdi") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_AND() then
+		fputs(fd, "and rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_BAND() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "test rax, rax") fputch(fd, 10)
+		fputs(fd, "setnz dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "test rdi, rdi") fputch(fd, 10)
+		fputs(fd, "setnz dl") fputch(fd, 10)
+		fputs(fd, "mov rdi, rdx") fputch(fd, 10)
+		fputs(fd, "and rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_OR() then
+		fputs(fd, "or rax, rdi") fputch(fd, 10)		
 		return 0
 	end
 	if op_token == TOKEN_BOR() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "test rax, rax") fputch(fd, 10)
+		fputs(fd, "setnz dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "test rdi, rdi") fputch(fd, 10)
+		fputs(fd, "setnz dl") fputch(fd, 10)
+		fputs(fd, "mov rdi, rdx") fputch(fd, 10)
+		fputs(fd, "or rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_XOR() then
+		fputs(fd, "xor rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_LSHIFT() then
+		fputs(fd, "mov rcx, rdi") fputch(fd, 10)
+		fputs(fd, "shl rax, cl") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_RSHIFT() then
+		fputs(fd, "mov rcx, rdi") fputch(fd, 10)
+		fputs(fd, "shr rax, cl") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_EQUAL() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		fputs(fd, "sete dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_NOTEQUAL() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		fputs(fd, "setne dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_GREATERTHAN() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		fputs(fd, "setg dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_LESSTHAN() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		fputs(fd, "setl dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_GEQ() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		fputs(fd, "setge dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 	if op_token == TOKEN_LEQ() then
+		fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		fputs(fd, "setle dl") fputch(fd, 10)
+		fputs(fd, "mov rax, rdx") fputch(fd, 10)
 		return 0
 	end
 end
