@@ -1,12 +1,63 @@
 ; emitter.yuzu
 
 sub yc_emit_rvalue(rvalue, fd, symbols, n, label, fcn)
+	if ast_get_subtype(rvalue) == RVALUE_BINOP() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_FUNCTION_CALL() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_WORD() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_BYTE() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_LVALUE_WORD() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_LVALUE_BYTE() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_UNARY() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_PARENS() then
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_CONSTANT() then
+		return 0
+	end
+
 end
 
 sub yc_emit_lvalue(lvalue, fd, symbols, n, label, fcn)
+	if ast_get_subtype(lvalue) == LVALUE_ID() then
+		return 0
+	end
+	if ast_get_subtype(lvalue) == LVALUE_INDIRECTION() then
+		return 0
+	end
+	
 end
 
 sub yc_emit_statement(statement, fd, symbols, n, label, fcn)
+	if ast_get_subtype(statement) == STATEMENT_LOCAL() then
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_IF() then
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_WHILE() then
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_RETURN() then
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_RVALUE() then
+		return 0
+	end
+
 end
 
 sub yc_emit_definition(definition, fd, label)
