@@ -6,6 +6,10 @@ sub yc_fputs(fd, str)
 	end
 end
 
+sub yc_fputn(fd, x)
+	; TODO
+end
+
 sub yc_puts(str)
 	while byte [str] do
 		putch(byte [str])
