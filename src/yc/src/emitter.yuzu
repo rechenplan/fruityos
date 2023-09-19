@@ -259,13 +259,44 @@ sub yc_emit_lvalue(lvalue, fd, symbols, n, label, fcn)
 end
 
 sub yc_emit_statement(statement, fd, symbols, n, label, fcn)
-	local rvalue, substate, label1, label2
+	local rvalue, substate, label1, label2, done
+
 	if ast_get_subtype(statement) == STATEMENT_LOCAL() then
 		yc_error("non-local statement")
 		return 0
 	end
 	if ast_get_subtype(statement) == STATEMENT_IF() then
-		; TODO
+		rvalue = ast_get_sibling(ast_get_kid(statement))
+		label1 = [label]
+		[label] = [label] + 1
+		label2 = [label]
+		[label] = [label] + 1
+		substate = ast_get_sibling(ast_get_sibling(rvalue))
+		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
+		yc_fputs(fd, "jz L") yc_fputn(fd, label1) fputch(fd, 10)
+		while ast_get_token(substate) != TOKEN_ELSE() && ast_get_token(substate) != TOKEN_END() do
+			yc_emit_statement(substate, fd, symbols, n, label, fcn)
+			substate = ast_get_sibling(substate)
+		end
+		yc_fputs(fd, "jmp L") yc_fputn(fd, label2) fputch(fd, 10)
+		yc_fputs(fd, "L") yc_fputn(fd, label1) yc_fputs(fd, ":") fputch(fd, 10)
+		if ast_get_token(substate) == TOKEN_ELSE() then
+			substate = ast_get_sibling(substate)
+			done = 0
+			while !done do
+				if substate then
+					if ast_get_kid(substate) then
+						if ast_get_token(ast_get_kid(substate)) == TOKEN_END() then
+							done = 1
+						else
+							yc_emit_statement(substate, fd, symbols, n, label, fcn)
+						end
+					end
+				end
+				substate = ast_get_sibling(substate)
+			end
+		end
+		yc_fputs(fd, "L") yc_fputn(fd, label2) yc_fputs(fd, ":") fputch(fd, 10)
 		return 0
 	end
 	if ast_get_subtype(statement) == STATEMENT_WHILE() then
