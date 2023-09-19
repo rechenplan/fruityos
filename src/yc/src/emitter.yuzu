@@ -133,7 +133,7 @@ sub yc_emit_rvalue_binop(op_token, fd)
 end
 
 sub yc_emit_rvalue(rvalue, fd, symbols, n, label, fcn)
-	local param1, param2, op, op_token
+	local param1, param2, op, op_token, i
 	if ast_get_subtype(rvalue) == RVALUE_PARENS() then
 		param1 = ast_get_sibling(ast_get_kid(rvalue))
 		yc_emit_rvalue(param1, fd, symbols, n, label, fcn)
@@ -195,6 +195,29 @@ sub yc_emit_rvalue(rvalue, fd, symbols, n, label, fcn)
 		return 0
 	end
 	if ast_get_subtype(rvalue) == RVALUE_FUNCTION_CALL() then
+		op = ast_get_kid(rvalue)
+		param1 = ast_get_sibling(ast_get_sibling(op))
+		yc_emit_lvalue(op, fd, symbols, n, label, fcn)
+		yc_fputs(fd, "push rax")
+		fputch(fd, 10)
+		i = 0
+		while param1 do
+			if ast_get_type(param1) == AST_RVALUE() then
+				i = i + 1
+				yc_emit_rvalue(param1, fd, symbols, n, label, fcn)
+				yc_fputs(fd, "push rax")
+				fputch(fd, 10)
+				param1 = ast_get_sibling(ast_get_sibling(param1))
+			end
+		end
+		if i > 5 then yc_fputs(fd, "pop r9") fputch(fd, 10) end
+		if i > 4 then yc_fputs(fd, "pop r8") fputch(fd, 10) end
+		if i > 3 then yc_fputs(fd, "pop rcx") fputch(fd, 10) end
+		if i > 2 then yc_fputs(fd, "pop rdx") fputch(fd, 10) end
+		if i > 1 then yc_fputs(fd, "pop rsi") fputch(fd, 10) end
+		if i > 0 then yc_fputs(fd, "pop rdi") fputch(fd, 10) end
+		yc_fputs(fd, "pop rax") fputch(fd, 10)
+		yc_fputs(fd, "call rax") fputch(fd, 10)
 		return 0
 	end
 	if ast_get_subtype(rvalue) == RVALUE_CONSTANT() then
