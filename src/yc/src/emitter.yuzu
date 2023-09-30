@@ -255,7 +255,7 @@ sub yc_emit_lvalue(lvalue, fd, symbols, n, label)
 			if yc_is_prefix(id, local_symbol) && yc_is_prefix(local_symbol, id) then
 				found = 1
 			else
-				local_symbol = local_symbol + yc_strlen(local_symbol)
+				local_symbol = local_symbol + yc_strlen(local_symbol) + 1
 			end
 			i = i + 1
 		end
@@ -265,10 +265,11 @@ sub yc_emit_lvalue(lvalue, fd, symbols, n, label)
 			yc_fputs(fd, "sub rax, rdi") fputch(fd, 10)
 		else
 			yc_fputs(fd, "mov rax, ")
-			while byte [local_symbol] && (byte [local_symbol] != byte ["$"]) do
-				fputch(fd, byte [local_symbol])
-				local_symbol = local_symbol + 1
+			while byte [id] && (byte [id] != byte ["$"]) do
+				fputch(fd, byte [id])
+				id = id + 1
 			end
+			fputch(fd, 10)
 		end
 		return 0
 	end
@@ -403,6 +404,7 @@ sub yc_emit_definition(definition, fd, label)
 		if ast_get_subtype(statement) == STATEMENT_LOCAL() then
 			node = ast_get_kid(statement)
 			while node do
+				node = ast_get_sibling(node)
 				symbol = ast_get_value(node)
 				while byte [symbol] do
 					byte [sptr] = byte [symbol]
@@ -412,7 +414,7 @@ sub yc_emit_definition(definition, fd, label)
 				byte [sptr] = byte ["$"]
 				sptr = sptr + 1
 				m = m + 1
-				node = ast_get_sibling(ast_get_sibling(node))
+				node = ast_get_sibling(node)
 			end
 		else
 			if !frameSetup then

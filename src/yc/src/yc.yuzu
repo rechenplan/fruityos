@@ -56,16 +56,11 @@ sub main()
         out_ptr = brk(-1)
 	brk(out_ptr + 1024)
 
-	buffer = "sub main(a) return a end ; comment test"
+	buffer = "sub main(a) local b, c return d end"
 	[buffer_ptr] = buffer
 
 	yc_emit_program(yc_parse_program(buffer_ptr), 1)
 
-	;while (t = yc_next_token(buffer, read_ptr, out_ptr)) >= 0 do
-	;	buffer = buffer + [read_ptr]
-	;	yc_puts(out_ptr)
-	;	putch(10)
-	;end
 	return 0
 
 end
