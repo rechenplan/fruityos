@@ -56,7 +56,7 @@ sub main()
         out_ptr = brk(-1)
 	brk(out_ptr + 1024)
 
-	buffer = "sub main(a) local b, c return d end"
+	buffer = "sub main(a, b) while 1 do return 1 end end"
 	[buffer_ptr] = buffer
 
 	yc_emit_program(yc_parse_program(buffer_ptr), 1)

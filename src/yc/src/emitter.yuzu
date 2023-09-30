@@ -297,7 +297,7 @@ sub yc_emit_statement(statement, fd, symbols, n, label)
 		substate = ast_get_sibling(ast_get_sibling(rvalue))
 		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
 		yc_fputs(fd, "jz L") yc_fputn(fd, label1) fputch(fd, 10)
-		while ast_get_token(substate) != TOKEN_ELSE() && ast_get_token(substate) != TOKEN_END() do
+		while (ast_get_token(substate) != TOKEN_ELSE()) && (ast_get_token(substate) != TOKEN_END()) do
 			yc_emit_statement(substate, fd, symbols, n, label)
 			substate = ast_get_sibling(substate)
 		end
@@ -305,18 +305,11 @@ sub yc_emit_statement(statement, fd, symbols, n, label)
 		yc_fputs(fd, "L") yc_fputn(fd, label1) yc_fputs(fd, ":") fputch(fd, 10)
 		if ast_get_token(substate) == TOKEN_ELSE() then
 			substate = ast_get_sibling(substate)
-			done = 0
+			done = ast_get_type(substate) != AST_STATEMENT()
 			while !done do
-				if substate then
-					if ast_get_kid(substate) then
-						if ast_get_token(ast_get_kid(substate)) == TOKEN_END() then
-							done = 1
-						else
-							yc_emit_statement(substate, fd, symbols, n, label)
-						end
-					end
-				end
+				yc_emit_statement(substate, fd, symbols, n, label)
 				substate = ast_get_sibling(substate)
+				done = ast_get_type(substate) != AST_STATEMENT()
 			end
 		end
 		yc_fputs(fd, "L") yc_fputn(fd, label2) yc_fputs(fd, ":") fputch(fd, 10)
