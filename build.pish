@@ -1,46 +1,45 @@
 #!/bin/pish
 
-byc src/echo/echo.yuzu tmp/echo.s
+yc src/echo/echo.yuzu tmp/echo.s
 concat tmp/a.s lib/_start.asm tmp/echo.s lib/libpith.asm 
 zest tmp/a.s /bin/echo
 
 echo Building del...
-byc src/del/del.yuzu tmp/del.s
+yc src/del/del.yuzu tmp/del.s
 concat tmp/a.s lib/_start.asm tmp/del.s lib/libpith.asm 
 zest tmp/a.s /bin/del
 
 echo Building read...
-byc src/read/read.yuzu tmp/read.s
+yc src/read/read.yuzu tmp/read.s
 concat tmp/a.s lib/_start.asm tmp/read.s lib/libpith.asm 
 zest tmp/a.s /bin/read
 
 echo Building write... 
-byc src/write/write.yuzu tmp/write.s
+yc src/write/write.yuzu tmp/write.s
 concat tmp/a.s lib/_start.asm tmp/write.s lib/libpith.asm 
 zest tmp/a.s /bin/write
 
 echo Building dir...
-byc src/dir/dir.yuzu tmp/dir.s
+yc src/dir/dir.yuzu tmp/dir.s
 concat tmp/a.s lib/_start.asm tmp/dir.s lib/libpith.asm 
 zest tmp/a.s /bin/dir
 
 echo Building mkdir...
-byc src/mkdir/mkdir.yuzu tmp/mkdir.s
+yc src/mkdir/mkdir.yuzu tmp/mkdir.s
 concat tmp/a.s lib/_start.asm tmp/mkdir.s lib/libpith.asm 
 zest tmp/a.s /bin/mkdir
 
 echo Building rmdir...
-byc src/rmdir/rmdir.yuzu tmp/rmdir.s
+yc src/rmdir/rmdir.yuzu tmp/rmdir.s
 concat tmp/a.s lib/_start.asm tmp/rmdir.s lib/libpith.asm 
 zest tmp/a.s /bin/rmdir
 
 echo Building copy...
-byc src/copy/copy.yuzu tmp/copy.s
+yc src/copy/copy.yuzu tmp/copy.s
 concat tmp/a.s lib/_start.asm tmp/copy.s lib/libpith.asm 
 zest tmp/a.s /bin/copy
 
 echo Building move...
-byc src/move/move.yuzu tmp/move.s
+yc src/move/move.yuzu tmp/move.s
 concat tmp/a.s lib/_start.asm tmp/move.s lib/libpith.asm 
 zest tmp/a.s /bin/move
-
