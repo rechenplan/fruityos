@@ -372,6 +372,9 @@ sub yc_emit_definition(definition, fd, label)
 	n = 0
 	sptr = symbols
 	done = (ast_get_token(parameter) == TOKEN_RPAREN())
+	if done then
+		parameter = ast_get_sibling(parameter)
+	end
 	while !done do
 		symbol = ast_get_value(parameter)
 		while byte [symbol] do
@@ -383,13 +386,11 @@ sub yc_emit_definition(definition, fd, label)
 		sptr = sptr + 1
 		n = n + 1
 		done = (ast_get_token(ast_get_sibling(parameter)) == TOKEN_RPAREN())
-		if !done then
-			parameter = ast_get_sibling(ast_get_sibling(parameter))
-		end
+		parameter = ast_get_sibling(ast_get_sibling(parameter))
 	end
 
 	m = 0
-	statement = ast_get_sibling(ast_get_sibling(parameter))
+	statement = parameter
 	done = (ast_get_type(statement) != AST_STATEMENT())
 
 	frameSetup = 0

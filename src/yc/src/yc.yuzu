@@ -42,24 +42,40 @@ sub yc_error(str)
 	exit(1)
 end
 
+sub yc_nextarg(strPtr)
+	while byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
 
-sub main()
 
-	local out_ptr, read_ptr, buffer, buffer_ptr, t
+sub main(argc, argv)
 
-	read_ptr = brk(-1)
-	brk(read_ptr + 8)
+	local buffer, buffer_ptr, tmp_ptr, n, fd
+
+	buffer = brk(-1)
+	brk(buffer + (1024 * 1024))
+	tmp_ptr = buffer
+	
+	argv = yc_nextarg(argv)
+	fd = open(argv, 0)
+	if fd > 0 then
+		while (n = read(fd, tmp_ptr, 1)) > 0 do
+			tmp_ptr = tmp_ptr + n		
+		end
+		byte [tmp_ptr] = 0
+		close(fd)
+	end
+	fd = creat(yc_nextarg(argv))
 
 	buffer_ptr = brk(-1)
 	brk(buffer_ptr + 8)
 
-        out_ptr = brk(-1)
-	brk(out_ptr + 1024)
-
-	buffer = "sub main(a, b) while 1 do return 1 end end"
 	[buffer_ptr] = buffer
 
-	yc_emit_program(yc_parse_program(buffer_ptr), 1)
+	yc_emit_program(yc_parse_program(buffer_ptr), fd)
+	close(fd)
 
 	return 0
 

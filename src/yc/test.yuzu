@@ -1,0 +1,4 @@
+sub main()
+	local a 
+	a = ["Hello"]
+end

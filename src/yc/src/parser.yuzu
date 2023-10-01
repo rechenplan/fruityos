@@ -353,7 +353,7 @@ sub yc_parse_lvalue(lvalue, expected, parent)
 	end
 
 	if yc_accept(lvalue, TOKEN_LBRACKET(), lNode) then
-		ast_set_subtype(lNode, LVALUE_INDIRECTION);
+		ast_set_subtype(lNode, LVALUE_INDIRECTION());
 		yc_parse_rvalue(lvalue, 1, 0, lNode)
 		yc_expect(lvalue, TOKEN_RBRACKET(), lNode)
 		yc_append_kid(parent, lNode)
