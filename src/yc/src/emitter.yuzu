@@ -296,6 +296,7 @@ sub yc_emit_statement(statement, fd, symbols, n, label)
 		label2 = [label]
 		[label] = [label] + 1
 		substate = ast_get_sibling(ast_get_sibling(rvalue))
+		yc_emit_rvalue(rvalue, fd, symbols, n, label)
 		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
 		yc_fputs(fd, "jz L") yc_fputn(fd, label1) fputch(fd, 10)
 		while (ast_get_token(substate) != TOKEN_ELSE()) && (ast_get_token(substate) != TOKEN_END()) do
