@@ -1,2 +1,2 @@
-../../bin/yuzu src/*.yuzu
+../../bin/yuzu *.yuzu
 mv ./a.out ../../bin/yc
