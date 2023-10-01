@@ -1,13 +1,12 @@
 #!/bin/sh
 D=$(dirname "$0")
-cat $D/../lib/_start.asm > a.asm
-o=""
 for v in "$@"
 do
-	$D/byc $v $v.asm
-	o="${o} ${v}.asm"
+	cat $v >> _.yuzu
 done
-cat $o >> a.asm
-cat $D/../lib/libpith.asm >> a.asm
-$D/zest a.asm a.out
-rm ${o} a.asm
+cat $D/../lib/_start.asm > _.asm
+$D/yc _.yuzu __.asm
+cat __.asm >> _.asm
+cat $D/../lib/libpith.asm >> _.asm
+$D/zest _.asm a.out
+rm _.asm __.asm _.yuzu
