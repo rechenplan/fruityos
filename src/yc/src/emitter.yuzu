@@ -238,6 +238,7 @@ sub yc_emit_rvalue(rvalue, fd, symbols, n, label)
 			yc_fputs(fd, "jmp L") yc_fputn(fd, label2) fputch(fd, 10)
 			yc_fputs(fd, "L") yc_fputn(fd, label1) yc_fputs(fd, ":") fputch(fd, 10)
 			yc_fputs(fd, "db ") yc_fputs(fd, ast_get_value(param1)) fputch(fd, 10)
+			yc_fputs(fd, "db 0") fputch(fd, 10)
 			yc_fputs(fd, "L") yc_fputn(fd, label2) yc_fputs(fd, ":") fputch(fd, 10)
 			yc_fputs(fd, "mov rax, L") yc_fputn(fd, label1) fputch(fd, 10)
 			return 0

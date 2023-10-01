@@ -164,7 +164,7 @@ sub yc_next_token(buffer, consumed, outBuf)
 				buffer = buffer + 1
 				read = read + 1
 			end
-			byte [outBuf] = byte [buffer]
+			byte [outBuf] = 34
 			outBuf = outBuf + 1
 			buffer = buffer + 1
 			read = read + 1
