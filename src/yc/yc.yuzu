@@ -54,6 +54,12 @@ sub main(argc, argv)
 
 	local buffer, buffer_ptr, tmp_ptr, n, fd
 
+	if argc != 3 then
+		yc_fputs(1, "usage: yc infile outfile")
+		fputch(1, 10)
+		return 0
+	end
+
 	buffer = brk(-1)
 	brk(buffer + (1024 * 1024))
 	tmp_ptr = buffer
@@ -66,6 +72,10 @@ sub main(argc, argv)
 		end
 		byte [tmp_ptr] = 0
 		close(fd)
+	else
+		yc_fputs(1, "unable to open file")
+		fputch(1, 10)
+		return 0
 	end
 	fd = creat(yc_nextarg(argv))
 
