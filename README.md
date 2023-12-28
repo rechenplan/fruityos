@@ -57,11 +57,10 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 			| <LPAREN> <RVALUE> <RPAREN>
 			| <CONSTANT>
 
-	<BINOP>		::= <PLUS> | <MINUS> | <ASTERISK> | <DIVIDE> | <MODULUS>
-			| <AND> | <BAND> | <OR> | <BOR> | <XOR> | <LSHIFT> | <RSHIFT>
+	<BINOP>		::= <PLUS> | <MINUS> | <AND> | <OR> | <XOR> | <LSHIFT> | <RSHIFT>
 			| <EQUAL> | <NOTEQUAL> | <GREATERTHAN> | <LESSTHAN> | <GEQ> | <LEQ>
 
-	<UNARY>		::= <MINUS> | <NOT> | <BNOT>
+	<UNARY>		::= <MINUS> | <NOT>
 
 	<CONSTANT>	::= <NUMBER> | <STRLIT>
 
@@ -76,18 +75,12 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<COMMA> 	::= "," 
 	<PLUS> 		::= "+" 
 	<MINUS> 	::= "-" 
-	<ASTERISK> 	::= "*" 
-	<DIVIDE> 	::= "/" 
-	<MODULUS> 	::= "%" 
-	<BAND>		::= "&&"
 	<AND> 		::= "&" 
-	<BOR>		::= "||"
 	<OR> 		::= "|" 
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
 	<ASSIGN> 	::= "="
 	<NOTEQUAL> 	::= "!="
-	<BNOT>		::= "!"
 	<NOT>		::= "~"
 	<LSHIFT> 	::= "<<" 
 	<LEQ> 		::= "<=" 
