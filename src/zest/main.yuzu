@@ -32,7 +32,7 @@ sub main(argc, args)
 	args = main_next_arg(args)
 	fout = creat(args)
 
-	if (fin < 0) || (fout < 0) then
+	if (fin < 0) | (fout < 0) then
 		lex_puts("error opening files")
 		putch(10)
 		exit()
