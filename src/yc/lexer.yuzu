@@ -152,7 +152,7 @@ sub yc_next_token(buffer, consumed, outBuf)
 			outBuf = outBuf + 1
 			buffer = buffer + 1
 			read = read + 1
-			while !yc_is_quote(byte [buffer]) & (byte [buffer] != 0) do
+			while (yc_is_quote(byte [buffer]) == 0) & (byte [buffer] != 0) do
 				byte [outBuf] = byte [buffer]
 				outBuf = outBuf + 1
 				buffer = buffer + 1
