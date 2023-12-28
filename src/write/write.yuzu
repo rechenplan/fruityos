@@ -22,11 +22,19 @@ sub fputs(fd, str)
 	end
 end
 
+sub _mul(a, b)
+	local p
+	while a > 0 do
+		p = p + b
+	end
+	return p
+end
+
 sub atoi(str)
 	local c, v
 	c = byte [str]
-	while (c >= byte ["0"]) && (c <= byte ["9"]) do
-		v = v * 10
+	while (c >= byte ["0"]) & (c <= byte ["9"]) do
+		v = _mul(v, 10)
 		v = v + (c - byte ["0"])
 		str = str + 1
 		c = byte [str]
@@ -57,7 +65,7 @@ sub main(argc, args)
 
 	ptr = buf
 	d = getch() & 255
-	while d && !done do
+	while (d != 0) & (done == 0) do
 		if (d == 10) then
 			[ptr] = 0
 			ptr = buf

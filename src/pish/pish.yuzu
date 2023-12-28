@@ -16,7 +16,7 @@ end
 
 sub pish_str_equal(a, b)
 	while byte [a] == byte [b] do
-		if ! byte [a] then
+		if byte [a] == 0 then
 			return 1
 		end
 		a = a + 1
@@ -65,17 +65,17 @@ sub pish_parse_line(line, argv)
 	tempArgv = argv
 
 	c = byte [tempLine]
-	while c != 10 && c do
+	while (c != 10) & (c != 0) do
 		while c == 32 do
 			[tempLine] = [tempLine] & (-256)
 			tempLine = tempLine + 1
 			c = byte [tempLine]
 		end
-		if c && c != 10 then
+		if (c != 0) & (c != 10) then
 			[tempArgv] = tempLine
 			tempArgv = tempArgv + 8
 		end
-		while (c != 32) && (c != 10) && c do
+		while (c != 32) & (c != 10) & (c != 0) do
 			tempLine = tempLine + 1
 			c = byte [tempLine]
 		end
@@ -106,7 +106,7 @@ sub main(argc, args)
 	end
 
 	c = 32
-	while c && (fin >= 0) do
+	while (c != 0) & (fin >= 0) do
 		if fin == 0 then
 			getcwd(dirBuf, 1024)
 			pish_puts(dirBuf)
@@ -117,18 +117,18 @@ sub main(argc, args)
 		c = fgetch(fin) & 255	
 
 		tempLine = lineBuf
-		while c && (c != 10) do
+		while (c != 0) & (c != 10) do
 			[tempLine] = c
 			tempLine = tempLine + 1
 			c = fgetch(fin) & 255
 		end
 		[tempLine] = 0
 		pish_parse_line(lineBuf, argvBuf)
-		if [argvBuf] && (byte [lineBuf] != byte ["#"]) then
+		if ([argvBuf] != 0) & (byte [lineBuf] != byte ["#"]) then
 			recognized = 0
 			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
 			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
-			if !recognized then pish_exec(tempBuf, argvBuf) end
+			if (recognized == 0) then pish_exec(tempBuf, argvBuf) end
 
 		end
 	end

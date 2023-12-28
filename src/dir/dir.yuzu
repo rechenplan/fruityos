@@ -1,6 +1,6 @@
 sub dir_equal_string(a, b)
 	while byte [a] == byte [b] do
-		if ! byte [a] then
+		if byte [a] == 0 then
 			return 1
 		end
 		a = a + 1
@@ -33,7 +33,7 @@ sub main()
 		ent = buf + pos
 		type = byte [ent + 18]
 		if type == 4 then
-			if !(dir_equal_string(ent + 19, "..") || dir_equal_string(ent + 19, ".")) then
+			if (dir_equal_string(ent + 19, "..") | dir_equal_string(ent + 19, ".")) == 0 then
 				dir_puts("[")
 				dir_puts(ent + 19)
 				dir_puts("] ")
