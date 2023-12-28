@@ -242,5 +242,3 @@ sub emit_byte(fd, value)
 	fputch(fd, byte value)
 	return 1
 end
-
-

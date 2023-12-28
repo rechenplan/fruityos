@@ -44,7 +44,7 @@ sub ast_set_token(node,v)	[node + 16] = v end
 sub ast_set_kid(node,v)		[node + 24] = v end
 sub ast_set_sibling(node,v)	[node + 32] = v end
 
-sub AST_SIZE()			return 104 end ; 64 bytes for value field
+sub AST_SIZE()			return 296 end ; 256 bytes for value field
 
 sub yc_alloc(size)
 	local ptr

@@ -106,4 +106,3 @@ sub elf_write_header(fd, size, vaddr)
 	write(fd, temp, 8)
 
 end
-
