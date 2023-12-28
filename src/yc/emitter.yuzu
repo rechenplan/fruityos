@@ -9,13 +9,6 @@ sub yc_emit_rvalue_unary(token, fd)
 		yc_fputs(fd, "not rax") fputch(fd, 10)
 		return 0
 	end
-	if token == TOKEN_BNOT() then
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
-		yc_fputs(fd, "setz dl") fputch(fd, 10)
-		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
-		return 0
-	end
 end
 
 sub yc_emit_rvalue_binop(token, fd)
@@ -27,51 +20,12 @@ sub yc_emit_rvalue_binop(token, fd)
 		yc_fputs(fd, "sub rax, rdi") fputch(fd, 10)
 		return 0
 	end
-	if token == TOKEN_ASTERISK() then
-		yc_fputs(fd, "mul rdi") fputch(fd, 10)
-		return 0
-	end
-	if token == TOKEN_DIVIDE() then
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "div rdi") fputch(fd, 10)
-		return 0
-	end
-	if token == TOKEN_MODULUS() then
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "div rdi") fputch(fd, 10)
-		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
-		return 0
-	end
 	if token == TOKEN_AND() then
-		yc_fputs(fd, "and rax, rdi") fputch(fd, 10)
-		return 0
-	end
-	if token == TOKEN_BAND() then
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
-		yc_fputs(fd, "setnz dl") fputch(fd, 10)
-		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "test rdi, rdi") fputch(fd, 10)
-		yc_fputs(fd, "setnz dl") fputch(fd, 10)
-		yc_fputs(fd, "mov rdi, rdx") fputch(fd, 10)
 		yc_fputs(fd, "and rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if token == TOKEN_OR() then
 		yc_fputs(fd, "or rax, rdi") fputch(fd, 10)		
-		return 0
-	end
-	if token == TOKEN_BOR() then
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
-		yc_fputs(fd, "setnz dl") fputch(fd, 10)
-		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
-		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
-		yc_fputs(fd, "test rdi, rdi") fputch(fd, 10)
-		yc_fputs(fd, "setnz dl") fputch(fd, 10)
-		yc_fputs(fd, "mov rdi, rdx") fputch(fd, 10)
-		yc_fputs(fd, "or rax, rdi") fputch(fd, 10)
 		return 0
 	end
 	if token == TOKEN_XOR() then
@@ -253,7 +207,7 @@ sub yc_emit_lvalue(lvalue, fd, symbols, n, label)
 		local_symbol = symbols
 		i = 0
 		found = 0
-		while byte [local_symbol] && !found do
+		while (byte [local_symbol] != 0) & (found == 0) do
 			if yc_is_prefix(id, local_symbol) && yc_is_prefix(local_symbol, id) then
 				found = 1
 			else
@@ -267,7 +221,7 @@ sub yc_emit_lvalue(lvalue, fd, symbols, n, label)
 			yc_fputs(fd, "sub rax, rdi") fputch(fd, 10)
 		else
 			yc_fputs(fd, "mov rax, ")
-			while byte [id] && (byte [id] != byte ["$"]) do
+			while (byte [id] != 0) & (byte [id] != byte ["$"]) do
 				fputch(fd, byte [id])
 				id = id + 1
 			end
@@ -300,7 +254,7 @@ sub yc_emit_statement(statement, fd, symbols, n, label)
 		yc_emit_rvalue(rvalue, fd, symbols, n, label)
 		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
 		yc_fputs(fd, "jz L") yc_fputn(fd, label1) fputch(fd, 10)
-		while (ast_get_token(substate) != TOKEN_ELSE()) && (ast_get_token(substate) != TOKEN_END()) do
+		while (ast_get_token(substate) != TOKEN_ELSE()) & (ast_get_token(substate) != TOKEN_END()) do
 			yc_emit_statement(substate, fd, symbols, n, label)
 			substate = ast_get_sibling(substate)
 		end
@@ -378,7 +332,7 @@ sub yc_emit_definition(definition, fd, label)
 	if done then
 		parameter = ast_get_sibling(parameter)
 	end
-	while !done do
+	while done == 0 do
 		symbol = ast_get_value(parameter)
 		while byte [symbol] do
 			byte [sptr] = byte [symbol]

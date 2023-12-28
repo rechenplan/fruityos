@@ -16,10 +16,10 @@ sub yc_fputn(fd, x)
 	i = 1000000
 	while i > 0 do
 		digit = x / i
-		if digit then
+		if digit != 0 then
 			leading = 0
 		end
-		if !leading then	
+		if leading == 0 then	
 			fputch(fd, digit + byte ["0"])
 		end
 		x = x % i

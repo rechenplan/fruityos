@@ -67,7 +67,7 @@ sub yc_create_node(type)
 end
 
 sub yc_destroy_node(node)
-	if !node then return 0 end
+	if node == 0 then return 0 end
 	yc_destroy_node(ast_get_kid(node))
 	yc_destroy_node(ast_get_sibling(node))
 	yc_free(node)
@@ -76,7 +76,7 @@ end
 sub yc_append_kid(node, kid)
 	local kidList
 	kidList = ast_get_kid(node)
-	if !kidList then
+	if kidList == 0 then
 		ast_set_kid(node, kid)
 	else
 		while ast_get_sibling(kidList) do
@@ -157,11 +157,6 @@ sub yc_parse_unary(op, expected, parent)
 		return 1
 	end
 
-	if yc_accept(op, TOKEN_BNOT(), unNode) then
-		yc_append_kid(parent, unNode)
-		return 1
-	end
-
 	yc_destroy_node(unNode)
 	if expected then
 		yc_error("unary operator")
@@ -181,31 +176,11 @@ sub yc_parse_binary(op, expected, parent)
 		yc_append_kid(parent, binNode)
 		return 1
 	end
-	if yc_accept(op, TOKEN_ASTERISK(), binNode) then
-		yc_append_kid(parent, binNode)
-		return 1
-	end
-	if yc_accept(op, TOKEN_DIVIDE(), binNode) then
-		yc_append_kid(parent, binNode)
-		return 1
-	end
-	if yc_accept(op, TOKEN_MODULUS(), binNode) then
-		yc_append_kid(parent, binNode)
-		return 1
-	end
 	if yc_accept(op, TOKEN_AND(), binNode) then
 		yc_append_kid(parent, binNode)
 		return 1
 	end
-	if yc_accept(op, TOKEN_BAND(), binNode) then
-		yc_append_kid(parent, binNode)
-		return 1
-	end
 	if yc_accept(op, TOKEN_OR(), binNode) then
-		yc_append_kid(parent, binNode)
-		return 1
-	end
-	if yc_accept(op, TOKEN_BOR(), binNode) then
 		yc_append_kid(parent, binNode)
 		return 1
 	end
@@ -258,7 +233,7 @@ sub yc_rvalue_binop_check(rvalue, expected, recursive, parent, rNode)
 	binNode = yc_create_node(AST_RVALUE())
 	ast_set_subtype(binNode, RVALUE_BINOP())
 	yc_append_kid(binNode, rNode)
-	if !recursive then
+	if recursive == 0 then
 		while yc_parse_binary(rvalue, 0, binNode) do
 			yc_parse_rvalue(rvalue, 1, 1, binNode)
 			rNode = binNode
