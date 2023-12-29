@@ -1,0 +1,167 @@
+
+
+
+;  usage: read file [ file ]
+
+;  print the contents of file(s) to stdout
+
+
+sub malloc(size)
+	local ptr
+	ptr = brk(-1)
+	brk(ptr + size)
+	return ptr
+end
+
+sub puts(strPtr)
+	local c
+	while c = byte [strPtr] do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub mod(n, d)
+	local r, q
+	r = n
+	q = 0
+	while r >= d do
+		r = r - d
+		q = q + 1
+	end
+	return r
+end
+
+sub compress(fin, fout)
+	local bytePtr, c, e, windowPtr, windowSize, i, j, filePtr, fileSize, encoderPos,
+		distance, length, done, bestLength, bestDistance
+
+	bytePtr = malloc(3)
+	filePtr = malloc(1 << 20)
+	windowPtr = malloc(1024)
+	windowSize = 0
+
+	fileSize = 0
+	while read(fin, bytePtr, 1) > 0 do
+		byte [filePtr + fileSize] = byte [bytePtr]
+		fileSize = fileSize + 1
+	end
+
+	encoderPos = 0
+	while (encoderPos < fileSize) do
+
+		distance = 0
+		bestLength = 0
+		bestDistance = 0
+		while distance < windowSize do
+			length = 0
+			done = 0
+			while (encoderPos + length < fileSize) & (done == 0) & (length < 64) do
+				c = byte [filePtr + encoderPos + length]
+				e = byte [windowPtr + distance - mod(length, distance + 1)]
+				if c == e then
+					length = length + 1
+				else
+					done = 1
+				end
+			end
+			if length > bestLength then
+				bestLength = length
+				bestDistance = distance
+			end
+			distance = distance + 1
+		end
+
+		if bestLength > 3 then
+			byte [bytePtr + 0] = 255
+			byte [bytePtr + 1] = (distance >> 2) & 255
+			byte [bytePtr + 2] = ((distance & 3) << 6) | (length & 63)
+			write(fout, bytePtr, 3)
+		else
+			bestLength = 1;
+			byte [bytePtr] = byte[filePtr + encoderPos]
+			if byte [bytePtr] == 255 then
+				byte [bytePtr + 1] = 0
+				byte [bytePtr + 2] = 0
+				write(fout, bytePtr, 3)
+			else
+				write(fout, bytePtr, 1)
+			end
+		end
+
+		j = 0
+		while j < bestLength do
+			c = byte [filePtr + encoderPos + j]
+			if windowSize < 1024 then
+				windowSize = windowSize + 1
+			end
+			i = windowSize - 1
+			while i > 0 do
+				byte [windowPtr + i] = byte [windowPtr + i - 1]
+				i = i - 1
+			end
+			byte [windowPtr] = c
+			j = j + 1
+		end
+		encoderPos = encoderPos + bestLength
+	end
+end
+
+sub decompress(fin, fout)
+end
+
+sub main(argc, argv)
+	local fin, fout, mode
+	if argc < 2 then
+		puts("usage: juicer d|c infile outfile")
+		putch(10)
+		exit()
+	end
+
+	argv = nextarg(argv)
+	mode = byte [argv]
+	argv = nextarg(argv)
+	fin = open(argv, 0)
+	if fin <= 0 then
+		puts("Unable to open file")
+		putch(10)
+		exit()
+	end
+	argv = nextarg(argv)
+	fout = creat(argv)
+	if fout <= 0 then
+		puts("Unable to create file")
+		putch(10)
+		close(fin)
+		exit()
+	end
+	if byte mode == byte ["d"] then
+		puts("Decompressing...")
+		putch(10)
+		decompress(fin, fout)
+	else
+		if byte mode == byte ["c"] then
+			puts("Compressing...")
+			putch(10)
+			compress(fin, fout)
+		else
+			puts("unrecognized mode")
+			putch(10)
+			close(fin)
+			close(fout)
+			exit()
+		end
+	end
+	close(fin)
+	close(fout)
+	return 0
+end

@@ -43,3 +43,8 @@ echo Building move...
 yc src/move/move.yuzu tmp/move.s
 concat tmp/a.s lib/_start.asm tmp/move.s lib/libpith.asm 
 zest tmp/a.s /bin/move
+
+echo Building juicer...
+yc src/juicer/juicer.yuzu tmp/juicer.s
+concat tmp/a.s lib/_start.asm tmp/juicer.s lib/libpith.asm
+zest tmp/a.s /bin/juicer
