@@ -141,7 +141,7 @@ end
 
 sub main(argc, argv)
 	local fin, fout, mode
-	if argc < 2 then
+	if argc != 4 then
 		puts("usage: juicer d|c infile outfile")
 		putch(10)
 		exit()
