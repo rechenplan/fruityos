@@ -58,7 +58,7 @@ sub compress(fin, fout)
 		while distance < windowSize do
 			length = 0
 			done = 0
-			while (encoderPos + length < fileSize) & (done == 0) & (length < 64) do
+			while (encoderPos + length < fileSize) & (done == 0) & (length < 63) do
 				c = byte [filePtr + encoderPos + length]
 				e = byte [windowPtr + distance - mod(length, distance + 1)]
 				if c == e then
