@@ -1,11 +1,4 @@
 
-
-
-;  usage: read file [ file ]
-
-;  print the contents of file(s) to stdout
-
-
 sub malloc(size)
 	local ptr
 	ptr = brk(-1)
@@ -83,8 +76,8 @@ sub compress(fin, fout)
 
 		if bestLength > 3 then
 			byte [bytePtr + 0] = 255
-			byte [bytePtr + 1] = (distance >> 2) & 255
-			byte [bytePtr + 2] = ((distance & 3) << 6) | (length & 63)
+			byte [bytePtr + 1] = (bestDistance >> 2) & 255
+			byte [bytePtr + 2] = ((bestDistance & 3) << 6) | (bestLength & 63)
 			write(fout, bytePtr, 3)
 		else
 			bestLength = 1;
@@ -117,6 +110,33 @@ sub compress(fin, fout)
 end
 
 sub decompress(fin, fout)
+	local filePtr, fileSize, bytePtr, length, distance, i
+	filePtr = malloc(1 << 20)
+	bytePtr = malloc(2)
+
+	while read(fin, bytePtr, 1) > 0 do
+		if byte [bytePtr] == 255 then
+			read(fin, bytePtr, 2)
+			length = (byte [bytePtr + 1]) & 63
+			distance = ((byte [bytePtr]) << 2) | (((byte [bytePtr + 1]) >> 6) & 3)
+			if (length == 0) & (distance == 0) then
+				byte [filePtr + fileSize] = 255
+				fileSize = fileSize + 1
+			else
+				i = 0
+				while i < length do
+					byte [filePtr + fileSize + i] = byte [filePtr + fileSize + i - distance - 1]
+					i = i + 1
+				end
+				fileSize = fileSize + length
+			end
+		else
+			byte [filePtr + fileSize] = byte [bytePtr]
+			fileSize = fileSize + 1
+		end
+	end
+	write(fout, filePtr, fileSize)
+	return 0
 end
 
 sub main(argc, argv)
@@ -145,13 +165,9 @@ sub main(argc, argv)
 		exit()
 	end
 	if byte mode == byte ["d"] then
-		puts("Decompressing...")
-		putch(10)
 		decompress(fin, fout)
 	else
 		if byte mode == byte ["c"] then
-			puts("Compressing...")
-			putch(10)
 			compress(fin, fout)
 		else
 			puts("unrecognized mode")
