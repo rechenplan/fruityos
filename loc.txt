@@ -1,0 +1,14 @@
+45 ./src/copy/copy.yuzu
+31 ./src/mkdir/mkdir.yuzu
+34 ./src/del/del.yuzu
+137 ./src/pish/pish.yuzu
+88 ./src/write/write.yuzu
+55 ./src/dir/dir.yuzu
+54 ./src/read/read.yuzu
+36 ./src/move/move.yuzu
+54 ./src/concat/concat.yuzu
+183 ./src/juicer/juicer.yuzu
+158 ./src/jar/jar.yuzu
+36 ./src/echo/echo.yuzu
+32 ./src/rmdir/rmdir.yuzu
+943 total
