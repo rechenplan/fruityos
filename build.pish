@@ -48,3 +48,8 @@ echo Building juicer...
 yc src/juicer/juicer.yuzu tmp/juicer.s
 concat tmp/a.s lib/_start.asm tmp/juicer.s lib/libpith.asm
 zest tmp/a.s /bin/juicer
+
+echo Building jar...
+yc src/jar/jar.yuzu tmp/juicer.s
+concat tmp/a.s lib/_start.asm tmp/juicer.s lib/libpith.asm
+zest tmp/a.s /bin/jar

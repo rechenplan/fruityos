@@ -1,0 +1,109 @@
+
+sub str_is_equal(a, b)
+	while (byte [a] == byte [b]) & (byte [a] != 0) do
+		a = a + 1
+		b = b + 1
+	end
+	return (byte [a] == 0) & (byte [b] == 0)
+end
+
+sub strlen(str)
+	local i
+	while byte [str] != 0 do
+		i = i + 1
+		str = str + 1
+	end
+	return i
+end
+
+sub puts(str)
+	while byte [str] != 0 do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub nextArg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub jar_dir(fout, fileBuf, fileSize, thisDir, exclude)
+	local path, i, pathLen, fd, fileName, fd, pos, bread, ent, type, direntBuf
+
+
+	path = brk(-1)
+	brk(path + 65536)
+	direntBuf = brk(-1)
+	brk(direntBuf + 65536)
+
+	while i < strlen(thisDir) do
+		byte [path + i] = byte [thisDir + i]
+		i = i + 1
+	end
+	byte [path + i] = byte ["/"]
+	byte [path + i + 1] = 0
+	pathLen = strlen(path)
+	puts(path)
+	putch(10)
+
+	fd = open(path, 0)
+	bread = getdents64(fd, direntBuf, 65536)
+	close(fd)
+
+	while pos < bread do
+		ent = direntBuf + pos
+		type = byte [ent + 18]
+		fileName = ent + 19
+		i = strlen(fileName)
+		while i >= 0 do
+			byte [path + pathLen + i] = byte [fileName + i]
+			i = i - 1
+		end
+		if str_is_equal(exclude, fileName) == 0 then
+			if (type != 4) then
+				puts(path)
+				putch(10)
+				fd = open(path, 0)
+				[fileSize] = read(fd, fileBuf, 1 << 20)
+				close(fd)
+				write(fout, path, pathLen)
+				write(fout, fileName, strlen(fileName) + 1)
+				write(fout, fileSize, 4)
+				write(fout, fileBuf, [fileSize])
+				
+			else
+				if byte [fileName] != byte ["."] then
+					jar_dir(fout, fileBuf, fileSize, path, "")
+				end
+			end
+		end
+		pos = pos + ([ent + 16] & 65535)
+	end
+end
+
+sub main(argc, argv)
+	local fileBuf, fileSize, fout
+
+	if argc != 3 then
+		puts("usage: jar d|c file")
+		putch(10)
+		exit()
+	end
+
+	fileBuf = brk(-1)
+	brk(fileBuf + (1 << 20))
+	fileSize = brk(-1)
+	brk(fileSize + 8)
+	argv = nextArg(argv)
+
+	argv = nextArg(argv)
+	fout = creat(argv)
+
+	jar_dir(fout, fileBuf, fileSize, ".", argv)
+	close(fout)
+end
+
