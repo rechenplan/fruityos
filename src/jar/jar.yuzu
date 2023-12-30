@@ -31,8 +31,38 @@ sub nextArg(strPtr)
 	return strPtr + 1
 end
 
-sub jar_dir(fout, fileBuf, fileSize, thisDir, exclude)
-	local path, i, pathLen, fd, fileName, fd, pos, bread, ent, type, direntBuf
+
+sub jar_unpack(fin, fileBuf, fileSize)
+	local fileName, fileSize, tmpPtr, done, i, fout
+
+	fileName = brk(-1)
+	brk(fileName + 65536)
+	while 1 do
+		tmpPtr = fileName
+		done = 0
+		while done == 0 do
+			if read(fin, tmpPtr, 1) <= 0 then
+				return 0
+			end
+			done = (byte [tmpPtr] == 0)
+			tmpPtr = tmpPtr + 1
+		end
+		read(fin, fileSize, 8)
+		puts(fileName)
+		putch(10)
+		if byte [fileName + strlen(fileName) - 1] == byte ["/"] then
+			mkdir(fileName)
+		else
+			fout = creat(fileName, 0)
+			read(fin, fileBuf, [fileSize])
+			write(fout, fileBuf, [fileSize])
+			close(fout)
+		end
+	end
+end
+
+sub jar_pack(fout, fileBuf, fileSize, thisDir, exclude)
+	local path, i, pathLen, fd, fileName, fd, pos, bread, ent, type, direntBuf, tmpPtr
 
 
 	path = brk(-1)
@@ -44,8 +74,6 @@ sub jar_dir(fout, fileBuf, fileSize, thisDir, exclude)
 		byte [path + i] = byte [thisDir + i]
 		i = i + 1
 	end
-	byte [path + i] = byte ["/"]
-	byte [path + i + 1] = 0
 	pathLen = strlen(path)
 	puts(path)
 	putch(10)
@@ -68,16 +96,27 @@ sub jar_dir(fout, fileBuf, fileSize, thisDir, exclude)
 				puts(path)
 				putch(10)
 				fd = open(path, 0)
-				[fileSize] = read(fd, fileBuf, 1 << 20)
+				[fileSize] = 0
+				tmpPtr = fileBuf
+				while read(fd, tmpPtr, 1) > 0 do
+					tmpPtr = tmpPtr + 1
+					[fileSize] = [fileSize] + 1
+				end
 				close(fd)
 				write(fout, path, pathLen)
 				write(fout, fileName, strlen(fileName) + 1)
-				write(fout, fileSize, 4)
+				write(fout, fileSize, 8)
 				write(fout, fileBuf, [fileSize])
 				
 			else
 				if byte [fileName] != byte ["."] then
-					jar_dir(fout, fileBuf, fileSize, path, "")
+					i = strlen(path)
+					byte [path + i] = byte ["/"]
+					byte [path + i + 1] = 0
+					write(fout, path, strlen(path) + 1)
+					[fileSize] = 0
+					write(fout, fileSize, 8)
+					jar_pack(fout, fileBuf, fileSize, path, "")
 				end
 			end
 		end
@@ -86,7 +125,7 @@ sub jar_dir(fout, fileBuf, fileSize, thisDir, exclude)
 end
 
 sub main(argc, argv)
-	local fileBuf, fileSize, fout
+	local fileBuf, fileSize, fd, mode
 
 	if argc != 3 then
 		puts("usage: jar d|c file")
@@ -99,11 +138,21 @@ sub main(argc, argv)
 	fileSize = brk(-1)
 	brk(fileSize + 8)
 	argv = nextArg(argv)
-
+	mode = byte [argv]
 	argv = nextArg(argv)
-	fout = creat(argv)
 
-	jar_dir(fout, fileBuf, fileSize, ".", argv)
-	close(fout)
+	if mode == byte ["c"] then
+		fd = creat(argv)
+		jar_pack(fd, fileBuf, fileSize, "./", argv)
+		close(fd)
+	else
+		if mode == byte ["d"] then
+			fd = open(argv, 0)
+			jar_unpack(fd, fileBuf, fileSize)
+		else
+			puts("unknown mode")
+			putch(10)
+		end
+	end
 end
 
