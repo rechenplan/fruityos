@@ -128,7 +128,7 @@ sub main(argc, argv)
 	local fileBuf, fileSize, fd, mode
 
 	if argc != 3 then
-		puts("usage: jar d|c file")
+		puts("usage: jar c|x file")
 		putch(10)
 		exit()
 	end
@@ -146,7 +146,7 @@ sub main(argc, argv)
 		jar_pack(fd, fileBuf, fileSize, "./", argv)
 		close(fd)
 	else
-		if mode == byte ["d"] then
+		if mode == byte ["x"] then
 			fd = open(argv, 0)
 			jar_unpack(fd, fileBuf, fileSize)
 		else
