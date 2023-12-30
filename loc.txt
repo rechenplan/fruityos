@@ -1,0 +1,11 @@
+37 ./doc/manual.yuzu
+225 ./src/yc/lexer.yuzu
+463 ./src/yc/emitter.yuzu
+457 ./src/yc/parser.yuzu
+92 ./src/yc/yc.yuzu
+130 ./src/zest/lex.yuzu
+246 ./src/zest/emit.yuzu
+50 ./src/zest/main.yuzu
+412 ./src/zest/parse.yuzu
+109 ./src/zest/elf.yuzu
+2221 total
