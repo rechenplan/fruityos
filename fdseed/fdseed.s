@@ -80,21 +80,42 @@ pae:	mov eax, cr4
 lmode:	mov ax, DATA_SEG
 	mov ds, ax
 	mov es, ax
+	mov fs, ax
+	mov gs, ax
 	mov ss, ax
+	mov rsp, 0x7ffff
 
-	mov rdi, 0xb8000
-	mov rsi, boot_m
-print:	lodsb
-	test al, al
-	jz spin
+	; Unpack kernel
+	mov rsi, 0x7e00
+	mov rdi, 0x100000
+unpack: lodsb
+	cmp al, 255
+	jnz lit
+	lodsw
+	xor rcx, rcx
+	xor rdx, rdx
+	mov cx, ax
+	mov dx, ax
+	shr dx, 6
+	and cx, 63
+	jz zero
+	dec cx
+	jz boot
+	inc cx
+	push rsi
+	mov rsi, rdi
+	sub rsi, rdx
+	dec rsi
+	rep movsb
+	pop rsi
+	jmp unpack
+zero:	mov al, 255
 	stosb
-	mov al, 7
-	stosb
-	jmp print
+	jmp unpack
+lit:	stosb
+	jmp unpack
 
-spin:	jmp spin
-
-boot_m: db "Booting FruityOS...", 0
+boot:	jmp 0x100000
 
 gdt:
 gdtr: ; null segment also
