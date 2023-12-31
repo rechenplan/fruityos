@@ -2,4 +2,5 @@
 cat entry.s kmain.asm > kernel.asm
 nasm -f bin kernel.asm -o ../bin/kernel.bin
 rm kmain.asm kernel.asm
-cat ../../seed/bin/fdseed.bin ../bin/kernel.bin > ../bin/kernel.img
+../../peel/bin/juicer c ../bin/kernel.bin ../bin/kernel.zip
+cat ../../seed/bin/fdseed.bin ../bin/kernel.zip > ../bin/kernel.img

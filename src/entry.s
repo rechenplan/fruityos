@@ -1,4 +1,5 @@
-org 0x7e00
+org 0x100000
+
 bits 64
 
 entry:
