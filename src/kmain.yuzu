@@ -1,0 +1,16 @@
+
+sub write_text_mode(str, scr)
+	while byte [str] != 0 do
+		byte [scr] = byte [str]
+		str = str + 1
+		byte [scr + 1] = 7
+		scr = scr + 2
+	end
+end
+
+sub kmain()
+	local screen
+	screen = 753664 ; 0xb8000
+	write_text_mode("Welcome to FruityOS!", screen)
+	return 0
+end
