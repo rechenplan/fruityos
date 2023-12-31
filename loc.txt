@@ -7,8 +7,8 @@
 54 ./src/read/read.yuzu
 36 ./src/move/move.yuzu
 54 ./src/concat/concat.yuzu
-183 ./src/juicer/juicer.yuzu
+191 ./src/juicer/juicer.yuzu
 158 ./src/jar/jar.yuzu
 36 ./src/echo/echo.yuzu
 32 ./src/rmdir/rmdir.yuzu
-943 total
+951 total
