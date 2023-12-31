@@ -113,3 +113,8 @@ Example code:
 		return numCats
 
 	end
+
+## TODO
+
+1. add pushad, popad, iret to yuzu
+2. add isr (like sub, but for isrs) and ireturn (like return, but for isrs) to yuzu
