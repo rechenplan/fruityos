@@ -122,3 +122,5 @@ Example code:
 
 1. add pushad, popad, iret to yuzu
 2. add isr (like sub, but for isrs) and ireturn (like return, but for isrs) to yuzu
+3. add bits 16 and bits 64 directive support to zest (for assembling bootloader)
+4. add org support to zest
