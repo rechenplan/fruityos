@@ -10,6 +10,10 @@ a smol system language
 * nasm
 * a 64 bit linux kernel
 
+on ubuntu or debian
+
+	sudo apt-get install gcc nasm
+
 ## components
 
 this repository contains four pieces of software
