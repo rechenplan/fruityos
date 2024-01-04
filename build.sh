@@ -1,3 +1,4 @@
+mkdir bin
 ../yuzu/bin/yc src/kmain.yuzu kmain.asm
 cat src/entry.s kmain.asm > _.asm
 nasm -f bin _.asm -o bin/kernel.bin
