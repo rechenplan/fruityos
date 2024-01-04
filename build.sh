@@ -1,3 +1,4 @@
+mkdir bin
 cd src
 cd fdseed
 ./build.sh
