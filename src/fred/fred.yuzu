@@ -35,6 +35,65 @@ sub mod(n, d)
 	return r
 end
 
+sub strcmp(a, b)
+	while (byte [a] == byte [b]) & (byte [a] != 0) & (byte [b] != 0) do
+		a = a + 1
+		b = b + 1
+	end
+	return (byte [a] == byte[b])
+end
+
+sub strlen(str)
+	local i
+	while byte [str + i] != 0 do
+		i = i + 1
+	end
+	return i
+end
+
+sub repl(editBuffer, filename)
+	local c, prevc, i, j, k, line, done
+
+	line = malloc(1024)
+	done = 0
+	while done == 0 do
+		i = 0
+		prevc = 32
+		c = getch()
+		while byte c != 10 do
+			if (byte c == 32) & (byte prevc != 32) then
+				byte [line + i] = 0
+				i = i + 1
+			end
+			if byte c != 32 then	
+				byte [line + i] = byte c
+				i = i + 1
+			end
+			prevc = c
+			c = getch()
+		end
+		byte [line + i] = 0
+		if strcmp(line, "list") then
+			j = 0
+			k = 0
+			while byte [editBuffer + k] != 0 do
+				if byte [editBuffer + k] == 10 then
+					putch(10)
+					putch(byte [":"])
+					putch(32)
+					j = j + 1
+				else
+					putch(byte [editBuffer + k])
+				end
+				k = k + 1
+			end
+		end
+		if strcmp(line, "exit") then
+			done = 1
+		end
+	end
+end
+
 sub main(argc, argv)
 
 	local f, filename, editBuffer, i
@@ -45,8 +104,8 @@ sub main(argc, argv)
 		exit()
 	end
 
-	editBuffer = malloc(1024 * 1024)
-	while i < 1024 * 1024 do
+	editBuffer = malloc(1048576)
+	while i < 1048576 do
 		byte [editBuffer + i] = 0
 		i = i + 1
 	end
@@ -61,7 +120,6 @@ sub main(argc, argv)
 	end	
 	close(f)
 
-	puts(editBuffer)
-
+	repl(editBuffer, filename)
 	return 0
 end
