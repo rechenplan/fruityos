@@ -2,14 +2,24 @@
 ; zest parser 
 
 sub parse_is_digit(c)
-	return (c >= byte ["0"]) && (c <= byte ["9"])
+	return (c >= byte ["0"]) & (c <= byte ["9"])
+end
+
+sub parse_mul(a, b)
+	local p
+	p = 0
+	while a > 0 do
+		a = a - 1
+		p = p + b
+	end
+	return p
 end
 
 sub parse_atoi(str)
 	local c, value
 	c = byte [str]
 	while parse_is_digit(c) do
-		value = value * 10
+		value = parse_mul(value, 10)
 		value = value + (c - byte ["0"])
 		str = str + 1
 		c = byte [str]
@@ -19,16 +29,16 @@ end
 
 sub parse_lookup_table(symbol, tab)
 	local name, value, tempSymbol, match, i
-	while (value = [tab]) != -1 && (i < 1024) do
+	while ((value = [tab]) != -1) & (i < 1024) do
 		name = tab + 8
 		tempSymbol = symbol
 		match = byte [tempSymbol] == byte [name]
-		while match && byte [name] do
+		while (match != 0) & (byte [name] != 0) do
 			name = name + 1 
 			tempSymbol = tempSymbol + 1 
 			match = byte [tempSymbol] == byte [name]
 		end
-		if match then
+		if match != 0 then
 			return value
 		end
 		tab = tab + 64
@@ -48,7 +58,7 @@ end
 
 sub parse_print_table(tab)
 	local i, c, v
-	while (v = [tab]) != -1 && (i < 1024) do
+	while ((v = [tab]) != -1) & (i < 1024) do
 		parse_puthex(i)
 		putch(32)
 		putch(34)
@@ -65,13 +75,13 @@ end
 
 sub parse_insert_table(value, symbol, tab)
 	local i, c
-	while [tab] != -1 && (i < 1023) do
+	while ([tab] != -1) & (i < 1023) do
 		tab = tab + 64
 		i = i + 1
 	end
 	[tab] = value
 	i = 8
-	while (c = byte [symbol]) && (i < 63) do
+	while ((c = byte [symbol]) != 0) & (i < 63) do
 		if c != 58 then ; ":" 
 			[tab + i] = c
 			i = i + 1
@@ -88,7 +98,7 @@ end
 sub parse_expect_register(token)
 	local reg
 	reg = lex_keyword_lookup(token) - 36
-	if (reg < 0) || (reg > 10) then
+	if (reg < 0) | (reg > 10) then
 		lex_puts("expected register got ")
 		lex_puts(token)
 		putch(10)
@@ -99,7 +109,7 @@ end
 
 sub parse_expect_newline(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if ptr && (byte [token] != 10) then
+	if (ptr != 0) & (byte [token] != 10) then
 		lex_puts("expected newline got ")
 		lex_puts(token)
 		putch(10)
@@ -198,7 +208,7 @@ sub parse_branch(op, fout, ptr, token, pos, symtab)
 		exit()
 	end
 	value = parse_lookup_table(token, symtab)
-	if (value == -1) && (fout != -1) then
+	if (value == -1) & (fout != -1) then
 		lex_puts("expected symbol got ")
 		lex_puts(token)
 		putch(10)
@@ -359,7 +369,7 @@ sub parse_file(fout, fin, symtab, org)
 	pos = org
 	while c = fgetch(fin) & 255 do
 		ptr = buffer
-		while (c) && (c != 10) do
+		while (c != 0) & (c != 10) do
 			[ptr] = c
 			ptr = ptr + 1
 			c = fgetch(fin) & 255
@@ -374,25 +384,25 @@ sub parse_file(fout, fin, symtab, org)
 			k = lex_keyword_lookup(token)
 
 			; ret, syscall 
-			if (k >= 0) && (k <= 1) then pos = pos + parse_no_args(k, fout, ptr, token) end
+			if (k >= 0) & (k <= 1) then pos = pos + parse_no_args(k, fout, ptr, token) end
 
 			; push, pop, mul, div, neg, not 
-			if (k >= 2) && (k <= 7) then pos = pos + parse_one_reg(k, fout, ptr, token) end
+			if (k >= 2) & (k <= 7) then pos = pos + parse_one_reg(k, fout, ptr, token) end
 
 			; add, sub, and, xor, or, test, cmp 
-			if (k >= 8) && (k <= 14) then pos = pos + parse_two_reg(k, fout, ptr, token) end
+			if (k >= 8) & (k <= 14) then pos = pos + parse_two_reg(k, fout, ptr, token) end
 
 			; shl, shr 
-			if (k >= 15) && (k <= 16) then pos = pos + parse_shift(k, fout, ptr, token) end
+			if (k >= 15) & (k <= 16) then pos = pos + parse_shift(k, fout, ptr, token) end
 
 			; sete, setne, setz, setnz, setg, setl, setge, setle 
-			if (k >= 17) && (k <= 24) then pos = pos + parse_setcc(k, fout, ptr, token) end
+			if (k >= 17) & (k <= 24) then pos = pos + parse_setcc(k, fout, ptr, token) end
 
 			; call 
 			if k == 27 then pos = pos + parse_call(k, fout, ptr, token) end
 
 			; jmp, jnz, jz 
-			if (k >= 28) && (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
+			if (k >= 28) & (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
 
 			; label: 
 			if k == -1 then parse_label(fout, pos, ptr, token, symtab) end

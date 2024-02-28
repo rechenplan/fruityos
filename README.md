@@ -10,6 +10,10 @@ a smol system language
 * nasm
 * a 64 bit linux kernel
 
+on ubuntu or debian
+
+	sudo apt-get install gcc nasm
+
 ## components
 
 this repository contains four pieces of software
@@ -57,11 +61,10 @@ non-terminals are enclosed in <>. terminals are enclosed in "". a term is a term
 			| <LPAREN> <RVALUE> <RPAREN>
 			| <CONSTANT>
 
-	<BINOP>		::= <PLUS> | <MINUS> | <ASTERISK> | <DIVIDE> | <MODULUS>
-			| <AND> | <BAND> | <OR> | <BOR> | <XOR> | <LSHIFT> | <RSHIFT>
+	<BINOP>		::= <PLUS> | <MINUS> | <AND> | <OR> | <XOR> | <LSHIFT> | <RSHIFT>
 			| <EQUAL> | <NOTEQUAL> | <GREATERTHAN> | <LESSTHAN> | <GEQ> | <LEQ>
 
-	<UNARY>		::= <MINUS> | <NOT> | <BNOT>
+	<UNARY>		::= <MINUS> | <NOT>
 
 	<CONSTANT>	::= <NUMBER> | <STRLIT>
 
@@ -76,18 +79,12 @@ tokens scanned by lexer (note if a string appears as a prefix of another, then i
 	<COMMA> 	::= "," 
 	<PLUS> 		::= "+" 
 	<MINUS> 	::= "-" 
-	<ASTERISK> 	::= "*" 
-	<DIVIDE> 	::= "/" 
-	<MODULUS> 	::= "%" 
-	<BAND>		::= "&&"
 	<AND> 		::= "&" 
-	<BOR>		::= "||"
 	<OR> 		::= "|" 
 	<XOR> 		::= "^" 
 	<EQUAL> 	::= "==" 
 	<ASSIGN> 	::= "="
 	<NOTEQUAL> 	::= "!="
-	<BNOT>		::= "!"
 	<NOT>		::= "~"
 	<LSHIFT> 	::= "<<" 
 	<LEQ> 		::= "<=" 
@@ -120,3 +117,10 @@ Example code:
 		return numCats
 
 	end
+
+## TODO
+
+1. add pushad, popad, iret to yuzu
+2. add isr (like sub, but for isrs) and ireturn (like return, but for isrs) to yuzu
+3. add bits 16 and bits 64 directive support to zest (for assembling bootloader)
+4. add org support to zest

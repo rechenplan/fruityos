@@ -5,13 +5,13 @@ sub lex_get_keyword_str()
 end
 
 sub lex_is_numeric(c)
-	return (c >= byte ["0"]) && (c <= byte ["9"])
+	return (c >= byte ["0"]) & (c <= byte ["9"])
 end
 
 sub lex_is_alpha(c)
-	return  ((c >= byte ["A"]) && (c <= byte ["Z"])) ||
-		((c >= byte ["a"]) && (c <= byte ["z"])) ||
-		(c == byte ["_"]) || (c == byte ["."])
+	return  ((c >= byte ["A"]) & (c <= byte ["Z"])) |
+		((c >= byte ["a"]) & (c <= byte ["z"])) |
+		(c == byte ["_"]) | (c == byte ["."])
 end
 
 sub lex_get_next_keyword(keywordStr)
@@ -30,11 +30,11 @@ end
 
 sub lex_keyword_compare(str, k)
 	local i
-	while (byte [str] == byte [k]) && byte [k] && byte [str] do
+	while (byte [str] == byte [k]) & (byte [k] != 0) & (byte [str] != 0) do
 		str = str + 1
 		k = k + 1
 	end
-	return (byte [k] == byte ["$"]) && (byte [str] == 0)
+	return (byte [k] == byte ["$"]) & (byte [str] == 0)
 end
 
 sub lex_keyword_lookup(str)
@@ -57,7 +57,7 @@ sub lex_get_next_token(buffer, out)
 
 		if c == byte [";"] then
 			len = 0
-			while c && (c != 10) do
+			while (c != 0) & (c != 10) do
 				c = byte [buffer + len]
 				len = len + 1
 			end
@@ -65,9 +65,9 @@ sub lex_get_next_token(buffer, out)
 		end
 
 		if lex_is_alpha(c) then
-			while lex_is_alpha(c) ||
-                              lex_is_numeric(c) || 
-                              (c == byte [":"]) ||
+			while lex_is_alpha(c) |
+                              lex_is_numeric(c) |
+                              (c == byte [":"]) |
                               (c == byte ["_"])
 			do
 				[out] = c
@@ -104,11 +104,11 @@ sub lex_get_next_token(buffer, out)
 			return buffer
 		end
 
-		if (c == byte [","]) || 
-		   (c == byte ["["]) ||
-	           (c == byte ["]"]) ||
-		   (c == byte ["-"]) ||
-		   (c == byte ["+"]) ||
+		if (c == byte [","]) |
+		   (c == byte ["["]) |
+	           (c == byte ["]"]) |
+		   (c == byte ["-"]) |
+		   (c == byte ["+"]) |
 		   (c == 10)
 		then
 			[out] = c

@@ -91,7 +91,7 @@ end
 sub emit_two_reg(op, fd, srcReg, dstReg)
 	local mod
 	if fd != -1 then
-		mod = (srcReg * 8) + dstReg + 192 ; 0xC0 
+		mod = (srcReg << 3) + dstReg + 192 ; 0xC0 
 		fputch(fd, 72) ; 0x48 
 		if (op == 8) then fputch(fd, 1) end
 		if (op == 9) then fputch(fd, 41) end
@@ -174,7 +174,7 @@ end
 sub emit_load(fd, srcReg, dstReg)
 	local mod
 	if fd != -1 then
-		mod = dstReg + (srcReg * 8)
+		mod = dstReg + (srcReg << 3)
 		fputch(fd, 72)  ; 0x48 
 		fputch(fd, 139) ; 0x8B 
 		fputch(fd, mod)
@@ -209,7 +209,7 @@ end
 sub emit_store(fd, srcReg, dstReg)
 	local mod
 	if fd != -1 then
-		mod = dstReg + (srcReg * 8)
+		mod = dstReg + (srcReg << 3)
 		fputch(fd, 72)  ; 0x48 
 		fputch(fd, 137) ; 0x89 
 		fputch(fd, mod)
@@ -242,5 +242,3 @@ sub emit_byte(fd, value)
 	fputch(fd, byte value)
 	return 1
 end
-
-
