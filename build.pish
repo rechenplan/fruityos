@@ -53,3 +53,8 @@ echo Building jar...
 yc src/jar/jar.yuzu tmp/juicer.s
 concat tmp/a.s lib/_start.asm tmp/juicer.s lib/libpith.asm
 zest tmp/a.s /bin/jar
+
+echo Building fred...
+yc src/fred/fred.yuzu tmp/fred.s
+concat tmp/a.s lib/_start.asm tmp/fred.s lib/libpith.asm
+zest tmp/a.s /bin/fred
