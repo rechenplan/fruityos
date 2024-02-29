@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mkdir bin tmp lib sbin dev
+mkdir bin tmp lib dev
 sudo cp --archive /dev/console ./dev
 sudo cp --archive /dev/tty ./dev
 

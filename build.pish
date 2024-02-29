@@ -62,4 +62,4 @@ zest tmp/a.s /bin/fred
 echo Building init...
 yc src/init/init.yuzu tmp/init.s
 concat tmp/a.s lib/_start.asm tmp/init.s lib/libpith.asm
-zest tmp/a.s /sbin/init
+zest tmp/a.s /init

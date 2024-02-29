@@ -242,6 +242,7 @@ sub repl(editBuffer, backBuffer, filename)
 				i = i + 1
 				k = k + 1
 				n = 0
+				byte [line] = 0
 				while j == startLine do
 					c = getch()
 					if byte c != 10 then
