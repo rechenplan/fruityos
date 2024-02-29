@@ -1,0 +1,11 @@
+sub main(argv, argc)
+	local pid
+	while 1 do
+		pid = fork()
+		if pid == 0 then
+			exec("/bin/pish", 0)
+		else
+			waitpid(pid)
+		end
+	end
+end
