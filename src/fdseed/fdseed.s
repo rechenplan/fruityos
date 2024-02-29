@@ -10,20 +10,29 @@ start:
 	; Clear data segment
 	xor ax, ax
 	mov ds, ax
+	mov ss, ax
+	mov sp, 0x7c00
+
+	mov bp, 0x7c0	; Output buffer 0x7c00
+	xor bx, bx
+	mov cx, 1	; Cylinder 0, Sector 1
+	xor dh, dh	; Head 0
 
 	; Reset disk
 reset: 	mov ah, 0
 	int 0x13
 
-	; Load OS from disk (CHS)
-	mov ax, 0x023e	; Read 62 sectors (we can't cross a cylinder boundry)
-	mov cx, 2	; Cylinder 0, Sector 2
-	mov dh, 0	; Head 0 (note dl already contains id of boot disk)
-	mov bx, 0x7e0	; ES:BX is output buffer (0x7e00)
-	mov es, bx
-	xor bx, bx
+	; Load 16 cylinders into memory (CHS)
+load:	mov ax, 0x0212	; Read 18 sectors
+	mov es, bp	; ES:BX is output buffer
 	int 0x13
 	jc reset
+	add bp, 576	; Advance output buffer by 512 * 18
+	xor dh, 1	; Toggle head
+	jnz load	; If head is zero, increment cylinder
+	inc ch
+	cmp ch, 1	; Repeat for 16 cylinders (TODO)
+	jne load
 
 	; Turn on A20 gate (fast A20)
 a20:	in al, 0x92
