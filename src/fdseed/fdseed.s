@@ -113,7 +113,7 @@ unpack: lodsb
 	and cx, 63
 	jz zero
 	dec cx
-	jz boot
+	jz next
 	inc cx
 	push rsi
 	mov rsi, rdi
@@ -126,6 +126,11 @@ zero:	mov al, 255
 	stosb
 	jmp unpack
 lit:	stosb
+	jmp unpack
+
+next:	cmp rdi, 0x110000
+	jg boot
+	mov rdi, 0x110000
 	jmp unpack
 
 boot:	jmp 0x100000
