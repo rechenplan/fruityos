@@ -63,3 +63,10 @@ echo Building init...
 yc src/init/init.yuzu tmp/init.s
 concat tmp/a.s lib/_start.asm tmp/init.s lib/libpith.asm
 zest tmp/a.s /init
+
+echo Creating peel.jz...
+cd bin
+jar c peel.jar
+juicer c peel.jar ../peel.jz
+del peel.jar
+cd ..

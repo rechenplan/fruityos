@@ -1,8 +1,6 @@
 #!/bin/sh
 
-mkdir bin tmp lib dev
-sudo cp --archive /dev/console ./dev
-sudo cp --archive /dev/tty ./dev
+mkdir bin tmp lib
 
 cp ../yuzu/bin/zest ./bin/zest
 cp ../yuzu/bin/yc ./bin/yc
