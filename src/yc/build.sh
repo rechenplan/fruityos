@@ -1,8 +1,7 @@
-cat ../../lib/_start.asm > _.asm
-cat *.yuzu > _.yuzu
-../../bin/byc _.yuzu __.asm
-cat __.asm >> _.asm
-cat ../../lib/libpith.asm >> _.asm
-../../bin/zest _.asm a.out
-mv ./a.out ../../bin/yc
-rm _.asm _.yuzu __.asm
+cat *.yuzu > _yc.yuzu
+../../bin/byc _yc.yuzu _yc.asm
+cat ../../lib/_start.elf _yc.asm ../../lib/libpith.asm > elf.asm
+cat ../../lib/_start.fap _yc.asm ../../lib/libpith.asm > fap.asm
+../../bin/zest e elf.asm ../../bin/yc
+../../bin/zest f fap.asm ../../bin/yc.fap
+rm elf.asm fap.asm _yc.yuzu _yc.asm

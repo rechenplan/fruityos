@@ -1,1 +1,1 @@
-rm -f ../../bin/zest *.o *.asm _.yuzu
+rm -f ../../bin/zest *.o *.asm _.yuzu ../../bin/zest.fap

@@ -15,10 +15,10 @@ sub main_write_table(fd, tab)
 end
 
 sub main(argc, args)
-	local symtab, reltab, i, fin, fout, textSize, vaddr
+	local symtab, reltab, i, fin, fout, textSize, vaddr, format
 
-	if argc != 3 then
-		lex_puts("usage: zest infile outfile")
+	if argc != 4 then
+		lex_puts("usage: zest e|f infile outfile")
 		putch(10)
 		exit()
 	end
@@ -27,7 +27,8 @@ sub main(argc, args)
 	brk(symtab + 65536)
 
 	[symtab] = -1
-
+	args = main_next_arg(args)
+	format = args
 	args = main_next_arg(args)
 	fin = open(args, 0)
 	args = main_next_arg(args)
@@ -39,12 +40,20 @@ sub main(argc, args)
 		exit()
 	end
 
-	vaddr = 134512640 ; 0x8048000 
-	textSize = parse_file(-1, fin, symtab, vaddr + 120)
-	seek(fin, 0, 0)
+	if byte [format] == byte ["e"] then
+		vaddr = 134512640 ; 0x8048000 
+		textSize = parse_file(-1, fin, symtab, vaddr + 120)
+		seek(fin, 0, 0)
+		elf_write_header(fout, textSize, vaddr)
+		parse_file(fout, fin, symtab, vaddr + 120)
+	end
 
-	elf_write_header(fout, textSize, vaddr)
-	parse_file(fout, fin, symtab, vaddr + 120)
+	if byte [format] == byte ["f"] then
+		vaddr = 2097152 ; 0x200000
+		parse_file(-1, fin, symtab, vaddr) ; build symbol table
+		seek(fin, 0, 0)
+		parse_file(fout, fin, symtab, vaddr) ; write output
+	end
 
 	close(fin)
 	close(fout)

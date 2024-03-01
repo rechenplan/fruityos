@@ -23,6 +23,14 @@ global rename
 global mkdir
 global rmdir
 global dup2
+global mmap
+
+mmap:
+	mov	rax, 9
+	push	rcx
+	pop	r10
+	syscall
+	ret
 
 brk:
 	mov	rax, 12

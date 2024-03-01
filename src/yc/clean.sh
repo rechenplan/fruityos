@@ -1,1 +1,1 @@
-rm ../../bin/yc
+rm ../../bin/yc ../../bin/yc.fap
