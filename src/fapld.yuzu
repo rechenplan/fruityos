@@ -1,0 +1,45 @@
+;  usage: fapld file.fap
+;  Execute a fap file
+
+sub puts(strPtr)
+	local c
+	while c = byte [strPtr] do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	local fd, fap, ptr
+	if argc < 2 then
+		puts("usage: fapld file.fap")
+		putch(10)
+		exit()
+	end
+	argv = nextarg(argv)
+	fd = open(argv, 2)
+	if fd <= 0 then
+		puts("error opening file ")
+		puts(argv)
+		putch(10)
+		exit()
+	end
+	; one megabyte at 0x200000
+	fap = mmap(2097152, 1048576, 7, 2, fd, 0)
+	close(fd)
+	if fap != 2097152 then
+		puts("unable to allocate memory")
+		putch(10)
+		exit(fap)
+	end
+	return [fap](argc - 1, argv)
+end
