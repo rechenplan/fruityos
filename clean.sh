@@ -8,3 +8,4 @@ cd ..
 cd yc
 ./clean.sh
 cd ../../
+rm -rf bin
