@@ -1,1 +1,1 @@
-rm -rf bin/*
+rm -rf bin
