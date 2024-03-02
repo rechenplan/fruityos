@@ -61,7 +61,7 @@ sub nextarg(strPtr)
 end
 
 sub main(argc, argv)
-	local fd, fap, ptr
+	local fd, fap, ptr, ostab
 	if argc < 2 then
 		puts("usage: fapld file.fap")
 		putch(10)
@@ -75,10 +75,20 @@ sub main(argc, argv)
 		putch(10)
 		exit()
 	end
+	; allocate memory for os table at 0x10000
+	ostab = mmap(65536, 65536, 7, 34, -1, 0)
+	if ostab != 65536 then
+		puts("unable to allocate os table")
+		putch(10)
+		close(fd)
+		exit(fap)
+	end
+	write_ostab(ostab)
+
 	; one megabyte at 0x200000
 	fap = mmap(2097152, 1048576, 7, 34, -1, 0)
 	if fap != 2097152 then
-		puts("unable to allocate memory")
+		puts("unable to allocate fap block")
 		putch(10)
 		close(fd)
 		exit(fap)
