@@ -1,0 +1,122 @@
+
+open:
+	mov rax, 65536
+	mov rax, [rax]
+	call rax
+	ret
+creat:
+	mov rax, 65544
+	mov rax, [rax]
+	call rax
+	ret
+close:
+	mov rax, 65552
+	mov rax, [rax]
+	call rax
+	ret
+read:
+	mov rax, 65560
+	mov rax, [rax]
+	call rax
+	ret
+write:
+	mov rax, 65568
+	mov rax, [rax]
+	call rax
+	ret
+fgetch:
+	mov rax, 65576
+	mov rax, [rax]
+	call rax
+	ret
+fputch:
+	mov rax, 65584
+	mov rax, [rax]
+	call rax
+	ret
+seek:
+	mov rax, 65592
+	mov rax, [rax]
+	call rax
+	ret
+getch:
+	mov rax, 65600
+	mov rax, [rax]
+	call rax
+	ret
+putch:
+	mov rax, 65608
+	mov rax, [rax]
+	call rax
+	ret
+getcwd:
+	mov rax, 65616
+	mov rax, [rax]
+	call rax
+	ret
+getdents64:
+	mov rax, 65624
+	mov rax, [rax]
+	call rax
+	ret
+rename:
+	mov rax, 65632
+	mov rax, [rax]
+	call rax
+	ret
+mkdir:
+	mov rax, 65640
+	mov rax, [rax]
+	call rax
+	ret
+rmdir:
+	mov rax, 65648
+	mov rax, [rax]
+	call rax
+	ret
+chdir:
+	mov rax, 65656
+	mov rax, [rax]
+	call rax
+	ret
+unlink:
+	mov rax, 65664
+	mov rax, [rax]
+	call rax
+	ret
+exec:
+	mov rax, 65672
+	mov rax, [rax]
+	call rax
+	ret
+fork:
+	mov rax, 65680
+	mov rax, [rax]
+	call rax
+	ret
+waitpid:
+	mov rax, 65688
+	mov rax, [rax]
+	call rax
+	ret
+dup2:
+	mov rax, 65696
+	mov rax, [rax]
+	call rax
+	ret
+brk:
+	mov rax, 65704
+	mov rax, [rax]
+	call rax
+	ret
+mmap:
+	mov rax, 65712
+	mov rax, [rax]
+	call rax
+	ret
+exit:
+	mov rax, 65720
+	mov rax, [rax]
+	call rax
+	ret
+

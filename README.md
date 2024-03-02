@@ -21,7 +21,7 @@ this repository contains four pieces of software
 1. byc: a bootstrapping compiler for yuzu written in c
 2. zest: an assembler written in yuzu
 3. yc: a yuzu compiler written in yuzu
-4. libpith.asm: a standard library for x86-64 linux
+4. libpith: a standard library
 5. yuzu: a script that uses all of these in conjunction to take yuzu code and produce native linux executables
 
 ## bootstrapping sequence
