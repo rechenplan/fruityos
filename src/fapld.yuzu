@@ -75,19 +75,19 @@ sub main(argc, argv)
 		putch(10)
 		exit()
 	end
-	; allocate memory for os table at 0x10000
-	ostab = mmap(65536, 65536, 7, 34, -1, 0)
-	if ostab != 65536 then
+	; 192k os table at 0x10000
+	ostab = mmap(64 << 10, 192 << 10, 7, 34, -1, 0)
+	if ostab != (64 << 10) then
 		puts("unable to allocate os table")
 		putch(10)
 		close(fd)
-		exit(fap)
+		exit(ostab)
 	end
 	write_ostab(ostab)
 
-	; one megabyte at 0x200000
-	fap = mmap(2097152, 1048576, 7, 34, -1, 0)
-	if fap != 2097152 then
+	; 256k at 0x40000
+	fap = mmap(256 << 10, 256 << 10, 7, 34, -1, 0)
+	if fap != (256 << 10) then
 		puts("unable to allocate fap block")
 		putch(10)
 		close(fd)
