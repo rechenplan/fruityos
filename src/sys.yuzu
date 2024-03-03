@@ -1,0 +1,71 @@
+sub sys_open(filename, perms)
+end
+
+sub sys_creat(filename)
+end
+
+sub sys_close(fd)
+end
+
+sub sys_read(fd, buf, size)
+end
+
+sub sys_write(fd, buf, size)
+end
+
+sub sys_fgetch(fd)
+end
+
+sub sys_fputch(fd, char)
+end
+
+sub sys_seek(fd, offset, ptr)
+end
+
+sub sys_getch()
+end
+
+sub sys_putch(char)
+end
+
+sub sys_getcwd(buf, size)
+end
+
+sub sys_getdents64(fd, buf, size)
+end
+
+sub sys_rename(filename, newfilename)
+end
+
+sub sys_mkdir(filename)
+end
+
+sub sys_rmdir(filename)
+end
+
+sub sys_chdir(dir)
+end
+
+sub sys_unlink(filename)
+end
+
+sub sys_exec()
+end
+
+sub sys_fork()
+end
+
+sub sys_waitpid()
+end
+
+sub sys_dup2()
+end
+
+sub sys_brk()
+end
+
+sub sys_mmap()
+end
+
+sub sys_exit()
+end
