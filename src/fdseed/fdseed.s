@@ -128,12 +128,15 @@ zero:	mov al, 255
 lit:	stosb
 	jmp unpack
 
+	; unpack initrd
 next:	cmp rdi, 0x110000
 	jg boot
+	push rsi
 	mov rdi, 0x110000
 	jmp unpack
 
-boot:	jmp 0x100000
+boot:	pop rdi
+	jmp 0x100000
 
 gdt:
 gdtr: ; null segment also
