@@ -17,7 +17,7 @@ sub clear_screen(scr)
 	end
 end
 
-sub kmain()
+sub kmain(initrdPtr)
 	local screen
 	screen = 753664 ; 0xb8000
 	clear_screen(screen)
