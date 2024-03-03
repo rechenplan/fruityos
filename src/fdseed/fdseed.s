@@ -20,7 +20,7 @@ start:
 reset: 	mov ah, 0
 	int 0x13
 
-	; Load 16 cylinders into memory (CHS)
+	; Load 14 cylinders into memory (CHS) (252k)
 load:	mov ax, 0x0201	; Read 1 sector
 	mov es, bp	; ES:BX is output buffer
 	int 0x13
@@ -33,7 +33,7 @@ load:	mov ax, 0x0201	; Read 1 sector
 	xor dh, 1	; Toggle head
 	jnz load	; If head is zero, increment cylinder
 	inc ch
-	cmp ch, 16	; Repeat for 16 cylinders (TODO)
+	cmp ch, 14	; Repeat for 16 cylinders (TODO)
 	jne load
 
 	; Turn on A20 gate (fast A20)
