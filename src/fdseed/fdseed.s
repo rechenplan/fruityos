@@ -10,10 +10,8 @@ start:
 	; Clear data segment
 	xor ax, ax
 	mov ds, ax
-	mov ss, ax
-	mov sp, 0x7c00
 
-	mov bp, 0x7c0	; Output buffer 0x7c00
+	mov bp, 0x4000	; Output buffer 0x40000
 	xor bx, bx
 	mov cx, 1	; Cylinder 0, Sector 1
 	xor dh, dh	; Head 0
@@ -96,11 +94,11 @@ lmode:	mov ax, DATA_SEG
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
-	mov rsp, 0x7ffff
+	mov rsp, 0x7c00
 
 	; Unpack kernel
-	mov rsi, 0x7e00
-	mov rdi, 0x100000
+	mov rsi, 0x40200	; first 512 is bootsector
+	mov rdi, 0x10000
 unpack: lodsb
 	cmp al, 255
 	jnz lit
@@ -113,7 +111,7 @@ unpack: lodsb
 	and cx, 63
 	jz zero
 	dec cx
-	jz next
+	jz boot
 	inc cx
 	push rsi
 	mov rsi, rdi
@@ -128,15 +126,9 @@ zero:	mov al, 255
 lit:	stosb
 	jmp unpack
 
-	; unpack initrd
-next:	cmp rdi, 0x110000
-	jg boot
-	push rsi
-	mov rdi, 0x110000
-	jmp unpack
-
-boot:	pop rdi
-	jmp 0x100000
+	; notice rsi contains pointer to initrd
+boot:	mov rdi, rsi
+	jmp 0x10000
 
 gdt:
 gdtr: ; null segment also
