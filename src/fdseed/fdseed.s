@@ -104,7 +104,7 @@ lmode:	mov ax, DATA_SEG
 	mov rdi, IDT_ADDR
 	xor rcx, rcx
 	dec cl
-idt:	mov ax, isr
+idt:	mov ax, irq
 	stosw
 	mov ax, CODE_SEG
 	stosw
@@ -115,6 +115,9 @@ idt:	mov ax, isr
 	stosd
 	stosd
 	loop idt
+
+	; Set keyboard handler on int 0x21 (IRQ1)
+	mov word [IDT_ADDR + 0x21 * 16], irq1
 
 	; Initialize PIC
 	mov al, 0x11
@@ -136,9 +139,6 @@ idt:	mov ax, isr
 	out 0x21, al
 	mov al, 0x01
 	out 0xa1, al
-
-	; Set keyboard handler on int 0x21 (IRQ1)
-	mov word [IDT_ADDR + 0x21 * 16], key
 
 	; Unpack kernel
 	mov rsi, 0x40200	; first 512 is bootsector
@@ -176,48 +176,6 @@ boot:	lidt [idtr]
 	mov rdi, rsi
 	jmp KERNEL_ADDR + 0x100
 
-	; Keyboard isr
-key:	cli
-	push rax
-	push rbx
-	push rdi
-	push rsi
-	push rdx
-	push rcx
-	push rbp
-	push r8
-	push r9
-	push r10
-	mov rax, qword [KERNEL_ADDR + 31 * 8]
-	call rax
-	pop r10
-	pop r9
-	pop r8
-	pop rbp
-	pop rcx
-	pop rdx
-	pop rsi
-	pop rdi
-	pop rbx
-
-	; ack irq
-	mov al, 0x20
-	out 0x20, al
-	out 0xa0, al
-	pop rax
-	sti
-	iretq
-
-	; Default isr
-isr:	cli
-	push rax
-	mov al, 0x20
-	out 0x20, al
-	out 0xa0, al
-	pop rax
-	sti
-	iretq
-
 idtr:
 	dw (256 * 16) - 1
 	dq IDT_ADDR
@@ -244,6 +202,48 @@ gdt_data:
 	db 11001111b
 	db 0
 gdt_end:
+
+	; IRQ1 handler
+irq1:	cli
+	push rax
+	push rcx
+	push rdx
+	push rsi
+	push rdi
+	push r8
+	push r9
+	push r10
+	push r11
+	xor rax, rax
+	in al, 0x60
+	mov rdi, rax
+	mov rax, qword [KERNEL_ADDR + 31 * 8]
+	call rax
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rdi
+	pop rsi
+	pop rdx
+	pop rcx
+	; ack irq
+	mov al, 0x20
+	out 0x20, al
+	out 0xa0, al
+	pop rax
+	sti
+	iretq
+
+	; Default IRQ isr
+irq:	cli
+	push rax
+	mov al, 0x20
+	out 0x20, al
+	out 0xa0, al
+	pop rax
+	sti
+	iretq
 
 CODE_SEG equ gdt_code - gdt
 DATA_SEG equ gdt_data - gdt
