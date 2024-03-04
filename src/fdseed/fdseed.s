@@ -1,6 +1,10 @@
 	org 0x7c00
 	bits 16
 
+%define IDT_ADDR 0x6000
+%define KERNEL_ADDR 0x10000
+
+entry:
 	; Canonicalize IP
 	jmp 0x0000:start
 start:
@@ -96,9 +100,30 @@ lmode:	mov ax, DATA_SEG
 	mov ss, ax
 	mov rsp, 0x7c00
 
+	; Create IDT
+	mov rdi, IDT_ADDR
+	xor rcx, rcx
+	dec cl
+idt:	mov eax, ((isr - entry + 0x7c00) & 0xFFFF) | (CODE_SEG << 16)
+	stosd
+	mov eax, 0xEE00 | (((isr - entry + 0x7c00) >> 16) & 0xFFFF) << 16
+	stosd
+	xor rax, rax
+	stosd
+	stosd
+	;mov dword [rdi + rcx * 16], (isr & 0xFFFF) | (0x0008 << 16)
+	;mov dword [rdi + rcx * 16 + 4], 0xEE00 | ((isr >> 16) & 0xFFFF) << 16
+	;mov dword [rdi + rcx * 16 + 8], 0
+	;mov dword [rdi + rcx * 16 + 12], 0
+	loop idt
+
+	; Load IDT and enable interrupts
+	lidt [IDT_ADDR]
+	;sti
+
 	; Unpack kernel
 	mov rsi, 0x40200	; first 512 is bootsector
-	mov rdi, 0x10000
+	mov rdi, KERNEL_ADDR
 unpack: lodsb
 	cmp al, 255
 	jnz lit
@@ -128,7 +153,15 @@ lit:	stosb
 
 	; notice rsi contains pointer to initrd
 boot:	mov rdi, rsi
-	jmp 0x10000
+	jmp KERNEL_ADDR
+
+	; Default isr
+isr:
+	iretq
+
+idtr:
+	dw (256 * 16) - 1
+	dq IDT_ADDR
 
 gdt:
 gdtr: ; null segment also
