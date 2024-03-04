@@ -14,6 +14,13 @@ sub str_is_equal(a, b)
 	return 0
 end
 
+sub puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
 sub fputs(fd, str)
 	local c
 	while c = byte [str] do
@@ -58,7 +65,7 @@ sub main(argc, args)
 	if argc == 2 then
 		fout = creat(next_arg(args))
 	else
-		fputs(1, "usage: write file")
+		puts("usage: write file")
 		putch(10)
 		exit()
 	end
