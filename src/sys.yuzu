@@ -69,3 +69,12 @@ end
 
 sub sys_exit()
 end
+
+sub sys_stub()
+end
+
+sub sys_keyboard()
+	local ptr
+	ptr = 753664
+	byte [ptr] = 1
+end
