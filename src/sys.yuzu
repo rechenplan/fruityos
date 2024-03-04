@@ -73,8 +73,8 @@ end
 sub sys_stub()
 end
 
-sub sys_keyboard()
+sub sys_keyboard(scancode)
 	local ptr
 	ptr = 753664
-	byte [ptr] = 1
+	byte [ptr] = scancode
 end
