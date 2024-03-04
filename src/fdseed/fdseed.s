@@ -130,13 +130,10 @@ idt:	mov ax, isr
 
 	mov al, 0x04
 	out 0x21, al
-
 	mov al, 0x02
 	out 0xa1, al
-
 	mov al, 0x05
 	out 0x21, al
-
 	mov al, 0x01
 	out 0xa1, al
 
@@ -173,27 +170,53 @@ zero:	mov al, 255
 lit:	stosb
 	jmp unpack
 
-	; Load IDT and enable interrupts
-	lidt [idtr]
-	sti
-
 	; notice rsi contains pointer to initrd
-boot:	mov rdi, rsi
+boot:	lidt [idtr]
+	sti
+	mov rdi, rsi
 	jmp KERNEL_ADDR + 0x100
 
 	; Keyboard isr
-key:	push rax
+key:	cli
+	push rax
+	push rbx
 	push rdi
+	push rsi
+	push rdx
 	push rcx
+	push rbp
+	push r8
+	push r9
+	push r10
 	mov rax, qword [KERNEL_ADDR + 31 * 8]
 	call rax
+	pop r10
+	pop r9
+	pop r8
+	pop rbp
 	pop rcx
+	pop rdx
+	pop rsi
 	pop rdi
+	pop rbx
+
+	; ack irq
+	mov al, 0x20
+	out 0x20, al
+	out 0xa0, al
 	pop rax
+	sti
 	iretq
 
 	; Default isr
-isr:	iretq
+isr:	cli
+	push rax
+	mov al, 0x20
+	out 0x20, al
+	out 0xa0, al
+	pop rax
+	sti
+	iretq
 
 idtr:
 	dw (256 * 16) - 1
