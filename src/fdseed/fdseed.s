@@ -3,8 +3,8 @@
 
 %define IDT_ADDR 0x6000
 %define KERNEL_ADDR 0x10000
+%define STACK_ADDR 0x6000
 
-entry:
 	; Canonicalize IP
 	jmp 0x0000:start
 start:
@@ -98,28 +98,44 @@ lmode:	mov ax, DATA_SEG
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
-	mov rsp, 0x7c00
+	mov rsp, STACK_ADDR
 
 	; Create IDT
 	mov rdi, IDT_ADDR
 	xor rcx, rcx
 	dec cl
-idt:	mov eax, ((isr - entry + 0x7c00) & 0xFFFF) | (CODE_SEG << 16)
-	stosd
-	mov eax, 0xEE00 | (((isr - entry + 0x7c00) >> 16) & 0xFFFF) << 16
-	stosd
+idt:	mov ax, isr
+	stosw
+	mov ax, CODE_SEG
+	stosw
+	mov ax, 0x8e00
+	stosw
 	xor rax, rax
+	stosw
 	stosd
 	stosd
-	;mov dword [rdi + rcx * 16], (isr & 0xFFFF) | (0x0008 << 16)
-	;mov dword [rdi + rcx * 16 + 4], 0xEE00 | ((isr >> 16) & 0xFFFF) << 16
-	;mov dword [rdi + rcx * 16 + 8], 0
-	;mov dword [rdi + rcx * 16 + 12], 0
 	loop idt
 
+	; Remap PIC
+	mov al, 0x11
+	out 0x20, al
+	out 0xa0, al
+	mov al, 0x20
+	out 0x21, al
+	mov al, 0x28
+	out 0xa1, al
+	mov al, 0x04
+	out 0x21, al
+	mov al, 0x02
+	out 0xa1, al
+	mov al, 0x05
+	out 0x21, al
+	mov al, 0x01
+	out 0xa1, al
+
 	; Load IDT and enable interrupts
-	lidt [IDT_ADDR]
-	;sti
+	lidt [idtr]
+	sti
 
 	; Unpack kernel
 	mov rsi, 0x40200	; first 512 is bootsector
@@ -184,7 +200,6 @@ gdt_data:
 	db 0x92
 	db 11001111b
 	db 0
-
 gdt_end:
 
 CODE_SEG equ gdt_code - gdt
