@@ -1,4 +1,11 @@
 
+sub yc_puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
 sub yc_fputs(fd, str)
 	while byte [str] do
 		fputch(fd, byte [str])
@@ -77,8 +84,8 @@ sub main(argc, argv)
 	local buffer, buffer_ptr, tmp_ptr, n, fd
 
 	if argc != 3 then
-		yc_fputs(1, "usage: yc infile outfile")
-		fputch(1, 10)
+		yc_puts(1, "usage: yc infile outfile")
+		putch(10)
 		return 0
 	end
 
@@ -95,8 +102,8 @@ sub main(argc, argv)
 		byte [tmp_ptr] = 0
 		close(fd)
 	else
-		yc_fputs(1, "unable to open file")
-		fputch(1, 10)
+		yc_puts(1, "unable to open file")
+		putch(10)
 		return 0
 	end
 	fd = creat(yc_nextarg(argv))
