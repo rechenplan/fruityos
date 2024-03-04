@@ -116,26 +116,32 @@ idt:	mov ax, isr
 	stosd
 	loop idt
 
-	; Remap PIC
+	; Initialize PIC
 	mov al, 0x11
 	out 0x20, al
 	out 0xa0, al
+
+	; Map IRQ0 - IRQ7 to int 0x20 - int 0x27
+	; Map IRQ8 - IRQ16 to int 0x28 - int 0x30
 	mov al, 0x20
 	out 0x21, al
 	mov al, 0x28
 	out 0xa1, al
+
 	mov al, 0x04
 	out 0x21, al
+
 	mov al, 0x02
 	out 0xa1, al
+
 	mov al, 0x05
 	out 0x21, al
+
 	mov al, 0x01
 	out 0xa1, al
 
-	; Load IDT and enable interrupts
-	lidt [idtr]
-	sti
+	; Set keyboard handler on int 0x21 (IRQ1)
+	mov word [IDT_ADDR + 0x21 * 16], key
 
 	; Unpack kernel
 	mov rsi, 0x40200	; first 512 is bootsector
@@ -167,13 +173,27 @@ zero:	mov al, 255
 lit:	stosb
 	jmp unpack
 
+	; Load IDT and enable interrupts
+	lidt [idtr]
+	sti
+
 	; notice rsi contains pointer to initrd
 boot:	mov rdi, rsi
-	jmp KERNEL_ADDR
+	jmp KERNEL_ADDR + 0x100
+
+	; Keyboard isr
+key:	push rax
+	push rdi
+	push rcx
+	mov rax, qword [KERNEL_ADDR + 31 * 8]
+	call rax
+	pop rcx
+	pop rdi
+	pop rax
+	iretq
 
 	; Default isr
-isr:
-	iretq
+isr:	iretq
 
 idtr:
 	dw (256 * 16) - 1
