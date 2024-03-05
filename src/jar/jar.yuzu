@@ -47,6 +47,9 @@ sub jar_unpack(fin, fileBuf, fileSize)
 			done = (byte [tmpPtr] == 0)
 			tmpPtr = tmpPtr + 1
 		end
+		if strlen(fileName) == 0 then
+			return 0
+		end
 		read(fin, fileSize, 8)
 		puts(fileName)
 		putch(10)
@@ -144,6 +147,7 @@ sub main(argc, argv)
 	if mode == byte ["c"] then
 		fd = creat(argv)
 		jar_pack(fd, fileBuf, fileSize, "./", argv)
+		fputch(fd, 0)
 		close(fd)
 	else
 		if mode == byte ["x"] then
