@@ -1,0 +1,41 @@
+sub kputs(str)
+	while byte [str] != 0 do
+		sys_putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub kstrlen(str)
+	local i
+	while byte [str + i] != 0 do
+		i = i + 1
+	end
+	return i
+end
+
+sub kunpack(jarBuffer)
+        local fileName, fileSize, tmpPtr, filePtr, fout
+
+        tmpPtr = jarBuffer
+        while 1 do
+		fileName = tmpPtr
+		if byte [fileName] == 0 then
+			return 0
+		end
+                kputs(fileName)
+                sys_putch(10)
+		tmpPtr = tmpPtr + kstrlen(fileName) + 1
+		fileSize = [tmpPtr]
+		tmpPtr = tmpPtr + 8
+		filePtr = tmpPtr
+		tmpPtr = tmpPtr + fileSize
+                if byte [fileName + kstrlen(fileName) - 1] == byte ["/"] then
+                        sys_mkdir(fileName)
+                else
+                        fout = sys_creat(fileName, 0)
+                        sys_write(fout, filePtr, fileSize)
+                        sys_close(fout)
+                end
+		sys_getch()
+        end
+end

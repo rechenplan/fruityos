@@ -1,17 +1,10 @@
-
-sub puts(str, scr)
-	while byte [str] != 0 do
-		x86_putch(byte [str])
-		str = str + 1
-	end
-end
-
 sub kmain(initrdPtr)
 	_keys = 0
 	_kbhead = 0
 	_kbtail = 0
 	x86_cls()
-	puts("Welcome to FruityOS!")
+	kputs("Welcome to FruityOS!")
+	kunpack(initrdPtr)
 	x86_putch(10)
 	return 0
 end

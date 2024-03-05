@@ -174,7 +174,7 @@ sub x86_putch(char)
 		_scrr = 24
 	end
 	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2)] = 219
-	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7			
+	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7
 end
 
 sub x86_cls()
