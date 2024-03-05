@@ -84,7 +84,7 @@ sub main(argc, argv)
 	local buffer, buffer_ptr, tmp_ptr, n, fd
 
 	if argc != 3 then
-		yc_puts(1, "usage: yc infile outfile")
+		yc_puts("usage: yc infile outfile")
 		putch(10)
 		return 0
 	end
