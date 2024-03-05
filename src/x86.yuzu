@@ -157,18 +157,18 @@ sub x86_putch(char)
 		_scrc = 0
 	end
 	if (_scrr > 24) then
-		r = 24
-		while r > 1 do
+		r = 0
+		while r < 24 do
 			c = 0
 			while c < 160 do
-				byte [scr + x86_mul(r, 80) + c] = byte [scr + x86_mul(r - 1, 80) + c]
+				byte [scr + x86_mul(r, 160) + c] = byte [scr + x86_mul(r + 1, 160) + c]
 				c = c + 1
 			end
-			r = r - 1
+			r = r + 1
 		end
 		c = 0
 		while c < 160 do
-			byte [scr + x86_mul(24, 80) + c] = 0
+			byte [scr + x86_mul(24, 160) + c] = 0
 			c = c + 1
 		end
 		_scrr = 24

@@ -41,6 +41,7 @@ entry:
 	call rax
 
 spin:
+	hlt
 	jmp spin
 
 _scrc: 		dq 0
