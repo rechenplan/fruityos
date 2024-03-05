@@ -43,6 +43,9 @@ entry:
 spin:
 	jmp spin
 
-_scrc: dq 0
-_scrr: dq 0
-_keys: dq 0
+_scrc: 		dq 0
+_scrr: 		dq 0
+_keys: 		dq 0
+_kbhead:	dq 0
+_kbtail:	dq 0
+_kb:		times 256 db 0

@@ -8,6 +8,8 @@ end
 
 sub kmain(initrdPtr)
 	_keys = 0
+	_kbhead = 0
+	_kbtail = 0
 	x86_cls()
 	puts("Welcome to FruityOS!")
 	x86_putch(10)

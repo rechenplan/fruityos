@@ -135,13 +135,22 @@ sub x86_putch(char)
 	local scr, c, r
 	scr = 753664 ; 0xb8000
 
+	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2)] = 0
+	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7
 	if char == 10 then
 		_scrr = _scrr + 1
 		_scrc = 0
 	else
-		byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2)] = char
-		byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7
-		_scrc = _scrc + 1
+		if char == 8 then
+			_scrc = _scrc - 1
+			if _scrc < 0 then
+				_scrc = 0
+			end
+		else
+			byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2)] = char
+			byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7
+			_scrc = _scrc + 1
+		end
 	end
 	if (_scrc > 79) then
 		_scrr = _scrr + 1
@@ -164,7 +173,8 @@ sub x86_putch(char)
 		end
 		_scrr = 24
 	end
-		
+	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2)] = 219
+	byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7			
 end
 
 sub x86_cls()
@@ -177,4 +187,6 @@ sub x86_cls()
 		byte [scr + i] = 0
 		i = i + 1
 	end
+	byte [scr] = 219
+	byte [scr + 1] = 7
 end
