@@ -1,3 +1,7 @@
+sub kcls()
+	x86_cls()
+end
+
 sub kputs(str)
 	while byte [str] != 0 do
 		sys_putch(byte [str])
@@ -36,6 +40,5 @@ sub kunpack(jarBuffer)
                         sys_write(fout, filePtr, fileSize)
                         sys_close(fout)
                 end
-		sys_getch()
         end
 end

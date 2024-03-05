@@ -2,9 +2,13 @@ sub kmain(initrdPtr)
 	_keys = 0
 	_kbhead = 0
 	_kbtail = 0
-	x86_cls()
+	kcls()
 	kputs("Welcome to FruityOS!")
+	sys_putch(10)
+	kputs("Unpacking initial RAM filesystem...")
+	sys_putch(10)
 	kunpack(initrdPtr)
-	x86_putch(10)
+	kputs("Ready!")
+	sys_putch(10)
 	return 0
 end
