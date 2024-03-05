@@ -2,6 +2,7 @@ org 0x10000
 
 bits 64
 
+start:
 	dq sys_open
 	dq sys_creat
 	dq sys_close
@@ -41,3 +42,7 @@ entry:
 
 spin:
 	jmp spin
+
+_scrc: dq 0
+_scrr: dq 0
+_keys: dq 0

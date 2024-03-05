@@ -74,7 +74,9 @@ sub sys_stub()
 end
 
 sub sys_keyboard(scancode)
-	local ptr
-	ptr = 753664
-	byte [ptr] = scancode
+	local c
+	c = x86_s2c(scancode)
+	if c != 0 then
+		x86_putch(c)
+	end
 end

@@ -1,26 +1,15 @@
 
-sub write_text_mode(str, scr)
+sub puts(str, scr)
 	while byte [str] != 0 do
-		byte [scr] = byte [str]
+		x86_putch(byte [str])
 		str = str + 1
-		byte [scr + 1] = 7
-		scr = scr + 2
-	end
-end
-
-sub clear_screen(scr)
-	local i
-	while i < 4000 do
-		byte [scr] = 0
-		scr = scr + 1
-		i = i + 1
 	end
 end
 
 sub kmain(initrdPtr)
-	local screen
-	screen = 753664 ; 0xb8000
-	clear_screen(screen)
-	write_text_mode("Welcome to FruityOS!", screen)
+	_keys = 0
+	x86_cls()
+	puts("Welcome to FruityOS!")
+	x86_putch(10)
 	return 0
 end

@@ -1,0 +1,180 @@
+sub x86_s2c(scancode)
+	if (_keys & 1 != 0) | (_keys & 2 != 0) then
+		return x86_s2c_s(scancode)
+	else
+		return x86_s2c_u(scancode)
+	end
+end
+
+sub x86_s2c_s(scancode)
+        if scancode == 1 then
+                return 27
+        end
+        if (scancode >= 2) & (scancode <= 13) then
+                return byte ["!@#$%^&*()_+" + scancode - 2]
+        end
+        if scancode == 14 then
+                return 8
+        end
+        if scancode == 15 then
+                return  11
+        end
+        if (scancode >= 16) & (scancode <= 27) then
+                return byte ["QWERTYUIOP{}" + scancode - 16]
+        end
+        if scancode == 28 then
+                return 10
+        end
+        ; 29 = left control
+        if (scancode >= 30) & (scancode <= 39) then
+                return byte ["ASDFGHJKL:" + scancode - 30]
+        end
+	if scancode == 40 then
+		return 34
+	end
+	if scancode == 41 then
+		return byte ["~"]
+	end
+        if (scancode >= 43) & (scancode <= 53) then     
+                return byte ["|ZXCVBNM<>?" + scancode - 43]
+        end
+	; left shift
+	if scancode == 42 then
+		_keys = _keys | (1 << 0)
+		return 0
+	end
+	if scancode == 170 then
+		_keys = _keys & ~(1 << 0)
+		return 0
+	end
+	; right shift
+	if scancode == 54 then
+		_keys = _keys | (1 << 1)
+		return 0
+	end
+	if scancode == 182 then
+		_keys = _keys & ~(1 << 1)
+		return 0
+	end
+
+	; 55 = num pad *
+	; 56 = left alt
+
+	; space
+	if scancode == 57 then
+		return 32
+	end
+	return 0
+end
+sub x86_s2c_u(scancode)
+        if scancode == 1 then
+                return 27
+        end
+        if (scancode >= 2) & (scancode <= 13) then
+                return byte ["1234567890-=" + scancode - 2]
+        end
+        if scancode == 14 then
+                return 8
+        end
+        if scancode == 15 then
+                return 11
+        end
+        if (scancode >= 16) & (scancode <= 27) then
+                return byte ["qwertyuiop[]" + scancode - 16]
+        end
+        if scancode == 28 then
+                return 10
+        end
+        ; 29 = left control
+        if (scancode >= 30) & (scancode <= 41) then
+                return byte ["asdfghjkl;'`" + scancode - 30]
+        end
+        if (scancode >= 43) & (scancode <= 53) then     
+                return byte ["\zxcvbnm,./" + scancode - 43]
+        end
+
+	; left shift
+	if scancode == 42 then
+		_keys = _keys | (1 << 0)
+		return 0
+	end
+	if scancode == 170 then
+		_keys = _keys & ~(1 << 0)
+		return 0
+	end
+	; right shift
+	if scancode == 54 then
+		_keys = _keys | (1 << 1)
+		return 0
+	end
+	if scancode == 182 then
+		_keys = _keys & ~(1 << 1)
+		return 0
+	end
+
+	; 55 = num pad *
+	; 56 = left alt
+
+	; space
+	if scancode == 57 then
+		return 32
+	end
+	return 0
+end
+
+sub x86_mul(a, b)
+	local r
+	while b > 0 do
+		r = r + a
+		b = b - 1
+	end
+	return r
+end
+
+sub x86_putch(char)
+	local scr, c, r
+	scr = 753664 ; 0xb8000
+
+	if char == 10 then
+		_scrr = _scrr + 1
+		_scrc = 0
+	else
+		byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2)] = char
+		byte [scr + x86_mul(x86_mul(_scrr, 80) + _scrc, 2) + 1] = 7
+		_scrc = _scrc + 1
+	end
+	if (_scrc > 79) then
+		_scrr = _scrr + 1
+		_scrc = 0
+	end
+	if (_scrr > 24) then
+		r = 24
+		while r > 1 do
+			c = 0
+			while c < 160 do
+				byte [scr + x86_mul(r, 80) + c] = byte [scr + x86_mul(r - 1, 80) + c]
+				c = c + 1
+			end
+			r = r - 1
+		end
+		c = 0
+		while c < 160 do
+			byte [scr + x86_mul(24, 80) + c] = 0
+			c = c + 1
+		end
+		_scrr = 24
+	end
+		
+end
+
+sub x86_cls()
+	local i, scr
+	_scrc = 0
+	_scrr = 0
+	scr = 753664 ; 0xb8000
+	i = 0
+	while i < 4000 do
+		byte [scr + i] = 0
+		i = i + 1
+	end
+end
