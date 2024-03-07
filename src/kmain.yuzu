@@ -5,23 +5,18 @@ sub kmain(initJarPtr)
 	global_init()
 
 	kcls()
+	kprintln("Welcome to FruityOS!")
 
-	kputs("Welcome to FruityOS!")
-	kputch(10)
-
-	kputs("Unpacking initial jar...")
-	kputch(10)
+	kprintln("Unpacking initial jar...")
 	kunpack(initJarPtr)
 
 	heap_printStats()
 
-	kputs("Press any key to continue...")
+	kprintln("Press any key to continue...")
 	while sys_getch() == -1 do end
 
 	kcls()
-
-	kputs("Ready!")
-	kputch(10)
+	kprintln("Ready!")
 
 	return 0
 end
