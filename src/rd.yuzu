@@ -1,0 +1,49 @@
+sub rd_init(ramDisk, fsSize, blockSize)
+	local rootNode
+	rd_initPool(ramDisk, blockSize)
+	rootNode = rd_alloc(ramDisk)
+	rd_setRootNode(ramDisk, rootNode)
+end
+
+sub rd_initPool(ramDisk, blockSize)
+	local freeNodePool, poolSize
+	freeNodePool = rd_getFreeNodePool(ramDisk)
+	poolSize = rd_getSize(ramDisk) - rd_getHdrSize()
+	fba_init(freeNodePool, poolSize, blockSize)
+end
+
+sub rd_alloc(ramDisk)
+	local freeNodePool
+	freeNodePool = rd_getFreeNodePool(ramDisk)
+	return fba_dequeue(freeNodePool)
+end
+
+sub rd_free(ramDisk, node)
+	local freeNodePool
+	freeNodePool = rd_getFreeNodePool(ramDisk)
+	fba_push(freeNodePool, node)
+end
+
+sub rd_getHdrSize()
+	return 2 << 3
+end
+
+sub rd_setSize(startAddr, fsSize)
+	[startAddr + (0 << 3)] = fsSize
+end
+
+sub rd_getSize(startAddr)
+	return [startAddr + (0 << 3)]
+end
+
+sub rd_getRootNode(startAddr)
+	return [startAddr + (1 << 3)]
+end
+
+sub rd_setRootNode(startAddr, rootNode)
+	[startAddr + (1 << 3)] = rootNode
+end
+
+sub rd_getFreeNodePool(startAddr)
+	return startAddr + rd_getHdrSize()
+end

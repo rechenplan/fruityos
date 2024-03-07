@@ -1,14 +1,28 @@
-sub kmain(initrdPtr)
+sub kmain(initJarPtr)
+	local rdAddr, rdSize, blockSize
+
 	_keys = 0
 	_kbhead = 0
 	_kbtail = 0
+
 	kcls()
+	kmemcpy(_cwd, "/", 2)
+
 	kputs("Welcome to FruityOS!")
 	sys_putch(10)
-	kputs("Unpacking initial RAM filesystem...")
+
+	; initialize ram disk
+	rdAddr = 1 << 20
+	rdSize = 1 << 20
+	blockSize = 1 << 9
+	rd_init(rdAddr, rdSize, blockSize)
+
+	kputs("Unpacking initial jar...")
 	sys_putch(10)
-	kunpack(initrdPtr)
+	kunpack(initJarPtr)
+
 	kputs("Ready!")
 	sys_putch(10)
+
 	return 0
 end

@@ -1,0 +1,116 @@
+; fixed block allocator
+
+sub fba_init(startAddr, poolSize, blockSize)
+	
+	local headAddr, tailAddr, poolAddr, blockIdx
+
+	fba_setPoolSize(startAddr, poolSize)
+	fba_setBlockSize(startAddr, blockSize)
+	fba_setHead(startAddr, 0)
+	fba_setTail(startAddr, 0)
+
+	poolAddr = fba_getPool(startAddr)
+	blockIdx = 0
+	while blockIdx < poolSize do
+		fba_push(startAddr, poolAddr + blockIdx)
+		blockIdx = blockIdx + (blockSize + fba_getBlockHdrSize()) ; Size of block header
+	end
+end
+
+sub fba_getBlockHdrSize()
+	return 2 << 3
+end
+
+sub fba_getPool(startAddr)
+	return startAddr + (4 << 3)
+end
+
+sub fba_getData(blockAddr)
+	return blockAddr + (2 << 3)
+end
+
+sub fba_setPoolSize(startAddr, poolSize)
+	[startAddr + (0 << 3)] = poolSize
+end
+
+sub fba_setBlockSize(startAddr, blockSize)
+	[startAddr + (1 << 3)] = blockSize
+end
+
+sub fba_setHead(startAddr, headAddr)
+	[startAddr + (2 << 3)] = headAddr
+end
+
+sub fba_setTail(startAddr, tailAddr)
+	[startAddr + (3 << 3)] = tailAddr
+end
+
+sub fba_getPoolSize(startAddr)
+	return [startAddr + (0 << 3)]
+end
+
+sub fba_getBlockSize(startAddr)
+	return [startAddr + (1 << 3)]
+end
+
+sub fba_getHead(startAddr)
+	return [startAddr + (2 << 3)]
+end
+
+sub fba_getTail(startAddr)
+	return [startAddr + (3 << 3)]
+end
+
+sub fba_setNext(blockAddr, nextBlockAddr)
+	[blockAddr + (0 << 3)] = nextBlockAddr
+end
+
+sub fba_getNext(blockAddr)
+	return [blockAddr + (0 << 3)]
+end
+
+sub fba_setPrev(blockAddr, nextBlockAddr)
+	[blockAddr + (1 << 3)] = nextBlockAddr
+end
+
+sub fba_getPrev(blockAddr)
+	return [blockAddr + (1 << 3)]
+end
+
+sub fba_pop(startAddr)
+	local head, next
+	head = fba_getHead(startAddr)
+	if head != 0 then
+		next = fba_getNext(head)
+		fba_setPrev(next, 0)
+		fba_setHead(startAddr, next)
+	end
+	return head
+end
+
+sub fba_dequeue(startAddr)
+	local tail, prev
+	tail = fba_getTail(startAddr)
+	if tail != 0 then
+		prev = fba_getPrev(tail)
+		fba_setNext(prev, 0)
+		fba_setTail(startAddr, prev)
+	end
+	return tail
+end
+
+sub fba_push(startAddr, blockAddr)
+	local head
+	head = fba_getHead(startAddr)
+	if head == 0 then
+		fba_setHead(startAddr, blockAddr)
+		fba_setTail(startAddr, blockAddr)
+		fba_setNext(blockAddr, 0)
+		fba_setPrev(blockAddr, 0)
+	else
+		fba_setPrev(blockAddr, 0)
+		fba_setNext(blockAddr, head)
+		fba_setPrev(head, blockAddr)
+		fba_setHead(startAddr, blockAddr)
+	end
+end

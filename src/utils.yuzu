@@ -1,3 +1,12 @@
+sub kmemcpy(a, b, cnt)
+	while cnt > 0 do
+		byte [a] = byte [b]
+		a = a + 1
+		b = b + 1
+		cnt = cnt - 1
+	end
+end
+
 sub kcls()
 	x86_cls()
 end
@@ -15,6 +24,14 @@ sub kstrlen(str)
 		i = i + 1
 	end
 	return i
+end
+
+sub kstrcmp(a, b)
+	while (byte [a] == byte [b]) & (byte [a] != 0) do
+		a = a + 1
+		b = b + 1
+	end
+	return (byte [a] == byte [b])
 end
 
 sub kunpack(jarBuffer)
