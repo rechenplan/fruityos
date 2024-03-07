@@ -11,11 +11,7 @@ sub kmain(initJarPtr)
 	kputs("Welcome to FruityOS!")
 	sys_putch(10)
 
-	; initialize ram disk
-	rdAddr = 1 << 20
-	rdSize = 1 << 20
-	blockSize = 1 << 9
-	rd_init(rdAddr, rdSize, blockSize)
+	heap_init()
 
 	kputs("Unpacking initial jar...")
 	sys_putch(10)

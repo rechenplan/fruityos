@@ -1,4 +1,12 @@
-; functions for inode data structure
+; inode
+
+sub INODE_TYPE_FILE()
+	return 0
+end
+
+sub INODE_TYPE_DIR()
+	return 1
+end
 
 sub inode_init(inode, name, type, size, content)
 	inode_setName(inode, name)
