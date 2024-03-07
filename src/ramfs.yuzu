@@ -1,0 +1,24 @@
+; ram disk
+
+sub ramfs_getDataBlockSize()
+	return 1 << 10
+end
+
+sub ramfs_init(ramfs)
+	ramfs_setRoot(ramfs, 0)
+end
+
+sub ramfs_cleanup(ramfs)
+end
+
+sub ramfs_getSize()
+	return (1 << 3)
+end
+
+sub ramfs_getRoot(ramfs)
+	return [ramfs + (0 << 3)]
+end
+
+sub ramfs_setRoot(ramfs, rootNode)
+	[ramfs + (0 << 3)] = rootNode
+end

@@ -7,6 +7,10 @@ sub kmemcpy(a, b, cnt)
 	end
 end
 
+sub kstrcpy(a, b)
+	kmemcpy(a, b, kstrlen(b) + 1)
+end
+
 sub kcls()
 	scr_cls(global_getScr())
 end

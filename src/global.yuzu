@@ -1,11 +1,13 @@
 sub global_init()
 	global_initScr()
 	global_initKb()
+	global_initRamfs()
 end
 
 sub global_free()
 	global_freeScr()
 	global_freeKb()
+	global_freeRamfs()
 end
 
 sub global_getScr()
@@ -14,6 +16,10 @@ end
 
 sub global_getKb()
 	return _kb
+end
+
+sub global_getRamfs()
+	return _ramfs
 end
 
 sub global_initScr()
@@ -36,4 +42,15 @@ sub global_freeKb()
 	kb_cleanup(_kb)
 	heap_free(_kb, kb_getSize())
 	_kb = 0
+end
+
+sub global_initRamfs()
+	_ramfs = heap_alloc(ramfs_getSize())
+	ramfs_init(_ramfs)
+end
+
+sub global_freeRamfs()
+	ramfs_cleanup(_ramfs)
+	heap_free(_ramfs, ramfs_getSize())
+	_ramfs = 0
 end

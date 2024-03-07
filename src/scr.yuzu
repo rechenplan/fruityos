@@ -1,5 +1,5 @@
 sub scr_putch(scr, char)
-	local scr, scrAddr, screenRow, screenCol, screenRowCnt, screenColCnt, toAddr, fromAddr, c, r
+	local scr, scrAddr, screenRow, screenCol, screenRowCnt, screenColCnt, toAddr, fromAddr, rowOffset, c, r
 
 	if (scr == 0) then
 		return 0
@@ -39,18 +39,21 @@ sub scr_putch(scr, char)
 		r = 0
 		while r < (screenRowCnt - 1) do
 			c = 0
+			rowOffset = x86_mul(r, screenColCnt << 1)
 			while c < (screenColCnt << 1) do
-				toAddr = scrAddr + x86_mul(r, screenColCnt << 1) + c
-				fromAddr = scrAddr + x86_mul(r + 1, screenColCnt << 1) + c
+				toAddr = scrAddr + rowOffset + c
+				fromAddr = scrAddr + rowOffset + (screenColCnt << 1) + c
 				byte [toAddr] = byte [fromAddr]
 				c = c + 1
 			end
 			r = r + 1
 		end
 		c = 0
+		rowOffset = x86_mul(screenRowCnt - 1, screenColCnt << 1)
+		toAddr = scrAddr + rowOffset + c
 		while c < (screenColCnt << 1) do
-			toAddr = scrAddr + x86_mul(screenRowCnt - 1, screenColCnt << 1) + c
 			byte [toAddr] = 0
+			toAddr = toAddr + 1
 			c = c + 1
 		end
 		screenRow = screenRowCnt - 1

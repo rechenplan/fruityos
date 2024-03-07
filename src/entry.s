@@ -2,7 +2,7 @@ org 0x10000
 
 bits 64
 
-start:
+sys:
 	dq sys_open
 	dq sys_creat
 	dq sys_close
@@ -44,5 +44,8 @@ spin:
 	hlt
 	jmp spin
 
+; Global variables
+
 _scr:		dq 0
 _kb:		dq 0
+_ramfs:		dq 0
