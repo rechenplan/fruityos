@@ -1,0 +1,216 @@
+sub kb_getSize()
+	return 4 << 3
+end
+
+sub kb_getBufferSize()
+	return 256
+end
+
+sub kb_init(kb)
+	kb_setHead(kb, 0)
+	kb_setTail(kb, 0)
+	kb_setBuffer(heap_alloc(kb_getBufferSize()))
+end
+
+sub kb_getHead(kb)
+	return [kb + (0 << 3)]
+end
+
+sub kb_getTail(kb)
+	return [kb + (1 << 3)]
+end
+
+sub kb_getBuffer(kb)
+	return [kb + (2 << 3)]
+end
+
+sub kb_getState(kb)
+	return [kb + (3 << 3)]
+end
+
+sub kb_setHead(kb, head)
+	[kb + (0 << 3)] = head
+end
+
+sub kb_setTail(kb, tail)
+	[kb + (1 << 3)] = tail
+end
+
+sub kb_setBuffer(kb, buffer)
+	[kb + (2 << 3)] = buffer
+end
+
+sub kb_setState(kb, state)
+	[kb + (3 << 3)] = state
+end
+
+sub kb_push(kb, char)
+	local buf, head
+	buf = kb_getBuffer(kb)
+	head = kb_getHead(kb)
+	byte [buf + head] = char
+	head = head + 1
+	if head >= kb_getBufferSize() then
+		head = 0
+	end
+	kb_setHead(kb, head)
+end
+
+sub kb_dequeue(kb)
+	local buf, head, tail, char
+	head = kb_getHead(head)
+	tail = kb_getTail(tail)
+	if head != tail then
+		buf = kb_getBuffer()
+		char = byte [buf + tail]
+		tail = tail + 1
+		if tail >= kb_getBufferSize() then
+			tail = 0
+		end
+	else
+		char = -1
+	end
+	return char
+end
+
+sub kb_s2c(kb, scancode)
+	local state
+	state = kb_getState(kb)
+	if (state & 1 != 0) | (state & 2 != 0) then
+		return kb_s2c_s(kb, scancode)
+	else
+		return kb_s2c_u(kb, scancode)
+	end
+end
+
+sub kb_s2c_s(kb, scancode)
+	local state
+	state = kb_getState(kb)	
+
+        if scancode == 1 then
+                return 27
+        end
+        if (scancode >= 2) & (scancode <= 13) then
+                return byte ["!@#$%^&*()_+" + scancode - 2]
+        end
+        if scancode == 14 then
+                return 8
+        end
+        if scancode == 15 then
+                return  11
+        end
+        if (scancode >= 16) & (scancode <= 27) then
+                return byte ["QWERTYUIOP{}" + scancode - 16]
+        end
+        if scancode == 28 then
+                return 10
+        end
+        ; 29 = left control
+        if (scancode >= 30) & (scancode <= 39) then
+                return byte ["ASDFGHJKL:" + scancode - 30]
+        end
+	if scancode == 40 then
+		return 34
+	end
+	if scancode == 41 then
+		return byte ["~"]
+	end
+        if (scancode >= 43) & (scancode <= 53) then     
+                return byte ["|ZXCVBNM<>?" + scancode - 43]
+        end
+
+	; left shift
+	if scancode == 42 then
+		state = state | (1 << 0)
+		kb_setState(kb, state)
+		return 0
+	end
+	if scancode == 170 then
+		state = state & ~(1 << 0)
+		kb_setState(kb, state)
+		return 0
+	end
+	; right shift
+	if scancode == 54 then
+		state = state | (1 << 1)
+		kb_setState(kb, state)
+		return 0
+	end
+	if scancode == 182 then
+		state = state & ~(1 << 1)
+		kb_setState(kb, state)
+		return 0
+	end
+
+	; 55 = num pad *
+	; 56 = left alt
+
+	; space
+	if scancode == 57 then
+		return 32
+	end
+	return 0
+end
+
+sub kb_s2c_u(kb, scancode)
+	local state
+	state = kb_getState(kb)
+
+        if scancode == 1 then
+                return 27
+        end
+        if (scancode >= 2) & (scancode <= 13) then
+                return byte ["1234567890-=" + scancode - 2]
+        end
+        if scancode == 14 then
+                return 8
+        end
+        if scancode == 15 then
+                return 11
+        end
+        if (scancode >= 16) & (scancode <= 27) then
+                return byte ["qwertyuiop[]" + scancode - 16]
+        end
+        if scancode == 28 then
+                return 10
+        end
+        ; 29 = left control
+        if (scancode >= 30) & (scancode <= 41) then
+                return byte ["asdfghjkl;'`" + scancode - 30]
+        end
+        if (scancode >= 43) & (scancode <= 53) then     
+                return byte ["\zxcvbnm,./" + scancode - 43]
+        end
+
+	; left shift
+	if scancode == 42 then
+		state = state | (1 << 0)
+		kb_setState(kb, state)
+		return 0
+	end
+	if scancode == 170 then
+		state = state & ~(1 << 0)
+		kb_setState(kb, state)
+		return 0
+	end
+	; right shift
+	if scancode == 54 then
+		state = state | (1 << 1)
+		kb_setState(kb, state)
+		return 0
+	end
+	if scancode == 182 then
+		state = state & ~(1 << 1)
+		kb_setState(kb, state)
+		return 0
+	end
+
+	; 55 = num pad *
+	; 56 = left alt
+
+	; space
+	if scancode == 57 then
+		return 32
+	end
+	return 0
+end

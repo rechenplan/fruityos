@@ -1,10 +1,6 @@
 sub kmain(initJarPtr)
 	local rdAddr, rdSize, blockSize
 
-	_keys = 0
-	_kbhead = 0
-	_kbtail = 0
-
 	heap_init()
 	global_init()
 

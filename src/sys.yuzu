@@ -23,14 +23,17 @@ sub sys_seek(fd, offset, ptr)
 end
 
 sub sys_getch()
-	while (_kbhead == _kbtail) do
-	end
-	_kbhead = (_kbhead + 1) & 255
-	return byte [_kb + _kbhead]
+	local c, kb
+	kb = global_getKb()
+	; Spin while waiting for keyboard input
+	while (c = kb_dequeue(kb)) == -1 do end
+	return c
 end
 
 sub sys_putch(char)
-	scr_putch(global_getScr(), char)
+	local scr
+	scr = global_getScr()
+	scr_putch(scr, char)
 end
 
 sub sys_getcwd(buf, size)
@@ -79,11 +82,13 @@ sub sys_stub()
 end
 
 sub sys_keyboard(scancode)
-	local c
-	c = x86_s2c(scancode)
+	local c, kb, scr
+	kb = global_getKb()
+	scr = global_getScr()
+
+	c = kb_s2c(kb, scancode)
 	if c != 0 then
-		_kbtail = (_kbtail + 1) & 255
-		byte [_kb + _kbtail] = c
-		scr_putch(global_getScr(), c)
-	end
+		kb_push(kb, c)
+		scr_putch(scr, c)
+	end		
 end

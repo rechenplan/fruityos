@@ -1,9 +1,19 @@
 sub global_init()
 	global_initScr()
+	global_initKb()
+end
+
+sub global_free()
+	global_freeScr()
+	global_freeKb()
 end
 
 sub global_getScr()
 	return _scr
+end
+
+sub global_getKb()
+	return _kb
 end
 
 sub global_initScr()
@@ -14,4 +24,14 @@ end
 sub global_freeScr()
         heap_free(_scr, scr_getSize())
         _scr = 0
+end
+
+sub global_initKb()
+	_kb = heap_alloc(kb_getSize())
+	kb_init(_kb)
+end
+
+sub global_freeKb()
+	heap_free(_kb, kb_getSize())
+	_kb = 0
 end
