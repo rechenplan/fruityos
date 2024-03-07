@@ -1,0 +1,17 @@
+sub global_init()
+	global_initScr()
+end
+
+sub global_getScr()
+	return _scr
+end
+
+sub global_initScr()
+        _scr = heap_alloc(scr_getSize())
+        scr_init(_scr, 25, 80)
+end
+
+sub global_freeScr()
+        heap_free(_scr, scr_getSize())
+        _scr = 0
+end

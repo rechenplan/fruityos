@@ -44,11 +44,7 @@ spin:
 	hlt
 	jmp spin
 
-_tmp:		times 16 db 0
-_tmpPath:	times 1024 db 0
-_cwd:		times 1024 db 0
-_scrc: 		dq 0
-_scrr: 		dq 0
+_scr:		dq 0
 _keys: 		dq 0
 _kbhead:	dq 0
 _kbtail:	dq 0

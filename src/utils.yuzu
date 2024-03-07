@@ -7,10 +7,6 @@ sub kmemcpy(a, b, cnt)
 	end
 end
 
-sub kcls()
-	x86_cls()
-end
-
 sub kputs(str)
 	while byte [str] != 0 do
 		sys_putch(byte [str])

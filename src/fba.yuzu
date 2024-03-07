@@ -15,7 +15,7 @@ sub fba_init(fbaAddr, totalSize, blockSize)
 		availableBlocks = availableBlocks + 1
 		nodeAddr = nodeAddr + nodeSize
 	end
-	fba_setAvailableBlocks(availableBlocks)
+	fba_setAvailableBlocks(fbaAddr, availableBlocks)
 end
 
 sub fba_getHdrSize()
@@ -40,7 +40,7 @@ sub fba_alloc(fbaAddr)
 	if availableBlocks > 0 then
 		nodeAddr = list_dequeue(fbaAddr)
 		blockAddr = nodeAddr + list_getNodeHdrSize()
-		fba_setAvailableBlocks(availableBlocks - 1)
+		fba_setAvailableBlocks(fbaAddr, availableBlocks - 1)
 		return blockAddr
 	end
 	return 0

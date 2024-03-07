@@ -30,7 +30,7 @@ sub sys_getch()
 end
 
 sub sys_putch(char)
-	x86_putch(char)
+	scr_putch(global_getScr(), char)
 end
 
 sub sys_getcwd(buf, size)
@@ -84,6 +84,6 @@ sub sys_keyboard(scancode)
 	if c != 0 then
 		_kbtail = (_kbtail + 1) & 255
 		byte [_kb + _kbtail] = c
-		x86_putch(c)
+		scr_putch(global_getScr(), c)
 	end
 end

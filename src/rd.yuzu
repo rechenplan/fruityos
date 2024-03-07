@@ -4,69 +4,11 @@ sub rd_getDataBlockSize()
 	return 1 << 10
 end
 
-sub rd_getInodeManagerSize()
-	return 256 << 10
-end
-
-sub rd_getDataManagerSize()
-	return 768 << 10
-end
-
 sub rd_init(ramDisk)
 	local root
-	rd_initInodeManager(ramDisk)
-	rd_initDataManager(ramDisk)
-	root = rd_allocInode(ramDisk)
+	root = heap_alloc(inode_getSize())
 	inode_init(root, "/", 0, 0, 0)
 	rd_setRoot(ramDisk, root)
-end
-
-sub rd_initDataManager(ramDisk)
-	local mm
-	mm = rd_getDataManager(ramDisk)
-	fba_init(mm, rd_getDataManagerSize(), rd_getDataBlockSize())
-end
-
-sub rd_initInodeManager(ramDisk)
-	local mm
-	mm = rd_getInodeManager(ramDisk)
-	fba_init(mm, rd_getInodeManagerSize(), inode_getSize())
-end
-
-sub rd_getDataManager(ramDisk)
-	return ramDisk + rd_getHdrSize()
-end
-
-sub rd_getInodeManager(ramDisk)
-	return ramDisk + rd_getHdrSize() + rd_getDataManagerSize()
-end
-
-sub rd_allocData(ramDisk)
-	local mm
-	mm = rd_getDataManager(ramDisk)
-	return fba_alloc(mm)
-end
-
-sub rd_freeData(ramDisk, node)
-	local mm
-	mm = rd_getDataManager(ramDisk)
-	fba_free(mm, node)
-end
-
-sub rd_allocInode(ramDisk)
-	local mm
-	mm = rd_getInodeManager(ramDisk)
-	return fba_alloc(mm)
-end
-
-sub rd_freeInode(ramDisk, node)
-	local mm
-	mm = rd_getInodeManager(ramDisk)
-	fba_free(mm, node)
-end
-
-sub rd_getHdrSize()
-	return 1 << 3
 end
 
 sub rd_getRoot(ramDisk)

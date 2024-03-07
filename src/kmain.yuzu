@@ -5,13 +5,13 @@ sub kmain(initJarPtr)
 	_kbhead = 0
 	_kbtail = 0
 
-	kcls()
-	kmemcpy(_cwd, "/", 2)
+	heap_init()
+	global_init()
+
+	scr_cls(global_getScr())
 
 	kputs("Welcome to FruityOS!")
 	sys_putch(10)
-
-	heap_init()
 
 	kputs("Unpacking initial jar...")
 	sys_putch(10)
