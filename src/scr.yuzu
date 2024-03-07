@@ -37,7 +37,7 @@ sub scr_putch(scr, char)
 
 	if (screenRow >= screenRowCnt) then
 		r = 0
-		while r < screenRowCnt - 1 do
+		while r < (screenRowCnt - 1) do
 			c = 0
 			while c < (screenColCnt << 1) do
 				toAddr = scrAddr + x86_mul(r, screenColCnt << 1) + c
