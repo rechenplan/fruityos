@@ -7,12 +7,42 @@ sub kmemcpy(a, b, cnt)
 	end
 end
 
+sub kcls()
+	scr_cls(global_getScr())
+end
+
+sub kputch(c)
+	sys_putch(c)
+end
+
 sub kputs(str)
 	while byte [str] != 0 do
-		sys_putch(byte [str])
+		kputch(byte [str])
 		str = str + 1
 	end
 end
+
+sub kputn(x)
+        local digit, i, leading
+        if x == 0 then
+                kputs("0")
+                return 0
+        end
+        leading = 1
+        i = 1000000
+        while i > 0 do
+                digit = x86_div(x, i)
+                if digit != 0 then
+                        leading = 0
+                end
+                if leading == 0 then    
+                        kputch(digit + byte ["0"])
+                end
+                x = x86_mod(x, i)
+                i = x86_div(i, 10)
+        end
+end
+
 
 sub kstrlen(str)
 	local i
@@ -39,8 +69,6 @@ sub kunpack(jarBuffer)
 		if byte [fileName] == 0 then
 			return 0
 		end
-                kputs(fileName)
-                sys_putch(10)
 		tmpPtr = tmpPtr + kstrlen(fileName) + 1
 		fileSize = [tmpPtr]
 		tmpPtr = tmpPtr + 8

@@ -1,4 +1,21 @@
 
+sub heap_printStats()
+	kputs("Heap statistics:")
+	kputch(10)
+
+	kputs("   32 byte blocks: ")
+	kputn(fba_getAvailableBlocks(heap_addr32()))
+	kputch(10)
+
+	kputs("  256 byte blocks: ")
+	kputn(fba_getAvailableBlocks(heap_addr256()))
+	kputch(10)
+
+	kputs(" 1024 byte blocks: ")
+	kputn(fba_getAvailableBlocks(heap_addr1024()))
+	kputch(10)
+end
+
 sub heap_getBaseAddr()
 	return 1024 << 10
 end

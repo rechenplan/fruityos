@@ -4,22 +4,24 @@ sub kmain(initJarPtr)
 	heap_init()
 	global_init()
 
-	scr_cls(global_getScr())
+	kcls()
 
 	kputs("Welcome to FruityOS!")
-	sys_putch(10)
+	kputch(10)
 
 	kputs("Unpacking initial jar...")
-	sys_putch(10)
+	kputch(10)
 	kunpack(initJarPtr)
+
+	heap_printStats()
 
 	kputs("Press any key to continue...")
 	while sys_getch() == -1 do end
 
-	scr_cls(global_getScr())
+	kcls()
 
 	kputs("Ready!")
-	sys_putch(10)
+	kputch(10)
 
 	return 0
 end

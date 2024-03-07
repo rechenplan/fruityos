@@ -6,3 +6,25 @@ sub x86_mul(a, b)
 	end
 	return r
 end
+
+sub x86_div(n, d)
+        local r, q
+        r = n
+        q = 0
+        while r >= d do
+                r = r - d
+                q = q + 1
+        end
+        return q
+end
+
+sub x86_mod(n, d)
+        local r, q
+        r = n
+        q = 0
+        while r >= d do
+                r = r - d
+                q = q + 1
+        end
+        return r
+end   
