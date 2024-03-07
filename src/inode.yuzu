@@ -1,0 +1,58 @@
+; functions for inode data structure
+
+sub inode_init(inode, name, type, size, content)
+	inode_setName(inode, name)
+	inode_setType(inode, type)
+	inode_setContentSize(inode, size)
+	inode_setContent(inode, content)
+end
+
+sub inode_getSize()
+	return 32
+end
+
+sub inode_getName(inode)
+	return [inode]
+end
+
+sub inode_getType(inode)
+	return [inode + 16] & 65535
+end
+
+sub inode_getContentSize(inode)
+	return [inode + 20] & 65535
+end
+
+sub inode_getContent(inode)
+	return [inode + 24]
+end
+
+sub inode_setName(inode, name)
+	local i
+	while i < 16 do
+		byte [inode + i] = byte [name + i]
+		if byte [name + i] == 0 then
+			return 0
+		end
+		i = i + 1
+	end
+end
+
+sub inode_setType(inode, type)
+	byte [inode + 16] = (type >> 0)
+	byte [inode + 17] = (type >> 8)
+	byte [inode + 18] = (type >> 16)
+	byte [inode + 19] = (type >> 24)
+end
+
+sub inode_setContentSize(inode, size)
+	byte [inode + 16] = (size >> 0)
+	byte [inode + 17] = (size >> 8)
+	byte [inode + 18] = (size >> 16)
+	byte [inode + 19] = (size >> 24)
+end
+
+sub inode_setContent(inode, content)
+	[inode + 24] = content
+end
+

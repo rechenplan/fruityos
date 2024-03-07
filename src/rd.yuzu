@@ -1,39 +1,72 @@
-sub rd_init(ramDisk, fsSize, blockSize)
-	local rootNode
-	rd_initMemoryManager(ramDisk, fsSize, blockSize)
-	rootNode = rd_alloc(ramDisk)
-	rd_setRootNode(ramDisk, rootNode)
+sub DATA_BLOCK_SIZE()
+	return 1024
 end
 
-sub rd_initMemoryManager(ramDisk, fsSize, blockSize)
+sub rd_init(ramDisk)
+	local root, rootInode
+	rd_initInodeManager(ramDisk, rd_getInodeManagerSize())
+	rd_initDataManager(ramDisk, rd_getDataManagerSize())
+
+	root = rd_inodeAlloc(ramDisk)
+	rootInode = fba_getData(root)
+	inode_init(rootInode, "/", 0, 0, 0)
+	rd_setRootNode(ramDisk, rootInode)
+end
+
+sub rd_initDataManager(ramDisk, poolSize)
 	local mm, poolSize
-	mm = rd_getMemoryManager(ramDisk)
-	poolSize = fsSize - rd_getHdrSize()
-	fba_init(mm, poolSize, blockSize)
+	mm = rd_getDataManager(ramDisk)
+	fba_init(mm, poolSize, DATA_BLOCK_SIZE())
 end
 
-sub rd_alloc(ramDisk)
+sub rd_initInodeManager(ramDisk, poolSize)
+	local mm, poolSize
+	mm = rd_getInodeManager(ramDisk)
+	fba_init(mm, poolSize, inode_getSize())
+end
+
+sub rd_getInodeManagerSize()
+	return 512 << 10
+end
+
+sub rd_getDataManagerSize()
+	return 512 << 10
+end
+
+sub rd_getDataManager(startAddr)
+	return startAddr + rd_getHdrSize()
+end
+
+sub rd_getInodeManager(startAddr)
+	return startAddr + rd_getHdrSize() + rd_getDataManagerSize()
+end
+
+sub rd_dataAlloc(ramDisk)
 	local mm
-	mm = rd_getMemoryManager(ramDisk)
+	mm = rd_getDataManager(ramDisk)
 	return fba_dequeue(mm)
 end
 
-sub rd_free(ramDisk, node)
+sub rd_dataFree(ramDisk, node)
 	local mm
-	mm = rd_getMemoryManager(ramDisk)
+	mm = rd_getDataManager(ramDisk)
+	fba_push(mm, node)
+end
+
+sub rd_inodeAlloc(ramDisk)
+	local mm
+	mm = rd_getInodeManager(ramDisk)
+	return fba_dequeue(mm)
+end
+
+sub rd_inodeFree(ramDisk, node)
+	local mm
+	mm = rd_getInodeManager(ramDisk)
 	fba_push(mm, node)
 end
 
 sub rd_getHdrSize()
-	return 2 << 3
-end
-
-sub rd_setSize(startAddr, fsSize)
-	[startAddr + (0 << 3)] = fsSize
-end
-
-sub rd_getSize(startAddr)
-	return [startAddr + (0 << 3)]
+	return 1 << 3
 end
 
 sub rd_getRootNode(startAddr)
@@ -42,8 +75,4 @@ end
 
 sub rd_setRootNode(startAddr, rootNode)
 	[startAddr + (1 << 3)] = rootNode
-end
-
-sub rd_getMemoryManager(startAddr)
-	return startAddr + rd_getHdrSize()
 end

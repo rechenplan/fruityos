@@ -11,7 +11,7 @@ sub fba_init(startAddr, poolSize, blockSize)
 
 	poolAddr = fba_getPool(startAddr)
 	blockIdx = 0
-	while blockIdx < poolSize do
+	while blockIdx < (poolSize - fba_getHdrSize(startAddr)) do
 		fba_push(startAddr, poolAddr + blockIdx)
 		blockIdx = blockIdx + (blockSize + fba_getBlockHdrSize()) ; Size of block header
 	end
@@ -19,6 +19,10 @@ end
 
 sub fba_getBlockHdrSize()
 	return 2 << 3
+end
+
+sub fba_getHdrSize()
+	return 4 << 3
 end
 
 sub fba_getPool(startAddr)
