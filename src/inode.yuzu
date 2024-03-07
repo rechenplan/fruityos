@@ -15,6 +15,9 @@ sub inode_init(inode, name, type, size, content)
 	inode_setContent(inode, content)
 end
 
+sub inode_cleanup(inode)
+end
+
 sub inode_getSize()
 	return 32
 end
@@ -64,3 +67,72 @@ sub inode_setContent(inode, content)
 	[inode + 24] = content
 end
 
+sub inode_create(filename, type)
+        local inode
+
+        inode = heap_alloc(inode_getSize())
+        inode_init(inode, filename, type, 0, 0)
+        return inode
+end
+
+sub inode_destroy(inode)
+	inode_cleanup(inode)
+	heap_free(inode, inode_getSize())
+end
+
+sub inode_link(parent, inode)
+        local parentContent
+
+        if (parent != 0) & (inode != 0) then
+                if (inode_getType(parent) == INODE_TYPE_DIR()) then
+                        parentContent = inode_getContent(parent)
+                        fba_setNext(inode, parentContent)
+                        fba_setPrev(parentContent, inode)
+                        fba_setPrev(inode, 0)
+                        inode_setContent(parent, inode)
+                end
+        end
+end
+
+sub inode_unlink(parent, inode)
+        local file, next, prev
+        if (parent != 0) & (inode != 0) then
+                if (inode_getType(parent) == INODE_TYPE_DIR()) then
+                        file = inode_getContent(parent)
+                        if file == inode then
+                                next = fba_getNext(file)
+                                fba_setNext(file, 0)
+                                fba_setPrev(next, 0)
+                                inode_setContent(parent, next)
+                        else
+                                while file != 0 do
+                                        if file == inode then
+                                                next = fba_getNext(file)
+                                                prev = fba_getPrev(file)
+                                                fba_setNext(file, 0)
+                                                fba_setPrev(file, 0)
+                                                fba_setNext(prev, next)
+                                                fba_setPrev(next, prev)
+                                        end
+                                end
+                        end
+                end
+        end
+end
+
+; fails if file does not exist
+sub inode_lookupByName(parent, filename)
+        local file
+        if (parent != 0) then
+                if (inode_getType(parent) == INODE_TYPE_DIR()) then
+                        file = inode_getContent(parent)
+                        while file != 0 do
+                                if kstrcmp(inode_getName(file), filename) then
+                                        return file
+                                end
+                                file = fba_getNext(file)
+                        end
+                end
+        end
+        return 0
+end
