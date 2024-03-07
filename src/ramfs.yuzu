@@ -5,7 +5,10 @@ sub ramfs_getDataBlockSize()
 end
 
 sub ramfs_init(ramfs)
+	local dot
 	ramfs_setRoot(ramfs, inode_create("/", INODE_TYPE_DIR()))
+	dot = ramfs_createFile(ramfs, "/", ".", INODE_TYPE_DIR())
+	inode_setContent(dot, ramfs_getRoot(ramfs))
 end
 
 sub ramfs_cleanup(ramfs)
@@ -24,8 +27,43 @@ sub ramfs_setRoot(ramfs, rootNode)
 	[ramfs + (0 << 3)] = rootNode
 end
 
+sub ramfs_printTree(ramfs)
+	local inode
+	inode = ramfs_getRoot(ramfs)
+	ramfs_printTree_r(inode, 0)	
+end
+
+sub ramfs_printTree_r(inode, level)
+	local i
+	while i < level do
+		kputs("    ")
+		i = i + 1
+	end
+
+	if inode_getType(inode) == INODE_TYPE_FILE() then
+		kprintln(inode_getName(inode))
+	else
+		if inode_getType(inode) == INODE_TYPE_DIR() then
+			kputs("[")
+			kputs(inode_getName(inode))
+			kputs("]")
+			kputch(10)
+			if kstrcmp(inode_getName(inode), ".") | kstrcmp(inode_getName(inode), "..") then
+				return 0
+			end
+			inode = inode_getContent(inode)
+			while inode != 0 do
+				ramfs_printTree_r(inode, level + 1)
+				inode = fba_getNext(inode)
+			end
+		else
+			kprintln("Bad inode type")
+		end
+	end
+end
+
 sub ramfs_lookupPath(ramfs, path)
-	local tmpPath, i, len, inode
+	local tmpPath, i, len, inode, dir, dirLen
 
 	tmpPath = heap_alloc(1024)
 	kstrcpy(tmpPath, path)
@@ -39,10 +77,12 @@ sub ramfs_lookupPath(ramfs, path)
 	i = 0
 	inode = ramfs_getRoot(ramfs)
 	while (i < len) & (inode != 0) do
-		if kstrlen(tmpPath) > 0 then
-			inode = inode_lookupByName(inode, tmpPath)
+		dir = tmpPath + i
+		dirLen = kstrlen(dir)
+		if dirLen > 0 then
+			inode = inode_lookupByName(inode, dir)
 		end
-		i = i + kstrlen(tmpPath) + 1
+		i = i + dirLen + 1
 	end
 	heap_free(tmpPath, 1024)
 	return inode
@@ -77,12 +117,19 @@ end
 sub ramfs_deleteFile_r(ramfs, parent, inode)
 	local inode, content, next
 
-	inode_unlink(parent, inode)
+	; special case for cycles (HACK)
+	if kstrcmp(inode_getName(inode), ".") | kstrcmp(inode_getName(inode), "..") then
+		inode_unlink(parent, inode)
+		inode_destroy(inode)
+		return 0
+	end
+
 	if inode_getType(inode) == INODE_TYPE_DIR() then
 		content = inode_getContent(inode)
 		while content != 0 do
+			next = fba_getNext(content)
 			ramfs_deleteFile_r(ramfs, inode, content)
-			content = fba_getNext(content)
+			content = next
 		end
 	end
 	if inode_getType(inode) == INODE_TYPE_FILE() then
@@ -91,7 +138,8 @@ sub ramfs_deleteFile_r(ramfs, parent, inode)
 			next = fba_getNext(content)
 			heap_free(content, ramfs_getDataBlockSize())
 			content = next
-		end
-	end
+		end 
+	end 
+	inode_unlink(parent, inode)
 	inode_destroy(inode)
 end
