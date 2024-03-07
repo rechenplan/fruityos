@@ -9,7 +9,12 @@ end
 sub kb_init(kb)
 	kb_setHead(kb, 0)
 	kb_setTail(kb, 0)
-	kb_setBuffer(heap_alloc(kb_getBufferSize()))
+	kb_setState(kb, 0)
+	kb_setBuffer(kb, heap_alloc(kb_getBufferSize()))
+end
+
+sub kb_cleanup(kb)
+	heap_free(kb_getBuffer(kb), kb_getBufferSize())
 end
 
 sub kb_getHead(kb)
@@ -58,10 +63,10 @@ end
 
 sub kb_dequeue(kb)
 	local buf, head, tail, char
-	head = kb_getHead(head)
-	tail = kb_getTail(tail)
+	head = kb_getHead(kb)
+	tail = kb_getTail(kb)
 	if head != tail then
-		buf = kb_getBuffer()
+		buf = kb_getBuffer(kb)
 		char = byte [buf + tail]
 		tail = tail + 1
 		if tail >= kb_getBufferSize() then

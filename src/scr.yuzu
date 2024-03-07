@@ -87,6 +87,9 @@ sub scr_init(scr, rowCnt, colCnt)
 	scr_setColumnCnt(scr, colCnt)
 end
 
+sub scr_cleanup(scr)
+end
+
 sub scr_getCursorAddress(scr)
 	return scr_getAddress() + x86_mul(x86_mul(scr_getCursorRow(scr), scr_getColumnCnt(scr)) + scr_getCursorColumn(scr), 2)
 end

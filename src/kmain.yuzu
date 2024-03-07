@@ -13,6 +13,11 @@ sub kmain(initJarPtr)
 	sys_putch(10)
 	kunpack(initJarPtr)
 
+	kputs("Press any key to continue...")
+	while sys_getch() == -1 do end
+
+	scr_cls(global_getScr())
+
 	kputs("Ready!")
 	sys_putch(10)
 
