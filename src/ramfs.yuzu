@@ -24,9 +24,34 @@ sub ramfs_setRoot(ramfs, rootNode)
 	[ramfs + (0 << 3)] = rootNode
 end
 
-sub ramfs_createFile(ramfs, parent, filename, type)
-	local inode
+sub ramfs_lookupPath(ramfs, path)
+	local tmpPath, i, len, inode
 
+	tmpPath = heap_alloc(1024)
+	kstrcpy(tmpPath, path)
+	len = kstrlen(tmpPath)
+	while i < len do
+		if byte [tmpPath + i] == byte ["/"] then
+			byte [tmpPath + i] = 0
+		end
+		i = i + 1
+	end
+	i = 0
+	inode = ramfs_getRoot(ramfs)
+	while (i < len) & (inode != 0) do
+		if kstrlen(tmpPath) > 0 then
+			inode = inode_lookupByName(inode, tmpPath)
+		end
+		i = i + kstrlen(tmpPath) + 1
+	end
+	heap_free(tmpPath, 1024)
+	return inode
+end
+
+sub ramfs_createFile(ramfs, path, filename, type)
+	local inode, parent
+
+	parent = ramfs_lookupPath(ramfs, path)
 	if (parent != 0) then
 		if inode_lookupByName(parent, filename) == 0 then
 			inode = inode_create(filename, type)
@@ -37,9 +62,10 @@ sub ramfs_createFile(ramfs, parent, filename, type)
 	return 0
 end
 
-sub ramfs_deleteFile(ramfs, parent, filename)
-	local inode
+sub ramfs_deleteFile(ramfs, path, filename)
+	local inode, parent
 
+	parent = ramfs_lookupPath(ramfs, path)
 	if (parent != 0) then
 		inode = inode_lookupByName(parent, filename)
 		if (inode != 0) then
