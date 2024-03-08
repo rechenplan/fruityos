@@ -90,6 +90,14 @@ sub nextArg(args)
 	return args + 1
 end
 
+sub pish_getch(fin)
+	if fin == 0 then
+		return getch()
+	else
+		return fgetch(fin)
+	end
+end
+
 sub main(argc, args)
 	local fin, dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
 
@@ -114,13 +122,13 @@ sub main(argc, args)
 			putch(32)
 		end
 
-		c = fgetch(fin) & 255	
+		c = pish_getch(fin) & 255	
 
 		tempLine = lineBuf
 		while (c != 0) & (c != 10) do
 			[tempLine] = c
 			tempLine = tempLine + 1
-			c = fgetch(fin) & 255
+			c = pish_getch(fin) & 255
 		end
 		[tempLine] = 0
 		pish_parse_line(lineBuf, argvBuf)
@@ -129,7 +137,6 @@ sub main(argc, args)
 			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
 			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
 			if (recognized == 0) then pish_exec(tempBuf, argvBuf) end
-
 		end
 	end
 	close(fin)

@@ -113,8 +113,3 @@ bin/zest.fap f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/init.fap
 
 rm bin/*.elf
-
-echo Creating peel.jar...
-cd bin
-./jar.fap c ../peel.jar
-cd ..
