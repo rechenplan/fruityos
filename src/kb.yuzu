@@ -75,6 +75,7 @@ sub kb_dequeue(kb)
 	else
 		char = -1
 	end
+	kb_setTail(kb, tail)
 	return char
 end
 
