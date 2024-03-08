@@ -99,13 +99,25 @@ sub sys_unlink(filename)
 end
 
 sub sys_exec(filename, argv)
-	local fd, size
+	local fd, size, argc, args, i
 	fd = sys_open(filename, 0)
 	if fd != 0 then
 		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
 		sys_close(fd)
 		global_setBrk(PROGRAM_BASE_ADDR() + size)
-		[PROGRAM_BASE_ADDR()](0, 0) ; TODO pass arguments
+		args = heap_alloc(1024)
+		if argv != 0 then
+			i = 0
+			argc = 0
+			while [argv] != 0 do
+				kstrcpy(args + i, [argv])
+				i = i + kstrlen(argv) + 1
+				argc = argc + 1
+				argv = argv + 8
+			end
+		end
+		[PROGRAM_BASE_ADDR()](argc, args) ; TODO pass arguments
+		heap_free(args, 1024)
 	end
 end
 
