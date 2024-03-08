@@ -44,6 +44,11 @@ spin:
 	hlt
 	jmp spin
 
+halt:
+	hlt
+	ret
+
+
 ; Global variables
 
 _scr:		dq 0

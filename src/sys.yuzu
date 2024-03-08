@@ -37,19 +37,30 @@ sub sys_write(fd, buf, size)
 end
 
 sub sys_fgetch(fd)
+	local buf, r
+	buf = heap_alloc(1)
+	sys_read(fd, buf, 1)
+	r = byte [buf]
+	heap_free(buf, 1)
+	return r
 end
 
 sub sys_fputch(fd, char)
+	local buf, r
+	buf = heap_alloc(1)
+	byte [buf] = char
+	sys_write(fd, buf, 1)
+	heap_free(buf, 1)
 end
 
-sub sys_seek(fd, offset, ptr)
+sub sys_seek(fd, offset)
+	fd_seek(fd, offset)
 end
 
 sub sys_getch()
 	local c, kb
 	kb = global_getKb()
-	; Spin while waiting for keyboard input
-	while (c = kb_dequeue(kb)) == -1 do end
+	while (c = kb_dequeue(kb)) == -1 do halt() end
 	return c
 end
 
@@ -90,19 +101,24 @@ end
 sub sys_exec(filename, argv)
 	local fd, size
 	fd = sys_open(filename, 0)
-	size = kdecrunch(fd, PROGRAM_BASE_ADDR())
-	sys_close(fd)
-	global_setBrk(PROGRAM_BASE_ADDR() + size)
-	[PROGRAM_BASE_ADDR()](0, 0) ; TODO pass arguments
+	if fd != 0 then
+		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
+		sys_close(fd)
+		global_setBrk(PROGRAM_BASE_ADDR() + size)
+		[PROGRAM_BASE_ADDR()](0, 0) ; TODO pass arguments
+	end
 end
 
 sub sys_fork()
+	return 0
 end
 
-sub sys_waitpid()
+sub sys_waitpid(pid)
+	return 0
 end
 
 sub sys_dup2()
+	return 0
 end
 
 sub sys_brk(brk)

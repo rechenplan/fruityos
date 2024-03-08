@@ -112,11 +112,6 @@ sub kdecrunch(fin, filePtr)
                                 fileSize = fileSize + 1
                         else
                                 if (length == 1) then
-					kputs("Decrunched ")
-					kputn(bytesRead)
-					kputs(" -> ")
-					kputn(fileSize)
-					kputch(10)					
 					heap_free(bytePtr, 2)
                                         return fileSize
                                 else
@@ -134,11 +129,6 @@ sub kdecrunch(fin, filePtr)
                 end
 		bytesRead = bytesRead + 1
         end
-	kputs("Decrunched ")
-	kputn(bytesRead)
-	kputs(" -> ")
-	kputn(fileSize)
-	kputch(10)					
 	heap_free(bytePtr, 2)
         return fileSize
 end
