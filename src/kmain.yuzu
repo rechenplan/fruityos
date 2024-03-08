@@ -12,6 +12,15 @@ sub kmain(initJarPtr)
 	kunpack(initJarPtr)
 	ramfs_printTree(global_getRamfs())
 
+	sys_chdir("bin")
+	kprintln(ramfs_getCwd(global_getRamfs()))
+
+	sys_chdir("..")
+	kprintln(ramfs_getCwd(global_getRamfs()))
+
+	sys_chdir("bin/..")
+	kprintln(ramfs_getCwd(global_getRamfs()))
+
 	kprintln("Ready!")
 
 	return 0

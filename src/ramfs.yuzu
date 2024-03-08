@@ -6,7 +6,7 @@ end
 
 sub ramfs_init(ramfs)
 	local dot, dotdot, cwd
-	ramfs_setRoot(ramfs, inode_create("/", INODE_TYPE_DIR()))
+	ramfs_setRoot(ramfs, inode_create("", INODE_TYPE_DIR()))
 	dot = inode_create(".", INODE_TYPE_LINK())
 	dotdot = inode_create("..", INODE_TYPE_LINK())
 	inode_setContent(dot, ramfs_getRoot(ramfs))
@@ -41,9 +41,10 @@ end
 sub ramfs_setCwd(ramfs, newCwd)
 	local cwd, len, buffer, i
 	cwd = ramfs_getCwd(ramfs)
-	
+
 	buffer = heap_alloc(1024)
 	ramfs_nameToAbsName(ramfs, newCwd, buffer)
+	ramfs_canonicalizeName(ramfs, buffer)
 	if ramfs_lookupPath(ramfs, buffer) == 0 then
 		heap_free(buffer, 1024)
 		return -1
@@ -268,3 +269,32 @@ sub ramfs_lookupPath(ramfs, path)
 	return inode
 end
 
+sub ramfs_canonicalizeName(ramfs, name)
+	local dir, dirLen, inodePtr, prevInodePtr
+	dir = ramfs_getFile(ramfs, name)
+	while dir != 0 do
+		if inode_getType(dir) != INODE_TYPE_LINK() then
+			prevInodePtr = inodePtr
+			inodePtr = heap_alloc(8)
+			[inodePtr] = dir
+			fba_setNext(inodePtr, prevInodePtr)
+			dir = fba_getPrev(dir) ; up one dir
+		else
+			dir = inode_getContent(dir)
+		end	
+	end
+	while inodePtr != 0 do
+		dir = inode_getName([inodePtr])
+		dirLen = kstrlen(dir)
+		if dirLen > 0 then
+			byte [name] = byte ["/"]
+			name = name + 1
+			kstrcpy(name, dir)
+			name = name + dirLen
+		end
+		prevInodePtr = inodePtr
+		inodePtr = fba_getNext(inodePtr)
+		heap_free(prevInodePtr, 8)
+	end
+	byte [name] = 0
+end

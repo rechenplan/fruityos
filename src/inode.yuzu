@@ -92,11 +92,8 @@ sub inode_link(parent, inode)
         if (parent != 0) & (inode != 0) then
                 if (inode_getType(parent) == INODE_TYPE_DIR()) then
                         parentContent = inode_getContent(parent)
-                        if (parentContent != 0) then
-	                        fba_setPrev(parentContent, inode)
-			end
 			fba_setNext(inode, parentContent)
-                        fba_setPrev(inode, 0)
+                        fba_setPrev(inode, parent)
                         inode_setContent(parent, inode)
                 end
         end
@@ -115,12 +112,11 @@ sub inode_unlink(parent, inode)
 				end
                                 inode_setContent(parent, next)
                         else
+				prev = 0
                                 while file != 0 do
                                         if file == inode then
                                                 next = fba_getNext(file)
-                                                prev = fba_getPrev(file)
                                                 fba_setNext(file, 0)
-                                                fba_setPrev(file, 0)
 						if prev != 0 then
 	                                                fba_setNext(prev, next)
 						end
@@ -129,6 +125,7 @@ sub inode_unlink(parent, inode)
 						end
 						return 0
                                         end
+					prev = file
 					file = fba_getNext(file)
                                 end
                         end
