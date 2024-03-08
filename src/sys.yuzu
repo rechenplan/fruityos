@@ -1,4 +1,5 @@
 sub sys_open(filename, perms)
+	ramfs_getFile(global_getRamfs(), filename)
 end
 
 sub sys_creat(filename)
@@ -48,7 +49,7 @@ sub sys_rename(filename, newfilename)
 end
 
 sub sys_mkdir(filename)
-	return (ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_DIR()) != 0)
+	ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_DIR())
 end
 
 sub sys_rmdir(filename)

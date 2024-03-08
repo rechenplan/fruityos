@@ -151,15 +151,25 @@ sub ramfs_deleteFile(ramfs, name)
 	heap_free(buffer, 1024)
 end
 
+sub ramfs_getFile(ramfs, name)
+	local inode, parent, buffer, filename, path
+
+	buffer = heap_alloc(1024)
+	ramfs_nameParse(ramfs, name, buffer)
+	filename = ramfs_getFilename(buffer)
+	path = ramfs_getPath(buffer)
+	parent = ramfs_lookupPath(ramfs, path)
+	if (parent != 0) then
+		inode = inode_lookupByName(parent, filename)
+		heap_free(buffer, 1024)
+		return inode
+	end
+	heap_free(buffer, 1024)
+	return 0
+end
+
 sub ramfs_deleteFile_r(ramfs, parent, inode)
 	local inode, content, next
-
-	; special case for cycles (HACK)
-	if kstrcmp(inode_getName(inode), ".") | kstrcmp(inode_getName(inode), "..") then
-		inode_unlink(parent, inode)
-		inode_destroy(inode)
-		return 0
-	end
 
 	if inode_getType(inode) == INODE_TYPE_DIR() then
 		content = inode_getContent(inode)
@@ -169,6 +179,7 @@ sub ramfs_deleteFile_r(ramfs, parent, inode)
 			content = next
 		end
 	end
+
 	if inode_getType(inode) == INODE_TYPE_FILE() then
 		content = inode_getContent(inode)
 		while content != 0 do
@@ -177,6 +188,7 @@ sub ramfs_deleteFile_r(ramfs, parent, inode)
 			content = next
 		end 
 	end 
+
 	if (parent != 0) then
 		inode_unlink(parent, inode)
 	end
