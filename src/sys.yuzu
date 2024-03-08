@@ -1,19 +1,31 @@
 sub sys_open(filename, perms)
-	ramfs_getFile(global_getRamfs(), filename)
+	local inode, fd
+	inode = ramfs_getFile(global_getRamfs(), filename)
+	if (inode != 0) then
+		fd = fd_open(inode)
+	end
+	return fd
 end
 
 sub sys_creat(filename)
-	ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_FILE())
-	return 0 ; return fd TODO
+	local inode, fd
+	inode = ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_FILE())
+	if (inode != 0) then
+		fd = fd_open(inode)
+	end
+	return fd
 end
 
 sub sys_close(fd)
+	fd_close(fd)
 end
 
 sub sys_read(fd, buf, size)
+	fd_read(fd, buf, size)
 end
 
 sub sys_write(fd, buf, size)
+	fd_write(fd, buf, size)
 end
 
 sub sys_fgetch(fd)

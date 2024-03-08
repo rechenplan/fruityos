@@ -5,22 +5,12 @@ sub kmain(initJarPtr)
 	global_init()
 
 	kcls()
+
 	kprintln("Welcome to FruityOS!")
 	heap_printStats()
-
 	kprintln("Unpacking...")
 	kunpack(initJarPtr)
 	ramfs_printTree(global_getRamfs())
-
-	sys_chdir("bin")
-	kprintln(ramfs_getCwd(global_getRamfs()))
-
-	sys_chdir("..")
-	kprintln(ramfs_getCwd(global_getRamfs()))
-
-	sys_chdir("bin/..")
-	kprintln(ramfs_getCwd(global_getRamfs()))
-
 	kprintln("Ready!")
 
 	return 0

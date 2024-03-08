@@ -1,9 +1,5 @@
 ; ram disk
 
-sub ramfs_getDataBlockSize()
-	return 1 << 10
-end
-
 sub ramfs_init(ramfs)
 	local dot, dotdot, cwd
 	ramfs_setRoot(ramfs, inode_create("", INODE_TYPE_DIR()))
@@ -74,7 +70,11 @@ sub ramfs_printTree_r(inode, level)
 	end
 
 	if inode_getType(inode) == INODE_TYPE_FILE() then
-		kprintln(inode_getName(inode))
+		kputs(inode_getName(inode))
+		kputch(32)
+		kputn(inode_getContentSize(inode))
+		kputs(" bytes")
+		kputch(10)
 		return 0
 	end
 	if inode_getType(inode) == INODE_TYPE_DIR() then
@@ -135,23 +135,6 @@ sub ramfs_createFile(ramfs, name, type)
 	return 0
 end
 
-sub ramfs_deleteFile(ramfs, name)
-	local inode, parent, buffer, filename, path
-
-	buffer = heap_alloc(1024)
-	ramfs_nameParse(ramfs, name, buffer)
-	filename = ramfs_getFilename(buffer)
-	path = ramfs_getPath(buffer)
-	parent = ramfs_lookupPath(ramfs, path)
-	if (parent != 0) then
-		inode = inode_lookupByName(parent, filename)
-		if (inode != 0) then
-			ramfs_deleteFile_r(ramfs, parent, inode)
-		end
-	end
-	heap_free(buffer, 1024)
-end
-
 sub ramfs_getFile(ramfs, name)
 	local inode, parent, buffer, filename, path
 
@@ -167,6 +150,23 @@ sub ramfs_getFile(ramfs, name)
 	end
 	heap_free(buffer, 1024)
 	return 0
+end
+
+sub ramfs_deleteFile(ramfs, name)
+	local inode, parent, buffer, filename, path
+
+	buffer = heap_alloc(1024)
+	ramfs_nameParse(ramfs, name, buffer)
+	filename = ramfs_getFilename(buffer)
+	path = ramfs_getPath(buffer)
+	parent = ramfs_lookupPath(ramfs, path)
+	if (parent != 0) then
+		inode = inode_lookupByName(parent, filename)
+		if (inode != 0) then
+			ramfs_deleteFile_r(ramfs, parent, inode)
+		end
+	end
+	heap_free(buffer, 1024)
 end
 
 sub ramfs_deleteFile_r(ramfs, parent, inode)
@@ -185,7 +185,7 @@ sub ramfs_deleteFile_r(ramfs, parent, inode)
 		content = inode_getContent(inode)
 		while content != 0 do
 			next = fba_getNext(content)
-			heap_free(content, ramfs_getDataBlockSize())
+			heap_free(content, fd_getDataBlockSize())
 			content = next
 		end 
 	end 
