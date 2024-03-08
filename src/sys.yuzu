@@ -1,3 +1,11 @@
+sub PROGRAM_BASE_ADDR()
+	return 4 << 16
+end
+
+sub KERNEL_BASE_ADDR()
+	return 1 << 16
+end
+
 sub sys_open(filename, perms)
 	local inode, fd
 	inode = ramfs_getFile(global_getRamfs(), filename)
@@ -79,7 +87,13 @@ sub sys_unlink(filename)
 	ramfs_deleteFile(global_getRamfs(), filename)
 end
 
-sub sys_exec()
+sub sys_exec(filename, argv)
+	local fd, size
+	fd = sys_open(filename, 0)
+	size = kdecrunch(fd, PROGRAM_BASE_ADDR())
+	sys_close(fd)
+	global_setBrk(PROGRAM_BASE_ADDR() + size)
+	[PROGRAM_BASE_ADDR()](0, 0) ; TODO pass arguments
 end
 
 sub sys_fork()
@@ -91,13 +105,19 @@ end
 sub sys_dup2()
 end
 
-sub sys_brk()
+sub sys_brk(brk)
+	if (brk == -1) then
+		return global_getBrk()
+	end
+	global_setBrk(brk)
+	return brk
 end
 
 sub sys_mmap()
 end
 
 sub sys_exit()
+	sys_exec("/bin/pish.fap", 0)
 end
 
 sub sys_stub()

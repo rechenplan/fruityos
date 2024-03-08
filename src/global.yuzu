@@ -10,6 +10,14 @@ sub global_free()
 	global_freeRamfs()
 end
 
+sub global_getBrk()
+	return _brk
+end
+
+sub global_setBrk(brk)
+	_brk = brk
+end
+
 sub global_getScr()
 	return _scr
 end

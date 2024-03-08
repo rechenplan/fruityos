@@ -49,3 +49,4 @@ spin:
 _scr:		dq 0
 _kb:		dq 0
 _ramfs:		dq 0
+_brk:		dq 0

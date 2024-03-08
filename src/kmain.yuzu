@@ -1,5 +1,5 @@
 sub kmain(initJarPtr)
-	local rdAddr, rdSize, blockSize, root, bin, yc, name
+	local fd, buffer
 
 	heap_init()
 	global_init()
@@ -13,5 +13,6 @@ sub kmain(initJarPtr)
 	ramfs_printTree(global_getRamfs())
 	kprintln("Ready!")
 
+	sys_exec("/bin/pish.fap", 0)
 	return 0
 end

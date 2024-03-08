@@ -60,7 +60,6 @@ sub fd_read(fd, buffer, size)
 	gp = fd_getGlobalPosition(fd)
 	lp = fd_getLocalPosition(fd)
 	data = fd_getDataBlock(fd)
-
 	fileSize = inode_getContentSize(inode)
 
 	if ((gp + size) > fileSize) then
@@ -99,7 +98,7 @@ sub fd_write(fd, buffer, size)
 	fileSize = inode_getContentSize(inode)
 
 	if (data == 0) then
-		prevData = data
+		prevData = 0
 		data = inode_getContent(inode)
 		while data != 0 do
 			prevData = data
@@ -127,17 +126,19 @@ sub fd_write(fd, buffer, size)
 				data = heap_alloc(fd_getDataBlockSize())
 				fba_setNext(data, 0)
 				fba_setPrev(data, prevData)
-			end	
+				fba_setNext(prevData, data)
+			end
 		end
 	end
 
 	if gp > fileSize then
-		inode_setContentSize(inode, gp)
+		fileSize = gp
 	end
 
 	fd_setGlobalPosition(fd, gp)
 	fd_setLocalPosition(fd, lp)
 	fd_setDataBlock(fd, data)
+	inode_setContentSize(inode, fileSize)
 	return size
 end
 
