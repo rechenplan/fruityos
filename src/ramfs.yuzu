@@ -5,18 +5,25 @@ sub ramfs_getDataBlockSize()
 end
 
 sub ramfs_init(ramfs)
-	local dot
+	local dot, dotdot, cwd
 	ramfs_setRoot(ramfs, inode_create("/", INODE_TYPE_DIR()))
-	dot = ramfs_createFile(ramfs, "/", ".", INODE_TYPE_DIR())
+	dot = inode_create(".", INODE_TYPE_LINK())
+	dotdot = inode_create("..", INODE_TYPE_LINK())
 	inode_setContent(dot, ramfs_getRoot(ramfs))
+	inode_setContent(dotdot, ramfs_getRoot(ramfs))
+	inode_link(ramfs_getRoot(ramfs), dot)
+	inode_link(ramfs_getRoot(ramfs), dotdot)
+	[ramfs + (1 << 3)] = heap_alloc(1024)
+	ramfs_setCwd(ramfs, "/")
 end
 
 sub ramfs_cleanup(ramfs)
-	inode_destroy(ramfs_getRoot())
+	ramfs_deleteFile_r(ramfs, 0, ramfs_getRoot(ramfs))
+	heap_free([ramfs + (1 << 3)], 1024)
 end
 
 sub ramfs_getSize()
-	return (1 << 3)
+	return (2 << 3)
 end
 
 sub ramfs_getRoot(ramfs)
@@ -27,10 +34,35 @@ sub ramfs_setRoot(ramfs, rootNode)
 	[ramfs + (0 << 3)] = rootNode
 end
 
+sub ramfs_getCwd(ramfs)
+	return [ramfs + (1 << 3)]
+end
+
+sub ramfs_setCwd(ramfs, newCwd)
+	local cwd, len, buffer, i
+	cwd = ramfs_getCwd(ramfs)
+	
+	buffer = heap_alloc(1024)
+	ramfs_nameToAbsName(ramfs, newCwd, buffer)
+	if ramfs_lookupPath(ramfs, buffer) == 0 then
+		heap_free(buffer, 1024)
+		return -1
+	end
+	len = kstrlen(buffer)
+	kstrcpy(cwd, buffer)
+	; Make sure cwd ends with forward slash
+	if byte [cwd + len - 1] != byte ["/"] then
+		byte [cwd + len] = byte ["/"]
+		byte [cwd + len + 1] = 0
+	end
+	heap_free(buffer, 1024)
+	return 0
+end
+
 sub ramfs_printTree(ramfs)
 	local inode
 	inode = ramfs_getRoot(ramfs)
-	ramfs_printTree_r(inode, 0)	
+	ramfs_printTree_r(inode, 0)
 end
 
 sub ramfs_printTree_r(inode, level)
@@ -42,69 +74,73 @@ sub ramfs_printTree_r(inode, level)
 
 	if inode_getType(inode) == INODE_TYPE_FILE() then
 		kprintln(inode_getName(inode))
-	else
-		if inode_getType(inode) == INODE_TYPE_DIR() then
-			kputs("[")
-			kputs(inode_getName(inode))
-			kputs("]")
-			kputch(10)
-			if kstrcmp(inode_getName(inode), ".") | kstrcmp(inode_getName(inode), "..") then
-				return 0
-			end
-			inode = inode_getContent(inode)
-			while inode != 0 do
-				ramfs_printTree_r(inode, level + 1)
-				inode = fba_getNext(inode)
-			end
-		else
-			kprintln("Bad inode type")
-		end
+		return 0
 	end
+	if inode_getType(inode) == INODE_TYPE_DIR() then
+		kputs("[")
+		kputs(inode_getName(inode))
+		kputs("]")
+		kputch(10)
+		inode = inode_getContent(inode)
+		while inode != 0 do
+			ramfs_printTree_r(inode, level + 1)
+			inode = fba_getNext(inode)
+		end
+		return 0
+	end
+	if inode_getType(inode) == INODE_TYPE_LINK() then
+		kputs("<")
+		kputs(inode_getName(inode))
+		kputs(">")
+		kputch(10)
+		return 0
+	end
+
+	kputs(inode_getName(inode))
+	kputs(" (bad type ")
+	kputn(inode_getType(inode))
+	kputs(")")
+	kputch(10)
+
 end
 
-sub ramfs_lookupPath(ramfs, path)
-	local tmpPath, i, len, inode, dir, dirLen
+sub ramfs_createFile(ramfs, name, type)
+	local inode, parent, buffer, filename, path, dot, dotdot
 
-	tmpPath = heap_alloc(1024)
-	kstrcpy(tmpPath, path)
-	len = kstrlen(tmpPath)
-	while i < len do
-		if byte [tmpPath + i] == byte ["/"] then
-			byte [tmpPath + i] = 0
-		end
-		i = i + 1
-	end
-	i = 0
-	inode = ramfs_getRoot(ramfs)
-	while (i < len) & (inode != 0) do
-		dir = tmpPath + i
-		dirLen = kstrlen(dir)
-		if dirLen > 0 then
-			inode = inode_lookupByName(inode, dir)
-		end
-		i = i + dirLen + 1
-	end
-	heap_free(tmpPath, 1024)
-	return inode
-end
-
-sub ramfs_createFile(ramfs, path, filename, type)
-	local inode, parent
+	buffer = heap_alloc(1024)
+	ramfs_nameParse(ramfs, name, buffer)
+	filename = ramfs_getFilename(buffer)
+	path = ramfs_getPath(buffer)
 
 	parent = ramfs_lookupPath(ramfs, path)
 	if (parent != 0) then
 		if inode_lookupByName(parent, filename) == 0 then
 			inode = inode_create(filename, type)
 			inode_link(parent, inode)
+			if (type == INODE_TYPE_DIR()) then
+				dot = inode_create(".", INODE_TYPE_LINK())
+				dotdot = inode_create("..", INODE_TYPE_LINK())
+				inode_setContent(dot, inode)
+				inode_setContent(dotdot, parent)
+				inode_link(inode, dot)
+				inode_link(inode, dotdot)
+			end
+			heap_free(buffer, 1024)
 			return inode
 		end
 	end
+
+	heap_free(buffer, 1024)
 	return 0
 end
 
-sub ramfs_deleteFile(ramfs, path, filename)
-	local inode, parent
+sub ramfs_deleteFile(ramfs, name)
+	local inode, parent, buffer, filename, path
 
+	buffer = heap_alloc(1024)
+	ramfs_nameParse(ramfs, name, buffer)
+	filename = ramfs_getFilename(buffer)
+	path = ramfs_getPath(buffer)
 	parent = ramfs_lookupPath(ramfs, path)
 	if (parent != 0) then
 		inode = inode_lookupByName(parent, filename)
@@ -112,6 +148,7 @@ sub ramfs_deleteFile(ramfs, path, filename)
 			ramfs_deleteFile_r(ramfs, parent, inode)
 		end
 	end
+	heap_free(buffer, 1024)
 end
 
 sub ramfs_deleteFile_r(ramfs, parent, inode)
@@ -140,6 +177,82 @@ sub ramfs_deleteFile_r(ramfs, parent, inode)
 			content = next
 		end 
 	end 
-	inode_unlink(parent, inode)
+	if (parent != 0) then
+		inode_unlink(parent, inode)
+	end
 	inode_destroy(inode)
 end
+
+; INTERNAL USAGE
+
+sub ramfs_getPath(name)
+	return name
+end
+
+sub ramfs_getFilename(name)
+	return name + kstrlen(name) + 1
+end
+
+sub ramfs_nameParse(ramfs, nameIn, nameOut)
+	local i, len, file
+	ramfs_nameToAbsName(ramfs, nameIn, nameOut)
+	i = kstrlen(nameOut) - 1
+	while (i >= 0)  do
+		if byte [nameOut + i] == byte ["/"] then
+			byte [nameOut + i] = 0
+			if kstrlen(ramfs_getFilename(nameOut)) > 0 then
+				return 0
+			end
+		end
+		i = i - 1
+	end
+	return 0
+end
+
+sub ramfs_nameToAbsName(ramfs, name, absName)
+	local len
+	if byte [name] == byte ["/"] then
+		kstrcpy(absName, name)
+	else
+		kstrcpy(absName, ramfs_getCwd(ramfs))
+		len = kstrlen(absName)
+		kstrcpy(absName + len, name)
+	end
+
+	; parse dots (TODO)
+	return 0
+end
+
+sub ramfs_lookupPath(ramfs, path)
+	local tmpPath, i, len, inode, dir, dirLen
+
+	tmpPath = heap_alloc(1024)
+	kstrcpy(tmpPath, path)
+	len = kstrlen(tmpPath)
+	while i < len do
+		if byte [tmpPath + i] == byte ["/"] then
+			byte [tmpPath + i] = 0
+		end
+		i = i + 1
+	end
+	i = 0
+	inode = ramfs_getRoot(ramfs)
+	while (i < len) & (inode != 0) do
+		if (inode_getType(inode) != INODE_TYPE_DIR()) then
+			heap_free(tmpPath, 1024)
+			return 0
+		end
+		dir = tmpPath + i
+		dirLen = kstrlen(dir)
+		if (dirLen > 0) then
+			inode = inode_lookupByName(inode, dir)
+			if (inode_getType(inode) == INODE_TYPE_LINK()) then
+				inode = inode_getContent(inode)
+			end
+		end
+		i = i + dirLen + 1
+	end
+	heap_free(tmpPath, 1024)
+	return inode
+end
+

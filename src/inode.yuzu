@@ -8,11 +8,17 @@ sub INODE_TYPE_DIR()
 	return 2
 end
 
+sub INODE_TYPE_LINK()
+	return 3
+end
+
 sub inode_init(inode, name, type, size, content)
 	inode_setName(inode, name)
 	inode_setType(inode, type)
 	inode_setContentSize(inode, size)
 	inode_setContent(inode, content)
+	fba_setNext(inode, 0)
+	fba_setPrev(inode, 0)
 end
 
 sub inode_cleanup(inode)

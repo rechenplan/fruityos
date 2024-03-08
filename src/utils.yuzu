@@ -15,6 +15,10 @@ sub kcls()
 	scr_cls(global_getScr())
 end
 
+sub kgetch()
+	return sys_getch()
+end
+
 sub kputch(c)
 	sys_putch(c)
 end

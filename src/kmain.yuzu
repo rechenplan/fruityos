@@ -1,5 +1,5 @@
 sub kmain(initJarPtr)
-	local rdAddr, rdSize, blockSize, root, bin, yc
+	local rdAddr, rdSize, blockSize, root, bin, yc, name
 
 	heap_init()
 	global_init()
@@ -8,15 +8,9 @@ sub kmain(initJarPtr)
 	kprintln("Welcome to FruityOS!")
 	heap_printStats()
 
+	kprintln("Unpacking...")
 	kunpack(initJarPtr)
-
-	ramfs_createFile(global_getRamfs(), "/", "bin", INODE_TYPE_DIR())
-	ramfs_createFile(global_getRamfs(), "/bin", "yc.fap", INODE_TYPE_FILE())
-
 	ramfs_printTree(global_getRamfs())
-
-	ramfs_deleteFile(global_getRamfs(), "/", "bin")
-	heap_printStats()
 
 	kprintln("Ready!")
 
