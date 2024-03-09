@@ -40,9 +40,9 @@ entry:
 	mov rax, kmain
 	call rax
 
-spin:
+die:
 	hlt
-	jmp spin
+	jmp die
 
 halt:
 	hlt

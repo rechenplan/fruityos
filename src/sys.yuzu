@@ -6,6 +6,10 @@ sub APPLICATION_HEAP()
 	return 2 << 20
 end
 
+sub MAX_ADDR()
+	return 6 << 20
+end
+
 sub KERNEL_BASE_ADDR()
 	return 1 << 16
 end
@@ -176,6 +180,10 @@ sub sys_dup2()
 end
 
 sub sys_brk(brk)
+	if (brk >= MAX_ADDR()) then
+		kprintln("Application heap exausted!")
+		die()
+	end
 	if (brk == -1) then
 		return global_getBrk()
 	end

@@ -42,6 +42,9 @@ sub fba_alloc(fbaAddr)
 		blockAddr = nodeAddr + list_getNodeHdrSize()
 		fba_setAvailableBlocks(fbaAddr, availableBlocks - 1)
 		return blockAddr
+	else
+		kprintln("Fixed block allocator out of memory!")
+		die()
 	end
 	return 0
 end
