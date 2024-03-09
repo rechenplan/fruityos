@@ -21,16 +21,14 @@ sub nextarg(strPtr)
 end
 
 sub main(argc, argv)
-	local file
+	local file, newfile
 	if argc != 3 then
-		puts("usage: rename file newfile")
+		puts("usage: move file newfile")
 		putch(10)
 		exit()
 	end
-	while argc == 3 do
-		file = nextarg(argv)
-		argv = nextarg(file)
-		rename(file, argv)
-	end
+	file = nextarg(argv)
+	newfile = nextarg(file)
+	rename(file, newfile)
 	return 0
 end
