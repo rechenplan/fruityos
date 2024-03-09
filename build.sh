@@ -113,3 +113,11 @@ bin/zest.fap f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/init.fap
 
 rm bin/*.elf
+
+cd src
+rm -rf peelsrc.jz peelsrc.jar
+../bin/jar.fap c peelsrc.jar
+../bin/juicer.fap c peelsrc.jar peelsrc.jz
+rm peelsrc.jar
+cd ..
+
