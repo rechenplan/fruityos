@@ -74,7 +74,7 @@ sub main(argc, args)
 	d = getch() & 255
 	while (d != 0) & (done == 0) do
 		if (d == 10) then
-			[ptr] = 0
+			byte [ptr] = 0
 			ptr = buf
 			if str_is_equal(ptr, ".") then
 				done = 1
@@ -85,7 +85,7 @@ sub main(argc, args)
 				d = getch() & 255
 			end
 		else
-			[ptr] = d
+			byte [ptr] = d
 			ptr = ptr + 1
 			d = getch() & 255
 		end
