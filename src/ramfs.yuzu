@@ -70,11 +70,11 @@ sub ramfs_printTree_r(inode, level)
 	end
 
 	if inode_getType(inode) == INODE_TYPE_FILE() then
-		kputs(inode_getName(inode))
-		kputch(32)
-		kputn(inode_getContentSize(inode))
-		kputs(" bytes")
-		kputch(10)
+		;kputs(inode_getName(inode))
+		;kputch(32)
+		;kputn(inode_getContentSize(inode))
+		;kputs(" bytes")
+		;kputch(10)
 		return 0
 	end
 	if inode_getType(inode) == INODE_TYPE_DIR() then
@@ -112,7 +112,6 @@ sub ramfs_createFile(ramfs, name, type)
 	ramfs_nameParse(ramfs, name, buffer)
 	filename = ramfs_getFilename(buffer)
 	path = ramfs_getPath(buffer)
-
 	parent = ramfs_lookupPath(ramfs, path)
 	if (parent != 0) then
 		if inode_lookupByName(parent, filename) == 0 then
