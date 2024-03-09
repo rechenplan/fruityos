@@ -106,10 +106,4 @@ bin/concat.fap tmp/a.s lib/_start.fap tmp/fred.s lib/libpith.fap
 bin/zest.fap f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/fred.fap
 
-echo Building init...
-bin/yc.fap src/init/init.yuzu tmp/init.s
-bin/concat.fap tmp/a.s lib/_start.fap tmp/init.s lib/libpith.fap
-bin/zest.fap f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/init.fap
-
 rm bin/*.elf

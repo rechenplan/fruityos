@@ -17,6 +17,65 @@ sub dir_puts(str)
 	end
 end
 
+sub dir_div(n, d)
+        local r, q
+        r = n
+        q = 0
+        while r >= d do
+                r = r - d
+                q = q + 1
+        end
+        return q
+end
+
+sub dir_putn(x)
+        local digit, i, leading
+        if x == 0 then
+                dir_puts("0")
+                return 0
+        end
+        leading = 1
+        i = 1000000
+        while i > 0 do
+                digit = dir_div(x, i)
+                if digit != 0 then
+                        leading = 0
+                end
+                if leading == 0 then    
+                        putch(digit + byte ["0"])
+                end
+                x = dir_mod(x, i)
+                i = dir_div(i, 10)
+        end
+end
+
+sub dir_align(x)
+	while x > 0 do
+		x = x - 1
+		putch(32)
+	end
+end
+
+sub dir_strlen(x)
+	local i
+	while byte [x] != 0 do
+		i = i + 1
+		x = x + 1
+	end
+	return i
+end
+
+sub dir_mod(n, d)
+        local r, q
+        r = n
+        q = 0
+        while r >= d do
+                r = r - d
+                q = q + 1
+        end
+        return r
+end    
+
 sub main()
 	local buf, fd, pos, bread, ent, type
 
@@ -28,7 +87,10 @@ sub main()
 	bread = getdents64(fd, buf, 65536)
 	close(fd)
 
-	dir_puts("[.] [..] ")
+	dir_puts("[.]")
+	putch(10)
+	dir_puts("[..]")
+	putch(10)
 	while pos < bread do
 		ent = buf + pos
 		type = byte [ent + 18]
@@ -37,6 +99,7 @@ sub main()
 				dir_puts("[")
 				dir_puts(ent + 19)
 				dir_puts("] ")
+				putch(10)
 			end
 		end
 		pos = pos + ([ent + 16] & 65535)
@@ -47,9 +110,11 @@ sub main()
 		type = byte [ent + 18]
 		if type != 4 then
 			dir_puts(ent + 19)
-			putch(32)
+			dir_align(20 - dir_strlen(ent + 19))			
+			dir_putn([ent])
+			dir_puts(" bytes")
+			putch(10)
 		end
 		pos = pos + ([ent + 16] & 65535)
 	end
-	putch(10)
 end
