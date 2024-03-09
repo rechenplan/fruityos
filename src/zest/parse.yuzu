@@ -363,8 +363,8 @@ sub parse_file(fout, fin, symtab, org)
 	local buffer, ptr, token, c, k, pos
 
 	buffer = brk(-1)
-	token = brk(buffer + 256)
-	brk(token + 256)
+	token = brk(buffer + 1024)
+	brk(token + 1024)
 
 	pos = org
 	while c = fgetch(fin) & 255 do

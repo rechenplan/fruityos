@@ -231,7 +231,7 @@ sub emit_string(fd, str)
 	local bytes
 	str = str + 1 ; skip initial quote 
 	while byte [str] != 34 do
-		fputch(fd, byte [str])
+		if fd != -1 then fputch(fd, byte [str]) end
 		str = str + 1
 		bytes = bytes + 1
 	end
@@ -239,6 +239,6 @@ sub emit_string(fd, str)
 end
 
 sub emit_byte(fd, value)
-	fputch(fd, byte value)
+	if fd != -1 then fputch(fd, byte value) end
 	return 1
 end
