@@ -77,9 +77,11 @@ sub sys_getcwd(buf, size)
 end
 
 sub sys_getdents64(fd, buf, size)
+	; TODO
 end
 
 sub sys_rename(filename, newfilename)
+	; TODO
 end
 
 sub sys_mkdir(filename)
@@ -143,6 +145,7 @@ sub sys_brk(brk)
 end
 
 sub sys_mmap()
+	return 0
 end
 
 sub sys_exit()
@@ -150,6 +153,7 @@ sub sys_exit()
 end
 
 sub sys_stub()
+	return 0
 end
 
 sub sys_keyboard(scancode)

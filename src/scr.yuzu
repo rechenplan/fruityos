@@ -4,6 +4,9 @@ sub scr_putch(scr, char)
 	if (scr == 0) then
 		return 0
 	end
+	if (char == 0) then
+		return 0
+	end
 
 	scrAddr = scr_getAddress()
 	screenRow = scr_getCursorRow(scr)
