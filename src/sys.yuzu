@@ -96,7 +96,6 @@ end
 
 sub sys_getdents64(fd, buf, size)
 	local inode, content, written
-	kprintln("getdents")
 	if (fd == 0) then
 		return 0
 	end
