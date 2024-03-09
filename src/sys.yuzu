@@ -77,8 +77,11 @@ sub sys_fgetch(fd)
 		kgetch()
 	end
 	buf = heap_alloc(1)
-	sys_read(fd, buf, 1)
-	r = byte [buf]
+	if sys_read(fd, buf, 1) == 1 then
+		r = byte [buf]
+	else
+		r = 0
+	end
 	heap_free(buf, 1)
 	return r
 end
