@@ -7,6 +7,14 @@ sub kmemcpy(a, b, cnt)
 	end
 end
 
+sub kmemset(ptr, size, value)
+	local i
+	while i < size do
+		byte [ptr + i] = value
+		i = i + 1
+	end
+end
+
 sub kstrcpy(a, b)
 	kmemcpy(a, b, kstrlen(b) + 1)
 end

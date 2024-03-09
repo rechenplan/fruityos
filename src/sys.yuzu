@@ -187,6 +187,9 @@ sub sys_brk(brk)
 	if (brk == -1) then
 		return global_getBrk()
 	end
+	if brk > global_getBrk() then
+		kmemset(global_getBrk(), brk - global_getBrk(), 0)
+	end
 	global_setBrk(brk)
 	return brk
 end
