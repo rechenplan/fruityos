@@ -61,8 +61,47 @@ sub kb_push(kb, char)
 	kb_setHead(kb, head)
 end
 
+sub kb_pop(kb)
+	local head, tail, buf, char
+	buf = kb_getBuffer(kb)
+	head = kb_getHead(kb)
+	tail = kb_getTail(kb)
+	char = -1
+	if head != tail then
+		head = head - 1
+		if head < 0 then
+			head = kb_getBufferSize() - 1
+		end
+		char = byte [buf + head]
+		kb_setHead(kb, head)
+	end
+	return char
+end
+
+sub kb_awaitingNewline(kb)
+	local head, tail, i, buf
+	buf = kb_getBuffer(kb)
+	head = kb_getHead(kb)
+	tail = kb_getTail(kb)
+	i = tail
+	while i != head do
+		if (byte [buf + i] == 10) then
+			return 0
+		end
+		i = i + 1
+		if (i >= kb_getBufferSize()) then
+			i = 0
+		end
+	end
+	return 1
+end
+	
+
 sub kb_dequeue(kb)
 	local buf, head, tail, char
+	if kb_awaitingNewline(kb) then
+		return -1
+	end
 	head = kb_getHead(kb)
 	tail = kb_getTail(kb)
 	if head != tail then

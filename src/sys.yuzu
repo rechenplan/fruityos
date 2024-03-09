@@ -225,8 +225,15 @@ sub sys_keyboard(scancode)
 	scr = global_getScr()
 
 	c = kb_s2c(kb, scancode)
-	if c != 0 then
+	if c == 0 then
+		return 0
+	end
+	if c == 8 then ; backspace
+		if kb_pop(kb) != -1 then
+			scr_putch(scr, c)
+		end
+	else
 		kb_push(kb, c)
 		scr_putch(scr, c)
-	end		
+	end
 end
