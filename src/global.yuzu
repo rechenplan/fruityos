@@ -1,3 +1,7 @@
+sub global_getDebug()
+	return 1
+end
+
 sub global_init()
 	global_initScr()
 	global_initKb()
