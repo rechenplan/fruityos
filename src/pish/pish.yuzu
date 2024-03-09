@@ -59,17 +59,19 @@ sub pish_exec(buf, argv)
 	pid = fork()
 	if pid == 0 then
 		len = pish_strlen([argv]) 
-		extension = [argv] + len - 4 
-		if pish_str_equal(extension, ".fap") then
-			pish_path(buf, "./", [argv], "")
-			exec(buf, argv)
-			pish_path(buf, "/bin/", [argv], "")
-			exec(buf, argv)
-		else
-			pish_path(buf, "./", [argv], ".fap")
-			exec(buf, argv)
-			pish_path(buf, "/bin/", [argv], ".fap")
-			exec(buf, argv)
+		if len >= 4 then
+			extension = [argv] + len - 4
+			if pish_str_equal(extension, ".fap") then
+				pish_path(buf, "./", [argv], "")
+				exec(buf, argv)
+				pish_path(buf, "/bin/", [argv], "")
+				exec(buf, argv)
+			else
+				pish_path(buf, "./", [argv], ".fap")
+				exec(buf, argv)
+				pish_path(buf, "/bin/", [argv], ".fap")
+				exec(buf, argv)
+			end
 		end
 		pish_puts([argv])
 		pish_puts("?")
