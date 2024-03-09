@@ -109,22 +109,26 @@ end
 
 sub parse_expect_newline(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if (ptr != 0) & (byte [token] != 10) then
-		lex_puts("expected newline got ")
-		lex_puts(token)
-		putch(10)
-		exit()
+	if (ptr != 0) then
+		if (byte [token] != 10) then
+			lex_puts("expected newline got ")
+			lex_puts(token)
+			putch(10)
+			exit()
+		end
 	end
 	return ptr
 end
 
 sub parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) != 49 then
-		lex_puts("expected comma got ")
-		lex_puts(token)
-		putch(10)
-		exit()
+	if (ptr != 0) then
+		if lex_keyword_lookup(token) != 49 then
+			lex_puts("expected comma got ")
+			lex_puts(token)
+			putch(10)
+			exit()
+		end
 	end
 	return ptr
 end

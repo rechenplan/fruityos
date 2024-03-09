@@ -53,6 +53,7 @@ end
 
 sub lex_get_next_token(buffer, out)
 	local c, len
+	byte [out] = 0
 	while c = byte [buffer] do
 
 		if c == byte [";"] then
