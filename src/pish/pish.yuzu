@@ -66,13 +66,13 @@ sub pish_exec(buf, argv)
 				exec(buf, argv)
 				pish_path(buf, "/bin/", [argv], "")
 				exec(buf, argv)
-			else
-				pish_path(buf, "./", [argv], ".fap")
-				exec(buf, argv)
-				pish_path(buf, "/bin/", [argv], ".fap")
-				exec(buf, argv)
 			end
 		end
+		pish_path(buf, "./", [argv], ".fap")
+		exec(buf, argv)
+		pish_path(buf, "/bin/", [argv], ".fap")
+		exec(buf, argv)
+
 		pish_puts([argv])
 		pish_puts("?")
 		putch(10)
