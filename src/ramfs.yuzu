@@ -144,9 +144,15 @@ sub ramfs_getFile(ramfs, name)
 	path = ramfs_getPath(buffer)
 	parent = ramfs_lookupPath(ramfs, path)
 	if (parent != 0) then
-		inode = inode_lookupByName(parent, filename)
-		heap_free(buffer, 1024)
-		return inode
+		; This happens if we're opening root (HACK)
+		if kstrlen(filename) == 0 then
+			heap_free(buffer, 1024)
+			return parent
+		else
+			inode = inode_lookupByName(parent, filename)
+			heap_free(buffer, 1024)
+			return inode
+		end
 	end
 	heap_free(buffer, 1024)
 	return 0

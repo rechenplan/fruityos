@@ -5,14 +5,9 @@ sub kmain(initJarPtr)
 	global_init()
 
 	kcls()
-
 	kprintln("Welcome to FruityOS!")
-	heap_printStats()
-	kprintln("Unpacking...")
 	kunpack(initJarPtr)
-	ramfs_printTree(global_getRamfs())
-	kprintln("Ready!")
-
 	sys_exec("/bin/pish.fap", 0)
+
 	return 0
 end

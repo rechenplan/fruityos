@@ -25,14 +25,28 @@ sub sys_creat(filename)
 end
 
 sub sys_close(fd)
-	fd_close(fd)
+	if (fd != 0) then
+		fd_close(fd)
+	end
 end
 
 sub sys_read(fd, buf, size)
+	if (fd == 0) then
+		return 0
+	end
+	if (inode_getType(fd_getInode(fd)) != INODE_TYPE_FILE()) then
+		return 0
+	end
 	fd_read(fd, buf, size)
 end
 
 sub sys_write(fd, buf, size)
+	if (fd == 0) then
+		return 0
+	end
+	if (inode_getType(fd_getInode(fd)) != INODE_TYPE_FILE()) then
+		return 0
+	end
 	fd_write(fd, buf, size)
 end
 
@@ -77,7 +91,29 @@ sub sys_getcwd(buf, size)
 end
 
 sub sys_getdents64(fd, buf, size)
-	; TODO
+	local inode, content, written
+
+	if (fd == 0) then
+		return 0
+	end
+	inode = fd_getInode(fd)
+	if (inode_getType(inode) == INODE_TYPE_DIR()) then
+		content = inode_getContent(inode)
+		while content != 0 do
+			byte [buf + 16] = 35
+			byte [buf + 17] = 0
+			if (inode_getType(content) == INODE_TYPE_DIR()) | (inode_getType(content) == INODE_TYPE_LINK()) then
+				byte [buf + 18] = 4
+			else
+				byte [buf + 18] = 0
+			end
+			kstrcpy(buf + 19, inode_getName(content))
+			buf = buf + 35
+			written = written + 35
+			content = fba_getNext(content)
+		end
+	end
+	return written
 end
 
 sub sys_rename(filename, newfilename)

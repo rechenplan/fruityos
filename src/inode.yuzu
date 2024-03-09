@@ -53,6 +53,8 @@ sub inode_setName(inode, name)
 		end
 		i = i + 1
 	end
+	; null terminate if name too long
+	byte [inode + 15] = 0
 end
 
 sub inode_setType(inode, type)
