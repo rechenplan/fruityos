@@ -70,11 +70,11 @@ sub ramfs_printTree_r(inode, level)
 	end
 
 	if inode_getType(inode) == INODE_TYPE_FILE() then
-		;kputs(inode_getName(inode))
-		;kputch(32)
-		;kputn(inode_getContentSize(inode))
-		;kputs(" bytes")
-		;kputch(10)
+		kputs(inode_getName(inode))
+		kputch(32)
+		kputn(inode_getContentSize(inode))
+		kputs(" bytes")
+		kputch(10)
 		return 0
 	end
 	if inode_getType(inode) == INODE_TYPE_DIR() then
@@ -131,6 +131,43 @@ sub ramfs_createFile(ramfs, name, type)
 	end
 
 	heap_free(buffer, 1024)
+	return 0
+end
+
+sub ramfs_renameFile(ramfs, oldname, newname)
+	local oldbuffer, oldpath, oldfilename, oldparent, newbuffer, newpath, newfilename, newparent, inode
+	if ramfs_getFile(ramfs, newname) != 0 then
+		ramfs_deleteFile(ramfs, newname)
+	end
+	oldbuffer = heap_alloc(1024)
+	ramfs_nameParse(ramfs, oldname, oldbuffer)
+	oldfilename = ramfs_getFilename(oldbuffer)
+	oldpath = ramfs_getPath(oldbuffer)
+	oldparent = ramfs_lookupPath(ramfs, oldpath)
+	if (oldparent == 0) then
+		heap_free(oldbuffer, 1024)
+		return -1
+	end
+	inode = inode_lookupByName(oldparent, oldfilename)
+	if (inode == 0) then
+		heap_free(oldbuffer, 1024)
+		return -1
+	end
+	newbuffer = heap_alloc(1024)
+	ramfs_nameParse(ramfs, newname, newbuffer)
+	newfilename = ramfs_getFilename(newbuffer)
+	newpath = ramfs_getPath(newbuffer)
+	newparent = ramfs_lookupPath(ramfs, newpath)
+	if (newparent == 0) then
+		heap_free(oldbuffer, 1024)
+		heap_free(newbuffer, 1024)
+		return -1
+	end
+	inode_unlink(oldparent, inode)
+	inode_link(newparent, inode)
+	inode_setName(inode, newfilename)
+	heap_free(oldbuffer, 1024)
+	heap_free(newbuffer, 1024)
 	return 0
 end
 

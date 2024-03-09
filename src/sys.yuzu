@@ -163,7 +163,7 @@ sub sys_rename(filename, newfilename)
 		kprintln("sys_rename")	
 		kgetch()
 	end
-	; TODO
+	ramfs_renameFile(global_getRamfs(), filename, newfilename)
 end
 
 sub sys_mkdir(filename)
