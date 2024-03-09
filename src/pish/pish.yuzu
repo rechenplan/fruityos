@@ -25,17 +25,22 @@ sub pish_str_equal(a, b)
 	return 0
 end
 
-sub pish_path(buf, dir, file)
+sub pish_path(buf, dir, file, ext)
 	local c
 	while c = byte [dir] do
-		[buf] = c
+		byte [buf] = c
 		buf = buf + 1
 		dir = dir + 1
 	end
 	while c = byte [file] do
-		[buf] = c
+		byte [buf] = c
 		buf = buf + 1
 		file = file + 1
+	end
+	while c = byte [ext] do
+		byte [buf] = c
+		buf = buf + 1
+		ext = ext + 1
 	end
 	[buf] = 0
 end
@@ -45,9 +50,13 @@ sub pish_exec(buf, argv)
 	pid = fork()
 	if pid == 0 then
 		exec([argv], argv)
-		pish_path(buf, "./", [argv])
+		pish_path(buf, "./", [argv], "")
 		exec(buf, argv)
-		pish_path(buf, "/bin/", [argv])
+		pish_path(buf, "./", [argv], ".fap")
+		exec(buf, argv)
+		pish_path(buf, "/bin/", [argv], "")
+		exec(buf, argv)
+		pish_path(buf, "/bin/", [argv], ".fap")
 		exec(buf, argv)
 		pish_puts([argv])
 		pish_puts("?")
