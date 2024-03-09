@@ -232,6 +232,7 @@ sub repl(editBuffer, backBuffer, filename)
 						i = i + 1
 					end
 					n = 0
+					byte [line] = 0
 				end
 			end
 			while byte [editBuffer + k] != 0 do
@@ -263,6 +264,7 @@ sub repl(editBuffer, backBuffer, filename)
 							i = i + 1
 						end
 						n = 0
+						byte [line] = 0
 					end
 				end
 			end
