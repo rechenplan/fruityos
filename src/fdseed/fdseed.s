@@ -1,9 +1,9 @@
 	org 0x7c00
 	bits 16
 
-%define IDT_ADDR 0x6000
+%define IDT_ADDR 0xF000
 %define KERNEL_ADDR 0x10000
-%define STACK_ADDR 0x6000
+%define STACK_ADDR 0xF000
 
 	; Canonicalize IP
 	jmp 0x0000:start
@@ -54,24 +54,59 @@ a20:	in al, 0x92
 	out dx, al
 
 	; Set up long mode paging (identity map first 2 MB)
+
 	mov edi, 0x1000
 	mov cr3, edi
 	xor eax, eax
-	mov ecx, 4096
+	mov ecx, 0x6000
 	rep stosd
-	mov edi, cr3
-	mov dword [edi], 0x2003
-	add edi, 0x1000
-	mov dword [edi], 0x3003
-	add edi, 0x1000
-	mov dword [edi], 0x4003
-	add edi, 0x1000
+
+	; 6 MB identity mapped
+
+	mov word [0x1000], 0x2003
+	mov word [0x2000], 0x3003
+
+	mov word [0x3000], 0x4003
+	mov word [0x3008], 0x5003
+	mov word [0x3010], 0x6003
+
+
 	mov ebx, 3
-	mov ecx, 512
-page:	mov dword [edi], ebx
+	mov ecx, 512 * 3
+	mov edi, 0x4000
+page:	mov dword [edi], ebx	; [0x4000] = 0x0003, [0x4008] = 0x1003, ..., [0x4200] = 0x2000003
 	add ebx, 0x1000
 	add edi, 8
 	loop page
+
+
+;	mov edi, 0x1000
+;	mov cr3, edi
+;	xor eax, eax
+;	mov ecx, 4096
+;	rep stosd
+;
+;	mov edi, cr3
+;
+;	; top level
+;	mov dword [edi], 0x2003	; [0x1000] = 0x2003
+;	add edi, 0x1000
+;
+;	; second level
+;	mov dword [edi], 0x3003 ; [0x2000] = 0x3003
+;	add edi, 0x1000
+;
+;	; third level
+;	mov dword [edi], 0x4003 ; [0x3000] = 0x4003
+;	add edi, 0x1000
+;
+;	; fourth level
+;	mov ebx, 3
+;	mov ecx, 512
+;page:	mov dword [edi], ebx	; [0x4000] = 0x0003, [0x4008] = 0x1003, ..., [0x4200] = 0x2000003
+;	add ebx, 0x1000
+;	add edi, 8
+;	loop page
 
 	; Enable PAE
 pae:	mov eax, cr4
