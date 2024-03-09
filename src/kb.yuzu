@@ -103,7 +103,7 @@ sub kb_s2c_s(kb, scancode)
                 return 8
         end
         if scancode == 15 then
-                return  11
+                return 9
         end
         if (scancode >= 16) & (scancode <= 27) then
                 return byte ["QWERTYUIOP{}" + scancode - 16]
@@ -172,7 +172,7 @@ sub kb_s2c_u(kb, scancode)
                 return 8
         end
         if scancode == 15 then
-                return 11
+                return 9
         end
         if (scancode >= 16) & (scancode <= 27) then
                 return byte ["qwertyuiop[]" + scancode - 16]

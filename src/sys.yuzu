@@ -16,6 +16,10 @@ end
 
 sub sys_open(filename, perms)
 	local inode, fd
+	if global_getDebug() then
+		kprintln("sys_open")
+		kgetch()
+	end
 	inode = ramfs_getFile(global_getRamfs(), filename)
 	if (inode != 0) then
 		fd = fd_open(inode)
@@ -25,6 +29,10 @@ end
 
 sub sys_creat(filename)
 	local inode, fd
+	if global_getDebug() then
+		kprintln("sys_creat")	
+		kgetch()
+	end
 	inode = ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_FILE())
 	if (inode != 0) then
 		fd = fd_open(inode)
@@ -33,6 +41,10 @@ sub sys_creat(filename)
 end
 
 sub sys_close(fd)
+	if global_getDebug() then
+		kprintln("sys_close")	
+		kgetch()
+	end
 	if (fd != 0) then
 		fd_close(fd)
 	end
@@ -60,6 +72,10 @@ end
 
 sub sys_fgetch(fd)
 	local buf, r
+	if global_getDebug() then
+		kprintln("sys_fgetch")
+		kgetch()
+	end
 	buf = heap_alloc(1)
 	sys_read(fd, buf, 1)
 	r = byte [buf]
@@ -69,6 +85,10 @@ end
 
 sub sys_fputch(fd, char)
 	local buf, r
+	if global_getDebug() then
+		kprintln("sys_fputch")
+		kgetch()
+	end
 	buf = heap_alloc(1)
 	byte [buf] = char
 	sys_write(fd, buf, 1)
@@ -76,6 +96,10 @@ sub sys_fputch(fd, char)
 end
 
 sub sys_seek(fd, offset)
+	if global_getDebug() then
+		kprintln("sys_seek")	
+		kgetch()
+	end
 	fd_seek(fd, offset)
 end
 
@@ -94,12 +118,20 @@ end
 
 sub sys_getcwd(buf, size)
 	local cwd
+	if global_getDebug() then
+		kprintln("sys_getcwd")
+		kgetch()
+	end
 	cwd = ramfs_getCwd(global_getRamfs())
 	kstrcpy(buf, cwd)
 end
 
 sub sys_getdents64(fd, buf, size)
 	local inode, content, written
+	if global_getDebug() then
+		kprintln("sys_getdents64")
+		kgetch()
+	end
 	if (fd == 0) then
 		return 0
 	end
@@ -124,27 +156,51 @@ sub sys_getdents64(fd, buf, size)
 end
 
 sub sys_rename(filename, newfilename)
+	if global_getDebug() then
+		kprintln("sys_rename")	
+		kgetch()
+	end
 	; TODO
 end
 
 sub sys_mkdir(filename)
+	if global_getDebug() then
+		kprintln("sys_mkdir")
+		kgetch()
+	end
 	ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_DIR())
 end
 
 sub sys_rmdir(filename)
+	if global_getDebug() then
+		kprintln("sys_rmdir")
+		kgetch()
+	end
 	ramfs_deleteFile(global_getRamfs(), filename)
 end
 
 sub sys_chdir(dir)
+	if global_getDebug() then
+		kprintln("sys_chdir")
+		kgetch()
+	end
 	ramfs_setCwd(global_getRamfs(), dir)
 end
 
 sub sys_unlink(filename)
+	if global_getDebug() then
+		kprintln("sys_unlink")	
+		kgetch()
+	end
 	ramfs_deleteFile(global_getRamfs(), filename)
 end
 
 sub sys_exec(filename, argv)
 	local fd, size, argc, args, i
+	if global_getDebug() then
+		kprintln("sys_exec")	
+		kgetch()
+	end
 	fd = sys_open(filename, 0)
 	if fd != 0 then
 		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
@@ -180,15 +236,16 @@ sub sys_dup2()
 end
 
 sub sys_brk(brk)
+	if global_getDebug() then
+		kprintln("sys_brk")	
+		kgetch()
+	end
 	if (brk >= MAX_ADDR()) then
 		kprintln("Application heap exausted!")
 		die()
 	end
 	if (brk == -1) then
 		return global_getBrk()
-	end
-	if brk > global_getBrk() then
-		kmemset(global_getBrk(), brk - global_getBrk(), 0)
 	end
 	global_setBrk(brk)
 	return brk
@@ -199,6 +256,10 @@ sub sys_mmap()
 end
 
 sub sys_exit()
+	if global_getDebug() then
+		kprintln("sys_exit")
+		kgetch()
+	end
 	sys_exec("/bin/pish.fap", 0)
 end
 

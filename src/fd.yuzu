@@ -145,6 +145,12 @@ end
 sub fd_seek(fd, pos)
 	local inode, gp, lp, data, fileSize
 
+	kputn(fd)
+	kputch(10)
+	kputn(pos)
+	kputch(10)
+	kgetch()
+
 	inode = fd_getInode(fd)
 	fileSize = inode_getContentSize(inode)
 	if (pos > fileSize) then

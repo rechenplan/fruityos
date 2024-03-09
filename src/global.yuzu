@@ -1,5 +1,5 @@
 sub global_getDebug()
-	return 1
+	return 0
 end
 
 sub global_init()

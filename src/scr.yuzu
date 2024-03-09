@@ -17,19 +17,23 @@ sub scr_putch(scr, char)
 	byte [scr_getCursorAddress(scr)] = 0
 	byte [scr_getCursorAddress(scr) + 1] = 7
 
-	if char == 10 then
+	if char == 10 then ; new line
 		screenRow = screenRow + 1
 		screenCol = 0
 	else
-		if char == 8 then
+		if char == 8 then ; backspace
 			screenCol = screenCol - 1
 			if screenCol < 0 then
 				screenCol = 0
 			end
 		else
-			byte [scr_getCursorAddress(scr)] = char
-			byte [scr_getCursorAddress(scr) + 1] = 7
-			screenCol = screenCol + 1
+			if char == 9 then ; horizontal tab
+				screenCol = (screenCol + 8) & ~7
+			else
+				byte [scr_getCursorAddress(scr)] = char
+				byte [scr_getCursorAddress(scr) + 1] = 7
+				screenCol = screenCol + 1
+			end
 		end
 	end
 
