@@ -1,5 +1,6 @@
 #!/bin/sh
 
+rm -rf bin tmp lib
 mkdir bin tmp lib
 
 cp ../yuzu/bin/zest bin/zest.elf
@@ -46,11 +47,11 @@ bin/concat.fap tmp/a.s lib/_start.fap tmp/del.s lib/libpith.fap
 bin/zest.fap f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/del.fap
 
-echo Building read...
-bin/yc.fap src/read/read.yuzu tmp/read.s
-bin/concat.fap tmp/a.s lib/_start.fap tmp/read.s lib/libpith.fap 
+echo Building type...
+bin/yc.fap src/type/type.yuzu tmp/type.s
+bin/concat.fap tmp/a.s lib/_start.fap tmp/type.s lib/libpith.fap 
 bin/zest.fap f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/read.fap
+bin/juicer.elf c tmp/a.bin bin/type.fap
 
 echo Building write... 
 bin/yc.fap src/write/write.yuzu tmp/write.s
