@@ -213,6 +213,7 @@ end
 
 sub sys_exit()
 	sys_exec("/bin/pish.fap", 0)
+	die()
 end
 
 sub sys_stub()
