@@ -1,7 +1,7 @@
 # build instructions
 
-	1. Run init.sh to install all required software and clone required repositories.
-	2. Run build.sh to build all required repositories and create floppy image.
+	1. Run init.sh to install all required software
+	2. Run build.sh to build
 	3. Run run.sh to run in qemu.
 
 # memory map
