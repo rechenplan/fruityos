@@ -10,6 +10,6 @@ a bootsector for a floppy image. there will be no file system on the floppy. it 
 2. decompress pulp in memory.
 4. decompress initrd in memory
 5. switch to long mode
-6. jump to pulp with pointer to decompressed initrd in some register
+6. jump to pulp with pointer to decompressed initrd
 
 
