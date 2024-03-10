@@ -40,7 +40,10 @@ sub ramfs_setCwd(ramfs, newCwd)
 
 	buffer = heap_alloc(1024)
 	ramfs_nameToAbsName(ramfs, newCwd, buffer)
-	ramfs_canonicalizeName(ramfs, buffer)
+	if ramfs_canonicalizeName(ramfs, buffer) == -1 then
+		heap_free(buffer, 1024)
+		return -1
+	end
 	if ramfs_lookupPath(ramfs, buffer) == 0 then
 		heap_free(buffer, 1024)
 		return -1
@@ -314,6 +317,9 @@ end
 sub ramfs_canonicalizeName(ramfs, name)
 	local dir, dirLen, inodePtr, prevInodePtr
 	dir = ramfs_getFile(ramfs, name)
+	if dir == 0 then
+		return -1
+	end
 	while dir != 0 do
 		if inode_getType(dir) != INODE_TYPE_LINK() then
 			prevInodePtr = inodePtr
@@ -339,4 +345,5 @@ sub ramfs_canonicalizeName(ramfs, name)
 		heap_free(prevInodePtr, 8)
 	end
 	byte [name] = 0
+	return 0
 end
