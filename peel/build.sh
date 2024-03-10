@@ -3,14 +3,14 @@
 rm -rf bin tmp lib
 mkdir bin tmp lib
 
-cp ../yuzu/bin/zest bin/zest.elf
-cp ../yuzu/bin/yc bin/yc.elf
-cp ../yuzu/bin/zest.bin tmp/zest.bin
-cp ../yuzu/bin/yc.bin tmp/yc.bin
-cp ../yuzu/lib/libpith.elf ./lib/libpith.elf
-cp ../yuzu/lib/libpith.fap ./lib/libpith.fap
-cp ../yuzu/lib/_start.fap ./lib/_start.fap
-cp ../yuzu/lib/_start.elf ./lib/_start.elf
+cp ../../yuzu/yuzu/bin/zest bin/zest.elf
+cp ../../yuzu/yuzu/bin/yc bin/yc.elf
+cp ../../yuzu/yuzu/bin/zest.bin tmp/zest.bin
+cp ../../yuzu/yuzu/bin/yc.bin tmp/yc.bin
+cp ../../yuzu/yuzu/lib/libpith.elf ./lib/libpith.elf
+cp ../../yuzu/yuzu/lib/libpith.fap ./lib/libpith.fap
+cp ../../yuzu/yuzu/lib/_start.fap ./lib/_start.fap
+cp ../../yuzu/yuzu/lib/_start.elf ./lib/_start.elf
 
 echo Building juicer...
 bin/yc.elf src/juicer/juicer.yuzu tmp/juicer.s
