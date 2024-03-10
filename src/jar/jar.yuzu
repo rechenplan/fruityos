@@ -51,8 +51,6 @@ sub jar_unpack(fin, fileBuf, fileSize)
 			return 0
 		end
 		read(fin, fileSize, 8)
-		puts(fileName)
-		putch(10)
 		if byte [fileName + strlen(fileName) - 1] == byte ["/"] then
 			mkdir(fileName)
 		else
@@ -78,8 +76,6 @@ sub jar_pack(fout, fileBuf, fileSize, thisDir, exclude)
 		i = i + 1
 	end
 	pathLen = strlen(path)
-	puts(path)
-	putch(10)
 
 	fd = open(path, 0)
 	bread = getdents64(fd, direntBuf, 65536)
@@ -96,8 +92,6 @@ sub jar_pack(fout, fileBuf, fileSize, thisDir, exclude)
 		end
 		if str_is_equal(exclude, fileName) == 0 then
 			if (type != 4) then
-				puts(path)
-				putch(10)
 				fd = open(path, 0)
 				[fileSize] = 0
 				tmpPtr = fileBuf
