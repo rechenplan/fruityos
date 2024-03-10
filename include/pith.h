@@ -9,19 +9,19 @@
 #define WRITE	1
 
 typedef	char*	auto_t;
-extern	auto_t	creat	(auto_t string);
-extern	auto_t	open	(auto_t string, auto_t mode);
-extern	auto_t	read	(auto_t file, auto_t buffer, auto_t count);
-extern	auto_t	write	(auto_t file, auto_t buffer, auto_t count);
-extern	auto_t	close	(auto_t file);
-extern	auto_t	seek	(auto_t file, auto_t offset, auto_t pointer);
-extern	auto_t	getch	();
-extern	auto_t	putch	(auto_t c);
-extern	auto_t	fgetch	(auto_t fd);
-extern	auto_t	fputch	(auto_t fd, auto_t c);
-extern	auto_t	brk	(auto_t addr);
-extern	auto_t	exit	();
-extern	auto_t	getcwd	(auto_t buffer, auto_t size);
-extern	auto_t	exec	(auto_t path, auto_t argv);
-extern	auto_t	fork	();
+extern	int	creat	(char* string);
+extern	int	open	(char* string, int mode);
+extern	int	read	(int file, char* buffer, int count);
+extern	int	write	(int file, char* buffer, int count);
+extern	void	close	(int file);
+extern	int	seek	(int file, int offset, int pointer);
+extern	int	getch	();
+extern	void	putch	(int c);
+extern	int	fgetch	(int fd);
+extern	void	fputch	(int fd, int c);
+extern	void*	brk	(void* addr);
+extern	void	exit	(int);
+extern	void	getcwd	(char* buffer, int size);
+extern	void	exec	(char* path, char* argv);
+extern	int	fork	();
 #endif
