@@ -1,3 +1,4 @@
+rm -rf bin
 mkdir bin
 ../yuzu/bin/yc src/fapld.yuzu fapld.s
 cat ../yuzu/lib/_start.elf fapld.s src/write_ostab.s ../yuzu/lib/libpith.elf > _.s
