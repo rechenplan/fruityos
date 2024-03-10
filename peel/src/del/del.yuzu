@@ -1,0 +1,34 @@
+
+;  usage: del file [ file ]
+;  delete files
+
+sub puts(strPtr)
+	local c
+	while c = byte [strPtr] do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	if argc < 2 then
+		puts("usage: del file { file }")
+		putch(10)
+		exit()
+	end
+	while argc > 1 do
+		argv = nextarg(argv)
+		unlink(argv)
+		argc = argc - 1
+	end
+	return 0
+end

@@ -1,0 +1,168 @@
+sub pish_chdir(argv)
+	if chdir([argv + 8]) < 0 then
+		pish_puts([argv + 8])
+		pish_puts("?")
+		putch(10)
+	end
+end
+
+sub pish_puts(str)
+	local c
+	while c = byte [str] do
+		putch(c)
+		str = str + 1
+	end
+end
+
+sub pish_str_equal(a, b)
+	while byte [a] == byte [b] do
+		if byte [a] == 0 then
+			return 1
+		end
+		a = a + 1
+		b = b + 1
+	end
+	return 0
+end
+
+sub pish_strlen(a)
+	local i
+	while byte [a] do
+		a = a + 1
+		i = i + 1
+	end
+	return i
+end
+
+sub pish_path(buf, dir, file, ext)
+	local c
+	while c = byte [dir] do
+		byte [buf] = c
+		buf = buf + 1
+		dir = dir + 1
+	end
+	while c = byte [file] do
+		byte [buf] = c
+		buf = buf + 1
+		file = file + 1
+	end
+	while c = byte [ext] do
+		byte [buf] = c
+		buf = buf + 1
+		ext = ext + 1
+	end
+	[buf] = 0
+end
+
+sub pish_exec(buf, argv)
+	local pid, extension, len
+	pid = fork()
+	if pid == 0 then
+		len = pish_strlen([argv]) 
+		if len >= 4 then
+			extension = [argv] + len - 4
+			if pish_str_equal(extension, ".fap") then
+				pish_path(buf, "./", [argv], "")
+				exec(buf, argv)
+				pish_path(buf, "/bin/", [argv], "")
+				exec(buf, argv)
+			end
+		end
+		pish_path(buf, "./", [argv], ".fap")
+		exec(buf, argv)
+		pish_path(buf, "/bin/", [argv], ".fap")
+		exec(buf, argv)
+
+		pish_puts([argv])
+		pish_puts("?")
+		putch(10)
+		exit()
+	else
+		waitpid(pid)
+	end
+end
+
+sub pish_parse_line(line, argv)
+	local tempLine, tempArgv, c
+
+	tempLine = line
+	tempArgv = argv
+
+	c = byte [tempLine]
+	while (c != 10) & (c != 0) do
+		while c == 32 do
+			[tempLine] = [tempLine] & (-256)
+			tempLine = tempLine + 1
+			c = byte [tempLine]
+		end
+		if (c != 0) & (c != 10) then
+			[tempArgv] = tempLine
+			tempArgv = tempArgv + 8
+		end
+		while (c != 32) & (c != 10) & (c != 0) do
+			tempLine = tempLine + 1
+			c = byte [tempLine]
+		end
+	end
+	[tempArgv] = 0
+end
+
+sub nextArg(args)
+	while byte [args] do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub pish_getch(fin)
+	if fin == 0 then
+		return getch()
+	else
+		return fgetch(fin)
+	end
+end
+
+sub main(argc, args)
+	local fin, dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
+
+	dirBuf = brk(-1)
+	lineBuf = dirBuf + 1024
+	argvBuf = lineBuf + 1024
+	tempBuf = argvBuf + 1024
+	brk(tempBuf + 1024)
+
+	if argc == 2 then
+		fin = open(nextArg(args), 0)
+	else
+		fin = 0
+	end
+
+	c = 32
+	while (c != 0) & (fin >= 0) do
+		if fin == 0 then
+			getcwd(dirBuf, 1024)
+			pish_puts(dirBuf)
+			putch([">"])
+			putch(32)
+		end
+
+		c = pish_getch(fin) & 255	
+
+		tempLine = lineBuf
+		while (c != 0) & (c != 10) do
+			[tempLine] = c
+			tempLine = tempLine + 1
+			c = pish_getch(fin) & 255
+		end
+		[tempLine] = 0
+		pish_parse_line(lineBuf, argvBuf)
+		if ([argvBuf] != 0) & (byte [lineBuf] != byte ["#"]) then
+			recognized = 0
+			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
+			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
+			if (recognized == 0) then pish_exec(tempBuf, argvBuf) end
+		end
+	end
+	close(fin)
+end
+

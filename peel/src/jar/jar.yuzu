@@ -1,0 +1,156 @@
+
+sub str_is_equal(a, b)
+	while (byte [a] == byte [b]) & (byte [a] != 0) do
+		a = a + 1
+		b = b + 1
+	end
+	return (byte [a] == 0) & (byte [b] == 0)
+end
+
+sub strlen(str)
+	local i
+	while byte [str] != 0 do
+		i = i + 1
+		str = str + 1
+	end
+	return i
+end
+
+sub puts(str)
+	while byte [str] != 0 do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub nextArg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+
+sub jar_unpack(fin, fileBuf, fileSize)
+	local fileName, fileSize, tmpPtr, done, i, fout
+
+	fileName = brk(-1)
+	brk(fileName + 65536)
+	while 1 do
+		tmpPtr = fileName
+		done = 0
+		while done == 0 do
+			if read(fin, tmpPtr, 1) <= 0 then
+				return 0
+			end
+			done = (byte [tmpPtr] == 0)
+			tmpPtr = tmpPtr + 1
+		end
+		if strlen(fileName) == 0 then
+			return 0
+		end
+		read(fin, fileSize, 8)
+		if byte [fileName + strlen(fileName) - 1] == byte ["/"] then
+			mkdir(fileName)
+		else
+			fout = creat(fileName, 0)
+			read(fin, fileBuf, [fileSize])
+			write(fout, fileBuf, [fileSize])
+			close(fout)
+		end
+	end
+end
+
+sub jar_pack(fout, fileBuf, fileSize, thisDir, exclude)
+	local path, i, pathLen, fd, fileName, fd, pos, bread, ent, type, direntBuf, tmpPtr
+
+
+	path = brk(-1)
+	brk(path + 65536)
+	direntBuf = brk(-1)
+	brk(direntBuf + 65536)
+
+	while i < strlen(thisDir) do
+		byte [path + i] = byte [thisDir + i]
+		i = i + 1
+	end
+	pathLen = strlen(path)
+
+	fd = open(path, 0)
+	bread = getdents64(fd, direntBuf, 65536)
+	close(fd)
+
+	while pos < bread do
+		ent = direntBuf + pos
+		type = byte [ent + 18]
+		fileName = ent + 19
+		i = strlen(fileName)
+		while i >= 0 do
+			byte [path + pathLen + i] = byte [fileName + i]
+			i = i - 1
+		end
+		if str_is_equal(exclude, fileName) == 0 then
+			if (type != 4) then
+				fd = open(path, 0)
+				[fileSize] = 0
+				tmpPtr = fileBuf
+				while read(fd, tmpPtr, 1) > 0 do
+					tmpPtr = tmpPtr + 1
+					[fileSize] = [fileSize] + 1
+				end
+				close(fd)
+				write(fout, path, pathLen)
+				write(fout, fileName, strlen(fileName) + 1)
+				write(fout, fileSize, 8)
+				write(fout, fileBuf, [fileSize])
+				
+			else
+				if byte [fileName] != byte ["."] then
+					i = strlen(path)
+					byte [path + i] = byte ["/"]
+					byte [path + i + 1] = 0
+					write(fout, path, strlen(path) + 1)
+					[fileSize] = 0
+					write(fout, fileSize, 8)
+					jar_pack(fout, fileBuf, fileSize, path, "")
+				end
+			end
+		end
+		pos = pos + ([ent + 16] & 65535)
+	end
+end
+
+sub main(argc, argv)
+	local fileBuf, fileSize, fd, mode
+
+	if argc != 3 then
+		puts("usage: jar c|x file")
+		putch(10)
+		exit()
+	end
+
+	fileBuf = brk(-1)
+	brk(fileBuf + (1 << 20))
+	fileSize = brk(-1)
+	brk(fileSize + 8)
+	argv = nextArg(argv)
+	mode = byte [argv]
+	argv = nextArg(argv)
+
+	if mode == byte ["c"] then
+		fd = creat(argv)
+		jar_pack(fd, fileBuf, fileSize, "./", argv)
+		fputch(fd, 0)
+		close(fd)
+	else
+		if mode == byte ["x"] then
+			fd = open(argv, 0)
+			jar_unpack(fd, fileBuf, fileSize)
+		else
+			puts("unknown mode")
+			putch(10)
+		end
+	end
+end
+

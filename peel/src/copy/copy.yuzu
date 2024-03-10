@@ -1,0 +1,55 @@
+;  usage: copy file destfile
+;  copy files
+
+
+
+sub puts(strPtr)
+	local c
+	while c = byte [strPtr] do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while (c = byte [strPtr]) != 0 do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	local file, newfile, fin, fout, n, buf
+	buf = brk(-1)
+	brk(buf + 8192)
+
+	if argc != 3 then
+		puts("usage: copy file destfile")
+		putch(10)
+		exit()
+	end
+	file = nextarg(argv)
+	newfile = nextarg(file)
+	fin = open(file, 0)
+	if fin <= 0 then
+		puts("Failed to open ")
+		puts(file)
+		putch()
+		exit()
+	end
+	fout = creat(newfile)
+	if fin <= 0 then
+		puts("Failed to open ")
+		puts(newfile)
+		putch()
+		exit()
+	end
+	while (n = read(fin, buf, 8192)) > 0 do
+		write(fout, buf, n)
+	end		
+	close(fin)
+	close(fout)
+	return 0
+end

@@ -1,0 +1,32 @@
+
+;  usage: rmdir dir
+;
+;  delete directory
+
+sub puts(strPtr)
+	local c
+	while c = byte [strPtr] do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	local file
+	if argc != 2 then
+		puts("usage: rmdir name")
+		putch(10)
+		exit()
+	end
+	rmdir(nextarg(argv))
+	return 0
+end

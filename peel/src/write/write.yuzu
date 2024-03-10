@@ -1,0 +1,95 @@
+
+;  usage: write file
+;
+;  write stdin to file
+
+sub str_is_equal(a, b)
+	while byte [a] == byte [b] do
+		if byte [a] == 0 then
+			return 1
+		end
+		a = a + 1
+		b = b + 1
+	end
+	return 0
+end
+
+sub puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub fputs(fd, str)
+	local c
+	while c = byte [str] do
+		fputch(fd, c)
+		str = str + 1
+	end
+end
+
+sub _mul(a, b)
+	local p
+	while a > 0 do
+		p = p + b
+	end
+	return p
+end
+
+sub atoi(str)
+	local c, v
+	c = byte [str]
+	while (c >= byte ["0"]) & (c <= byte ["9"]) do
+		v = _mul(v, 10)
+		v = v + (c - byte ["0"])
+		str = str + 1
+		c = byte [str]
+	end
+	return v
+end
+
+sub next_arg(args)
+	while byte [args] do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub main(argc, args)
+	local d, line, fout, buf, ptr, done
+
+	buf = brk(-1)
+	brk(buf + 1024)
+
+	if argc == 2 then
+		fout = creat(next_arg(args))
+	else
+		puts("usage: write file")
+		putch(10)
+		exit()
+	end
+
+	ptr = buf
+	d = getch() & 255
+	while (d != 0) & (done == 0) do
+		if (d == 10) then
+			byte [ptr] = 0
+			ptr = buf
+			if str_is_equal(ptr, ".") then
+				done = 1
+			else
+				fputs(fout, ptr)
+				fputch(fout, 10)
+				line = line + 1
+				d = getch() & 255
+			end
+		else
+			byte [ptr] = d
+			ptr = ptr + 1
+			d = getch() & 255
+		end
+	end
+	close(fout)
+	return 0
+end

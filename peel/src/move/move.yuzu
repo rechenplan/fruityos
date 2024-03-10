@@ -1,0 +1,34 @@
+
+;  usage: rename file newfile
+;
+;  rename files
+
+sub puts(strPtr)
+	local c
+	while c = byte [strPtr] do
+		putch(c)
+		strPtr = strPtr + 1
+	end
+	return 0
+end
+
+sub nextarg(strPtr)
+	local c
+	while c = byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+sub main(argc, argv)
+	local file, newfile
+	if argc != 3 then
+		puts("usage: move file newfile")
+		putch(10)
+		exit()
+	end
+	file = nextarg(argv)
+	newfile = nextarg(file)
+	rename(file, newfile)
+	return 0
+end
