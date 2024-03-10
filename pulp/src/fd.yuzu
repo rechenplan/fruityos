@@ -1,0 +1,163 @@
+sub fd_getDataBlockSize()
+	return 1024
+end
+
+sub fd_getSize()
+	return (4 << 3)
+end
+
+sub fd_getInode(fd)
+	return [fd + (0 << 3)]
+end
+
+sub fd_setInode(fd, inode)
+	[fd + (0 << 3)] = inode
+end
+
+sub fd_getGlobalPosition(fd)
+	return [fd + (1 << 3)]
+end
+
+sub fd_setGlobalPosition(fd, pos)
+	[fd + (1 << 3)] = pos
+end
+
+sub fd_getLocalPosition(fd)
+	return [fd + (2 << 3)]
+end
+
+sub fd_setLocalPosition(fd, pos)
+	[fd + (2 << 3)] = pos
+end
+
+sub fd_getDataBlock(fd)
+	return [fd + (3 << 3)]
+end
+
+sub fd_setDataBlock(fd, block)
+	[fd + (3 << 3)] = block
+end
+
+
+sub fd_open(inode)
+	local fd
+	fd = heap_alloc(fd_getSize())
+	fd_setInode(fd, inode)
+	fd_setGlobalPosition(fd, 0)
+	fd_setLocalPosition(fd, 0)
+	fd_setDataBlock(fd, inode_getContent(inode))
+	return fd
+end
+
+sub fd_close(fd)
+	heap_free(fd, fd_getSize())
+end
+
+sub fd_read(fd, buffer, size)
+	local inode, gp, lp, data, fileSize, i
+
+	inode = fd_getInode(fd)
+	gp = fd_getGlobalPosition(fd)
+	lp = fd_getLocalPosition(fd)
+	data = fd_getDataBlock(fd)
+	fileSize = inode_getContentSize(inode)
+
+	if ((gp + size) > fileSize) then
+		size = fileSize - gp
+	end
+
+	i = 0
+	while i < size do
+		byte [buffer + i] = byte [data + lp]
+		i = i + 1
+		lp = lp + 1
+		gp = gp + 1
+		if (lp == fd_getDataBlockSize()) then
+			lp = 0
+			data = fba_getNext(data)
+		end
+	end
+
+	fd_setGlobalPosition(fd, gp)
+	fd_setLocalPosition(fd, lp)
+	fd_setDataBlock(fd, data)
+	return size
+end
+
+sub fd_write(fd, buffer, size)
+	local inode, gp, lp, data, i, prevData, fileSize
+
+	if (size == 0) then
+		return 0
+	end
+
+	inode = fd_getInode(fd)
+	gp = fd_getGlobalPosition(fd)
+	lp = fd_getLocalPosition(fd)
+	data = fd_getDataBlock(fd)
+	fileSize = inode_getContentSize(inode)
+
+	if (data == 0) then
+		prevData = 0
+		data = inode_getContent(inode)
+		while data != 0 do
+			prevData = data
+			data = fba_getNext(data)
+		end
+		data = heap_alloc(fd_getDataBlockSize())		
+		fba_setNext(data, 0)
+		fba_setPrev(data, prevData)
+		if prevData == 0 then
+			inode_setContent(inode, data)
+		end
+	end
+
+	i = 0
+	while i < size do
+		byte [data + lp] = byte [buffer + i]
+		i = i + 1
+		lp = lp + 1
+		gp = gp + 1
+		if (lp == fd_getDataBlockSize()) then
+			lp = 0
+			prevData = data
+			data = fba_getNext(data)
+			if (data == 0) then
+				data = heap_alloc(fd_getDataBlockSize())
+				fba_setNext(data, 0)
+				fba_setPrev(data, prevData)
+				fba_setNext(prevData, data)
+			end
+		end
+	end
+
+	if gp > fileSize then
+		fileSize = gp
+	end
+
+	fd_setGlobalPosition(fd, gp)
+	fd_setLocalPosition(fd, lp)
+	fd_setDataBlock(fd, data)
+	inode_setContentSize(inode, fileSize)
+	return size
+end
+
+sub fd_seek(fd, pos)
+	local inode, gp, lp, data, fileSize
+
+	inode = fd_getInode(fd)
+	fileSize = inode_getContentSize(inode)
+	if (pos > fileSize) then
+		return -1
+	end
+	gp = pos
+	lp = pos
+	data = inode_getContent(inode)
+	while lp >= fd_getDataBlockSize() do
+		data = fba_getNext(data)
+		lp = lp - fd_getDataBlockSize()
+	end
+	fd_setGlobalPosition(fd, gp)
+	fd_setLocalPosition(fd, lp)
+	fd_setDataBlock(fd, data)
+end

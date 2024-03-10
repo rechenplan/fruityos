@@ -1,0 +1,146 @@
+sub scr_putch(scr, char)
+	local scr, scrAddr, screenRow, screenCol, screenRowCnt, screenColCnt, toAddr, fromAddr, rowOffset, c, r
+
+	if (scr == 0) then
+		return 0
+	end
+	if (char == 0) then
+		return 0
+	end
+
+	scrAddr = scr_getAddress()
+	screenRow = scr_getCursorRow(scr)
+	screenCol = scr_getCursorColumn(scr)
+	screenRowCnt = scr_getRowCnt(scr)
+	screenColCnt = scr_getColumnCnt(scr)
+
+	byte [scr_getCursorAddress(scr)] = 0
+	byte [scr_getCursorAddress(scr) + 1] = 7
+
+	if char == 10 then ; new line
+		screenRow = screenRow + 1
+		screenCol = 0
+	else
+		if char == 8 then ; backspace
+			screenCol = screenCol - 1
+			if screenCol < 0 then
+				screenCol = 0
+			end
+		else
+			if char == 9 then ; horizontal tab
+				screenCol = (screenCol + 8) & ~7
+			else
+				byte [scr_getCursorAddress(scr)] = char
+				byte [scr_getCursorAddress(scr) + 1] = 7
+				screenCol = screenCol + 1
+			end
+		end
+	end
+
+	if (screenCol >= screenColCnt) then
+		screenRow = screenRow + 1
+		screenCol = 0
+	end
+
+	if (screenRow >= screenRowCnt) then
+		r = 0
+		while r < (screenRowCnt - 1) do
+			c = 0
+			rowOffset = x86_mul(r, screenColCnt << 1)
+			while c < (screenColCnt << 1) do
+				toAddr = scrAddr + rowOffset + c
+				fromAddr = scrAddr + rowOffset + (screenColCnt << 1) + c
+				byte [toAddr] = byte [fromAddr]
+				c = c + 1
+			end
+			r = r + 1
+		end
+		c = 0
+		rowOffset = x86_mul(screenRowCnt - 1, screenColCnt << 1)
+		toAddr = scrAddr + rowOffset + c
+		while c < (screenColCnt << 1) do
+			byte [toAddr] = 0
+			toAddr = toAddr + 1
+			c = c + 1
+		end
+		screenRow = screenRowCnt - 1
+	end
+
+	scr_setCursorRow(scr, screenRow)
+	scr_setCursorColumn(scr, screenCol)
+	
+	byte [scr_getCursorAddress(scr)] = 219
+	byte [scr_getCursorAddress(scr) + 1] = 7
+end
+
+sub scr_cls(scr)
+	local i, scrAddr
+	if scr == 0 then
+		return 0
+	end
+	scr_setCursorRow(scr, 0)
+	scr_setCursorColumn(scr, 0)
+	scrAddr = scr_getAddress()
+	i = 0
+	while i < 4000 do
+		byte [scrAddr + i] = 0
+		i = i + 1
+	end
+	byte [scr_getCursorAddress(scr)] = 219
+	byte [scr_getCursorAddress(scr) + 1] = 7
+end
+
+sub scr_init(scr, rowCnt, colCnt)
+	scr_setCursorColumn(scr, 0)
+	scr_setCursorRow(scr, 0)
+	scr_setRowCnt(scr, rowCnt)
+	scr_setColumnCnt(scr, colCnt)
+end
+
+sub scr_cleanup(scr)
+end
+
+sub scr_getCursorAddress(scr)
+	return scr_getAddress() + x86_mul(x86_mul(scr_getCursorRow(scr), scr_getColumnCnt(scr)) + scr_getCursorColumn(scr), 2)
+end
+
+sub scr_getAddress()
+	return 753664 ; 0xb8000
+end
+
+sub scr_getSize()
+	return 4 << 3
+end
+
+sub scr_setCursorColumn(scr, col)
+	[scr + (0 << 3)] = col
+end
+
+sub scr_getCursorColumn(scr)
+	return [scr + (0 << 3)]
+end
+
+sub scr_setCursorRow(scr, row)
+	[scr + (1 << 3)] = row
+end
+
+sub scr_getCursorRow(scr)
+	return [scr + (1 << 3)]
+end
+
+sub scr_setRowCnt(scr, rowCnt)
+	[scr + (2 << 3)] = rowCnt
+end
+
+sub scr_getRowCnt(scr)
+	return [scr + (2 << 3)]
+end
+
+sub scr_setColumnCnt(scr, colCnt)
+	[scr + (3 << 3)] = colCnt
+end
+
+sub scr_getColumnCnt(scr)
+	return [scr + (3 << 3)]
+end
+

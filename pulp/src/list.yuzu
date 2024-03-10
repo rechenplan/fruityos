@@ -1,0 +1,84 @@
+; linked list
+
+sub list_init(listAddr)
+	list_setHead(listAddr, 0)
+	list_setTail(listAddr, 0)
+end
+
+sub list_getNodeHdrSize()
+	return 2 << 3
+end
+
+sub list_getHdrSize()
+	return 2 << 3
+end
+
+sub list_setHead(listAddr, headAddr)
+	[listAddr + (0 << 3)] = headAddr
+end
+
+sub list_setTail(listAddr, tailAddr)
+	[listAddr + (1 << 3)] = tailAddr
+end
+
+sub list_getHead(listAddr)
+	return [listAddr + (0 << 3)]
+end
+
+sub list_getTail(listAddr)
+	return [listAddr + (1 << 3)]
+end
+
+sub list_setNext(nodeAddr, nextNodeAddr)
+	[nodeAddr + (0 << 3)] = nextNodeAddr
+end
+
+sub list_getNext(nodeAddr)
+	return [nodeAddr + (0 << 3)]
+end
+
+sub list_setPrev(nodeAddr, nextNodeAddr)
+	[nodeAddr + (1 << 3)] = nextNodeAddr
+end
+
+sub list_getPrev(nodeAddr)
+	return [nodeAddr + (1 << 3)]
+end
+
+sub list_pop(listAddr)
+	local head, next
+	head = list_getHead(listAddr)
+	if head != 0 then
+		next = list_getNext(head)
+		list_setPrev(next, 0)
+		list_setHead(listAddr, next)
+	end
+	return head
+end
+
+sub list_dequeue(listAddr)
+	local tail, prev
+	tail = list_getTail(listAddr)
+	if tail != 0 then
+		prev = list_getPrev(tail)
+		list_setNext(prev, 0)
+		list_setTail(listAddr, prev)
+	end
+	return tail
+end
+
+sub list_push(listAddr, nodeAddr)
+	local head
+	head = list_getHead(listAddr)
+	if head == 0 then
+		list_setHead(listAddr, nodeAddr)
+		list_setTail(listAddr, nodeAddr)
+		list_setNext(nodeAddr, 0)
+		list_setPrev(nodeAddr, 0)
+	else
+		list_setPrev(nodeAddr, 0)
+		list_setNext(nodeAddr, head)
+		list_setPrev(head, nodeAddr)
+		list_setHead(listAddr, nodeAddr)
+	end
+end

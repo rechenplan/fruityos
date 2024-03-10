@@ -1,0 +1,153 @@
+; inode
+
+sub INODE_TYPE_FILE()
+	return 1
+end
+
+sub INODE_TYPE_DIR()
+	return 2
+end
+
+sub INODE_TYPE_LINK()
+	return 3
+end
+
+sub inode_init(inode, name, type, size, content)
+	inode_setName(inode, name)
+	inode_setType(inode, type)
+	inode_setContentSize(inode, size)
+	inode_setContent(inode, content)
+	fba_setNext(inode, 0)
+	fba_setPrev(inode, 0)
+end
+
+sub inode_cleanup(inode)
+end
+
+sub inode_getSize()
+	return 32
+end
+
+sub inode_getName(inode)
+	return inode
+end
+
+sub inode_getType(inode)
+	return [inode + 16] & ((1 << 32) - 1)
+end
+
+sub inode_getContentSize(inode)
+	return [inode + 20] & ((1 << 32) - 1)
+end
+
+sub inode_getContent(inode)
+	return [inode + 24]
+end
+
+sub inode_setName(inode, name)
+	local i
+	while i < 16 do
+		byte [inode + i] = byte [name + i]
+		if byte [name + i] == 0 then
+			return 0
+		end
+		i = i + 1
+	end
+	; null terminate if name too long
+	byte [inode + 15] = 0
+end
+
+sub inode_setType(inode, type)
+	byte [inode + 16] = (type >> 0)
+	byte [inode + 17] = (type >> 8)
+	byte [inode + 18] = (type >> 16)
+	byte [inode + 19] = (type >> 24)
+end
+
+sub inode_setContentSize(inode, size)
+	byte [inode + 20] = (size >> 0)
+	byte [inode + 21] = (size >> 8)
+	byte [inode + 22] = (size >> 16)
+	byte [inode + 23] = (size >> 24)
+end
+
+sub inode_setContent(inode, content)
+	[inode + 24] = content
+end
+
+sub inode_create(filename, type)
+        local inode
+
+        inode = heap_alloc(inode_getSize())
+        inode_init(inode, filename, type, 0, 0)
+        return inode
+end
+
+sub inode_destroy(inode)
+	inode_cleanup(inode)
+	heap_free(inode, inode_getSize())
+end
+
+sub inode_link(parent, inode)
+        local parentContent
+
+        if (parent != 0) & (inode != 0) then
+                if (inode_getType(parent) == INODE_TYPE_DIR()) then
+                        parentContent = inode_getContent(parent)
+			fba_setNext(inode, parentContent)
+                        fba_setPrev(inode, parent)
+                        inode_setContent(parent, inode)
+                end
+        end
+end
+
+sub inode_unlink(parent, inode)
+        local file, next, prev
+        if (parent != 0) & (inode != 0) then
+                if (inode_getType(parent) == INODE_TYPE_DIR()) then
+                        file = inode_getContent(parent)
+                        if file == inode then
+                                next = fba_getNext(file)
+                                fba_setNext(file, 0)
+				if next != 0 then
+	                                fba_setPrev(next, 0)
+				end
+                                inode_setContent(parent, next)
+                        else
+				prev = 0
+                                while file != 0 do
+                                        if file == inode then
+                                                next = fba_getNext(file)
+                                                fba_setNext(file, 0)
+						if prev != 0 then
+	                                                fba_setNext(prev, next)
+						end
+						if next != 0 then
+	                                                fba_setPrev(next, prev)
+						end
+						return 0
+                                        end
+					prev = file
+					file = fba_getNext(file)
+                                end
+                        end
+                end
+        end
+end
+
+; fails if file does not exist
+sub inode_lookupByName(parent, filename)
+        local file
+        if (parent != 0) then
+                if (inode_getType(parent) == INODE_TYPE_DIR()) then
+                        file = inode_getContent(parent)
+                        while file != 0 do
+                                if kstrcmp(inode_getName(file), filename) then
+                                        return file
+                                end
+                                file = fba_getNext(file)
+                        end
+                end
+        end
+        return 0
+end

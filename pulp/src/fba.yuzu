@@ -1,0 +1,88 @@
+; fixed block allocator
+
+sub fba_init(fbaAddr, totalSize, blockSize)
+	
+	local poolStart, poolEnd, nodeAddr, nodeSize, availableBlocks
+
+	list_init(fbaAddr)
+	poolStart = fba_getPool(fbaAddr)
+	poolEnd = poolStart + totalSize - fba_getHdrSize()
+	nodeAddr = poolStart
+	nodeSize  = blockSize + list_getNodeHdrSize()
+	availableBlocks = 0
+	while nodeAddr < (poolEnd - nodeSize) do
+		list_push(fbaAddr, nodeAddr)
+		availableBlocks = availableBlocks + 1
+		nodeAddr = nodeAddr + nodeSize
+	end
+	fba_setAvailableBlocks(fbaAddr, availableBlocks)
+end
+
+sub fba_getHdrSize()
+	return list_getHdrSize() + (1 << 3)
+end
+
+sub fba_getAvailableBlocks(fbaAddr)
+	return [fbaAddr + list_getHdrSize() + (0 << 3)]
+end
+
+sub fba_setAvailableBlocks(fbaAddr, blockCnt)
+	[fbaAddr + list_getHdrSize() + (0 << 3)] = blockCnt
+end
+
+sub fba_getPool(fbaAddr)
+	return fbaAddr + fba_getHdrSize()
+end
+
+sub fba_alloc(fbaAddr)
+	local nodeAddr, blockAddr, availableBlocks
+	availableBlocks = fba_getAvailableBlocks(fbaAddr)
+	if availableBlocks > 0 then
+		nodeAddr = list_dequeue(fbaAddr)
+		blockAddr = nodeAddr + list_getNodeHdrSize()
+		fba_setAvailableBlocks(fbaAddr, availableBlocks - 1)
+		return blockAddr
+	else
+		kprintln("Fixed block allocator out of memory!")
+		die()
+	end
+	return 0
+end
+
+sub fba_free(fbaAddr, blockAddr)
+	local nodeAddr, availableBlocks
+	nodeAddr = blockAddr - list_getNodeHdrSize()
+	list_push(fbaAddr, nodeAddr)
+	availableBlocks = fba_getAvailableBlocks(fbaAddr)
+	fba_setAvailableBlocks(fbaAddr, availableBlocks + 1)
+end
+
+sub fba_getNext(blockAddr)
+	local nodeAddr, nextNodeAddr, nextBlockAddr
+	nodeAddr = blockAddr - list_getNodeHdrSize()
+	nextNodeAddr = list_getNext(nodeAddr)
+	nextBlockAddr = nextNodeAddr + list_getNodeHdrSize()
+	return nextBlockAddr
+end
+
+sub fba_getPrev(blockAddr)
+	local nodeAddr, prevNodeAddr, prevBlockAddr
+	nodeAddr = blockAddr - list_getNodeHdrSize()
+	prevNodeAddr = list_getPrev(nodeAddr)
+	prevBlockAddr = prevNodeAddr + list_getNodeHdrSize()
+	return prevBlockAddr
+end
+
+sub fba_setNext(blockAddr, nextBlockAddr)
+	local nodeAddr, nextNodeAddr
+	nodeAddr = blockAddr - list_getNodeHdrSize()
+	nextNodeAddr = nextBlockAddr - list_getNodeHdrSize()
+	list_setNext(nodeAddr, nextNodeAddr)
+end
+
+sub fba_setPrev(blockAddr, prevBlockAddr)
+	local nodeAddr, prevNodeAddr
+	nodeAddr = blockAddr - list_getNodeHdrSize()
+	prevNodeAddr = prevBlockAddr - list_getNodeHdrSize()
+	list_setPrev(nodeAddr, prevNodeAddr)
+end

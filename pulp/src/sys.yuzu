@@ -1,0 +1,240 @@
+sub PROGRAM_BASE_ADDR()
+	return 4 << 16
+end
+
+sub APPLICATION_HEAP()
+	return 2 << 20
+end
+
+sub MAX_ADDR()
+	return 6 << 20
+end
+
+sub KERNEL_BASE_ADDR()
+	return 1 << 16
+end
+
+sub sys_open(filename, perms)
+	local inode, fd
+	inode = ramfs_getFile(global_getRamfs(), filename)
+	if (inode != 0) then
+		fd = fd_open(inode)
+	end
+	return fd
+end
+
+sub sys_creat(filename)
+	local inode, fd
+	inode = ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_FILE())
+	if (inode != 0) then
+		fd = fd_open(inode)
+	end
+	return fd
+end
+
+sub sys_close(fd)
+	if (fd != 0) then
+		fd_close(fd)
+	end
+end
+
+sub sys_read(fd, buf, size)
+	if (fd == 0) then
+		return 0
+	end
+	if (inode_getType(fd_getInode(fd)) != INODE_TYPE_FILE()) then
+		return 0
+	end
+	fd_read(fd, buf, size)
+end
+
+sub sys_write(fd, buf, size)
+	if (fd == 0) then
+		return 0
+	end
+	if (inode_getType(fd_getInode(fd)) != INODE_TYPE_FILE()) then
+		return 0
+	end
+	fd_write(fd, buf, size)
+end
+
+sub sys_fgetch(fd)
+	local buf, r
+
+	buf = heap_alloc(1)
+	if sys_read(fd, buf, 1) == 1 then
+		r = byte [buf]
+	else
+		r = 0
+	end
+	heap_free(buf, 1)
+	return r
+end
+
+sub sys_fputch(fd, char)
+	local buf, r
+
+	buf = heap_alloc(1)
+	byte [buf] = char
+	sys_write(fd, buf, 1)
+	heap_free(buf, 1)
+end
+
+sub sys_seek(fd, offset)
+	fd_seek(fd, offset)
+end
+
+sub sys_getch()
+	local c, kb
+	kb = global_getKb()
+	while (c = kb_dequeue(kb)) == -1 do halt() end
+	return c
+end
+
+sub sys_putch(char)
+	local scr
+	scr = global_getScr()
+	scr_putch(scr, char)
+end
+
+sub sys_getcwd(buf, size)
+	local cwd, len
+
+	cwd = ramfs_getCwd(global_getRamfs())
+	kstrcpy(buf, cwd)
+	; eliminate trailing forward slash for linux compatibility
+	if (len = kstrlen(buf)) > 1 then
+		byte [buf + len - 1] = 0
+	end
+end
+
+sub sys_getdents64(fd, buf, size)
+	local inode, content, written
+
+	if (fd == 0) then
+		return 0
+	end
+	inode = fd_getInode(fd)
+	if (inode_getType(inode) == INODE_TYPE_DIR()) then
+		content = inode_getContent(inode)
+		while content != 0 do
+			[buf] = inode_getContentSize(content)
+			byte [buf + 16] = 35
+			byte [buf + 17] = 0
+			if (inode_getType(content) == INODE_TYPE_DIR()) | (inode_getType(content) == INODE_TYPE_LINK()) then
+				byte [buf + 18] = 4
+			else
+				byte [buf + 18] = 0
+			end
+			kstrcpy(buf + 19, inode_getName(content))
+			buf = buf + 35
+			written = written + 35
+			content = fba_getNext(content)
+		end
+	end
+	return written
+end
+
+sub sys_rename(filename, newfilename)
+	ramfs_renameFile(global_getRamfs(), filename, newfilename)
+end
+
+sub sys_mkdir(filename)
+	ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_DIR())
+end
+
+sub sys_rmdir(filename)
+	ramfs_deleteFile(global_getRamfs(), filename)
+end
+
+sub sys_chdir(dir)
+	ramfs_setCwd(global_getRamfs(), dir)
+end
+
+sub sys_unlink(filename)
+	ramfs_deleteFile(global_getRamfs(), filename)
+end
+
+sub sys_exec(filename, argv)
+	local fd, size, argc, args, i
+
+	fd = sys_open(filename, 0)
+	if fd != 0 then
+		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
+		sys_close(fd)
+		global_setBrk(APPLICATION_HEAP())
+		args = heap_alloc(1024)
+		if argv != 0 then
+			i = 0
+			argc = 0
+			while [argv] != 0 do
+				kstrcpy(args + i, [argv])
+				i = i + kstrlen([argv]) + 1
+				argc = argc + 1
+				argv = argv + 8
+			end
+		end
+		; TODO data leak! this never returns!
+		[PROGRAM_BASE_ADDR()](argc, args) ; TODO pass arguments
+		heap_free(args, 1024)
+	end
+end
+
+sub sys_fork()
+	return 0
+end
+
+sub sys_waitpid(pid)
+	return 0
+end
+
+sub sys_dup2()
+	return 0
+end
+
+sub sys_brk(brk)
+	if (brk >= MAX_ADDR()) then
+		kprintln("Application heap exausted!")
+		die()
+	end
+	if (brk > global_getBrk()) then
+		kmemset(global_getBrk(), brk - global_getBrk(), 0)
+	end
+	if (brk == -1) then
+		return global_getBrk()
+	end
+	global_setBrk(brk)
+	return brk
+end
+
+sub sys_mmap()
+	return 0
+end
+
+sub sys_exit()
+	sys_exec("/bin/pish.fap", 0)
+	die()
+end
+
+sub sys_stub()
+	return 0
+end
+
+sub sys_keyboard(scancode)
+	local c, kb, scr
+	kb = global_getKb()
+	scr = global_getScr()
+
+	c = kb_s2c(kb, scancode)
+	if c == 0 then
+		return 0
+	end
+	if c == 8 then ; backspace
+		if kb_pop(kb) != -1 then
+			scr_putch(scr, c)
+		end
+	else
+		kb_push(kb, c)
+		scr_putch(scr, c)
+	end
+end

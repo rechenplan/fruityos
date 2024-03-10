@@ -1,0 +1,81 @@
+
+sub heap_printStats()
+	kputs("Heap statistics:")
+	kputch(10)
+
+	kputs("   32 byte blocks: ")
+	kputn(fba_getAvailableBlocks(heap_addr32()))
+	kputch(10)
+
+	kputs("  256 byte blocks: ")
+	kputn(fba_getAvailableBlocks(heap_addr256()))
+	kputch(10)
+
+	kputs(" 1024 byte blocks: ")
+	kputn(fba_getAvailableBlocks(heap_addr1024()))
+	kputch(10)
+end
+
+sub heap_getBaseAddr()
+	return 1024 << 10
+end
+
+sub heap_size32()
+	return 256 << 10
+end
+
+sub heap_size256()
+	return 256 << 10
+end
+
+sub heap_size1024()
+	return 512 << 10
+end
+
+sub heap_addr32()
+	return heap_getBaseAddr()
+end
+
+sub heap_addr256()
+	return heap_addr32() + heap_size32()
+end
+
+sub heap_addr1024()
+	return heap_addr256() + heap_size256()
+end
+
+sub heap_init()
+	fba_init(heap_addr32(), heap_size32(), 32)
+	fba_init(heap_addr256(), heap_size256(), 256)
+	fba_init(heap_addr1024(), heap_size1024(), 1024)
+	return 0
+end
+
+sub heap_alloc(size)
+	if size <= 32 then
+		return fba_alloc(heap_addr32())
+	end
+	if size <= 256 then
+		return fba_alloc(heap_addr256())
+	end
+	if size <= 1024 then
+		return fba_alloc(heap_addr1024())
+	end
+	return 0
+end
+
+sub heap_free(blockAddr, size)
+	if size <= 32 then
+		fba_free(heap_addr32(), blockAddr)
+		return 0
+	end
+	if size <= 256 then
+		fba_free(heap_addr256(), blockAddr)
+		return 0
+	end
+	if size <= 1024 then
+		fba_free(heap_addr1024(), blockAddr)
+		return 0
+	end
+	return -1
+end
