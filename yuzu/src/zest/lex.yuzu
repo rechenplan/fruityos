@@ -1,0 +1,131 @@
+; zest lexer 
+
+sub lex_get_keyword_str()
+	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$r10$cl$dl$,$[$]$-$+$org$al$"
+end
+
+sub lex_is_numeric(c)
+	return (c >= byte ["0"]) & (c <= byte ["9"])
+end
+
+sub lex_is_alpha(c)
+	return  ((c >= byte ["A"]) & (c <= byte ["Z"])) |
+		((c >= byte ["a"]) & (c <= byte ["z"])) |
+		(c == byte ["_"]) | (c == byte ["."])
+end
+
+sub lex_get_next_keyword(keywordStr)
+	while byte [keywordStr] != byte ["$"] do
+		keywordStr = keywordStr + 1
+	end
+	return keywordStr + 1
+end
+
+sub lex_print_keyword(keywordStr)
+	while byte [keywordStr] != byte ["$"] do
+		putch(byte [keywordStr])
+		keywordStr = keywordStr + 1
+	end
+end
+
+sub lex_keyword_compare(str, k)
+	local i
+	while (byte [str] == byte [k]) & (byte [k] != 0) & (byte [str] != 0) do
+		str = str + 1
+		k = k + 1
+	end
+	return (byte [k] == byte ["$"]) & (byte [str] == 0)
+end
+
+sub lex_keyword_lookup(str)
+	local k, i, ret
+	ret = -1
+	k = lex_get_keyword_str()
+	while byte [k] do
+		if lex_keyword_compare(str, k) then
+			ret = i
+		end
+		k = lex_get_next_keyword(k)
+		i = i + 1
+	end
+	return ret
+end
+
+sub lex_get_next_token(buffer, out)
+	local c, len
+	byte [out] = 0
+	while c = byte [buffer] do
+
+		if c == byte [";"] then
+			len = 0
+			while (c != 0) & (c != 10) do
+				c = byte [buffer + len]
+				len = len + 1
+			end
+			buffer = buffer + len - 1 ; we're going to add 1 later 
+		end
+
+		if lex_is_alpha(c) then
+			while lex_is_alpha(c) |
+                              lex_is_numeric(c) |
+                              (c == byte [":"]) |
+                              (c == byte ["_"])
+			do
+				[out] = c
+				buffer = buffer + 1
+				out = out + 1
+				c = byte [buffer]
+			end
+			[out] = 0
+			return buffer
+		end
+
+		if c == 34 then
+			[out] = c
+			out = out + 1
+			buffer = buffer + 1
+			while (c = byte [buffer]) != 34 do
+				[out] = c
+				out = out + 1
+				buffer = buffer + 1
+			end
+			[out] = c
+			[out + 1] = 0
+			return buffer + 1
+		end
+
+		if lex_is_numeric(c) then
+			while lex_is_numeric(c) do
+				[out] = c
+				buffer = buffer + 1
+				out = out + 1
+				c = byte [buffer]
+			end
+			[out] = 0
+			return buffer
+		end
+
+		if (c == byte [","]) |
+		   (c == byte ["["]) |
+	           (c == byte ["]"]) |
+		   (c == byte ["-"]) |
+		   (c == byte ["+"]) |
+		   (c == 10)
+		then
+			[out] = c
+			[out + 1] = 0
+			return buffer + 1
+		end
+
+		buffer = buffer + 1
+	end
+	return 0
+end
+
+sub lex_puts(str)
+	local c
+	while c = byte [str] do
+		putch(c)
+		str = str + 1
+	end
+end

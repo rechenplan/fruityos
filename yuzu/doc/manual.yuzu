@@ -1,0 +1,37 @@
+; this file is an introduction to the yuzu language and bootstrap compiler. it doubles both as 
+; yuzu source file, and as a document.
+
+; this is our first subroutine. it prints a string to the screen
+
+sub puts(x)
+
+	local c
+
+	while c = byte [ x ] do
+		putch(c)
+		x = x + 1
+	end
+
+end
+
+sub main()
+
+	local i
+
+	; the usual boolean operators are present. again, unlike c variables are initialized 
+        ; to zero
+	if !i then
+		puts("i is automatically initialized to zero")
+		putch(10)
+	end
+
+	; print hello world to the screen 5 times
+	while i < 5 do
+		puts("Hello, World!")
+		putch(10)
+		i = i + 1
+	end
+	puts("Thanks for playing!")
+	putch(10)
+
+end

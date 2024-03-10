@@ -1,0 +1,417 @@
+; emitter.yuzu
+
+sub yc_emit_rvalue_unary(token, fd)
+	if token == TOKEN_MINUS() then
+		yc_fputs(fd, "neg rax") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_NOT() then
+		yc_fputs(fd, "not rax") fputch(fd, 10)
+		return 0
+	end
+end
+
+sub yc_emit_rvalue_binop(token, fd)
+	if token == TOKEN_PLUS() then
+		yc_fputs(fd, "add rax, rdi") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_MINUS() then
+		yc_fputs(fd, "sub rax, rdi") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_AND() then
+		yc_fputs(fd, "and rax, rdi") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_OR() then
+		yc_fputs(fd, "or rax, rdi") fputch(fd, 10)		
+		return 0
+	end
+	if token == TOKEN_XOR() then
+		yc_fputs(fd, "xor rax, rdi") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_LSHIFT() then
+		yc_fputs(fd, "mov rcx, rdi") fputch(fd, 10)
+		yc_fputs(fd, "shl rax, cl") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_RSHIFT() then
+		yc_fputs(fd, "mov rcx, rdi") fputch(fd, 10)
+		yc_fputs(fd, "shr rax, cl") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_EQUAL() then
+		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		yc_fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		yc_fputs(fd, "sete dl") fputch(fd, 10)
+		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_NOTEQUAL() then
+		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		yc_fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		yc_fputs(fd, "setne dl") fputch(fd, 10)
+		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_GREATERTHAN() then
+		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		yc_fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		yc_fputs(fd, "setg dl") fputch(fd, 10)
+		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_LESSTHAN() then
+		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		yc_fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		yc_fputs(fd, "setl dl") fputch(fd, 10)
+		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_GEQ() then
+		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		yc_fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		yc_fputs(fd, "setge dl") fputch(fd, 10)
+		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		return 0
+	end
+	if token == TOKEN_LEQ() then
+		yc_fputs(fd, "xor rdx, rdx") fputch(fd, 10)
+		yc_fputs(fd, "cmp rax, rdi") fputch(fd, 10)
+		yc_fputs(fd, "setle dl") fputch(fd, 10)
+		yc_fputs(fd, "mov rax, rdx") fputch(fd, 10)
+		return 0
+	end
+end
+
+sub yc_emit_rvalue(rvalue, fd, symbols, n, label)
+	local param1, param2, op, token, i, label1, label2, done
+	if ast_get_subtype(rvalue) == RVALUE_PARENS() then
+		param1 = ast_get_sibling(ast_get_kid(rvalue))
+		yc_emit_rvalue(param1, fd, symbols, n, label)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_BINOP() then
+		param1 = ast_get_kid(rvalue)
+		op = ast_get_sibling(param1)
+		token = ast_get_token(ast_get_kid(op))
+		param2 = ast_get_sibling(op)
+		yc_emit_rvalue(param2, fd, symbols, n, label)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_emit_rvalue(param1, fd, symbols, n, label)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_emit_rvalue_binop(token, fd)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_UNARY() then
+		op = ast_get_kid(rvalue)
+		token = ast_get_token(ast_get_kid(op))
+		param1 = ast_get_sibling(op)
+		yc_emit_rvalue(param1, fd, symbols, n, label)
+		yc_emit_rvalue_unary(token, fd)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_LVALUE_WORD() then
+		param1 = ast_get_kid(rvalue)
+		yc_emit_lvalue(param1, fd, symbols, n, label)
+		yc_fputs(fd, "mov rax, [rax]") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_LVALUE_BYTE() then
+		param1 = ast_get_sibling(ast_get_kid(rvalue))
+		yc_emit_lvalue(param1, fd, symbols, n, label)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_fputs(fd, "xor rax, rax") fputch(fd, 10)
+		yc_fputs(fd, "mov al, [rdi]") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_WORD() then
+		param1 = ast_get_kid(rvalue)
+		param2 = ast_get_sibling(ast_get_sibling(param1))
+		yc_emit_lvalue(param1, fd, symbols, n, label)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_emit_rvalue(param2, fd, symbols, n, label)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_fputs(fd, "mov [rdi], rax") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_ASSIGN_BYTE() then
+		param1 = ast_get_sibling(ast_get_kid(rvalue))
+		param2 = ast_get_sibling(ast_get_sibling(param1))
+		yc_emit_lvalue(param1, fd, symbols, n, label)
+		yc_fputs(fd, "push rax") fputch(fd, 10)
+		yc_emit_rvalue(param2, fd, symbols, n, label)
+		yc_fputs(fd, "pop rdi") fputch(fd, 10)
+		yc_fputs(fd, "mov [rdi], al") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_FUNCTION_CALL() then
+		op = ast_get_kid(rvalue)
+		param1 = ast_get_sibling(op)
+		yc_emit_lvalue(op, fd, symbols, n, label)
+		yc_fputs(fd, "push rax")
+		fputch(fd, 10)
+		i = 0
+		done = (ast_get_token(ast_get_sibling(param1)) == TOKEN_RPAREN())
+		while done == 0 do
+			param1 = ast_get_sibling(param1)
+			i = i + 1
+			yc_emit_rvalue(param1, fd, symbols, n, label)
+			yc_fputs(fd, "push rax")
+			fputch(fd, 10)
+			done = (ast_get_token(ast_get_sibling(param1)) == TOKEN_RPAREN())
+			param1 = ast_get_sibling(param1)
+		end
+		if i > 5 then yc_fputs(fd, "pop r9") fputch(fd, 10) end
+		if i > 4 then yc_fputs(fd, "pop r8") fputch(fd, 10) end
+		if i > 3 then yc_fputs(fd, "pop rcx") fputch(fd, 10) end
+		if i > 2 then yc_fputs(fd, "pop rdx") fputch(fd, 10) end
+		if i > 1 then yc_fputs(fd, "pop rsi") fputch(fd, 10) end
+		if i > 0 then yc_fputs(fd, "pop rdi") fputch(fd, 10) end
+		yc_fputs(fd, "pop rax") fputch(fd, 10)
+		yc_fputs(fd, "call rax") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(rvalue) == RVALUE_CONSTANT() then
+		param1 = ast_get_kid(ast_get_kid(rvalue))
+		token = ast_get_token(param1)
+		if token == TOKEN_NUMBER() then
+			yc_fputs(fd, "mov rax, ")
+			yc_fputs(fd, ast_get_value(param1))
+			fputch(fd, 10)
+			return 0
+		end
+		if token == TOKEN_STRING() then
+			label1 = [label]
+			[label] = [label] + 1
+			label2 = [label]
+			[label] = [label] + 1
+			yc_fputs(fd, "jmp L") yc_fputn(fd, label2) fputch(fd, 10)
+			yc_fputs(fd, "L") yc_fputn(fd, label1) yc_fputs(fd, ":") fputch(fd, 10)
+			yc_fputs(fd, "db ") yc_fputs(fd, ast_get_value(param1)) fputch(fd, 10)
+			yc_fputs(fd, "db 0") fputch(fd, 10)
+			yc_fputs(fd, "L") yc_fputn(fd, label2) yc_fputs(fd, ":") fputch(fd, 10)
+			yc_fputs(fd, "mov rax, L") yc_fputn(fd, label1) fputch(fd, 10)
+			return 0
+		end
+	end
+end
+
+sub yc_emit_lvalue(lvalue, fd, symbols, n, label)
+	local rvalue, id, local_symbol, i, found
+	if ast_get_subtype(lvalue) == LVALUE_ID() then
+		id = ast_get_value(ast_get_kid(lvalue))
+		local_symbol = symbols
+		i = 0
+		found = 0
+		while (byte [local_symbol] != 0) & (found == 0) do
+			if yc_is_prefix(id, local_symbol) & yc_is_prefix(local_symbol, id) then
+				found = 1
+			else
+				local_symbol = local_symbol + yc_strlen(local_symbol) + 1
+			end
+			i = i + 1
+		end
+		if found then
+			yc_fputs(fd, "mov rax, rbp") fputch(fd, 10)
+			yc_fputs(fd, "mov rdi, ") yc_fputn(fd, i << 3) fputch(fd, 10)
+			yc_fputs(fd, "sub rax, rdi") fputch(fd, 10)
+		else
+			yc_fputs(fd, "mov rax, ")
+			while (byte [id] != 0) & (byte [id] != byte ["$"]) do
+				fputch(fd, byte [id])
+				id = id + 1
+			end
+			fputch(fd, 10)
+		end
+		return 0
+	end
+	if ast_get_subtype(lvalue) == LVALUE_INDIRECTION() then
+		rvalue = ast_get_sibling(ast_get_kid(lvalue))
+		yc_emit_rvalue(rvalue, fd, symbols, n, label)
+		return 0
+	end
+	
+end
+
+sub yc_emit_statement(statement, fd, symbols, n, label)
+	local rvalue, substate, label1, label2, done
+
+	if ast_get_subtype(statement) == STATEMENT_LOCAL() then
+		yc_error("non-local statement")
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_IF() then
+		rvalue = ast_get_sibling(ast_get_kid(statement))
+		label1 = [label]
+		[label] = [label] + 1
+		label2 = [label]
+		[label] = [label] + 1
+		substate = ast_get_sibling(ast_get_sibling(rvalue))
+		yc_emit_rvalue(rvalue, fd, symbols, n, label)
+		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
+		yc_fputs(fd, "jz L") yc_fputn(fd, label1) fputch(fd, 10)
+		while (ast_get_token(substate) != TOKEN_ELSE()) & (ast_get_token(substate) != TOKEN_END()) do
+			yc_emit_statement(substate, fd, symbols, n, label)
+			substate = ast_get_sibling(substate)
+		end
+		yc_fputs(fd, "jmp L") yc_fputn(fd, label2) fputch(fd, 10)
+		yc_fputs(fd, "L") yc_fputn(fd, label1) yc_fputs(fd, ":") fputch(fd, 10)
+		if ast_get_token(substate) == TOKEN_ELSE() then
+			substate = ast_get_sibling(substate)
+			done = ast_get_type(substate) != AST_STATEMENT()
+			while done == 0 do
+				yc_emit_statement(substate, fd, symbols, n, label)
+				substate = ast_get_sibling(substate)
+				done = ast_get_type(substate) != AST_STATEMENT()
+			end
+		end
+		yc_fputs(fd, "L") yc_fputn(fd, label2) yc_fputs(fd, ":") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_WHILE() then
+		rvalue = ast_get_sibling(ast_get_kid(statement))
+		label1 = [label]
+		[label] = [label] + 1
+		label2 = [label]
+		[label] = [label] + 1
+		substate = ast_get_sibling(ast_get_sibling(rvalue))
+		yc_fputs(fd, "jmp L") yc_fputn(fd, label2) fputch(fd, 10)
+		yc_fputs(fd, "L") yc_fputn(fd, label1) yc_fputs(fd, ":") fputch(fd, 10)
+		while substate do
+			if ast_get_token(substate) != TOKEN_END() then
+				yc_emit_statement(substate, fd, symbols, n, label)
+			end
+			substate = ast_get_sibling(substate)
+		end
+		yc_fputs(fd, "L") yc_fputn(fd, label2) yc_fputs(fd, ":") fputch(fd, 10)
+		yc_emit_rvalue(rvalue, fd, symbols, n, label)
+		yc_fputs(fd, "test rax, rax") fputch(fd, 10)
+		yc_fputs(fd, "jnz L") yc_fputn(fd, label1) fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_RETURN() then
+		rvalue = ast_get_sibling(ast_get_kid(statement))
+		yc_emit_rvalue(rvalue, fd, symbols, n, label)
+		yc_fputs(fd, "mov rsp, rbp") fputch(fd, 10)
+		yc_fputs(fd, "pop rbp") fputch(fd, 10)
+		yc_fputs(fd, "ret") fputch(fd, 10)
+		return 0
+	end
+	if ast_get_subtype(statement) == STATEMENT_RVALUE() then
+		rvalue = ast_get_kid(statement)
+		yc_emit_rvalue(rvalue, fd, symbols, n, label)
+		return 0
+	end
+
+end
+
+sub yc_emit_definition(definition, fd, label)
+	local functionId, symbols, symbol, sptr, n, m,
+		parameter, statement, done, frameSetup, node
+
+	functionId = ast_get_sibling(ast_get_kid(definition))
+	parameter = ast_get_sibling(ast_get_sibling(functionId))
+	
+	; label
+	yc_fputs(fd, ast_get_value(functionId))
+	fputch(fd, byte [":"])
+	fputch(fd, 10)
+
+	yc_fputs(fd, "push rbp") fputch(fd, 10)
+	yc_fputs(fd, "mov rbp, rsp") fputch(fd, 10)
+
+	symbols = brk(-1)
+	brk(symbols + 1024)
+	n = 0
+	sptr = symbols
+	done = (ast_get_token(parameter) == TOKEN_RPAREN())
+	if done then
+		parameter = ast_get_sibling(parameter)
+	end
+	while done == 0 do
+		symbol = ast_get_value(parameter)
+		while byte [symbol] do
+			byte [sptr] = byte [symbol]
+			symbol = symbol + 1
+			sptr = sptr + 1
+		end
+		byte [sptr] = byte ["$"]
+		sptr = sptr + 1
+		n = n + 1
+		done = (ast_get_token(ast_get_sibling(parameter)) == TOKEN_RPAREN())
+		parameter = ast_get_sibling(ast_get_sibling(parameter))
+	end
+
+	m = 0
+	statement = parameter
+	done = (ast_get_type(statement) != AST_STATEMENT())
+
+	frameSetup = 0
+	while done == 0 do
+		if ast_get_subtype(statement) == STATEMENT_LOCAL() then
+			node = ast_get_kid(statement)
+			while node do
+				node = ast_get_sibling(node)
+				symbol = ast_get_value(node)
+				while byte [symbol] do
+					byte [sptr] = byte [symbol]
+					symbol = symbol + 1
+					sptr = sptr + 1
+				end
+				byte [sptr] = byte ["$"]
+				sptr = sptr + 1
+				m = m + 1
+				node = ast_get_sibling(node)
+			end
+		else
+			if frameSetup == 0 then
+				if n > 0 then yc_fputs(fd, "push rdi") fputch(fd, 10) end
+				if n > 1 then yc_fputs(fd, "push rsi") fputch(fd, 10) end
+				if n > 2 then yc_fputs(fd, "push rdx") fputch(fd, 10) end
+				if n > 3 then yc_fputs(fd, "push rcx") fputch(fd, 10) end
+				if n > 4 then yc_fputs(fd, "push r8") fputch(fd, 10) end
+				if n > 5 then yc_fputs(fd, "push r9") fputch(fd, 10) end
+				yc_fputs(fd, "xor rax, rax") fputch(fd, 10)
+				while m > 0 do
+					yc_fputs(fd, "push rax") fputch(fd, 10)
+					m = m - 1
+				end
+				frameSetup = 1
+				byte [sptr] = 0
+			end
+			yc_emit_statement(statement, fd, symbols, n, label)
+		end
+		statement = ast_get_sibling(statement)
+		done = (ast_get_type(statement) != AST_STATEMENT())
+	end
+	yc_fputs(fd, "mov rsp, rbp") fputch(fd, 10)
+	yc_fputs(fd, "pop rbp") fputch(fd, 10)
+	yc_fputs(fd, "ret") fputch(fd, 10)
+end
+
+sub yc_emit_program(program, fd)
+	
+	local definition, label
+
+	yc_fputs(fd, "; this code was generated by a tool.")
+	fputch(fd, 10)
+	yc_fputs(fd, "bits 64")
+	fputch(fd, 10)
+	fputch(fd, 10)
+
+	label = brk(-1)
+	brk(label + 8)
+
+	if program then
+		definition = ast_get_kid(program)
+	end
+	while definition do
+		yc_emit_definition(definition, fd, label)
+		definition = ast_get_sibling(definition)
+	end
+
+end

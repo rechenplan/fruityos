@@ -1,0 +1,219 @@
+
+sub TOKEN_LPAREN()	return 0 end
+sub TOKEN_RPAREN()	return 1 end
+sub TOKEN_LBRACKET()	return 2 end
+sub TOKEN_RBRACKET()	return 3 end
+sub TOKEN_COMMA()	return 4 end
+sub TOKEN_PLUS()	return 5 end
+sub TOKEN_MINUS()	return 6 end
+sub TOKEN_AND()		return 7 end
+sub TOKEN_OR()		return 8 end
+sub TOKEN_XOR()		return 9 end
+sub TOKEN_EQUAL()	return 10 end
+sub TOKEN_ASSIGN()	return 11 end
+sub TOKEN_NOTEQUAL()	return 12 end
+sub TOKEN_NOT()		return 13 end
+sub TOKEN_LSHIFT()	return 14 end
+sub TOKEN_LEQ()		return 15 end
+sub TOKEN_LESSTHAN()	return 16 end
+sub TOKEN_RSHIFT()	return 17 end
+sub TOKEN_GEQ()		return 18 end
+sub TOKEN_GREATERTHAN()	return 19 end
+
+sub TOKEN_LOCAL()	return 20 end
+sub TOKEN_IF()		return 21 end
+sub TOKEN_THEN()	return 22 end
+sub TOKEN_ELSE()	return 23 end
+sub TOKEN_END()		return 24 end
+sub TOKEN_WHILE()	return 25 end
+sub TOKEN_DO()		return 26 end
+sub TOKEN_SUB()		return 27 end
+sub TOKEN_RETURN()	return 28 end
+sub TOKEN_BYTE()	return 29 end
+sub TOKEN_STRING()	return 30 end
+sub TOKEN_NUMBER()	return 31 end
+sub TOKEN_ID()		return 32 end
+
+sub yc_num_char(str, c)
+	local cnt
+	while byte [str] do
+		if c == byte [str] then
+			cnt = cnt + 1
+		end
+		str = str + 1
+	end
+	return cnt
+end
+
+sub yc_get_tokens()
+
+        ; All valid non-alphanumeric symbols separated by $
+	return "($)$[$]$,$+$-$&$|$^$==$=$!=$~$<<$<=$<$>>$>=$>$"
+
+end
+
+sub yc_get_keywords()
+
+	; All valid alphanumeric keywords separated by $
+	return "local$if$then$else$end$while$do$sub$return$byte$"
+
+end
+
+sub yc_is_digit(x) return (x >= byte ["0"]) & (x <= byte ["9"]) end
+
+sub yc_is_quote(x) return x == 34 end
+
+sub yc_is_name_char(x)
+	return
+		((x >= byte ["a"]) & (x <= byte ["z"])) |
+		((x >= byte ["A"]) & (x <= byte ["Z"])) |
+		(x == byte ["_"])
+end
+
+sub yc_is_next_name_char(x) return  yc_is_name_char(x) | yc_is_digit(x) end
+
+sub yc_is_skipable(x)
+	return (x == 9) | (x == 10) | (x == 13) | (x == 32) | (x == byte [";"])
+end
+
+sub yc_strlen(str)
+	local len
+	while (byte [str] != 0) & (byte [str] != byte ["$"]) do
+		str = str + 1
+		len = len + 1
+	end
+	return len
+end
+
+sub yc_is_prefix(a, b)
+	local r
+
+	r = 1
+	while 
+		(byte [a] == byte [b]) &
+		(byte [a] != 0) &
+		(byte [b] != 0) & 
+		(byte [a] != byte ["$"]) & 
+		(byte [b] != byte ["$"]) do
+		a = a + 1
+		b = b + 1
+
+	end
+	if (byte [a] != 0) & (byte [a] != byte ["$"]) then r = 0 end
+	return r
+end
+
+sub yc_next_token(buffer, consumed, outBuf)
+
+	local out, i, symbol, inComment, read, numTokens, numKeywords, tokens, keywords, done
+
+	symbol = -1
+	out = outBuf
+	numTokens = yc_num_char(yc_get_tokens(), byte ["$"])
+	numKeywords = yc_num_char(yc_get_keywords(), byte ["$"])
+	
+	; skip whitespace and comments
+	while (byte [buffer] != 0) & (yc_is_skipable(byte [buffer]) | inComment) do
+		if inComment then
+			inComment = byte [buffer] != 10
+		else
+			inComment = byte [buffer] == byte [";"]
+		end
+		buffer = buffer + 1
+		read = read + 1
+	end
+
+	tokens = yc_get_tokens()
+        i = 0
+	done = 0
+	while (byte [tokens] != 0) & (done == 0) do
+		if yc_is_prefix(tokens, buffer) then
+			read = read + yc_strlen(tokens)
+			symbol = i
+			done = 1
+		end
+		while byte [tokens] != byte ["$"] do
+			if done then
+				byte [outBuf] = byte [tokens]
+				outBuf = outBuf + 1
+			end
+			tokens = tokens + 1
+		end
+		tokens = tokens + 1
+		i = i + 1
+	end
+	
+	if symbol == -1 then
+		; string
+		if yc_is_quote(byte [buffer]) & (byte [buffer] != 0) then
+			symbol = TOKEN_STRING()
+
+			byte [outBuf] = byte [buffer]
+			outBuf = outBuf + 1
+			buffer = buffer + 1
+			read = read + 1
+			while (yc_is_quote(byte [buffer]) == 0) & (byte [buffer] != 0) do
+				byte [outBuf] = byte [buffer]
+				outBuf = outBuf + 1
+				buffer = buffer + 1
+				read = read + 1
+			end
+			byte [outBuf] = 34
+			outBuf = outBuf + 1
+			buffer = buffer + 1
+			read = read + 1
+
+		else
+			; number
+			if yc_is_digit(byte [buffer]) & (byte [buffer] != 0) then
+				symbol = TOKEN_NUMBER()
+				byte [outBuf] = byte [buffer]
+				outBuf = outBuf + 1
+				buffer = buffer + 1
+				read = read + 1
+				while yc_is_digit(byte [buffer]) & (byte [buffer] != 0) do
+					byte [outBuf] = byte [buffer]
+					outBuf = outBuf + 1
+					buffer = buffer + 1
+					read = read + 1
+				end
+			else
+				; identifier
+				if yc_is_name_char(byte [buffer]) & (byte [buffer] != 0) then
+					symbol = TOKEN_ID()
+					byte [outBuf] = byte [buffer]
+					outBuf = outBuf + 1
+					buffer = buffer + 1
+					read = read + 1
+					while yc_is_next_name_char(byte [buffer]) & (byte [buffer] != 0) do
+						byte [outBuf] = byte [buffer]
+						outBuf = outBuf + 1
+						buffer = buffer + 1
+						read = read + 1
+					end
+				end
+			end
+		end
+	end
+
+	byte [outBuf] = 0
+
+	keywords = yc_get_keywords()
+        i = 0
+	done = 0
+	while (byte [keywords] != 0) & (done == 0) do
+		if yc_is_prefix(keywords, out) & yc_is_prefix(out, keywords) then
+			symbol = numTokens + i
+			done = 1
+		end
+		while byte [keywords] != byte ["$"] do
+			keywords = keywords + 1
+		end
+		keywords = keywords + 1
+		i = i + 1
+	end
+
+	[consumed] = read
+
+	return symbol	
+end

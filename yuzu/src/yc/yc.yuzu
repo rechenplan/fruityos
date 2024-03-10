@@ -1,0 +1,121 @@
+
+sub yc_puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub yc_fputs(fd, str)
+	while byte [str] do
+		fputch(fd, byte [str])
+		str = str + 1
+	end
+end
+
+sub yc_div(n, d)
+	local r, q
+	r = n
+	q = 0
+	while r >= d do
+		r = r - d
+		q = q + 1
+	end
+	return q
+end
+
+sub yc_mod(n, d)
+	local r, q
+	r = n
+	q = 0
+	while r >= d do
+		r = r - d
+		q = q + 1
+	end
+	return r
+end	
+
+sub yc_fputn(fd, x)
+	local digit, i, leading
+	if x == 0 then
+		yc_fputs(fd, "0")
+		return 0
+	end
+	leading = 1
+	i = 1000000
+	while i > 0 do
+		digit = yc_div(x, i)
+		if digit != 0 then
+			leading = 0
+		end
+		if leading == 0 then	
+			fputch(fd, digit + byte ["0"])
+		end
+		x = yc_mod(x, i)
+		i = yc_div(i, 10)
+	end
+end
+
+sub yc_puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub yc_error(str)
+	yc_puts("parse error (expected ")
+	yc_puts(str)
+	yc_puts(")")
+	putch(10)
+	exit(1)
+end
+
+sub yc_nextarg(strPtr)
+	while byte [strPtr] do
+		strPtr = strPtr + 1
+	end
+	return strPtr + 1
+end
+
+
+sub main(argc, argv)
+
+	local buffer, buffer_ptr, tmp_ptr, n, fd
+
+	if argc != 3 then
+		yc_puts("usage: yc infile outfile")
+		putch(10)
+		return 0
+	end
+
+	buffer = brk(-1)
+	brk(buffer + (256 << 10))
+	tmp_ptr = buffer
+	
+	argv = yc_nextarg(argv)
+	fd = open(argv, 0)
+	if fd > 0 then
+		while (n = read(fd, tmp_ptr, 1)) > 0 do
+			tmp_ptr = tmp_ptr + n		
+		end
+		byte [tmp_ptr] = 0
+		close(fd)
+	else
+		yc_puts(1, "unable to open file")
+		putch(10)
+		return 0
+	end
+	fd = creat(yc_nextarg(argv))
+
+	buffer_ptr = brk(-1)
+	brk(buffer_ptr + 8)
+
+	[buffer_ptr] = buffer
+
+	yc_emit_program(yc_parse_program(buffer_ptr), fd)
+	close(fd)
+
+	return 0
+
+end

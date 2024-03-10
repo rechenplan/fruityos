@@ -1,0 +1,59 @@
+
+sub main_next_arg(args)
+	while byte [args] do
+		args = args + 1
+	end
+	return args + 1
+end
+
+sub main_write_table(fd, tab)
+	while [tab] != -1 do
+		write(fd, tab, 64)
+		tab = tab + 64
+	end
+	write(fd, tab, 64)
+end
+
+sub main(argc, args)
+	local symtab, reltab, i, fin, fout, textSize, vaddr, format, infile, outfile
+
+	if argc != 4 then
+		lex_puts("usage: zest e|f infile outfile")
+		putch(10)
+		exit()
+	end
+
+	symtab = brk(-1)
+	brk(symtab + 65536)
+
+	[symtab] = -1
+	format = main_next_arg(args)
+	infile = main_next_arg(format)
+	fin = open(infile, 0)
+	outfile = main_next_arg(infile)
+	fout = creat(outfile)
+
+	if (fin <= 0) | (fout <= 0) then
+		lex_puts("error opening files")
+		putch(10)
+		exit()
+	end
+
+	if byte [format] == byte ["e"] then
+		vaddr = 134512640 ; 0x8048000 
+		textSize = parse_file(-1, fin, symtab, vaddr + 120)
+		seek(fin, 0, 0)
+		elf_write_header(fout, textSize, vaddr)
+		parse_file(fout, fin, symtab, vaddr + 120)
+	end
+
+	if byte [format] == byte ["f"] then
+		vaddr = 4 << 16 ; 0x40000
+		parse_file(-1, fin, symtab, vaddr) ; build symbol table
+		seek(fin, 0, 0)
+		parse_file(fout, fin, symtab, vaddr) ; write output
+	end
+
+	close(fin)
+	close(fout)
+end
