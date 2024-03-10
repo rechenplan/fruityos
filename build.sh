@@ -35,3 +35,5 @@ cd ..
 cat seed/bin/fdseed.bin pulp/bin/pulp.sys initrd/initrd.jar > fruityos.img
 stat --printf="FruityOS size is %s bytes.\n" fruityos.img
 truncate -s 1440K fruityos.img
+find . -name "*.yuzu" -print | xargs wc -l > loc.txt
+
