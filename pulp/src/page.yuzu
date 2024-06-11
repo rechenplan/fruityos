@@ -1,0 +1,78 @@
+; page allocator
+
+sub page_init(pga)
+	local i, node
+	page_setHead(pga, 0)
+
+	while i < (8 << 1024) do
+		node = node_alloc()
+		page_setAddress(node, i << 12)
+		page_push(pga, node)
+		i = i + 1
+	end
+end
+
+sub node_alloc()
+	return heap_alloc(8) - list_getNodeHdrSize()
+end
+
+sub node_free(node)
+	heap_free(node + list_getNodeHdrSize())
+end 
+
+sub page_getAddress(node)
+	return [node + list_getNodeHdrSize()]
+end
+
+sub page_setAddress(node, addr)
+	[node + list_getNodeHdrSize()] = addr
+end
+
+sub page_getHead(pga)
+	return [pga + (0 << 3)]
+end
+
+sub page_setHead(pga, head)
+	[pga + (0 << 3)] = head
+end
+
+sub page_push(pga, page)
+	local head
+	head = page_getHead(pga)
+	list_setPrev(page, 0)
+	list_setNext(page, head)
+	if head != 0 then
+		list_setPrev(head, page)
+	end
+	page_setHead(pga, page)
+end
+
+sub page_pop(pga)
+	local head
+	head = page_getHead(pga)
+	if head != 0 then
+		page_setHead(pga, list_getNext(head))
+		list_setNext(head, 0)
+		list_setPrev(head, 0)
+		list_setPrev(page_getHead(), 0)
+		return head
+	else
+		kprintln("Page frame allocation fail!")
+		die()
+	end
+end
+
+sub page_cleanup(pga)
+	local node, nextnode
+	node = page_getHead(pga)
+	while node != 0 do
+		nextnode = list_getNext(node)
+		node_free(node)
+		node = nextnode
+	end
+	page_setHead(pga, 0)
+end
+
+sub page_getSize()
+	return (1 << 3)
+end

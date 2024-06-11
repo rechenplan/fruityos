@@ -6,12 +6,14 @@ sub global_init()
 	global_initScr()
 	global_initKb()
 	global_initRamfs()
+	global_initPageAlloc()
 end
 
 sub global_free()
 	global_freeScr()
 	global_freeKb()
 	global_freeRamfs()
+	global_freePageAlloc()
 end
 
 sub global_getBrk()
@@ -20,6 +22,14 @@ end
 
 sub global_setBrk(brk)
 	_brk = brk
+end
+
+sub global_getPageAlloc()
+	return _page
+end
+
+sub global_setPageAlloc(page)
+	_page = page
 end
 
 sub global_getScr()
@@ -32,6 +42,17 @@ end
 
 sub global_getRamfs()
 	return _ramfs
+end
+
+sub global_initPageAlloc()
+	_page = heap_alloc(page_getSize())
+	page_init(_page)
+end
+
+sub global_freePageAlloc()
+	page_cleanup(_page)
+	heap_free(_page)
+	_page = 0
 end
 
 sub global_initScr()
