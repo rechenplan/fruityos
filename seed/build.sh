@@ -4,4 +4,7 @@ cd src
 cd fdseed
 ./build.sh
 cd ..
+cd hdseed
+./build.sh
+cd ..
 cd ..

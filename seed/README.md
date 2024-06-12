@@ -13,3 +13,6 @@ a bootsector for a floppy image. there will be no file system on the floppy. it 
 6. jump to pulp with pointer to decompressed initrd
 
 
+# hdseed
+
+a bootsector for a harddrive or other bootable media. behaves similar to fdseed.

@@ -32,8 +32,11 @@ cp ../peel/lib/_start.fap lib/_start.asm
 ../peel/bin/jar.fap c initrd.jar
 cd ..
 
-cat seed/bin/fdseed.bin pulp/bin/pulp.sys initrd/initrd.jar > fruityos.img
-stat --printf="FruityOS size is %s bytes.\n" fruityos.img
-truncate -s 1440K fruityos.img
+cat seed/bin/fdseed.bin pulp/bin/pulp.sys initrd/initrd.jar > fruityos_floppy.img
+cat seed/bin/hdseed.bin pulp/bin/pulp.sys initrd/initrd.jar > fruityos_hdd.img
+
+stat --printf="FruityOS size is %s bytes.\n" fruityos_floppy.img
+truncate -s 1440K fruityos_floppy.img
+truncate -s 10M fruityos_hdd.img
 find . -name "*.yuzu" -print | xargs wc -l > loc.txt
 
