@@ -1,7 +1,6 @@
 	org 0x7c00
 	bits 16
 
-%define IDT_ADDR 0xF000
 %define KERNEL_ADDR 0x10000
 %define STACK_ADDR 0x40000
 %define BLOCK_COUNT 127
@@ -9,8 +8,8 @@
 	; Canonicalize IP
 	jmp 0x0000:start
 start:
-	cli
 	cld
+	cli
 
 	; Setup
         xor ax, ax
@@ -69,8 +68,6 @@ page:   stosd
         add eax, 0x1000
         loop page
 
-	mov dword [gs:0], ': ) '
-
 	; Enable PAE
 pae:	mov eax, cr4
 	or eax, 1 << 5
@@ -86,6 +83,7 @@ pae:	mov eax, cr4
 	mov eax, cr0		; Enable paging and protected mode
 	or eax, 1 << 31 | 1 << 0
 	mov cr0, eax
+
 	jmp CODE_SEG:lmode
 
 	bits 64
@@ -98,25 +96,6 @@ lmode:
 	mov gs, ax
 	mov ss, ax
 	mov rsp, STACK_ADDR
-
-	; Create IDT
-	mov rdi, IDT_ADDR
-	xor rcx, rcx
-	dec cl
-idt:	mov ax, irq
-	stosw
-	mov ax, CODE_SEG
-	stosw
-	mov ax, 0x8e00
-	stosw
-	xor rax, rax
-	stosw
-	stosd
-	stosd
-	loop idt
-
-	; Set keyboard handler on int 0x21 (IRQ1)
-	mov word [IDT_ADDR + 0x21 * 16], irq1
 
 	; Initialize PIC
 	mov al, 0x11
@@ -170,10 +149,7 @@ lit:	stosb
 	jmp unpack
 
 	; notice rsi contains pointer to initrd
-boot:	lidt [idtr]
-	mov rdi, rsi
-	sti
-	jmp KERNEL_ADDR + 0x100
+boot:	jmp KERNEL_ADDR + 0x100
 
 align 4
 dap:
@@ -207,55 +183,20 @@ gdt_data:
 	db 0
 gdt_end:
 
-idtr:
-	dw (256 * 16) - 1
-	dq IDT_ADDR
-
-	; IRQ1 handler
-irq1:	cli
-	push rax
-	push rcx
-	push rdx
-	push rsi
-	push rdi
-	push r8
-	push r9
-	push r10
-	push r11
-	xor rax, rax
-	in al, 0x60
-	mov rdi, rax
-	mov rax, qword [KERNEL_ADDR + 31 * 8]
-	call rax
-	pop r11
-	pop r10
-	pop r9
-	pop r8
-	pop rdi
-	pop rsi
-	pop rdx
-	pop rcx
-	; ack irq
-	mov al, 0x20
-	out 0x20, al
-	out 0xa0, al
-	pop rax
-	sti
-	iretq
-
-	; Default IRQ isr
-irq:	cli
-	push rax
-	mov al, 0x20
-	out 0x20, al
-	out 0xa0, al
-	pop rax
-	sti
-	iretq
-
 CODE_SEG equ gdt_code - gdt
 DATA_SEG equ gdt_data - gdt
 
-times 510 - ($ - $$) db 0
+times 0x1BE - ($ - $$) db 0
 
+; Partition table
+db 0x80		; bootable
+db 0		; starting head (0)
+dw 0<<6 | 1	; starting sector (1), starting cylinder (0)
+db 0x7F		; System ID (filesystem type)
+db 255		; ending head (255)
+dw 1023<<6 | 63	; ending sector (63) ending cylinder (1023)
+dd 0		; lba start
+dd BLOCK_COUNT	; lba block count
+
+times 510 - ($ - $$) db 0
 	dw 0xAA55

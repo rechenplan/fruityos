@@ -9,7 +9,7 @@
    261 ./pulp/src/kb.yuzu
    153 ./pulp/src/inode.yuzu
    142 ./pulp/src/utils.yuzu
-    12 ./pulp/src/kmain.yuzu
+    15 ./pulp/src/kmain.yuzu
     30 ./pulp/src/x86.yuzu
     78 ./pulp/src/page.yuzu
     54 ./peel/src/concat/concat.yuzu
@@ -37,4 +37,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
    432 ./yuzu/src/yc/parser.yuzu
     37 ./yuzu/doc/manual.yuzu
-  5587 total
+  5590 total

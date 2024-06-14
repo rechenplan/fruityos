@@ -1,6 +1,9 @@
 sub kmain(initJarPtr)
 	local fd, buffer
 
+	byte [753676] = 54
+	byte [753677] = 7
+
 	heap_init()
 	global_init()
 
