@@ -9,12 +9,19 @@
 	; Canonicalize IP
 	jmp 0x0000:start
 start:
-	; Clear the direction flag
+	cli
 	cld
 
-	; Clear data segment
-	xor ax, ax
-	mov ds, ax
+	; Setup
+        xor ax, ax
+        mov ds, ax
+        mov es, ax
+
+        mov bx, 0x1000
+        mov ss, bx
+        mov sp, ax
+	push 0xb800
+	pop gs
 
         ; Read 127 sectors (64k) from begining of disk to memory
 load:	mov word [dap + 2], BLOCK_COUNT
@@ -36,38 +43,42 @@ a20:	in al, 0x92
 	mov al, 0x20
 	out dx, al
 
-	; Set up long mode paging (identity map first 2 MB)
-
+	; Set up long mode paging
 	mov edi, 0x1000
 	mov cr3, edi
 	xor eax, eax
-	mov ecx, 0x6000
+	mov ecx, 0x6000 / 4
 	rep stosd
 
-	; 6 MB identity mapped
+	mov ax, 0x2003
+        mov word [0x1000], ax
+	add ah, 0x10
+        mov word [0x2000], ax
+	add ah, 0x10
+        mov word [0x3000], ax
+	add ah, 0x10
+        mov word [0x3008], ax
+	add ah, 0x10
+        mov word [0x3010], ax
 
-	mov word [0x1000], 0x2003
-	mov word [0x2000], 0x3003
+        mov eax, 3
+        mov cx, 512 * 3
+        mov di, 0x4000
+page:   stosd
+	add di, 4
+        add eax, 0x1000
+        loop page
 
-	mov word [0x3000], 0x4003
-	mov word [0x3008], 0x5003
-	mov word [0x3010], 0x6003
-
-	mov ebx, 3
-	mov ecx, 512 * 3
-	mov edi, 0x4000
-page:	mov dword [edi], ebx	; [0x4000] = 0x0003, [0x4008] = 0x1003, ..., [0x4200] = 0x2000003
-	add ebx, 0x1000
-	add edi, 8
-	loop page
+	mov dword [gs:0], ': ) '
 
 	; Enable PAE
 pae:	mov eax, cr4
 	or eax, 1 << 5
 	mov cr4, eax
 
+	lgdt [gdtr]
+
 	; Switch to long mode
-	cli
 	mov ecx, 0xc0000080	; LM-bit
 	rdmsr
 	or eax, 1 << 8
@@ -75,12 +86,12 @@ pae:	mov eax, cr4
 	mov eax, cr0		; Enable paging and protected mode
 	or eax, 1 << 31 | 1 << 0
 	mov cr0, eax
-	lgdt [gdtr]
 	jmp CODE_SEG:lmode
 
 	bits 64
 
-lmode:	mov ax, DATA_SEG
+lmode:
+	mov ax, DATA_SEG
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
@@ -160,8 +171,8 @@ lit:	stosb
 
 	; notice rsi contains pointer to initrd
 boot:	lidt [idtr]
-	sti
 	mov rdi, rsi
+	sti
 	jmp KERNEL_ADDR + 0x100
 
 align 4
@@ -170,7 +181,7 @@ dap:
         db 0                    ; reserved
         dw BLOCK_COUNT          ; number of blocks to transfer
         dw 0                    ; buffer ptr
-        dw 0x4000	        ; buffer seg
+	dw 0x4000	        ; buffer seg
         dq 0                    ; block number
 
 gdt:

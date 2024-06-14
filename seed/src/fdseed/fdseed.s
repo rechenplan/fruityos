@@ -58,7 +58,7 @@ a20:	in al, 0x92
 	mov edi, 0x1000
 	mov cr3, edi
 	xor eax, eax
-	mov ecx, 0x6000
+	mov ecx, 0x6000 / 4
 	rep stosd
 
 	; 6 MB identity mapped
