@@ -62,6 +62,15 @@ idt:    mov ax, irq
         mov word [IDT_ADDR + 0x21 * 16], irq1
 	mov word [IDT_ADDR + 0x08 * 16], df
 
+	mov word [IDT_ADDR + 0x08 * 16], irq_err
+	mov word [IDT_ADDR + 0x0A * 16], irq_err
+	mov word [IDT_ADDR + 0x0B * 16], irq_err
+	mov word [IDT_ADDR + 0x0C * 16], irq_err
+	mov word [IDT_ADDR + 0x0D * 16], irq_err
+	mov word [IDT_ADDR + 0x0E * 16], irq_err
+	mov word [IDT_ADDR + 0x11 * 16], irq_err
+	mov word [IDT_ADDR + 0x15 * 16], irq_err
+
 	; Load idt
 	lidt [idtr]
 
@@ -120,13 +129,24 @@ irq1:   cli
         sti
         iretq
 
-        ; Default IRQ isr
+        ; Default IRQ isr (no error)
 irq:    cli
         push rax
         mov al, 0x20
         out 0x20, al
         out 0xa0, al
         pop rax
+        sti
+        iretq
+
+irq_err: ; Exceptions that push an error code
+	cli
+        push rax
+        mov al, 0x20
+        out 0x20, al
+        out 0xa0, al
+        pop rax
+	add sp, 8
         sti
         iretq
 
