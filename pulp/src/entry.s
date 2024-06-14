@@ -58,9 +58,9 @@ idt:    mov ax, irq
         stosd
         loop idt
 
-        ; Set keyboard handler on int 0x21 (IRQ1)
+        ; Set keyboard handler on int 0x21 (IRQ1) and double fault handler
         mov word [IDT_ADDR + 0x21 * 16], irq1
-	;mov word [IDT_ADDR + 0x21 * 16 + 6], 1
+	mov word [IDT_ADDR + 0x08 * 16], df
 
 	; Load idt
 	lidt [idtr]
@@ -83,6 +83,11 @@ idtr:
 halt:
 	hlt
 	ret
+
+
+df:
+	mov dword [0xb8000], 'D F '
+	jmp halt
 
         ; IRQ1 handler
 irq1:   cli
