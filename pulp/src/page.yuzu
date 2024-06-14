@@ -17,7 +17,7 @@ sub node_alloc()
 end
 
 sub node_free(node)
-	heap_free(node + list_getNodeHdrSize())
+	heap_free(node + list_getNodeHdrSize(), 8)
 end 
 
 sub page_getAddress(node)
