@@ -149,6 +149,7 @@ lit:	stosb
 	jmp unpack
 
 	; notice rsi contains pointer to initrd
+	mov rdi, rsi
 boot:	jmp KERNEL_ADDR + 0x100
 
 align 4

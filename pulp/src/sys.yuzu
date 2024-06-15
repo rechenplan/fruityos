@@ -87,7 +87,9 @@ end
 sub sys_getch()
 	local c, kb
 	kb = global_getKb()
-	while (c = kb_dequeue(kb)) == -1 do halt() end
+	while (c = kb_dequeue(kb)) == -1 do
+		sys_wait()
+	end
 	return c
 end
 

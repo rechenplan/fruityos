@@ -1,15 +1,14 @@
 sub kmain(initJarPtr)
 	local fd, buffer
 
-	byte [753676] = 54
-	byte [753677] = 7
-
 	heap_init()
 	global_init()
+	;idt_init()
 
 	kcls()
 	kprintln("Welcome to FruityOS!")
 	kunpack(initJarPtr)
+
 	sys_exec("/bin/pish.fap", 0)
 	die()
 end
