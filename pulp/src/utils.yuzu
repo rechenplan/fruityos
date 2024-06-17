@@ -50,7 +50,7 @@ sub kputn(x)
                 return 0
         end
         leading = 1
-        i = 1000000
+        i = 1000000000
         while i > 0 do
                 digit = x86_div(x, i)
                 if digit != 0 then

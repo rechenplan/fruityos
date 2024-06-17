@@ -1,5 +1,5 @@
 sub fd_getDataBlockSize()
-	return 1024
+	return 512
 end
 
 sub fd_getSize()

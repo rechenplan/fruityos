@@ -1,134 +1,75 @@
 bits 64
 
-idt_init:
+idt_load:
+	lidt [rdi]
+	ret
 
-        ; Create IDT. Autopopulate with pointers to default isr routine.
-        mov rdi, IDT_ADDR
-	mov rcx, 255
-idt:    mov ax, isr
-        stosw
-        mov ax, 0x08 ; CODE_SEG
-        stosw
-        mov ax, 0x8e00 ; interrupt gate
-        stosw
-	mov ax, 1 ; 0x10000 origin
-        stosw
-        xor rax, rax
-        stosd
-        stosd
-        loop idt
-
-	; Exceptions
-	mov word [IDT_ADDR + 0x00 * 16], de
-	mov word [IDT_ADDR + 0x01 * 16], db
-	mov word [IDT_ADDR + 0x02 * 16], isr
-	mov word [IDT_ADDR + 0x03 * 16], bp1
-	mov word [IDT_ADDR + 0x04 * 16], of
-	mov word [IDT_ADDR + 0x05 * 16], br
-	mov word [IDT_ADDR + 0x06 * 16], ud
-	mov word [IDT_ADDR + 0x07 * 16], nm
-	mov word [IDT_ADDR + 0x08 * 16], df
-	mov word [IDT_ADDR + 0x09 * 16], isr
-	mov word [IDT_ADDR + 0x0A * 16], ts
-	mov word [IDT_ADDR + 0x0B * 16], np
-	mov word [IDT_ADDR + 0x0C * 16], ss1
-	mov word [IDT_ADDR + 0x0D * 16], gp
-	mov word [IDT_ADDR + 0x0E * 16], pf
-	mov word [IDT_ADDR + 0x0F * 16], isr
-	mov word [IDT_ADDR + 0x10 * 16], mf
-	mov word [IDT_ADDR + 0x11 * 16], ac
-	mov word [IDT_ADDR + 0x12 * 16], mc
-	mov word [IDT_ADDR + 0x13 * 16], xm
-	mov word [IDT_ADDR + 0x14 * 16], ve
-	mov word [IDT_ADDR + 0x15 * 16], cp
-	mov word [IDT_ADDR + 0x16 * 16], isr
-	mov word [IDT_ADDR + 0x17 * 16], isr
-	mov word [IDT_ADDR + 0x18 * 16], isr
-	mov word [IDT_ADDR + 0x19 * 16], isr
-	mov word [IDT_ADDR + 0x1A * 16], isr
-	mov word [IDT_ADDR + 0x1B * 16], isr
-	mov word [IDT_ADDR + 0x1C * 16], hv
-	mov word [IDT_ADDR + 0x1D * 16], vc
-	mov word [IDT_ADDR + 0x1E * 16], sx
-	mov word [IDT_ADDR + 0x1F * 16], isr
-
-	; IRQs
-        mov word [IDT_ADDR + 0x20 * 16], irq0
-        mov word [IDT_ADDR + 0x21 * 16], irq1
-        mov word [IDT_ADDR + 0x22 * 16], irq
-        mov word [IDT_ADDR + 0x23 * 16], irq
-        mov word [IDT_ADDR + 0x24 * 16], irq
-        mov word [IDT_ADDR + 0x25 * 16], irq
-        mov word [IDT_ADDR + 0x26 * 16], irq
-        mov word [IDT_ADDR + 0x27 * 16], irq
-        mov word [IDT_ADDR + 0x28 * 16], irq
-        mov word [IDT_ADDR + 0x29 * 16], irq
-        mov word [IDT_ADDR + 0x2a * 16], irq
-        mov word [IDT_ADDR + 0x2b * 16], irq
-        mov word [IDT_ADDR + 0x2c * 16], irq
-        mov word [IDT_ADDR + 0x2d * 16], irq
-        mov word [IDT_ADDR + 0x2e * 16], irq
-        mov word [IDT_ADDR + 0x2f * 16], irq
-
-	; Load idt
-	lidt [idtr]
-
-	; Enable interrupts
+idt_sti:
 	sti
 	ret
 
-idtr:	dw (256 * 16) - 1
-        dq IDT_ADDR
+idt_cli:
+	cli
+	ret
 
 	; division error
+exception_de: dq de
 de:	mov rdi, de_msg
 	call kprintln
 	jmp die
 de_msg:	db "Exception: Division Error", 0
 
 	; debug
+exception_db: dq db
 db:	mov rdi, db_msg
 	call kprintln
 	jmp die
 db_msg:	db "Exception: Debug", 0
 
 	; breakpoint
+exception_bp1: dq bp1
 bp1:	mov rdi, bp_msg
 	call kprintln
 	jmp die
 bp_msg: db "Exception: Breakpoint", 0
 
 	; overflow
+exception_of: dq of
 of:	mov rdi, of_msg
 	call kprintln
 	jmp die
 of_msg:	db "Exception: Overflow", 0
 
 	; bound range
+exception_br: dq br
 br:	mov rdi, br_msg
 	call kprintln
 	jmp die
 br_msg:	db "Exception: Bound Range", 0
 
 	; invalid opcode
+exception_ud: dq ud
 ud:	mov rdi, ud_msg
 	call kprintln
 	jmp die
 ud_msg:	db "Exception: Invalid Opcode", 0
 
 	; device not available
+exception_nm: dq nm
 nm:	mov rdi, nm_msg
 	call kprintln
 	jmp die
 nm_msg:	db "Exception: Device Not Available", 0
 
 	; double fault
+exception_df: dq df
 df:	mov rdi, df_msg
 	call kprintln
 	jmp die
 df_msg:	db "Exception: Double Fault. Stopping.", 0
 
 	; invalid tss
+exception_ts: dq ts
 ts:	mov rdi, ts_msg
 	call kprintln
 	add sp, 8
@@ -136,13 +77,16 @@ ts:	mov rdi, ts_msg
 ts_msg:	db "Exception: Invalid TSS", 0
 
 	; Segment not present
-np:	mov rdi, np_msg
+exception_np: dq np
+np:
+	mov rdi, np_msg
 	call kprintln
 	add sp, 8
 	jmp die
 np_msg:	db "Exception: Segment Not Present", 0
 
 	; Stack segment fault
+exception_ss1: dq ss1
 ss1:	mov rdi, ss_msg
 	call kprintln
 	add sp, 8
@@ -150,6 +94,7 @@ ss1:	mov rdi, ss_msg
 ss_msg:	db "Exception: Stack Segment Fault", 0
 
 	; General protection fault
+exception_gp: dq gp
 gp:	mov rdi, gp_msg
 	call kprintln
 	add sp, 8
@@ -157,6 +102,7 @@ gp:	mov rdi, gp_msg
 gp_msg:	db "Exception: General Protection Fault", 0
 
 	; Page Fault
+exception_pf: dq pf
 pf:	mov rdi, pf_msg
 	call kprintln
 	add sp, 8
@@ -164,12 +110,14 @@ pf:	mov rdi, pf_msg
 pf_msg:	db "Exception: Page Fault", 0
 
 	; x87 floating-poiunt exception
+exception_mf: dq mf
 mf:	mov rdi, mf_msg
 	call kprintln
 	jmp die
 mf_msg:	db "Exception: x87 Floating Point Exception", 0
 
 	; Alignment Check
+exception_ac: dq ac
 ac:	mov rdi, ac_msg
 	call kprintln
 	add sp, 8
@@ -177,24 +125,28 @@ ac:	mov rdi, ac_msg
 ac_msg:	db "Exception: Alignment Check", 0
 
 	; machine check
+exception_mc: dq mc
 mc:	mov rdi, mc_msg
 	call kprintln
 	jmp die
 mc_msg:	db "Exception: Machine Check. Stopping.", 0
 
 	; SIMD floating point exception
+exception_xm: dq xm
 xm:	mov rdi, xm_msg
 	call kprintln
 	jmp die
 xm_msg:	db "Exception: SIMD Floating Point Exception", 0
 
 	; Virtualization Exception
+exception_ve: dq ve
 ve:	mov rdi, ve_msg
 	call kprintln
 	jmp die
 ve_msg:	db "Exception: Virtualization Exception", 0
 
 	; control protection exception
+exception_cp: dq cp
 cp:	mov rdi, cp_msg
 	call kprintln
 	add sp, 8
@@ -202,12 +154,14 @@ cp:	mov rdi, cp_msg
 cp_msg:	db "Exception: Control Protection Exception", 0
 
 	; hypervisor injection exception
+exception_hv: dq hv
 hv:	mov rdi, hv_msg
 	call kprintln
 	jmp die
 hv_msg:	db "Exception: Hypervisor Injection Exception", 0
 
 	; VmM COMMUNICATION EXCEPTION
+exception_vc: dq vc
 vc:	mov rdi, vc_msg
 	call kprintln
 	add sp, 8
@@ -215,18 +169,21 @@ vc:	mov rdi, vc_msg
 vc_msg:	db "Exception: VMM Communication Exception", 0
 
 	; Security Exception
+exception_sx: dq sx
 sx:	mov rdi, sx_msg
 	call kprintln
 	add sp, 8
 	jmp die
 sx_msg:	db "Exception: Security Exception", 0
 
-
-        ; Default isr (no error code)
+; Default isr (no error code)
+exception_isr: dq isr
 isr:    iretq
 
 	; generic IRQ handler
-irq:	; ack irq
+exception_irq: dq irq
+irq:
+	; ack irq
 	push rax
         mov al, 0x20
         out 0x20, al
@@ -235,6 +192,7 @@ irq:	; ack irq
 	iretq
 
 	; IRQ0 handler (timer)
+exception_irq0: dq irq0
 irq0:
 	; ack irq
 	push rax
@@ -242,11 +200,11 @@ irq0:
 	out 0x20, al
 	out 0xa0, al
 	pop rax
-	sti
 	iretq
 
         ; IRQ1 handler (keyboard)
-irq1:   cli
+exception_irq1: dq irq1
+irq1:
 	push rax
         push rcx
         push rdx
@@ -273,5 +231,4 @@ irq1:   cli
         out 0x20, al
         out 0xa0, al
         pop rax
-	sti
         iretq

@@ -1,0 +1,130 @@
+; idt table functions
+
+sub idt_getSize()
+	return 4096
+end
+
+sub idt_getIdtrSize()
+	return 10
+end
+
+sub idt_init()
+
+	local i
+
+	_idt = 61440 ; 0xf000 ; heap_alloc(idt_getSize())
+	_idtr = 1280 ; 0x500 ; heap_alloc(idt_getIdtrSize())
+
+	idt_set2(_idt, 0, exception_de)
+	idt_set2(_idt, 1, exception_db)
+	idt_set2(_idt, 2, exception_isr)
+	idt_set2(_idt, 3, exception_bp1)
+	idt_set2(_idt, 4, exception_of)
+	idt_set2(_idt, 5, exception_br)
+	idt_set2(_idt, 6, exception_ud)
+	idt_set2(_idt, 7, exception_nm)
+	idt_set2(_idt, 8, exception_df)
+	idt_set2(_idt, 9, exception_isr)
+	idt_set2(_idt, 10, exception_ts)
+	idt_set2(_idt, 11, exception_np)
+	idt_set2(_idt, 12, exception_ss1)
+	idt_set2(_idt, 13, exception_gp)
+	idt_set2(_idt, 14, exception_pf)
+	idt_set2(_idt, 15, exception_isr)
+	idt_set2(_idt, 16, exception_mf)
+	idt_set2(_idt, 17, exception_ac)
+	idt_set2(_idt, 18, exception_mc)
+	idt_set2(_idt, 19, exception_xm)
+	idt_set2(_idt, 20, exception_ve)
+	idt_set2(_idt, 21, exception_cp)
+	idt_set2(_idt, 22, exception_isr)
+	idt_set2(_idt, 23, exception_isr)
+	idt_set2(_idt, 24, exception_isr)
+	idt_set2(_idt, 25, exception_isr)
+	idt_set2(_idt, 26, exception_isr)
+	idt_set2(_idt, 27, exception_isr)
+	idt_set2(_idt, 28, exception_hv)
+	idt_set2(_idt, 29, exception_vc)
+	idt_set2(_idt, 30, exception_sx)
+	idt_set2(_idt, 31, exception_isr)
+
+	idt_set2(_idt, 32, exception_irq0)
+	idt_set2(_idt, 33, exception_irq1)
+	idt_set2(_idt, 34, exception_irq)
+	idt_set2(_idt, 35, exception_irq)
+	idt_set2(_idt, 36, exception_irq)
+	idt_set2(_idt, 37, exception_irq)
+	idt_set2(_idt, 38, exception_irq)
+	idt_set2(_idt, 39, exception_irq)
+	idt_set2(_idt, 40, exception_irq)
+	idt_set2(_idt, 41, exception_irq)
+	idt_set2(_idt, 42, exception_irq)
+	idt_set2(_idt, 43, exception_irq)
+	idt_set2(_idt, 44, exception_irq)
+	idt_set2(_idt, 45, exception_irq)
+	idt_set2(_idt, 46, exception_irq)
+	idt_set2(_idt, 47, exception_irq)
+
+	i = 48
+	while i < 256 do
+		idt_set2(_idt, i, exception_isr)
+		i = i + 1
+	end
+
+	byte [_idtr] = 255
+	byte [_idtr + 1] = 15
+	[_idtr + 2] = _idt
+
+	idt_load(_idtr)
+	idt_sti()
+
+end
+
+sub idt_cleanup()
+	idt_cli()
+	heap_free(_idt, idt_getSize())
+	heap_free(_idtr, idt_getIdtrSize())
+	_idt = 0
+	_idtr = 0
+end
+
+sub idt_set2(idt_addr, vector, isr_addr)
+	idt_set(idt_addr, vector, isr_addr, 8, 0, 142) ; 0x8e
+end
+
+sub idt_set(idt_addr, vector, isr_addr, isr_segment, ist, attr)
+	local entry_addr
+
+	; Compute address of entry
+	entry_addr = idt_addr + (vector << 4)
+
+	; isr low
+	byte [entry_addr + 0] = (isr_addr >> 0) & 255
+	byte [entry_addr + 1] = (isr_addr >> 8) & 255
+
+	; isr segment
+	byte [entry_addr + 2] = (isr_segment & 255)
+	byte [entry_addr + 3] = ((isr_segment >> 8) & 255)
+
+	; ist
+	byte [entry_addr + 4] = (ist & 255)
+
+	; gate type, dpl, p
+	byte [entry_addr + 5] = (attr & 255)
+
+	; isr mid
+	byte [entry_addr + 6] = (isr_addr >> 16) & 255
+	byte [entry_addr + 7] = (isr_addr >> 24) & 255
+
+	; isr high
+	byte [entry_addr + 8] = (isr_addr >> 32) & 255
+	byte [entry_addr + 9] = (isr_addr >> 40) & 255
+	byte [entry_addr + 10] = (isr_addr >> 48) & 255
+	byte [entry_addr + 11] = (isr_addr >> 56) & 255
+
+	; reserved
+	byte [entry_addr + 12] = 0
+	byte [entry_addr + 13] = 0
+	byte [entry_addr + 14] = 0
+	byte [entry_addr + 15] = 0
+end

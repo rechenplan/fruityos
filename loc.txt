@@ -35,6 +35,8 @@
    153 ./pulp/src/inode.yuzu
    261 ./pulp/src/kb.yuzu
     89 ./pulp/src/global.yuzu
+   130 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
+  2050 ./pulp/pulp.yuzu
     99 ./fapld/src/fapld.yuzu
-  5591 total
+  7771 total

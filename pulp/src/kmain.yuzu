@@ -3,7 +3,7 @@ sub kmain(initJarPtr)
 
 	heap_init()
 	global_init()
-	;idt_init()
+	idt_init()
 
 	kcls()
 	kprintln("Welcome to FruityOS!")

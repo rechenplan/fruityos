@@ -2,8 +2,6 @@ org 0x10000
 
 bits 64
 
-%define IDT_ADDR 0xF000
-
 sys:
 	dq sys_open
 	dq sys_creat
@@ -62,6 +60,7 @@ ints_enabled:
 
 kb_poll:
 	push rax
+	push rdi
         xor rax, rax
         in al, 0x60
 	cmp byte [last_scancode], al
@@ -70,6 +69,7 @@ kb_poll:
         mov rdi, rax
 	call sys_keyboard
 kb_bail:
+	pop rdi
 	pop rax
 	ret
 
@@ -82,3 +82,5 @@ _kb:		dq 0
 _ramfs:		dq 0
 _brk:		dq 0
 _page:		dq 0
+_idt:		dq 0
+_idtr:		dq 0
