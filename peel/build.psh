@@ -1,0 +1,107 @@
+juicer d peel.jar.jz peel.jar
+jar x peel.jar
+
+echo Building concat...
+mkdir tmp
+yc concat/concat.yuzu tmp/concat.asm
+concat tmp/a.asm ../lib/_start.asm tmp/concat.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/concat.fap
+rmdir tmp
+
+echo Building echo...
+mkdir tmp
+yc echo/echo.yuzu tmp/echo.asm
+concat tmp/a.asm ../lib/_start.asm tmp/echo.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/ceho.fap
+rmdir tmp
+
+echo Building del...
+mkdir tmp
+yc del/del.yuzu tmp/del.asm
+concat tmp/a.asm ../lib/_start.asm tmp/del.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/del.fap
+rmdir tmp
+
+echo Building type...
+mkdir tmp
+yc type/type.yuzu tmp/type.asm
+concat tmp/a.asm ../lib/_start.asm tmp/type.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/type.fap
+rmdir tmp
+
+echo Building write...
+mkdir tmp
+yc write/write.yuzu tmp/write.asm
+concat tmp/a.asm ../lib/_start.asm tmp/write.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/write.fap
+rmdir tmp
+
+echo Building dir...
+mkdir tmp
+yc dir/dir.yuzu tmp/dir.asm
+concat tmp/a.asm ../lib/_start.asm tmp/dir.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/dir.fap
+rmdir tmp
+
+echo Building mkdir...
+mkdir tmp
+yc mkdir/mkdir.yuzu tmp/mkdir.asm
+concat tmp/a.asm ../lib/_start.asm tmp/mkdir.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/mkdir.fap
+rmdir tmp
+
+echo Building rmdir...
+mkdir tmp
+yc rmdir/rmdir.yuzu tmp/rmdir.asm
+concat tmp/a.asm ../lib/_start.asm tmp/rmdir.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/rmdir.fap
+rmdir tmp
+
+echo Building copy...
+mkdir tmp
+yc copy/copy.yuzu tmp/copy.asm
+concat tmp/a.asm ../lib/_start.asm tmp/copy.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/copy.fap
+rmdir tmp
+
+echo Building move...
+mkdir tmp
+yc move/move.yuzu tmp/move.asm
+concat tmp/a.asm ../lib/_start.asm tmp/move.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/move.fap
+rmdir tmp
+
+echo Building juicer...
+mkdir tmp
+yc juicer/juicer.yuzu tmp/juicer.asm
+concat tmp/a.asm ../lib/_start.asm tmp/juicer.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/juicer.fap
+rmdir tmp
+
+echo Building jar...
+mkdir tmp
+yc jar/jar.yuzu tmp/jar.asm
+concat tmp/a.asm ../lib/_start.asm tmp/jar.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/jar.fap
+rmdir tmp
+
+echo Building fred...
+mkdir tmp
+yc fred/fred.yuzu tmp/fred.asm
+concat tmp/a.asm ../lib/_start.asm tmp/fred.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/fred.fap
+rmdir tmp
+
