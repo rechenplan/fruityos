@@ -34,5 +34,5 @@ cat seed/bin/hdseed.bin pulp/bin/pulp.sys initrd/initrd.jar > fruityos_hdd.img
 stat --printf="FruityOS size is %s bytes.\n" fruityos_floppy.img
 truncate -s 1440K fruityos_floppy.img
 truncate -s 64K fruityos_hdd.img
-find . -name "*.yuzu" -print | xargs wc -l > loc.txt
+find -regex '.*\.\(yuzu\|asm\|c\)' -print | xargs wc -l > loc.txt
 

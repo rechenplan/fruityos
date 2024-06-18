@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm -rf bin tmp lib
+rm -rf bin lib tmp
 mkdir bin tmp lib
 
 cp ../yuzu/bin/zest bin/zest.elf
@@ -112,3 +112,4 @@ cat lib/_start.fap tmp/fred.s lib/libpith.fap > tmp/a.s
 bin/zest.elf f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/fred.fap
 
+rm -rf tmp

@@ -2,6 +2,10 @@
    417 ./yuzu/src/yc/emitter.yuzu
    121 ./yuzu/src/yc/yc.yuzu
    432 ./yuzu/src/yc/parser.yuzu
+   405 ./yuzu/src/byc/emitter.c
+   109 ./yuzu/src/byc/lexer.c
+   295 ./yuzu/src/byc/parser.c
+    94 ./yuzu/src/byc/byc.c
    437 ./yuzu/src/zest/parse.yuzu
    252 ./yuzu/src/zest/emit.yuzu
    131 ./yuzu/src/zest/lex.yuzu
@@ -22,6 +26,8 @@
    120 ./peel/src/dir/dir.yuzu
    168 ./peel/src/pish/pish.yuzu
     95 ./peel/src/write/write.yuzu
+    10 ./initrd/lib/_start.asm
+    99 ./initrd/lib/libpith.asm
     14 ./pulp/src/kmain.yuzu
     81 ./pulp/src/heap.yuzu
     78 ./pulp/src/page.yuzu
@@ -39,4 +45,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
     99 ./fapld/src/fapld.yuzu
-  5910 total
+  6922 total
