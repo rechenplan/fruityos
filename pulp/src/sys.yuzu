@@ -25,6 +25,9 @@ end
 
 sub sys_creat(filename)
 	local inode, fd
+	if ramfs_getFile(global_getRamfs(), filename) != 0 then
+		ramfs_deleteFile(global_getRamfs(), filename)
+	end
 	inode = ramfs_createFile(global_getRamfs(), filename, INODE_TYPE_FILE())
 	if (inode != 0) then
 		fd = fd_open(inode)

@@ -276,7 +276,6 @@ sub ramfs_nameToAbsName(ramfs, name, absName)
 		len = kstrlen(absName)
 		kstrcpy(absName + len, name)
 	end
-
 	; parse dots (TODO)
 	return 0
 end
