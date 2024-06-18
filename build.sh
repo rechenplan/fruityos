@@ -2,10 +2,6 @@ echo Building yuzu...
 cd yuzu
 ./build.sh
 cd ..
-echo Building fapld...
-cd fapld
-./build.sh
-cd ..
 echo Building peel...
 cd peel
 ./build.sh
@@ -26,10 +22,10 @@ cd initrd
 mkdir lib
 mkdir bin
 mkdir src
-cp ../peel/bin/* bin
+cp ../peel/bin/*.fap bin
 cp ../peel/lib/libpith.fap lib/libpith.asm
 cp ../peel/lib/_start.fap lib/_start.asm
-../peel/bin/jar.fap c initrd.jar
+../peel/bin/jar.elf c initrd.jar
 cd ..
 
 cat seed/bin/fdseed.bin pulp/bin/pulp.sys initrd/initrd.jar > fruityos_floppy.img
