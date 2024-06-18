@@ -85,12 +85,9 @@ sub sys_seek(fd, offset)
 end
 
 sub sys_getch()
-	local c, kb
+	local kb
 	kb = global_getKb()
-	while (c = kb_dequeue(kb)) == -1 do
-		sys_wait()
-	end
-	return c
+	return kb_dequeue(kb)	
 end
 
 sub sys_putch(char)
@@ -226,6 +223,7 @@ end
 
 sub sys_keyboard(scancode)
 	local c, kb, scr
+
 	kb = global_getKb()
 	scr = global_getScr()
 

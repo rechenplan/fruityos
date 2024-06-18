@@ -57,14 +57,6 @@ sys_handler:
 	iretq
 
 sys_wait:
-	pushf
-	pop rax
-	and rax, 1 << 9
-	jnz ints_enabled
-	call kb_poll
-	ret
-
-ints_enabled:
 	hlt
 	ret
 

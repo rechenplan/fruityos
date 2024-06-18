@@ -1,5 +1,11 @@
 ; fruity editor
 
+sub getchar()
+	local c
+	while (c = getch()) == -1 do end
+	return c
+end
+
 sub malloc(size)
 	local ptr
 	ptr = brk(-1)
@@ -114,7 +120,7 @@ sub repl(editBuffer, backBuffer, filename)
 		prevc = 32
 		puts(": ")
 		argc = 0
-		c = getch()
+		c = getchar()
 		while byte c != 10 do
 			if (byte c == 32) & (byte prevc != 32) then
 				byte [line + i] = 0
@@ -126,7 +132,7 @@ sub repl(editBuffer, backBuffer, filename)
 				i = i + 1
 			end
 			prevc = c
-			c = getch()
+			c = getchar()
 		end
 		byte [line + i] = 0
 		if strcmp(line, "d") & (argc > 0) then ; delete
@@ -213,7 +219,7 @@ sub repl(editBuffer, backBuffer, filename)
 			i = 0
 			byte [line] = 0
 			while j == startLine do
-				c = getch()
+				c = getchar()
 				if byte c != 10 then
 					byte [line + n] = c
 					n = n + 1
@@ -245,7 +251,7 @@ sub repl(editBuffer, backBuffer, filename)
 				n = 0
 				byte [line] = 0
 				while j == startLine do
-					c = getch()
+					c = getchar()
 					if byte c != 10 then
 						byte [line + n] = c
 						n = n + 1

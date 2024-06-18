@@ -3,6 +3,12 @@
 ;
 ;  write stdin to file
 
+sub getchar()
+	local c
+	while (c = getch()) == -1 do end
+	return c
+end
+
 sub str_is_equal(a, b)
 	while byte [a] == byte [b] do
 		if byte [a] == 0 then
@@ -71,7 +77,7 @@ sub main(argc, args)
 	end
 
 	ptr = buf
-	d = getch() & 255
+	d = getchar() & 255
 	while (d != 0) & (done == 0) do
 		if (d == 10) then
 			byte [ptr] = 0
@@ -82,12 +88,12 @@ sub main(argc, args)
 				fputs(fout, ptr)
 				fputch(fout, 10)
 				line = line + 1
-				d = getch() & 255
+				d = getchar() & 255
 			end
 		else
 			byte [ptr] = d
 			ptr = ptr + 1
-			d = getch() & 255
+			d = getchar() & 255
 		end
 	end
 	close(fout)
