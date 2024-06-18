@@ -1,6 +1,14 @@
 
 ; zest emitter 
 
+sub emit_int(fd, vec)
+	if fd != -1 then
+		fputch(fd, 205)
+		fputch(fd, vec)
+	end
+	return 2
+end
+
 ; op: 0 = ret, 1 = syscall 
 sub emit_no_args(op, fd)
 	local bytes

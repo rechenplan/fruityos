@@ -41,10 +41,20 @@ entry:
 	pop rdi ; pointer to initrd
 	call kmain
 
-die:
-	cli
+die:	cli
 	hlt
 	jmp die
+
+sys_ptr: dq sys_handler
+sys_handler:
+	shl rax, 3
+	push rdi
+	mov rdi, sys
+	add rdi, rax
+	mov rax, [rdi]
+	pop rdi
+	call rax
+	iretq
 
 sys_wait:
 	pushf

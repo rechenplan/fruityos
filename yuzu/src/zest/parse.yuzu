@@ -139,6 +139,14 @@ sub parse_no_args(op, fout, ptr, token)
 	return emit_no_args(op, fout)
 end
 
+sub parse_int(op, fout, ptr, token)
+	local vec
+	ptr = lex_get_next_token(ptr, token)
+	vec = parse_atoi(token)
+	ptr = parse_expect_newline(ptr, token)
+	return emit_int(fout, vec)
+end
+
 sub parse_one_reg(op, fout, ptr, token)
 	local reg
 	ptr = lex_get_next_token(ptr, token)
@@ -389,6 +397,9 @@ sub parse_file(fout, fin, symtab, org)
 
 			; ret, syscall 
 			if (k >= 0) & (k <= 1) then pos = pos + parse_no_args(k, fout, ptr, token) end
+
+			; int
+			if (k == 56) then pos = pos + parse_int(k, fout, ptr, token) end
 
 			; push, pop, mul, div, neg, not 
 			if (k >= 2) & (k <= 7) then pos = pos + parse_one_reg(k, fout, ptr, token) end

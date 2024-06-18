@@ -71,6 +71,8 @@ sub idt_init()
 		i = i + 1
 	end
 
+	idt_set2(_idt, 132, sys_ptr)
+
 	byte [_idtr] = 255
 	byte [_idtr + 1] = 15
 	[_idtr + 2] = _idt
