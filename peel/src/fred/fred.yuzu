@@ -290,7 +290,7 @@ sub main(argc, argv)
 	if (argc != 2) & (argc != 1) then
 		puts("usage: fred [filename]")
 		putch(10)
-		exit()
+		return 0
 	end
 
 	editBuffer = malloc(1048576)

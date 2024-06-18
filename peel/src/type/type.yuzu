@@ -35,7 +35,7 @@ sub main(argc, argv)
 	if argc < 2 then
 		puts("usage: read file { file }")
 		putch(10)
-		exit()
+		return 0
 	end
 	bufPtr = malloc(1)
 	while argc > 1 do

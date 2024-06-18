@@ -24,7 +24,7 @@ sub main(argc, argv)
 	if argc != 2 then
 		puts("usage: mkdir name")
 		putch(10)
-		exit()
+		return 0
 	end
 	mkdir(nextarg(argv))
 	return 0

@@ -28,7 +28,7 @@ sub main(argc, argv)
 	if argc != 3 then
 		puts("usage: copy file destfile")
 		putch(10)
-		exit()
+		return 0
 	end
 	file = nextarg(argv)
 	newfile = nextarg(file)
@@ -37,14 +37,14 @@ sub main(argc, argv)
 		puts("Failed to open ")
 		puts(file)
 		putch()
-		exit()
+		return 0
 	end
 	fout = creat(newfile)
 	if fin <= 0 then
 		puts("Failed to open ")
 		puts(newfile)
 		putch()
-		exit()
+		return 0
 	end
 	while (n = read(fin, buf, 8192)) > 0 do
 		write(fout, buf, n)

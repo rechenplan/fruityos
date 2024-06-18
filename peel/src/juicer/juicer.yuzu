@@ -152,7 +152,7 @@ sub main(argc, argv)
 	if argc != 4 then
 		puts("usage: juicer d|c infile outfile")
 		putch(10)
-		exit()
+		return 0
 	end
 
 	argv = nextarg(argv)
@@ -162,7 +162,7 @@ sub main(argc, argv)
 	if fin <= 0 then
 		puts("Unable to open file")
 		putch(10)
-		exit()
+		return 0
 	end
 	argv = nextarg(argv)
 	fout = creat(argv)
@@ -170,7 +170,7 @@ sub main(argc, argv)
 		puts("Unable to create file")
 		putch(10)
 		close(fin)
-		exit()
+		return 0
 	end
 	if byte mode == byte ["d"] then
 		decompress(fin, fout)
@@ -182,7 +182,7 @@ sub main(argc, argv)
 			putch(10)
 			close(fin)
 			close(fout)
-			exit()
+			return 0
 		end
 	end
 	close(fin)

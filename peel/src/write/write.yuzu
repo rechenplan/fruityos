@@ -67,7 +67,7 @@ sub main(argc, args)
 	else
 		puts("usage: write file")
 		putch(10)
-		exit()
+		return 0
 	end
 
 	ptr = buf

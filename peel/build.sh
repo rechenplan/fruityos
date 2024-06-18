@@ -28,12 +28,6 @@ bin/juicer.elf c tmp/yc.bin bin/yc.fap
 echo Juicing zest...
 bin/juicer.elf c tmp/zest.bin bin/zest.fap
 
-echo Building pish...
-bin/yc.elf src/pish/pish.yuzu tmp/pish.asm
-cat lib/_start.fap tmp/pish.asm lib/libpith.fap > tmp/a.s
-bin/zest.elf f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/pish.fap
-
 echo Building concat...
 bin/yc.elf src/concat/concat.yuzu tmp/concat.asm
 cat lib/_start.fap tmp/concat.asm lib/libpith.fap > tmp/a.s

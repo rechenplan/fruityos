@@ -9,6 +9,7 @@ sub kmain(initJarPtr)
 	kprintln("Welcome to FruityOS!")
 	kunpack(initJarPtr)
 
-	sys_exec("/bin/pish.fap", 0)
+	; sys_exec("/bin/pish.fap", 0)
+	pish_main()
 	die()
 end

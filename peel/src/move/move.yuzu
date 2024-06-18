@@ -25,7 +25,7 @@ sub main(argc, argv)
 	if argc != 3 then
 		puts("usage: move file newfile")
 		putch(10)
-		exit()
+		return 0
 	end
 	file = nextarg(argv)
 	newfile = nextarg(file)

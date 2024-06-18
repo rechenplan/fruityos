@@ -127,7 +127,7 @@ sub main(argc, argv)
 	if argc != 3 then
 		puts("usage: jar c|x file")
 		putch(10)
-		exit()
+		return 0
 	end
 
 	fileBuf = brk(-1)

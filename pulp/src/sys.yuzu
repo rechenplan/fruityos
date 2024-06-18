@@ -159,7 +159,6 @@ end
 
 sub sys_exec(filename, argv)
 	local fd, size, argc, args, i
-
 	fd = sys_open(filename, 0)
 	if fd != 0 then
 		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
@@ -177,8 +176,11 @@ sub sys_exec(filename, argv)
 			end
 		end
 		; TODO data leak! this never returns!
-		[PROGRAM_BASE_ADDR()](argc, args) ; TODO pass arguments
+		[PROGRAM_BASE_ADDR()](argc, args)
 		heap_free(args, 1024)
+		return 1
+	else
+		return 0
 	end
 end
 
@@ -214,7 +216,7 @@ sub sys_mmap()
 end
 
 sub sys_exit()
-	sys_exec("/bin/pish.fap", 0)
+	;sys_exec("/bin/pish.fap", 0)
 	die()
 end
 
