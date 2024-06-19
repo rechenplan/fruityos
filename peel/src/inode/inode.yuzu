@@ -169,4 +169,6 @@ sub main(argc, argv)
 	puts("Next: ")
 	putn(fba_getNext(inode))
 	putch(10)
+
+	close(fd)
 end

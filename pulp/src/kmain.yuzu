@@ -1,15 +1,17 @@
 sub kmain(initJarPtr)
-	local fd, buffer
+	local fd
 
 	heap_init()
 	global_init()
 	idt_init()
-
-	kcls()
-	kprintln("Welcome to FruityOS!")
 	kunpack(initJarPtr)
 
-	; sys_exec("/bin/pish.fap", 0)
-	pish_main()
+	kcls()
+	fd = sys_open("/init.psh", 0)
+	if fd != 0 then
+		pish_main(fd)
+	end
+	sys_close(fd)
+	pish_main(0)
 	die()
 end

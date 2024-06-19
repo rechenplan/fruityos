@@ -18,7 +18,7 @@
    324 ./peel/src/fred/fred.yuzu
     32 ./peel/src/rmdir/rmdir.yuzu
     36 ./peel/src/echo/echo.yuzu
-   172 ./peel/src/inode/inode.yuzu
+   174 ./peel/src/inode/inode.yuzu
     54 ./peel/src/type/type.yuzu
     55 ./peel/src/copy/copy.yuzu
     34 ./peel/src/del/del.yuzu
@@ -28,7 +28,7 @@
    101 ./peel/src/write/write.yuzu
      8 ./initrd/lib/_start.asm
     99 ./initrd/lib/libpith.asm
-    15 ./pulp/src/kmain.yuzu
+    17 ./pulp/src/kmain.yuzu
     81 ./pulp/src/heap.yuzu
     51 ./pulp/src/page.yuzu
    146 ./pulp/src/scr.yuzu
@@ -46,4 +46,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-  7159 total
+  7163 total

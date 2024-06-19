@@ -42,6 +42,7 @@ rm -R -- */
 cp ../../build.psh build.psh
 cd ..
 
+cp ../init.psh init.psh
 ../peel/bin/jar.elf c initrd.jar
 cd ..
 
