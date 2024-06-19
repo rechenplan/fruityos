@@ -106,4 +106,10 @@ cat lib/_start.fap tmp/fred.s lib/libpith.fap > tmp/a.s
 bin/zest.elf f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/fred.fap
 
+echo Building inode...
+bin/yc.elf src/inode/inode.yuzu tmp/inode.s
+cat lib/_start.fap tmp/inode.s lib/libpith.fap > tmp/a.s
+bin/zest.elf f tmp/a.s tmp/a.bin
+bin/juicer.elf c tmp/a.bin bin/inode.fap
+
 rm -rf tmp

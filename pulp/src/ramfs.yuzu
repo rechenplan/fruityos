@@ -328,7 +328,7 @@ sub ramfs_canonicalizeName(ramfs, name)
 			dir = fba_getPrev(dir) ; up one dir
 		else
 			dir = inode_getContent(dir)
-		end	
+		end
 	end
 	while inodePtr != 0 do
 		dir = inode_getName([inodePtr])
