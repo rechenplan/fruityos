@@ -1,0 +1,31 @@
+0.01
+
+Initial release. A monotasking 64 bit OS for x86 written in yuzu: a custom system language.
+
+0.02
+
+This release has mostly involved updates and bugfixes geared toward getting FruityOS
+to work on real hardware and to facilitate self-hosting.
+
+Changes:
+
+	1. inode utility which queries inode properties.
+	2. harddrive bootloader is now the prefered bootloader. Also works on HDD emulated USB.
+	3. the creat syscall will now overwrite existing file.
+	4. image now contains userland sources and a script to build them.
+	5. fapld has been removed from the repository.
+	6. userland code can now use int 0x84 to make kernel calls.
+	7. pie shell (pish) is now part of the kernel.
+	8. getch syscall is now non-blocking. returns -1 if fail.
+	9. IDT is now initialized in the kernel rather than the bootloader and added many isrs.
+	10. memory map has changed and more memory is available for the application heap.
+
+Bugfixes:
+
+	1. bootloader memory corruption bug (2bf356a)
+	2. inode_unlink memory corruption bug (b020853, 76a3168)
+	3. idt not working on real hardware or anything but qemu (50b0570)
+
+Notes:
+
+	Required RAM is now 16 MB.
