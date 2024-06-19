@@ -1,9 +1,9 @@
 sub PROGRAM_BASE_ADDR()
-	return 4 << 16
+	return 2 << 20
 end
 
 sub APPLICATION_HEAP()
-	return 2 << 20
+	return 3 << 20
 end
 
 sub MAX_ADDR()
@@ -175,7 +175,6 @@ sub sys_exec(filename, argv)
 				argv = argv + 8
 			end
 		end
-		; TODO data leak! this never returns!
 		[PROGRAM_BASE_ADDR()](argc, args)
 		heap_free(args, 1024)
 		return 1

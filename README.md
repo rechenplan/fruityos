@@ -16,9 +16,9 @@ a monotasking 64 bit OS written in yuzu: a custom system language. this reposito
 
 # memory map
 
-	0x000500 - 0x010000
-	0x010000 - 0x040000 192k kernel space
-	0x040000 - 0x080000 256k application space
+	0x001000 - 0x010000 scratch, idt at 0xf000
+	0x010000 - 0x040000 kernel & stack
+	0x040000 - 0x080000 page table
 	0x100000 - 0x200000 kernel heap
-	0x200000 - 0x?????? application heap
+	0x200000 - 0x?????? application space
 

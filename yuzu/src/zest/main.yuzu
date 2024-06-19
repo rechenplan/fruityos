@@ -48,7 +48,7 @@ sub main(argc, args)
 	end
 
 	if byte [format] == byte ["f"] then
-		vaddr = 4 << 16 ; 0x40000
+		vaddr = 2 << 20 ; 0x200000
 		parse_file(-1, fin, symtab, vaddr) ; build symbol table
 		seek(fin, 0, 0)
 		parse_file(fout, fin, symtab, vaddr) ; write output
