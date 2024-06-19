@@ -33,8 +33,8 @@ cp ../peel/lib/_start.fap lib/_start.asm
 cd src
 mkdir yc
 mkdir zest
-#cp ../../yuzu/src/yc/*.yuzu yc
-#cp ../../yuzu/src/zest/*.yuzu zest
+cp ../../yuzu/src/yc/*.yuzu yc
+cp ../../yuzu/src/zest/*.yuzu zest
 ../../peel/bin/jar.elf c fruity.jar
 ../../peel/bin/juicer.elf c fruity.jar fruity.jar.jz
 rm fruity.jar

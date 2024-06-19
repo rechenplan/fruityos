@@ -24,12 +24,26 @@ start:
 	push 0xb800
 	pop gs
 
-        ; Read 127 sectors (64k) from begining of disk to memory
-load:	mov word [dap + 2], BLOCK_COUNT
+        ; Read 256 sectors (128k) from begining of disk to memory
+
+	mov bx, LOAD_ADDR >> 4
+	mov bp, 0
+	mov cx, 4
+load:
+	mov word [dap + 0], 16
+	mov word [dap + 2], 64
+	mov word [dap + 4], 0
+	mov word [dap + 6], bx ; segment
+	mov word [dap + 8], bp ; starting block
+
         mov ah, 42h
         mov si, dap
         int 0x13
         jc load
+
+	add bx, 0x0800
+	add bp, 64
+	loop load
 
 	; Turn on A20 gate (fast A20)
 a20:	in al, 0x92

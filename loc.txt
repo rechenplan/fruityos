@@ -29,7 +29,7 @@
     99 ./initrd/lib/libpith.asm
     15 ./pulp/src/kmain.yuzu
     81 ./pulp/src/heap.yuzu
-    47 ./pulp/src/page.yuzu
+    51 ./pulp/src/page.yuzu
    146 ./pulp/src/scr.yuzu
     30 ./pulp/src/x86.yuzu
     93 ./pulp/src/entry.asm
@@ -45,4 +45,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-  6989 total
+  6993 total
