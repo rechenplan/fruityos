@@ -6,9 +6,8 @@ a monotasking 64 bit OS written in yuzu: a custom system language. this reposito
 	2. peel - a userspace suite with commands similar to dos
 	3. pulp - the fruityos kernel
 	4. seed - the fruityos bootloader
-	5. fapld - a loader for fruityos applications under linux
 
-# build instructions
+# build under ubuntu instructions
 
 	1. Run init.sh to install all required software
 	2. Run build.sh to build
@@ -16,9 +15,9 @@ a monotasking 64 bit OS written in yuzu: a custom system language. this reposito
 
 # memory map
 
-	0x001000 - 0x010000 scratch, idt at 0xf000
+	0x001000 - 0x010000 scratch, idt at 0xf000, page table at 0x1000
 	0x010000 - 0x040000 kernel & stack
-	0x040000 - 0x080000 page table
+	0x040000 - 0x080000 free
 	0x100000 - 0x200000 kernel heap
 	0x200000 - 0x?????? application space
 
