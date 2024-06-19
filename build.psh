@@ -145,4 +145,4 @@ echo Assembling...
 zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/zest.fap
 
-del tmp
+rmdir tmp

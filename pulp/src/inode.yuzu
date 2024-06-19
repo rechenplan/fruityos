@@ -109,9 +109,9 @@ sub inode_unlink(parent, inode)
                         if file == inode then
                                 next = fba_getNext(file)
                                 fba_setNext(file, 0)
-				if next != 0 then
-	                                fba_setPrev(next, 0)
-				end
+				;if next != 0 then
+	                        ;        fba_setPrev(next, 0)
+				;end
                                 inode_setContent(parent, next)
                         else
 				prev = 0
