@@ -19,6 +19,7 @@ Changes:
 	8. getch syscall is now non-blocking. returns -1 if fail.
 	9. IDT is now initialized in the kernel rather than the bootloader and added many isrs.
 	10. memory map has changed and more memory is available for the application heap.
+	11. /init.psh script is now executed on boot.
 
 Bugfixes:
 
