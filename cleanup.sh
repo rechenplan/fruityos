@@ -13,4 +13,4 @@ cd ..
 cd pulp
 ./cleanup.sh
 cd ..
-rm -rf initrd
+rm -rf initrd *.img log.txt

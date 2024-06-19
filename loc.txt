@@ -45,5 +45,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-    99 ./fapld/src/fapld.yuzu
-  7088 total
+  6989 total
