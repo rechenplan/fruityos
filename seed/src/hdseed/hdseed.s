@@ -3,7 +3,9 @@
 
 %define KERNEL_ADDR 0x10000
 %define STACK_ADDR 0x40000
+%define LOAD_ADDR 0x40000
 %define BLOCK_COUNT 127
+%define GDT_ADDR (gdt - 0x7c00) + LOAD_ADDR
 
 	; Canonicalize IP
 	jmp 0x0000:start
@@ -46,7 +48,7 @@ a20:	in al, 0x92
 	mov edi, 0x1000
 	mov cr3, edi
 	xor eax, eax
-	mov ecx, 0x6000 / 4
+	mov ecx, 0x4000 / 4
 	rep stosd
 
 	mov ax, 0x2003
@@ -56,12 +58,9 @@ a20:	in al, 0x92
 	add ah, 0x10
         mov word [0x3000], ax
 	add ah, 0x10
-        mov word [0x3008], ax
-	add ah, 0x10
-        mov word [0x3010], ax
 
         mov eax, 3
-        mov cx, 512 * 3
+        mov cx, 512
         mov di, 0x4000
 page:   stosd
 	add di, 4
@@ -158,13 +157,13 @@ dap:
         db 0                    ; reserved
         dw BLOCK_COUNT          ; number of blocks to transfer
         dw 0                    ; buffer ptr
-	dw 0x4000	        ; buffer seg
+	dw LOAD_ADDR >> 4	; buffer seg
         dq 0                    ; block number
 
 gdt:
 gdtr: ; null segment also
 	dw gdt_end - gdt - 1
-	dd gdt
+	dd GDT_ADDR
 	dw 0
 
 gdt_code:

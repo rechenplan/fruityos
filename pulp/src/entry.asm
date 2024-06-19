@@ -41,6 +41,11 @@ entry:
 	pop rdi ; pointer to initrd
 	call kmain
 
+flush_tlb:
+	mov rax, cr3
+	mov cr3, rax
+	ret
+
 die:	cli
 	hlt
 	jmp die

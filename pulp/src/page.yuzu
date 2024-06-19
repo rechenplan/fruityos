@@ -1,78 +1,47 @@
-; page allocator
+; page table
 
-sub page_init(pga)
-	local i, node
-	page_setHead(pga, 0)
+sub page_init()
+	local i
 
-	while i < (8 << 1024) do
-		node = node_alloc()
-		page_setAddress(node, i << 12)
-		page_push(pga, node)
+	while i < (4 << 9) do
+		page_setPage(i, (i << 12) | 3)
 		i = i + 1
 	end
+
+	[page_getPDT() + 24] = (page_getPT() + (3 << 12)) | 3
+	[page_getPDT() + 16] = (page_getPT() + (2 << 12)) | 3
+	[page_getPDT() + 8] = (page_getPT() + (1 << 12)) | 3
+	[page_getPDT() + 0] = (page_getPT() + (0 << 12)) | 3
+	[page_getPDPT()] = page_getPDT() | 3
+	[page_getPML4T()] = page_getPDPT() | 3
+
+	flush_tlb()
 end
 
-sub node_alloc()
-	return heap_alloc(8) - list_getNodeHdrSize()
+sub page_setPage(idx, entry)
+	[page_getPT() + (idx << 3)] = entry
 end
 
-sub node_free(node)
-	heap_free(node + list_getNodeHdrSize(), 8)
-end 
-
-sub page_getAddress(node)
-	return [node + list_getNodeHdrSize()]
-end
-
-sub page_setAddress(node, addr)
-	[node + list_getNodeHdrSize()] = addr
-end
-
-sub page_getHead(pga)
-	return [pga + (0 << 3)]
-end
-
-sub page_setHead(pga, head)
-	[pga + (0 << 3)] = head
-end
-
-sub page_push(pga, page)
-	local head
-	head = page_getHead(pga)
-	list_setPrev(page, 0)
-	list_setNext(page, head)
-	if head != 0 then
-		list_setPrev(head, page)
-	end
-	page_setHead(pga, page)
-end
-
-sub page_pop(pga)
-	local head
-	head = page_getHead(pga)
-	if head != 0 then
-		page_setHead(pga, list_getNext(head))
-		list_setNext(head, 0)
-		list_setPrev(head, 0)
-		list_setPrev(page_getHead(), 0)
-		return head
-	else
-		kprintln("Page frame allocation fail!")
-		die()
-	end
-end
-
-sub page_cleanup(pga)
-	local node, nextnode
-	node = page_getHead(pga)
-	while node != 0 do
-		nextnode = list_getNext(node)
-		node_free(node)
-		node = nextnode
-	end
-	page_setHead(pga, 0)
+sub page_cleanup()
+	return 0
 end
 
 sub page_getSize()
-	return (1 << 3)
+	return 0
+end
+
+sub page_getPML4T()
+	return 1 << 12
+end
+
+sub page_getPDPT()
+	return 2 << 12
+end
+
+sub page_getPDT()
+	return 3 << 12
+end
+
+sub page_getPT()
+	return 4 << 12
 end

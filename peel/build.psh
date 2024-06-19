@@ -98,11 +98,11 @@ zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/jar.fap
 rmdir tmp
 
-#echo Building fred...
-#mkdir tmp
-#yc fred/fred.yuzu tmp/fred.asm
-#concat tmp/a.asm ../lib/_start.asm tmp/fred.asm ../lib/libpith.asm
-#zest f tmp/a.asm tmp/a.bin
-#juicer c tmp/a.bin bin/fred.fap
-#rmdir tmp
+echo Building fred...
+mkdir tmp
+yc fred/fred.yuzu tmp/fred.asm
+concat tmp/a.asm ../lib/_start.asm tmp/fred.asm ../lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/fred.fap
+rmdir tmp
 

@@ -7,7 +7,7 @@ sub APPLICATION_HEAP()
 end
 
 sub MAX_ADDR()
-	return 6 << 20
+	return 8 << 20
 end
 
 sub KERNEL_BASE_ADDR()
