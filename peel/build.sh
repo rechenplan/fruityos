@@ -13,8 +13,8 @@ cp ../yuzu/lib/_start.fap ./lib/_start.fap
 cp ../yuzu/lib/_start.elf ./lib/_start.elf
 
 echo Building jar for Linux...
-bin/yc.elf src/jar/jar.yuzu tmp/juicer.s
-cat lib/_start.elf tmp/juicer.s lib/libpith.elf > tmp/a.s
+bin/yc.elf src/jar/jar.yuzu tmp/jar.s
+cat lib/_start.elf tmp/jar.s lib/libpith.elf > tmp/a.s
 bin/zest.elf e tmp/a.s bin/jar.elf
 
 echo Building juicer for Linux...

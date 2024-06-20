@@ -57,7 +57,8 @@ void fprintf(int fd, char* fmt, int n, char* s) {
 extern astnode_t* parseProgram(char** program);
 extern void emitProgram(astnode_t* program, int fd);
 
-void error(char* msg) { fprintf(0, "err: %s\n", 0, msg); exit(0); }
+int line = 0;
+void error(char* msg) { fprintf(0, "err: %s (%d)\n", line, msg); exit(0); }
 void* sbrk(unsigned int size) { void* t = brk(-1); brk(t + size); return t; }
 void* allocMemory(int size) { return sbrk(size); }
 void freeMemory(void* ptr) { }

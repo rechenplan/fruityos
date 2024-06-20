@@ -76,7 +76,8 @@ sub compress(fin, fout)
 
 		if bestLength > 3 then
 			byte [bytePtr + 0] = 255
-			[bytePtr + 1] = ((bestDistance & 1023) << 6) | (bestLength & 63)
+			byte [bytePtr + 1] = ((bestDistance & 1023) << 6) | (bestLength & 63)
+			byte [bytePtr + 2] = ((bestDistance & 1023) >> 2)
 			write(fout, bytePtr, 3)
 		else
 			bestLength = 1;

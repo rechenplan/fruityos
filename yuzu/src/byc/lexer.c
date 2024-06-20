@@ -1,5 +1,7 @@
 #include "lexer.h"
 
+extern int line;
+
 char* LEX_TOKENS[] = {"(",")","[","]",",","+","-","*","/","%","&&","&","||","|","^","==","=","!=","!","~","<<","<=",
         "<",">>",">=",">","local","if","then","else","end","while","do","sub","return","byte"};
 
@@ -53,6 +55,7 @@ int nextToken(char* buffer, int* consumed /* out */, char* outBuf) {
 		else {
 			inComment = (*buffer == ';');
 		}
+		if (*buffer == '\n') line = line + 1;
 		buffer++;
 		read++;
 	}

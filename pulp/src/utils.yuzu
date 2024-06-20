@@ -106,13 +106,12 @@ sub kunpack(jarBuffer)
 end
 
 sub kdecrunch(fin, filePtr)
-        local fileSize, bytePtr, length, distance, i, bytesRead
+        local fileSize, bytePtr, length, distance, i
 
         bytePtr = heap_alloc(2)
         while sys_read(fin, bytePtr, 1) > 0 do
                 if byte [bytePtr] == 255 then
                         sys_read(fin, bytePtr, 2)
-			bytesRead = bytesRead + 2
                         length = [bytePtr] & 63
                         distance = ([bytePtr] >> 6) & 1023
                         if (length == 0) then
@@ -135,7 +134,6 @@ sub kdecrunch(fin, filePtr)
                         byte [filePtr + fileSize] = byte [bytePtr]
                         fileSize = fileSize + 1
                 end
-		bytesRead = bytesRead + 1
         end
 	heap_free(bytePtr, 2)
         return fileSize

@@ -4,5 +4,5 @@ cat ../../lib/_start.elf _.asm ../../lib/libpith.elf > elf.asm
 cat ../../lib/_start.fap _.asm ../../lib/libpith.fap > fap.asm
 nasm elf.asm -felf64 -o zest.o
 ld -n -s zest.o -o ../../bin/zest
-nasm fap.asm -fbin -p org.s -o ../../bin/zest.bin
+../../bin/zest f fap.asm ../../bin/zest.bin
 rm _.* zest.* elf.asm fap.asm
