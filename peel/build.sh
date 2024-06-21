@@ -3,6 +3,8 @@
 rm -rf bin tmp
 mkdir bin tmp
 
+echo "[ Building FruityOS userland ]"
+
 echo Building jar for Linux...
 ../yuzu/bin/yc src/jar/jar.yuzu tmp/jar.s
 cat ../yuzu/lib/_start.asm tmp/jar.s ../yuzu/lib/libpith.asm > tmp/a.s
@@ -12,9 +14,6 @@ echo Building juicer for Linux...
 ../yuzu/bin/yc src/juicer/juicer.yuzu tmp/juicer.s
 cat ../yuzu/lib/_start.asm tmp/juicer.s ../yuzu/lib/libpith.asm > tmp/a.s
 ../yuzu/bin/zest e tmp/a.s bin/juicer.elf
-
-
-echo "[ Building FruityOS Userland ]"
 
 echo Building concat...
 ../yuzu/bin/yc src/concat/concat.yuzu tmp/concat.asm

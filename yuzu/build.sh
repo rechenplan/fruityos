@@ -1,4 +1,5 @@
 rm -rf bin
+echo "[ Building yuzu ]"
 mkdir bin
 cd src
 cd byc

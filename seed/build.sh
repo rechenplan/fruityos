@@ -1,3 +1,4 @@
+echo "[ Building FruityOS bootloader ]"
 rm -rf bin
 mkdir bin
 cd src

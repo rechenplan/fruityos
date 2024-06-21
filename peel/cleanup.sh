@@ -1,2 +1,2 @@
 #!/bin/sh
-rm -rf bin tmp lib peel.jar
+rm -rf bin tmp

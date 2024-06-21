@@ -1,3 +1,4 @@
+echo "Building yc..."
 cat *.yuzu > _yc.yuzu
 ../../bin/byc _yc.yuzu _yc.asm
 cat ../../lib/_start.asm _yc.asm ../../lib/libpith.asm > yc.asm

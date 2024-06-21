@@ -1,3 +1,4 @@
+echo "Building byc..."
 gcc -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ lexer.c -o lexer.o
 gcc -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ parser.c -o parser.o
 gcc -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ emitter.c -o emitter.o

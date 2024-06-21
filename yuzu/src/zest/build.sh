@@ -1,3 +1,4 @@
+echo "Building zest..."
 cat main.yuzu lex.yuzu parse.yuzu emit.yuzu elf.yuzu > _.yuzu
 ../../bin/byc _.yuzu _.asm
 cat ../../lib/_start.asm _.asm ../../lib/libpith.asm > elf.asm

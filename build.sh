@@ -1,22 +1,18 @@
-echo Building yuzu...
 cd yuzu
 ./build.sh
 cd ..
-echo Building peel...
 cd peel
 ./build.sh
 cd ..
-echo Building seed...
 cd seed
 ./build.sh
 cd ..
-echo Building pulp...
 cd pulp
 ./build.sh
 cd ..
 
 
-echo Creating initial RAM filesystem...
+echo [ Creating initial RAM filesystem ]
 rm -rf initrd
 mkdir initrd
 cd initrd
