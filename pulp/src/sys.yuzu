@@ -1,9 +1,9 @@
 sub PROGRAM_BASE_ADDR()
-	return 2 << 20
+	return 3 << 20
 end
 
 sub APPLICATION_HEAP()
-	return 3 << 20
+	return 4 << 20
 end
 
 sub MAX_ADDR()
