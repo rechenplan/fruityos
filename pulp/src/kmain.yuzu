@@ -2,6 +2,7 @@ sub kmain(initrd)
 	local fd
 
 	idt_init()
+	page_init()
 	heap_init()
 	global_init()
 	kunpack(initrd)
