@@ -1,12 +1,12 @@
-sub kmain(initJarPtr)
+sub kmain(initrd)
 	local fd
 
+	idt_init()
 	heap_init()
 	global_init()
-	idt_init()
-	kunpack(initJarPtr)
-
+	kunpack(initrd)
 	kcls()
+
 	fd = sys_open("/init.psh", 0)
 	if fd != 0 then
 		pish_main(fd)

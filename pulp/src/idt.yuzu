@@ -12,7 +12,7 @@ sub idt_init()
 
 	local i
 
-	_idt = 61440 ; 0xf000 ; heap_alloc(idt_getSize())
+	_idt = 61440 ; 0xf000
 
 	idt_set2(_idt, 0, exception_de)
 	idt_set2(_idt, 1, exception_db)
@@ -72,7 +72,7 @@ sub idt_init()
 
 	idt_set2(_idt, 132, sys_ptr)
 
-	_idtr = 1280 ; 0x500 ; heap_alloc(idt_getIdtrSize())
+	_idtr = 1280 ; 0x500
 	byte [_idtr] = 255
 	byte [_idtr + 1] = 15
 	[_idtr + 2] = _idt
@@ -84,8 +84,6 @@ end
 
 sub idt_cleanup()
 	idt_cli()
-	heap_free(_idt, idt_getSize())
-	heap_free(_idtr, idt_getIdtrSize())
 	_idt = 0
 	_idtr = 0
 end

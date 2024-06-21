@@ -46,7 +46,7 @@
    194 ./pulp/src/pish.yuzu
    261 ./pulp/src/kb.yuzu
     89 ./pulp/src/global.yuzu
-   132 ./pulp/src/idt.yuzu
+   130 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-  7424 total
+  7422 total
