@@ -56,13 +56,6 @@ sub yc_fputn(fd, x)
 	end
 end
 
-sub yc_puts(str)
-	while byte [str] do
-		putch(byte [str])
-		str = str + 1
-	end
-end
-
 sub yc_error(str)
 	yc_puts("parse error (expected ")
 	yc_puts(str)

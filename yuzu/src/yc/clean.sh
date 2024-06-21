@@ -1,1 +1,1 @@
-rm ../../bin/yc ../../bin/yc.bin
+rm ../../bin/yc

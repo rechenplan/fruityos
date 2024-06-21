@@ -27,8 +27,8 @@ mkdir src
 
 cp ../peel/bin/*.fap bin
 cp -rp ../peel/src/* src
-cp ../peel/lib/libpith.fap lib/libpith.asm
-cp ../peel/lib/_start.fap lib/_start.asm
+cp ../peel/lib/libpith.asm lib/libpith.asm
+cp ../peel/lib/_start.asm lib/_start.asm
 
 cd src
 mkdir yc
