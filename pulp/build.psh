@@ -1,63 +1,42 @@
 echo [ Building FruityOS kernel ]
-
 rmdir bin
 rmdir tmp
-
 mkdir bin
 mkdir tmp
-
 echo Compiling kmain.yuzu...
 yc src/kmain.yuzu tmp/kmain.asm
-
 echo Compiling pish.yuzu...
 yc src/pish.yuzu tmp/pish.asm
-
 echo Compiling sys.yuzu...
 yc src/sys.yuzu tmp/sys.asm
-
 echo Compiling x86.yuzu...
 yc src/x86.yuzu tmp/x86.asm
-
 echo Compiling utils.yuzu...
 yc src/utils.yuzu tmp/utils.asm
-
 echo Compiling ramfs.yuzu...
 yc src/ramfs.yuzu tmp/ramfs.asm
-
 echo Compiling fba.yuzu...
 yc src/fba.yuzu tmp/fba.asm
-
 echo Compiling list.yuzu...
 yc src/list.yuzu tmp/list.asm
-
 echo Compiling inode.yuzu...
 yc src/inode.yuzu tmp/inode.asm
-
 echo Compiling heap.yuzu...
 yc src/heap.yuzu tmp/heap.asm
-
 echo Compiling global.yuzu...
 yc src/global.yuzu tmp/global.asm
-
 echo Compiling scr.yuzu...
 yc src/scr.yuzu tmp/scr.asm
-
 echo Compiling kb.yuzu...
 yc src/kb.yuzu tmp/kb.asm
-
 echo Compiling fd.yuzu...
 yc src/fd.yuzu tmp/fd.asm
-
 echo Compiling page.yuzu...
 yc src/page.yuzu tmp/page.asm
-
 echo Compiling idt.yuzu...
 yc src/idt.yuzu tmp/idt.asm
-
 concat tmp/pulp.asm src/entry.asm src/idt.asm tmp/kmain.asm tmp/pish.asm tmp/idt.asm tmp/sys.asm tmp/x86.asm tmp/utils.asm tmp/ramfs.asm tmp/fba.asm tmp/list.asm tmp/inode.asm tmp/heap.asm tmp/global.asm tmp/scr.asm tmp/kb.asm tmp/fd.asm tmp/page.asm
-
 echo Assembling...
 #nasm -f bin tmp/pulp.asm -o bin/pulp.bin
 #../peel/bin/juicer.elf c bin/pulp.bin bin/pulp.sys
-
 rmdir tmp
