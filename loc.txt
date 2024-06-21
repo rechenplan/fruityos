@@ -1,7 +1,6 @@
    219 ./yuzu/src/yc/lexer.yuzu
    425 ./yuzu/src/yc/emitter.yuzu
    114 ./yuzu/src/yc/yc.yuzu
- 15780 ./yuzu/src/yc/_yc.asm
    432 ./yuzu/src/yc/parser.yuzu
    405 ./yuzu/src/byc/emitter.c
    112 ./yuzu/src/byc/lexer.c
@@ -18,7 +17,6 @@
    219 ./peel/yc/lexer.yuzu
    425 ./peel/yc/emitter.yuzu
    114 ./peel/yc/yc.yuzu
- 15780 ./peel/yc/_yc.asm
    432 ./peel/yc/parser.yuzu
    192 ./peel/src/juicer/juicer.yuzu
     54 ./peel/src/concat/concat.yuzu
@@ -62,4 +60,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
- 41269 total
+  9709 total
