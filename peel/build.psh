@@ -71,6 +71,8 @@ yc src/inode/inode.yuzu tmp/inode.asm
 concat tmp/a.asm lib/_start.asm tmp/inode.asm lib/libpith.asm
 zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/inode.fap
+rmdir tmp
+mkdir tmp
 echo Building yc...
 echo Compiling yc.yuzu...
 yc ../yuzu/src/yc/yc.yuzu tmp/yc.asm
@@ -84,9 +86,9 @@ concat tmp/a.asm lib/_start.asm tmp/yc.asm tmp/parser.asm tmp/lexer.asm tmp/emit
 echo Assembling...
 zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/yc.fap
-
+rmdir tmp
+mkdir tmp
 echo Building zest...
-
 echo Compiling main.yuzu...
 yc ../yuzu/src/zest/main.yuzu tmp/main.asm
 echo Compiling parse.yuzu...
@@ -101,5 +103,4 @@ concat tmp/a.asm lib/_start.asm tmp/main.asm tmp/parse.asm tmp/lex.asm tmp/emit.
 echo Assembling...
 zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/zest.fap
-
 rmdir tmp
