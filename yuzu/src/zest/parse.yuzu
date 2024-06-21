@@ -239,7 +239,8 @@ end
 sub parse_label(fout, pos, ptr, token, symtab)
 	if fout == -1 then
 		if parse_lookup_table(token, symtab) != -1 then
-			return 0
+			lex_puts("duplicate label")
+			exit(0)
 		end
 		parse_insert_table(pos, token, symtab)
 	end

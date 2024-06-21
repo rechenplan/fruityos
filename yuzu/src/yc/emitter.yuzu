@@ -2,6 +2,7 @@
 
 sub yc_emit_label(func, n, fd)
 	yc_fputs(fd, func)
+	yc_fputs(fd, "_L")
 	yc_fputn(fd, n)
 end
 

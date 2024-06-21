@@ -1,12 +1,12 @@
    219 ./yuzu/src/yc/lexer.yuzu
-   424 ./yuzu/src/yc/emitter.yuzu
+   425 ./yuzu/src/yc/emitter.yuzu
    121 ./yuzu/src/yc/yc.yuzu
    432 ./yuzu/src/yc/parser.yuzu
    405 ./yuzu/src/byc/emitter.c
    112 ./yuzu/src/byc/lexer.c
    295 ./yuzu/src/byc/parser.c
     95 ./yuzu/src/byc/byc.c
-   437 ./yuzu/src/zest/parse.yuzu
+   438 ./yuzu/src/zest/parse.yuzu
    252 ./yuzu/src/zest/emit.yuzu
    131 ./yuzu/src/zest/lex.yuzu
     59 ./yuzu/src/zest/main.yuzu
@@ -14,7 +14,6 @@
     37 ./yuzu/doc/manual.yuzu
    192 ./peel/src/juicer/juicer.yuzu
     54 ./peel/src/concat/concat.yuzu
-   411 ./peel/src/concat/concat.asm
     31 ./peel/src/mkdir/mkdir.yuzu
    324 ./peel/src/fred/fred.yuzu
     32 ./peel/src/rmdir/rmdir.yuzu
@@ -26,7 +25,6 @@
     34 ./peel/src/move/move.yuzu
     73 ./peel/src/fill/fill.yuzu
    156 ./peel/src/jar/jar.yuzu
-  1792 ./peel/src/jar/jar.asm
    120 ./peel/src/dir/dir.yuzu
    101 ./peel/src/write/write.yuzu
      8 ./initrd/lib/_start.asm
@@ -49,4 +47,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-  9449 total
+  7248 total
