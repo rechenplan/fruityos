@@ -14,10 +14,6 @@
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
     37 ./yuzu/doc/manual.yuzu
-   219 ./peel/yc/lexer.yuzu
-   425 ./peel/yc/emitter.yuzu
-   114 ./peel/yc/yc.yuzu
-   432 ./peel/yc/parser.yuzu
    192 ./peel/src/juicer/juicer.yuzu
     54 ./peel/src/concat/concat.yuzu
     31 ./peel/src/mkdir/mkdir.yuzu
@@ -35,11 +31,6 @@
    101 ./peel/src/write/write.yuzu
      8 ./peel/lib/_start.asm
     99 ./peel/lib/libpith.asm
-   438 ./peel/zest/parse.yuzu
-   252 ./peel/zest/emit.yuzu
-   131 ./peel/zest/lex.yuzu
-    59 ./peel/zest/main.yuzu
-   108 ./peel/zest/elf.yuzu
     17 ./pulp/src/kmain.yuzu
     81 ./pulp/src/heap.yuzu
     51 ./pulp/src/page.yuzu
@@ -58,4 +49,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-  9602 total
+  7424 total
