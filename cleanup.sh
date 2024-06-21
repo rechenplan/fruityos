@@ -10,4 +10,4 @@ cd ..
 cd pulp
 ./cleanup.sh
 cd ..
-rm -rf initrd *.img log.txt
+rm -rf initrd.jar *.img log.txt tmp

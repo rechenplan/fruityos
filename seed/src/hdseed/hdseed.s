@@ -24,11 +24,11 @@ start:
 	push 0xb800
 	pop gs
 
-        ; Read 256 sectors (128k) from begining of disk to memory
+        ; Read 512 sectors (256k) from begining of disk to memory
 
 	mov bx, LOAD_ADDR >> 4
 	mov bp, 0
-	mov cx, 4
+	mov cx, 8
 load:
 	mov word [dap + 0], 16
 	mov word [dap + 2], 64

@@ -40,8 +40,6 @@
    131 ./peel/zest/lex.yuzu
     59 ./peel/zest/main.yuzu
    108 ./peel/zest/elf.yuzu
-     8 ./initrd/lib/_start.asm
-    99 ./initrd/lib/libpith.asm
     17 ./pulp/src/kmain.yuzu
     81 ./pulp/src/heap.yuzu
     51 ./pulp/src/page.yuzu
@@ -60,4 +58,4 @@
    132 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
    234 ./pulp/src/idt.asm
-  9709 total
+  9602 total
