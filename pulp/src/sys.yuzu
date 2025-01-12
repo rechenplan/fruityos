@@ -175,7 +175,7 @@ sub sys_exec(filename, argv)
 				argv = argv + 8
 			end
 		end
-		[PROGRAM_BASE_ADDR()](argc, args)
+		sys_ring3(argc, args)
 		heap_free(args, 1024)
 		return 1
 	else
@@ -212,11 +212,6 @@ end
 
 sub sys_mmap()
 	return 0
-end
-
-sub sys_exit()
-	;sys_exec("/bin/pish.fap", 0)
-	die()
 end
 
 sub sys_stub()

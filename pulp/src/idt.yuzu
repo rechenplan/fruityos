@@ -70,7 +70,7 @@ sub idt_init()
 		i = i + 1
 	end
 
-	idt_set2(_idt, 132, sys_ptr)
+	idt_set(_idt, 132, sys_ptr, 8, 0, 238) ; 0xee
 
 	_idtr = 1280 ; 0x500
 	byte [_idtr] = 255
@@ -89,7 +89,7 @@ sub idt_cleanup()
 end
 
 sub idt_set2(idt_addr, vector, isr_addr)
-	idt_set(idt_addr, vector, isr_addr, 8, 0, 142) ; 0x8e
+	idt_set(idt_addr, vector, isr_addr, 8, 1, 142) ; 0x8e (notice ist=1)
 end
 
 sub idt_set(idt_addr, vector, isr_addr, isr_segment, ist, attr)

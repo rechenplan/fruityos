@@ -5,4 +5,5 @@ global _start
 _start:
 	mov	rax, main
 	call	rax
-	ret
+	mov	rax, exit
+	call	rax

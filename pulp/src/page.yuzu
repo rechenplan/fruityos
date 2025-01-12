@@ -4,20 +4,20 @@ sub page_init()
 	local i
 
 	while i < (8 << 9) do
-		page_setPage(i, (i << 12) | 3)
+		page_setPage(i, (i << 12) | 7)
 		i = i + 1
 	end
 
-	[page_getPDT() + 56] = (page_getPT() + (7 << 12)) | 3
-	[page_getPDT() + 48] = (page_getPT() + (6 << 12)) | 3
-	[page_getPDT() + 40] = (page_getPT() + (5 << 12)) | 3
-	[page_getPDT() + 32] = (page_getPT() + (4 << 12)) | 3
-	[page_getPDT() + 24] = (page_getPT() + (3 << 12)) | 3
-	[page_getPDT() + 16] = (page_getPT() + (2 << 12)) | 3
-	[page_getPDT() + 8] = (page_getPT() + (1 << 12)) | 3
-	[page_getPDT() + 0] = (page_getPT() + (0 << 12)) | 3
-	[page_getPDPT()] = page_getPDT() | 3
-	[page_getPML4T()] = page_getPDPT() | 3
+	[page_getPDT() + 56] = (page_getPT() + (7 << 12)) | 7
+	[page_getPDT() + 48] = (page_getPT() + (6 << 12)) | 7
+	[page_getPDT() + 40] = (page_getPT() + (5 << 12)) | 7
+	[page_getPDT() + 32] = (page_getPT() + (4 << 12)) | 7
+	[page_getPDT() + 24] = (page_getPT() + (3 << 12)) | 7
+	[page_getPDT() + 16] = (page_getPT() + (2 << 12)) | 7
+	[page_getPDT() + 8] = (page_getPT() + (1 << 12)) | 7
+	[page_getPDT() + 0] = (page_getPT() + (0 << 12)) | 7
+	[page_getPDPT()] = page_getPDT() | 7
+	[page_getPML4T()] = page_getPDPT() | 7
 
 	flush_tlb()
 end
