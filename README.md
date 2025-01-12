@@ -15,10 +15,10 @@ a monotasking 64 bit OS written in yuzu: a custom system language. this reposito
 
 # memory map
 
-	0x001000 - 0x010000 scratch, idt at 0xf000, page table at 0x1000
-	0x010000 - 0x040000 kernel & stack
-	0x040000 - 0x040200 mbr
-	0x040200 - 0x060000 free
-	0x060000 - 0x300000 kernel heap
-	0x300000 - 0x?????? application space
+	0x0001000 - 0x0010000 scratch, idt at 0xf000, page table at 0x1000
+	0x0010000 - 0x0040000 kernel & stack
+	0x0040000 - 0x0040200 mbr
+	0x0040200 - 0x0060000 exception stack
+	0x0060000 - 0x0300000 kernel heap
+	0x0300000 - 0x1000000 application space
 
