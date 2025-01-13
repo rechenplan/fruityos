@@ -161,6 +161,7 @@ sub sys_exec(filename, argv)
 	local fd, size, argc, args, i
 	fd = sys_open(filename, 0)
 	if fd != 0 then
+		page_swapProcess(4)
 		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
 		sys_close(fd)
 		global_setBrk(APPLICATION_HEAP())

@@ -29,6 +29,22 @@ sub page_init()
 	flush_tlb(page_getBaseAddress())
 end
 
+sub page_swapProcess(pid)
+	local idx, addr, i
+	
+	idx = (pid + 1) << 2
+	addr = (page_getPTAddress() + ((pid + 1) << 12)) | 7
+	i = 0
+
+	while i < 4 do
+		page_setPDEntry(idx + i, addr)
+		addr = addr + 4096
+		i = i + 1
+	end
+	flush_tlb(page_getBaseAddress())
+end
+
+
 sub page_setPML4Entry(idx, entry)
 	return page_setEntry(page_getPML4Address(), idx, entry)
 end
