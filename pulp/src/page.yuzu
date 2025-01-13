@@ -1,29 +1,48 @@
 ; page table
 
 sub page_init()
-	local i
+	local idx, addr
 
-	while i < (8 << 9) do
-		page_setPage(i, (i << 12) | 7)
-		i = i + 1
+	idx = 0
+	addr = 7
+	while idx < 4096 do
+		page_setPTEntry(idx, addr)
+		idx = idx + 1
+		addr = addr + 4096
 	end
 
-	[page_getPDT() + 56] = (page_getPT() + (7 << 12)) | 7
-	[page_getPDT() + 48] = (page_getPT() + (6 << 12)) | 7
-	[page_getPDT() + 40] = (page_getPT() + (5 << 12)) | 7
-	[page_getPDT() + 32] = (page_getPT() + (4 << 12)) | 7
-	[page_getPDT() + 24] = (page_getPT() + (3 << 12)) | 7
-	[page_getPDT() + 16] = (page_getPT() + (2 << 12)) | 7
-	[page_getPDT() + 8] = (page_getPT() + (1 << 12)) | 7
-	[page_getPDT() + 0] = (page_getPT() + (0 << 12)) | 7
-	[page_getPDPT()] = page_getPDT() | 7
-	[page_getPML4T()] = page_getPDPT() | 7
+	idx = 0
+	addr = page_getPTAddress() | 7
+	while idx < 8 do
+		page_setPDEntry(idx, addr)
+		idx = idx + 1
+		addr = addr + 4096
+	end
+
+	page_setPDPEntry(0, page_getPDAddress() | 7)
+	page_setPML4Entry(0, page_getPDPAddress() | 7)
 
 	flush_tlb()
 end
 
-sub page_setPage(idx, entry)
-	[page_getPT() + (idx << 3)] = entry
+sub page_setPML4Entry(idx, entry)
+	return page_setEntry(page_getPML4Address(), idx, entry)
+end
+
+sub page_setPDPEntry(idx, entry)
+	return page_setEntry(page_getPDPAddress(), idx, entry)
+end
+
+sub page_setPDEntry(idx, entry)
+	return page_setEntry(page_getPDAddress(), idx, entry)
+end
+
+sub page_setPTEntry(idx, entry)
+	return page_setEntry(page_getPTAddress(), idx, entry)
+end
+
+sub page_setEntry(addr, idx, entry)
+	[addr + (idx << 3)] = entry
 end
 
 sub page_cleanup()
@@ -34,18 +53,18 @@ sub page_getSize()
 	return 0
 end
 
-sub page_getPML4T()
+sub page_getPML4Address()
 	return 1 << 12
 end
 
-sub page_getPDPT()
+sub page_getPDPAddress()
 	return 2 << 12
 end
 
-sub page_getPDT()
+sub page_getPDAddress()
 	return 3 << 12
 end
 
-sub page_getPT()
+sub page_getPTAddress()
 	return 4 << 12
 end
