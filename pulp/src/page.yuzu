@@ -30,17 +30,17 @@ sub page_init()
 end
 
 sub page_swapProcess(pid)
-	local idx, addr, i
+	local idx, addr
 	
-	idx = (pid + 1) << 2
-	addr = (page_getPTAddress() + ((pid + 1) << 12)) | 7
-	i = 0
+	addr = (page_getPTAddress() + ((pid + 2) << 14)) | 7
 
-	while i < 4 do
-		page_setPDEntry(idx + i, addr)
+	idx = 4
+	while idx < 8 do
+		page_setPDEntry(idx, addr)
 		addr = addr + 4096
-		i = i + 1
+		idx = idx + 1
 	end
+
 	flush_tlb(page_getBaseAddress())
 end
 
