@@ -62,7 +62,7 @@ a20:	in al, 0x92
 	mov edi, 0x1000
 	mov cr3, edi
 	xor eax, eax
-	mov ecx, 0x4000 / 4
+	mov ecx, 0x6000 / 4
 	rep stosd
 
 	mov ax, 0x2003
@@ -72,14 +72,15 @@ a20:	in al, 0x92
 	add ah, 0x10
         mov word [0x3000], ax
 	add ah, 0x10
+        mov word [0x3008], ax
 
         mov eax, 3
-        mov cx, 512
+        mov cx, 512 * 2
         mov di, 0x4000
-page:   stosd
+pt:     stosd
 	add di, 4
         add eax, 0x1000
-        loop page
+        loop pt
 
 	; Enable PAE
 pae:	mov eax, cr4

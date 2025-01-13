@@ -5,24 +5,28 @@ sub page_init()
 
 	idx = 0
 	addr = 7
-	while idx < 4096 do
+	; Identity map first 512 MB
+	while idx < 131072 do ; 512 * 256
 		page_setPTEntry(idx, addr)
 		idx = idx + 1
 		addr = addr + 4096
 	end
 
+	kmemset(page_getPDAddress(), 4096, 0)
 	idx = 0
 	addr = page_getPTAddress() | 7
-	while idx < 8 do
+	while idx < 256 do
 		page_setPDEntry(idx, addr)
 		idx = idx + 1
 		addr = addr + 4096
 	end
 
+	kmemset(page_getPDPAddress(), 4096, 0)
 	page_setPDPEntry(0, page_getPDAddress() | 7)
+	kmemset(page_getPML4Address(), 4096, 0)
 	page_setPML4Entry(0, page_getPDPAddress() | 7)
 
-	flush_tlb()
+	flush_tlb(page_getBaseAddress())
 end
 
 sub page_setPML4Entry(idx, entry)
@@ -54,17 +58,21 @@ sub page_getSize()
 end
 
 sub page_getPML4Address()
-	return 1 << 12
+	return page_getBaseAddress() + (0 << 12)
 end
 
 sub page_getPDPAddress()
-	return 2 << 12
+	return page_getBaseAddress() + (1 << 12)
 end
 
 sub page_getPDAddress()
-	return 3 << 12
+	return page_getBaseAddress() + (2 << 12)
 end
 
 sub page_getPTAddress()
-	return 4 << 12
+	return page_getBaseAddress() + (3 << 12)
+end
+
+sub page_getBaseAddress()
+	return 1 << 20
 end

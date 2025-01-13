@@ -19,6 +19,7 @@ a monotasking 64 bit OS written in yuzu: a custom system language. this reposito
 	0x0010000 - 0x0040000 kernel & stack
 	0x0040000 - 0x0040200 mbr
 	0x0040200 - 0x0060000 exception stack
-	0x0060000 - 0x0300000 kernel heap
-	0x0300000 - 0x1000000 application space
+	0x0100000 - 0x0400000 paging structures
+	0x0400000 - 0x0800000 kernel heap
+	0x0800000 - 0x1000000 application space
 

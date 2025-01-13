@@ -137,8 +137,7 @@ TSS_LEN equ tss_start - tss_end
 TSS_SEG equ tss - gdt
 
 flush_tlb:
-	mov rax, cr3
-	mov cr3, rax
+	mov cr3, rdi
 	ret
 
 die:	cli
@@ -178,7 +177,7 @@ sys_ring3:
 	push 0x1000000
 	pushf
 	push (3 *  8) | 3
-	push (3 << 20)
+	push (8 << 20)
 	iretq
 
 sys_exit:

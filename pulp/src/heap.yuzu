@@ -17,7 +17,7 @@ sub heap_printStats()
 end
 
 sub heap_getBaseAddr()
-	return 6 << 16
+	return 4 << 20
 end
 
 sub heap_size32()
@@ -41,7 +41,7 @@ sub heap_addr256()
 end
 
 sub heap_addr1024()
-	return 1 << 20
+	return heap_addr256() + heap_size256()
 end
 
 sub heap_init()
