@@ -99,6 +99,12 @@ cat lib/_start.asm tmp/inode.s lib/libpith.asm > tmp/a.s
 ../yuzu/bin/zest f tmp/a.s tmp/a.bin
 bin/juicer.elf c tmp/a.bin bin/inode.fap
 
+echo Building pish...
+../yuzu/bin/yc src/pish/pish.yuzu tmp/pish.s
+cat lib/_start.asm tmp/pish.s lib/libpith.asm > tmp/a.s
+../yuzu/bin/zest f tmp/a.s tmp/a.bin
+bin/juicer.elf c tmp/a.bin bin/pish.fap
+
 echo Building yc...
 echo Compiling yc.yuzu...
 ../yuzu/bin/yc ../yuzu/src/yc/yc.yuzu tmp/yc.asm

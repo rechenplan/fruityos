@@ -1,22 +1,15 @@
-sub getchar()
-	local c
-	while (c = sys_getch()) == -1 do end
-	return c
-end
-
-
 sub pish_chdir(argv)
-	if sys_chdir([argv + 8]) < 0 then
+	if chdir([argv + 8]) < 0 then
 		pish_puts([argv + 8])
 		pish_puts("?")
-		sys_putch(10)
+		putch(10)
 	end
 end
 
 sub pish_puts(str)
 	local c
 	while c = byte [str] do
-		sys_putch(c)
+		putch(c)
 		str = str + 1
 	end
 end
@@ -61,53 +54,37 @@ sub pish_path(buf, dir, file, ext)
 	[buf] = 0
 end
 
-sub pish_run_script(file)
-	local f
-	f = sys_open(file, 0)
-	if f != 0 then 
-		pish_main(f)
-		return 1
-	else
-		return 0
-	end
-	sys_close(f)
-end
-
 sub pish_exec(buf, argv)
 	local pid, extension, len
-	pid = sys_fork()
-	if pid == 0 then
-		len = pish_strlen([argv]) 
-		if len >= 4 then
-			extension = [argv] + len - 4
-			if pish_str_equal(extension, ".fap") then
-				pish_path(buf, "./", [argv], "")
-				if sys_exec(buf, argv) then return 0 end
-				pish_path(buf, "/bin/", [argv], "")
-				if sys_exec(buf, argv) then return 0 end
+	len = pish_strlen([argv]) 
+	if len >= 4 then
+		extension = [argv] + len - 4
+		if pish_str_equal(extension, ".fap") then
+			pish_path(buf, "./", [argv], "")
+			if exec(buf, argv) then
+				return 1
 			end
-			if pish_str_equal(extension, ".psh") then
-				pish_path(buf, "./", [argv], "")
-				if pish_run_script(buf) then return 0 end
-				pish_path(buf, "/bin/", [argv], "")
-				if pish_run_script(buf) then return 0 end
+			pish_path(buf, "/bin/", [argv], "")
+			if exec(buf, argv) then
+				return 1
 			end
 		end
-		pish_path(buf, "./", [argv], ".fap")
-		if sys_exec(buf, argv) then return 0 end
-		pish_path(buf, "/bin/", [argv], ".fap")
-                if sys_exec(buf, argv) then return 0 end
-		pish_path(buf, "./", [argv], ".psh")
-		if pish_run_script(buf) then return 0 end
-		pish_path(buf, "/bin/", [argv], ".psh")
-		if pish_run_script(buf) then return 0 end
-
-		pish_puts([argv])
-		pish_puts("?")
-		sys_putch(10)
-	else
-		sys_waitpid(pid)
 	end
+
+	pish_path(buf, "./", [argv], ".fap")
+	if exec(buf, argv) then
+		return 1
+	end
+	pish_path(buf, "/bin/", [argv], ".fap")
+	if exec(buf, argv) then
+		return 1
+	end
+
+	pish_puts([argv])
+	pish_puts("?")
+	putch(10)
+	return 0
+
 end
 
 sub pish_parse_line(line, argv)
@@ -143,32 +120,40 @@ sub nextArg(args)
 end
 
 sub pish_getch(fin)
+	local c
 	if fin == 0 then
-		return getchar()
+		while (c = getch()) == -1 do end
+		return c
 	else
-		return sys_fgetch(fin)
+		return fgetch(fin)
 	end
 end
 
-sub pish_main(fin)
-	local fin, dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized, done
+sub main(argc, args)
+	local fin, dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
 
-	dirBuf = heap_alloc(1024)
-	lineBuf = heap_alloc(1024)
-	argvBuf = heap_alloc(1024)
-	tempBuf = heap_alloc(1024)
+	dirBuf = brk(-1)
+	lineBuf = dirBuf + 1024
+	argvBuf = lineBuf + 1024
+	tempBuf = argvBuf + 1024
+	brk(tempBuf + 1024)
+
+	if argc == 2 then
+		fin = open(nextArg(args), 0)
+	else
+		fin = 0
+	end
 
 	c = 32
-	done = 0
-	while (done == 0) & (c != 0) do
+	while (c != 0) & (fin >= 0) do
 		if fin == 0 then
-			sys_getcwd(dirBuf, 1024)
+			getcwd(dirBuf, 1024)
 			pish_puts(dirBuf)
-			sys_putch(byte [">"])
-			sys_putch(32)
+			putch([">"])
+			putch(32)
 		end
 
-		c = pish_getch(fin) & 255	
+		c = pish_getch(fin) & 255
 
 		tempLine = lineBuf
 		while (c != 0) & (c != 10) do
@@ -180,15 +165,10 @@ sub pish_main(fin)
 		pish_parse_line(lineBuf, argvBuf)
 		if ([argvBuf] != 0) & (byte [lineBuf] != byte ["#"]) then
 			recognized = 0
-			if pish_str_equal([argvBuf], "exit") then done = 1 recognized = 1 end
+			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
 			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
 			if (recognized == 0) then pish_exec(tempBuf, argvBuf) end
 		end
 	end
-
-	heap_free(dirBuf, 1024)
-	heap_free(lineBuf, 1024)
-	heap_free(argvBuf, 1024)
-	heap_free(tempBuf, 1024)
+	close(fin)
 end
-

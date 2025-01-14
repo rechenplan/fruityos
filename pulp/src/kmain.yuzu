@@ -16,5 +16,6 @@ sub kmain(initrd)
 	; end
 	; sys_close(fd)
 
-	pish_main(0)
+	sys_exec("/bin/pish.fap", 0, 0)
+	user_jmp()
 end

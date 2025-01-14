@@ -66,11 +66,19 @@ yc src/fred/fred.yuzu tmp/fred.asm
 concat tmp/a.asm lib/_start.asm tmp/fred.asm lib/libpith.asm
 zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/fred.fap
+
 echo Building inode...
 yc src/inode/inode.yuzu tmp/inode.asm
 concat tmp/a.asm lib/_start.asm tmp/inode.asm lib/libpith.asm
 zest f tmp/a.asm tmp/a.bin
 juicer c tmp/a.bin bin/inode.fap
+
+echo Building pish...
+yc src/pish/pish.yuzu tmp/pish.asm
+concat tmp/a.asm lib/_start.asm tmp/pish.asm lib/libpith.asm
+zest f tmp/a.asm tmp/a.bin
+juicer c tmp/a.bin bin/pish.fap
+
 rmdir tmp
 mkdir tmp
 echo Building yc...

@@ -105,7 +105,6 @@ end
 
 sub sys_getcwd(buf, size)
 	local cwd, len
-
 	cwd = ramfs_getCwd(global_getRamfs())
 	kstrcpy(buf, cwd)
 	; eliminate trailing forward slash for linux compatibility
@@ -113,7 +112,7 @@ sub sys_getcwd(buf, size)
 		byte [buf + len - 1] = 0
 	end
 end
-
+	
 sub sys_getdents64(fd, buf, size)
 	local inode, content, written
 
@@ -165,10 +164,6 @@ sub sys_exec(filename, argv)
 	local fd, size, argc, args, i
 	fd = sys_open(filename, 0)
 	if fd != 0 then
-		page_swapProcess(4)
-		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
-		sys_close(fd)
-		global_setBrk(APPLICATION_HEAP())
 		args = heap_alloc(1024)
 		if argv != 0 then
 			i = 0
@@ -180,11 +175,14 @@ sub sys_exec(filename, argv)
 				argv = argv + 8
 			end
 		end
+		global_setCurrentPid(global_getCurrentPid() + 1)
+		page_swapProcess(global_getCurrentPid())
+		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
+		sys_close(fd)
+		global_setBrk(APPLICATION_HEAP())
 		kmemcpy(TASK_BLOCK_ADDR() + 256, args, 1024)
 		heap_free(args, 1024)
 		proc_init(argc, TASK_BLOCK_ADDR() + 256)
-		user_jmp()
-
 		return 1
 	else
 		return 0
@@ -244,4 +242,10 @@ sub sys_keyboard(scancode)
 		kb_push(kb, c)
 		scr_putch(scr, c)
 	end
+end
+
+sub sys_exit(code)
+	global_setCurrentPid(global_getCurrentPid() - 1)
+	page_swapProcess(global_getCurrentPid())
+	return 1
 end

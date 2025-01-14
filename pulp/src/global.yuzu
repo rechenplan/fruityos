@@ -15,11 +15,11 @@ sub global_free()
 end
 
 sub global_getBrk()
-	return _brk
+	return [(8 << 20) + 248]
 end
 
 sub global_setBrk(brk)
-	_brk = brk
+	[(8 << 20) + 248] = brk
 end
 
 sub global_getScr()
@@ -65,4 +65,12 @@ sub global_freeRamfs()
 	ramfs_cleanup(_ramfs)
 	heap_free(_ramfs, ramfs_getSize())
 	_ramfs = 0
+end
+
+sub global_getCurrentPid()
+	return _pid
+end
+
+sub global_setCurrentPid(pid)
+	_pid = pid
 end
