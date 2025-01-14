@@ -42,12 +42,12 @@
    348 ./pulp/src/ramfs.yuzu
    140 ./pulp/src/utils.yuzu
     30 ./pulp/src/x86.yuzu
-   240 ./pulp/src/sys.yuzu
+   247 ./pulp/src/sys.yuzu
    130 ./pulp/src/idt.yuzu
    243 ./pulp/src/idt.asm
-   214 ./pulp/src/entry.asm
+   322 ./pulp/src/entry.asm
     94 ./pulp/src/page.yuzu
    163 ./pulp/src/fd.yuzu
     88 ./pulp/src/fba.yuzu
    194 ./pulp/src/pish.yuzu
-  7800 total
+  7915 total

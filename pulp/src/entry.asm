@@ -144,15 +144,81 @@ die:	cli
 	hlt
 	jmp die
 
+proc_init:
+
+	xor rax, rax
+	mov [0x800000 + 0 << 3], rax ; rax
+	mov rax, 0x801000
+	mov [0x800000 + 1 << 3], rax ; rip
+	mov rax, (3 * 8) | 3
+	mov [0x800000 + 2 << 3], rax ; cs
+	xor rax, rax
+	mov [0x800000 + 3 << 3], rax ; rflags
+	mov rax, 0x1000000
+	mov [0x800000 + 4 << 3], rax ; rsp
+	mov rax, (4 * 8) | 3
+	mov [0x800000 + 5 << 3], rax ; ss
+
+	xor rax, rax
+	mov [0x800000 + 6 << 3], rdi
+	mov [0x800000 + 7 << 3], rsi
+	mov [0x800000 + 8 << 3], rax ; rbx
+	mov [0x800000 + 9 << 3], rax ; rcx
+	mov [0x800000 + 10 << 3], rax ; rdx
+	mov [0x800000 + 11 << 3], rax ; rbp
+	mov [0x800000 + 12 << 3], rax ; r8
+	mov [0x800000 + 13 << 3], rax ; r9
+	mov [0x800000 + 14 << 3], rax ; r10
+	mov [0x800000 + 15 << 3], rax ; r11
+	mov [0x800000 + 16 << 3], rax ; r12
+	mov [0x800000 + 17 << 3], rax ; r13
+	mov [0x800000 + 18 << 3], rax ; r14
+	mov [0x800000 + 19 << 3], rax ; r15
+
+	ret
+
 sys_ptr: dq sys_handler
 sys_handler:
+
+	mov [0x800000 + 6 << 3], rdi
+	mov [0x800000 + 7 << 3], rsi
+	mov [0x800000 + 8 << 3], rbx
+	mov [0x800000 + 9 << 3], rcx
+	mov [0x800000 + 10 << 3], rdx
+	mov [0x800000 + 11 << 3], rbp
+	mov [0x800000 + 12 << 3], r8
+	mov [0x800000 + 13 << 3], r9
+	mov [0x800000 + 14 << 3], r10
+	mov [0x800000 + 15 << 3], r11
+	mov [0x800000 + 16 << 3], r12
+	mov [0x800000 + 17 << 3], r13
+	mov [0x800000 + 18 << 3], r14
+	mov [0x800000 + 19 << 3], r15
+
+	mov [0x800000 + 0 << 3], rax ; store rax
+
+	pop rax
+	mov [0x800000 + 1 << 3], rax ; rip
+	pop rax
+	mov [0x800000 + 2 << 3], rax ; cs
+	pop rax
+	mov [0x800000 + 3 << 3], rax ; rflags
+	pop rax
+	mov [0x800000 + 4 << 3], rax ; rsp
+	pop rax
+	mov [0x800000 + 5 << 3], rax ; ss
+
+
 	sti
-        mov bx, (2 *  8) | 0
-        mov ss, bx
-        mov ds, bx
-        mov es, bx
-        mov fs, bx
-        mov gs, bx
+        mov ax, (2 *  8) | 0
+        mov ss, ax
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+
+	mov rax, [0x800000 + 0 << 3] ; restore rax
+
 	shl rax, 3
 	push rdi
 	mov rdi, sys
@@ -160,6 +226,48 @@ sys_handler:
 	mov rax, [rdi]
 	pop rdi
 	call rax
+
+	mov [0x800000 + 0 << 3], rax ; store rax
+
+user_jmp:
+
+
+        mov bx, (4 *  8) | 3
+        mov ds, bx
+        mov es, bx
+        mov fs, bx
+        mov gs, bx
+
+	mov rsi, [0x800000 + 7 << 3] ; rsi
+	mov rdi, [0x800000 + 6 << 3] ; rdi
+	mov rax, [0x800000 + 5 << 3] ; ss
+	push rax
+	mov rax, [0x800000 + 4 << 3] ; rsp
+	push rax
+	mov rax, [0x800000 + 3 << 3] ; rflags
+	push rax
+	mov rax, [0x800000 + 2 << 3] ; cs
+	push rax
+	mov rax, [0x800000 + 1 << 3] ; rip
+	push rax
+
+	mov rdi, [0x800000 + 6 << 3]
+	mov rsi, [0x800000 + 7 << 3]
+	mov rbx, [0x800000 + 8 << 3]
+	mov rcx, [0x800000 + 9 << 3]
+	mov rdx, [0x800000 + 10 << 3]
+	mov rbp, [0x800000 + 11 << 3]
+	mov r8, [0x800000 + 12 << 3]
+	mov r9, [0x800000 + 13 << 3]
+	mov r10, [0x800000 + 14 << 3]
+	mov r11, [0x800000 + 15 << 3]
+	mov r12, [0x800000 + 16 << 3]
+	mov r13, [0x800000 + 17 << 3]
+	mov r14, [0x800000 + 18 << 3]
+	mov r15, [0x800000 + 19 << 3]
+
+	mov rax, [0x800000 + 0 << 3] ; restore rax
+
 	iretq
 
 sys_wait:
@@ -177,7 +285,7 @@ sys_ring3:
 	push 0x1000000
 	pushf
 	push (3 *  8) | 3
-	push (8 << 20)
+	push (8 << 20) + 4096
 	iretq
 
 sys_exit:

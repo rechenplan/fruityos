@@ -1,5 +1,9 @@
 sub PROGRAM_BASE_ADDR()
-	return 8 << 20
+	return (8 << 20) + 4096
+end
+
+sub TASK_BLOCK_ADDR()
+	return (8 << 20)
 end
 
 sub APPLICATION_HEAP()
@@ -176,8 +180,11 @@ sub sys_exec(filename, argv)
 				argv = argv + 8
 			end
 		end
-		sys_ring3(argc, args)
+		kmemcpy(TASK_BLOCK_ADDR() + 256, args, 1024)
 		heap_free(args, 1024)
+		proc_init(argc, TASK_BLOCK_ADDR() + 256)
+		user_jmp()
+
 		return 1
 	else
 		return 0

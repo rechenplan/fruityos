@@ -89,7 +89,7 @@ sub idt_cleanup()
 end
 
 sub idt_set2(idt_addr, vector, isr_addr)
-	idt_set(idt_addr, vector, isr_addr, 8, 0, 142) ; 0x8e
+	idt_set(idt_addr, vector, isr_addr, 8, 1, 142) ; 0x8e
 end
 
 sub idt_set(idt_addr, vector, isr_addr, isr_segment, ist, attr)

@@ -2,11 +2,11 @@ sub kmain(initrd)
 	local fd
 
 	gdt_init()
-	idt_init()
 	page_init()
+	tss_init()
+	idt_init()
 	heap_init()
 	global_init()
-	tss_init()
 	kunpack(initrd)
 	kcls()
 
