@@ -31,6 +31,7 @@
     34 ./peel/src/move/move.yuzu
      9 ./peel/lib/_start.asm
     99 ./peel/lib/libpith.asm
+   226 ./pulp/src/proc.yuzu
    261 ./pulp/src/kb.yuzu
     20 ./pulp/src/kmain.yuzu
     84 ./pulp/src/list.yuzu
@@ -49,4 +50,4 @@
    163 ./pulp/src/fd.yuzu
     88 ./pulp/src/fba.yuzu
    194 ./pulp/src/pish.yuzu
-  7574 total
+  7800 total
