@@ -144,39 +144,6 @@ die:	cli
 	hlt
 	jmp die
 
-proc_init:
-
-	xor rax, rax
-	mov [0x800000 + (0 << 3)], rax ; rax
-	mov rax, 0x801000
-	mov [0x800000 + (1 << 3)], rax ; rip
-	mov rax, (3 * 8) | 3
-	mov [0x800000 + (2 << 3)], rax ; cs
-	xor rax, rax
-	mov [0x800000 + (3 << 3)], rax ; rflags
-	mov rax, 0x1000000
-	mov [0x800000 + (4 << 3)], rax ; rsp
-	mov rax, (4 * 8) | 3
-	mov [0x800000 + (5 << 3)], rax ; ss
-
-	xor rax, rax
-	mov [0x800000 + (6 << 3)], rdi
-	mov [0x800000 + (7 << 3)], rsi
-	mov [0x800000 + (8 << 3)], rax ; rbx
-	mov [0x800000 + (9 << 3)], rax ; rcx
-	mov [0x800000 + (10 << 3)], rax ; rdx
-	mov [0x800000 + (11 << 3)], rax ; rbp
-	mov [0x800000 + (12 << 3)], rax ; r8
-	mov [0x800000 + (13 << 3)], rax ; r9
-	mov [0x800000 + (14 << 3)], rax ; r10
-	mov [0x800000 + (15 << 3)], rax ; r11
-	mov [0x800000 + (16 << 3)], rax ; r12
-	mov [0x800000 + (17 << 3)], rax ; r13
-	mov [0x800000 + (18 << 3)], rax ; r14
-	mov [0x800000 + (19 << 3)], rax ; r15
-
-	ret
-
 sys_ptr: dq sys_handler
 sys_handler:
 

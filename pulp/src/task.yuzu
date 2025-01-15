@@ -1,0 +1,112 @@
+sub TASK_RAX_OFFSET()
+	return 0 << 3
+end
+
+sub TASK_RIP_OFFSET()
+	return 1 << 3
+end
+
+sub TASK_CS_OFFSET()
+	return 2 << 3
+end
+
+sub TASK_RFLAGS_OFFSET()
+	return 3 << 3
+end
+
+sub TASK_RSP_OFFSET()
+	return 4 << 3
+end
+
+sub TASK_SS_OFFSET()
+	return 5 << 3
+end
+
+sub TASK_RDI_OFFSET()
+	return 6 << 3
+end
+
+sub TASK_RSI_OFFSET()
+	return 7 << 3
+end
+
+sub TASK_RBX_OFFSET()
+	return 8 << 3
+end
+
+sub TASK_RCX_OFFSET()
+	return 9 << 3
+end
+
+sub TASK_RDX_OFFSET()
+	return 10 << 3
+end
+
+sub TASK_RBP_OFFSET()
+	return 11 << 3
+end
+
+sub TASK_R8_OFFSET()
+	return 12 << 3
+end
+
+sub TASK_R9_OFFSET()
+	return 13 << 3
+end
+
+sub TASK_R10_OFFSET()
+	return 14 << 3
+end
+
+sub TASK_R11_OFFSET()
+	return 15 << 3
+end
+
+sub TASK_R12_OFFSET()
+	return 16 << 3
+end
+
+sub TASK_R13_OFFSET()
+	return 17 << 3
+end
+
+sub TASK_R14_OFFSET()
+	return 18 << 3
+end
+
+sub TASK_R15_OFFSET()
+	return 19 << 3
+end
+
+sub TASK_BRK_OFFSET()
+	return 31 << 3
+end
+
+sub task_init(pid, rdi, rsi)
+	local addr
+
+	addr = ((pid + 2) << 23)
+
+	[addr + TASK_RAX_OFFSET()] = 0
+	[addr + TASK_RIP_OFFSET()] = PROGRAM_BASE_ADDR()
+	[addr + TASK_CS_OFFSET()] = 24 | 3
+	[addr + TASK_RFLAGS_OFFSET()] = 0
+	[addr + TASK_RSP_OFFSET()] = PROGRAM_STACK_ADDR()
+	[addr + TASK_SS_OFFSET()] = 32 | 3
+	[addr + TASK_RDI_OFFSET()] = rdi
+	[addr + TASK_RSI_OFFSET()] = rsi
+	[addr + TASK_RBX_OFFSET()] = 0
+	[addr + TASK_RCX_OFFSET()] = 0
+	[addr + TASK_RDX_OFFSET()] = 0
+	[addr + TASK_RBP_OFFSET()] = 0
+	[addr + TASK_R8_OFFSET()] = 0
+	[addr + TASK_R9_OFFSET()] = 0
+	[addr + TASK_R10_OFFSET()] = 0
+	[addr + TASK_R11_OFFSET()] = 0
+	[addr + TASK_R12_OFFSET()] = 0
+	[addr + TASK_R13_OFFSET()] = 0
+	[addr + TASK_R14_OFFSET()] = 0
+	[addr + TASK_R15_OFFSET()] = 0
+
+end
+

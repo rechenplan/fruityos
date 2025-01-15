@@ -49,7 +49,10 @@ echo Compiling page.yuzu...
 echo Compiling idt.yuzu...
 ../yuzu/bin/yc src/idt.yuzu tmp/idt.asm
 
-cat src/entry.asm src/idt.asm tmp/kmain.asm tmp/idt.asm tmp/sys.asm tmp/x86.asm tmp/utils.asm tmp/ramfs.asm tmp/fba.asm tmp/list.asm tmp/inode.asm tmp/heap.asm tmp/global.asm tmp/scr.asm tmp/kb.asm tmp/fd.asm tmp/page.asm > tmp/pulp.asm
+echo Compiling task.yuzu
+../yuzu/bin/yc src/task.yuzu tmp/task.asm
+
+cat src/entry.asm src/idt.asm tmp/kmain.asm tmp/idt.asm tmp/task.asm tmp/sys.asm tmp/x86.asm tmp/utils.asm tmp/ramfs.asm tmp/fba.asm tmp/list.asm tmp/inode.asm tmp/heap.asm tmp/global.asm tmp/scr.asm tmp/kb.asm tmp/fd.asm tmp/page.asm > tmp/pulp.asm
 
 echo Assembling...
 nasm -f bin tmp/pulp.asm -o bin/pulp.bin

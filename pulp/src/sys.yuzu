@@ -2,6 +2,10 @@ sub PROGRAM_BASE_ADDR()
 	return (8 << 20) + 4096
 end
 
+sub PROGRAM_STACK_ADDR()
+	return 16 << 20
+end
+
 sub TASK_BLOCK_ADDR()
 	return (8 << 20)
 end
@@ -182,7 +186,7 @@ sub sys_exec(filename, argv)
 		global_setBrk(APPLICATION_HEAP())
 		kmemcpy(TASK_BLOCK_ADDR() + 256, args, 1024)
 		heap_free(args, 1024)
-		proc_init(argc, TASK_BLOCK_ADDR() + 256)
+		task_init(global_getCurrentPid(), argc, TASK_BLOCK_ADDR() + 256)
 		return 1
 	else
 		return 0
