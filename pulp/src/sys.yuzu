@@ -10,7 +10,7 @@ sub TASK_BLOCK_ADDR()
 	return (8 << 20)
 end
 
-sub APPLICATION_HEAP()
+sub PROGRAM_HEAP_ADDR()
 	return 9 << 20
 end
 
@@ -183,7 +183,6 @@ sub sys_exec(filename, argv)
 		task_switch(global_getCurrentPid())
 		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
 		sys_close(fd)
-		global_setBrk(APPLICATION_HEAP())
 		kmemcpy(TASK_BLOCK_ADDR() + 256, args, 1024)
 		task_init(global_getCurrentPid(), argc, TASK_BLOCK_ADDR() + 256)
 		heap_free(args, 1024)
@@ -210,13 +209,13 @@ sub sys_brk(brk)
 		kprintln("Application heap exausted!")
 		die()
 	end
-	if (brk > global_getBrk()) then
-		kmemset(global_getBrk(), brk - global_getBrk(), 0)
+	if (brk > task_getBrk(global_getCurrentPid())) then
+		kmemset(task_getBrk(global_getCurrentPid()), brk - task_getBrk(global_getCurrentPid()), 0)
 	end
 	if (brk == -1) then
-		return global_getBrk()
+		return task_getBrk(global_getCurrentPid())
 	end
-	global_setBrk(brk)
+	task_setBrk(global_getCurrentPid(), brk)
 	return brk
 end
 

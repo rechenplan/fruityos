@@ -38,16 +38,16 @@
    146 ./pulp/src/scr.yuzu
    147 ./pulp/src/inode.yuzu
     81 ./pulp/src/heap.yuzu
-    76 ./pulp/src/global.yuzu
+    68 ./pulp/src/global.yuzu
    348 ./pulp/src/ramfs.yuzu
    140 ./pulp/src/utils.yuzu
     30 ./pulp/src/x86.yuzu
-   255 ./pulp/src/sys.yuzu
+   254 ./pulp/src/sys.yuzu
    130 ./pulp/src/idt.yuzu
-   127 ./pulp/src/task.yuzu
+   147 ./pulp/src/task.yuzu
    243 ./pulp/src/idt.asm
    268 ./pulp/src/entry.asm
     78 ./pulp/src/page.yuzu
    163 ./pulp/src/fd.yuzu
     88 ./pulp/src/fba.yuzu
-  7743 total
+  7754 total

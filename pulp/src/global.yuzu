@@ -14,14 +14,6 @@ sub global_free()
 	global_freeRamfs()
 end
 
-sub global_getBrk()
-	return [(8 << 20) + 248]
-end
-
-sub global_setBrk(brk)
-	[(8 << 20) + 248] = brk
-end
-
 sub global_getScr()
 	return _scr
 end

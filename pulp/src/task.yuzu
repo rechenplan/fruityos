@@ -1,7 +1,7 @@
 sub task_init(pid, rdi, rsi)
 	local addr
 
-	addr = ((pid + 2) << 23)
+	addr = task_addr(pid)
 
 	[addr + TASK_RAX_OFFSET()] = 0
 	[addr + TASK_RIP_OFFSET()] = PROGRAM_BASE_ADDR()
@@ -23,7 +23,7 @@ sub task_init(pid, rdi, rsi)
 	[addr + TASK_R13_OFFSET()] = 0
 	[addr + TASK_R14_OFFSET()] = 0
 	[addr + TASK_R15_OFFSET()] = 0
-
+	[addr + TASK_BRK_OFFSET()] = PROGRAM_HEAP_ADDR()
 end
 
 sub task_switch(pid)
@@ -40,6 +40,26 @@ sub task_switch(pid)
 
         flush_tlb(page_getBaseAddress())
 end
+
+sub task_getBrk(pid)
+	local addr
+
+	addr = task_addr(pid)
+        return [addr + TASK_BRK_OFFSET()]
+end
+
+sub task_setBrk(pid, brk)
+	local addr
+
+	addr = task_addr(pid)	
+        [addr + TASK_BRK_OFFSET()] = brk
+end
+
+sub task_addr(pid)
+	return (pid + 2) << 23
+end
+
+
 
 sub TASK_RAX_OFFSET()
 	return 0 << 3
