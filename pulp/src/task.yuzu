@@ -141,6 +141,14 @@ sub TASK_R15_OFFSET()
 	return 19 << 3
 end
 
+sub TASK_PREV_OFFSET()
+	return 20 << 3
+end
+
+sub TASK_NEXT_OFFSET()
+	return 21 << 3
+end
+
 sub TASK_BRK_OFFSET()
 	return 31 << 3
 end

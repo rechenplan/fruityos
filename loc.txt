@@ -19,7 +19,7 @@
     54 ./peel/src/concat/concat.yuzu
     31 ./peel/src/mkdir/mkdir.yuzu
    174 ./peel/src/inode/inode.yuzu
-   174 ./peel/src/pish/pish.yuzu
+   189 ./peel/src/pish/pish.yuzu
     55 ./peel/src/copy/copy.yuzu
     34 ./peel/src/del/del.yuzu
     36 ./peel/src/echo/echo.yuzu
@@ -44,10 +44,10 @@
     30 ./pulp/src/x86.yuzu
    254 ./pulp/src/sys.yuzu
    130 ./pulp/src/idt.yuzu
-   147 ./pulp/src/task.yuzu
+   155 ./pulp/src/task.yuzu
    243 ./pulp/src/idt.asm
    268 ./pulp/src/entry.asm
     78 ./pulp/src/page.yuzu
    163 ./pulp/src/fd.yuzu
     88 ./pulp/src/fba.yuzu
-  7754 total
+  7777 total

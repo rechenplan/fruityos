@@ -54,6 +54,18 @@ sub pish_path(buf, dir, file, ext)
 	[buf] = 0
 end
 
+sub pish_run_script(file)
+	local f
+	f = open(file, 0)
+	if f != 0 then 
+		pish_main(f)
+		return 1
+	else
+		return 0
+	end
+	close(f)
+end
+
 sub pish_exec(buf, argv)
 	local pid, extension, len
 	len = pish_strlen([argv]) 
@@ -61,30 +73,29 @@ sub pish_exec(buf, argv)
 		extension = [argv] + len - 4
 		if pish_str_equal(extension, ".fap") then
 			pish_path(buf, "./", [argv], "")
-			if exec(buf, argv) then
-				return 1
-			end
+			if exec(buf, argv) then return 0 end
 			pish_path(buf, "/bin/", [argv], "")
-			if exec(buf, argv) then
-				return 1
-			end
+			if exec(buf, argv) then return 0 end
+		end
+		if pish_str_equal(extension, ".psh") then
+			pish_path(buf, "./", [argv], "")
+			if pish_run_script(buf) then return 0 end
+			pish_path(buf, "/bin/", [argv], "")
+			if pish_run_script(buf) then return 0 end
 		end
 	end
-
 	pish_path(buf, "./", [argv], ".fap")
-	if exec(buf, argv) then
-		return 1
-	end
+	if exec(buf, argv) then return 0 end
 	pish_path(buf, "/bin/", [argv], ".fap")
-	if exec(buf, argv) then
-		return 1
-	end
+	if exec(buf, argv) then return 0 end
+	pish_path(buf, "./", [argv], ".psh")
+	if pish_run_script(buf) then return 0 end
+	pish_path(buf, "/bin/", [argv], ".psh")
+	if pish_run_script(buf) then return 0 end
 
 	pish_puts([argv])
 	pish_puts("?")
 	putch(10)
-	return 0
-
 end
 
 sub pish_parse_line(line, argv)
@@ -129,20 +140,14 @@ sub pish_getch(fin)
 	end
 end
 
-sub main(argc, args)
-	local fin, dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
+sub pish_main(fin)
+	local dirBuf, lineBuf, tempLine, argvBuf, tempBuf, c, recognized
 
 	dirBuf = brk(-1)
 	lineBuf = dirBuf + 1024
 	argvBuf = lineBuf + 1024
 	tempBuf = argvBuf + 1024
 	brk(tempBuf + 1024)
-
-	if argc == 2 then
-		fin = open(nextArg(args), 0)
-	else
-		fin = 0
-	end
 
 	c = 32
 	while (c != 0) & (fin >= 0) do
@@ -170,5 +175,15 @@ sub main(argc, args)
 			if (recognized == 0) then pish_exec(tempBuf, argvBuf) end
 		end
 	end
+end
+
+sub main(argc, args)
+	local fin
+	if argc == 2 then
+		fin = open(nextArg(args), 0)
+	else
+		fin = 0
+	end
+	pish_main(fin)
 	close(fin)
 end
