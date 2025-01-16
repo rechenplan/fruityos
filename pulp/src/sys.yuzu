@@ -180,13 +180,13 @@ sub sys_exec(filename, argv)
 			end
 		end
 		global_setCurrentPid(global_getCurrentPid() + 1)
-		page_swapProcess(global_getCurrentPid())
+		task_switch(global_getCurrentPid())
 		size = kdecrunch(fd, PROGRAM_BASE_ADDR())
 		sys_close(fd)
 		global_setBrk(APPLICATION_HEAP())
 		kmemcpy(TASK_BLOCK_ADDR() + 256, args, 1024)
-		heap_free(args, 1024)
 		task_init(global_getCurrentPid(), argc, TASK_BLOCK_ADDR() + 256)
+		heap_free(args, 1024)
 		return 1
 	else
 		return 0
@@ -250,6 +250,6 @@ end
 
 sub sys_exit(code)
 	global_setCurrentPid(global_getCurrentPid() - 1)
-	page_swapProcess(global_getCurrentPid())
+	task_switch(global_getCurrentPid())
 	return 1
 end

@@ -44,10 +44,10 @@
     30 ./pulp/src/x86.yuzu
    255 ./pulp/src/sys.yuzu
    130 ./pulp/src/idt.yuzu
-   111 ./pulp/src/task.yuzu
+   127 ./pulp/src/task.yuzu
    243 ./pulp/src/idt.asm
    268 ./pulp/src/entry.asm
-    94 ./pulp/src/page.yuzu
+    78 ./pulp/src/page.yuzu
    163 ./pulp/src/fd.yuzu
     88 ./pulp/src/fba.yuzu
   7743 total

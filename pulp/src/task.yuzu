@@ -1,3 +1,46 @@
+sub task_init(pid, rdi, rsi)
+	local addr
+
+	addr = ((pid + 2) << 23)
+
+	[addr + TASK_RAX_OFFSET()] = 0
+	[addr + TASK_RIP_OFFSET()] = PROGRAM_BASE_ADDR()
+	[addr + TASK_CS_OFFSET()] = 24 | 3
+	[addr + TASK_RFLAGS_OFFSET()] = 0
+	[addr + TASK_RSP_OFFSET()] = PROGRAM_STACK_ADDR()
+	[addr + TASK_SS_OFFSET()] = 32 | 3
+	[addr + TASK_RDI_OFFSET()] = rdi
+	[addr + TASK_RSI_OFFSET()] = rsi
+	[addr + TASK_RBX_OFFSET()] = 0
+	[addr + TASK_RCX_OFFSET()] = 0
+	[addr + TASK_RDX_OFFSET()] = 0
+	[addr + TASK_RBP_OFFSET()] = 0
+	[addr + TASK_R8_OFFSET()] = 0
+	[addr + TASK_R9_OFFSET()] = 0
+	[addr + TASK_R10_OFFSET()] = 0
+	[addr + TASK_R11_OFFSET()] = 0
+	[addr + TASK_R12_OFFSET()] = 0
+	[addr + TASK_R13_OFFSET()] = 0
+	[addr + TASK_R14_OFFSET()] = 0
+	[addr + TASK_R15_OFFSET()] = 0
+
+end
+
+sub task_switch(pid)
+        local idx, addr
+
+        addr = (page_getPTAddress() + ((pid + 2) << 14)) | 7
+
+        idx = 4
+        while idx < 8 do
+                page_setPDEntry(idx, addr)
+                addr = addr + 4096
+                idx = idx + 1
+        end
+
+        flush_tlb(page_getBaseAddress())
+end
+
 sub TASK_RAX_OFFSET()
 	return 0 << 3
 end
@@ -80,33 +123,5 @@ end
 
 sub TASK_BRK_OFFSET()
 	return 31 << 3
-end
-
-sub task_init(pid, rdi, rsi)
-	local addr
-
-	addr = ((pid + 2) << 23)
-
-	[addr + TASK_RAX_OFFSET()] = 0
-	[addr + TASK_RIP_OFFSET()] = PROGRAM_BASE_ADDR()
-	[addr + TASK_CS_OFFSET()] = 24 | 3
-	[addr + TASK_RFLAGS_OFFSET()] = 0
-	[addr + TASK_RSP_OFFSET()] = PROGRAM_STACK_ADDR()
-	[addr + TASK_SS_OFFSET()] = 32 | 3
-	[addr + TASK_RDI_OFFSET()] = rdi
-	[addr + TASK_RSI_OFFSET()] = rsi
-	[addr + TASK_RBX_OFFSET()] = 0
-	[addr + TASK_RCX_OFFSET()] = 0
-	[addr + TASK_RDX_OFFSET()] = 0
-	[addr + TASK_RBP_OFFSET()] = 0
-	[addr + TASK_R8_OFFSET()] = 0
-	[addr + TASK_R9_OFFSET()] = 0
-	[addr + TASK_R10_OFFSET()] = 0
-	[addr + TASK_R11_OFFSET()] = 0
-	[addr + TASK_R12_OFFSET()] = 0
-	[addr + TASK_R13_OFFSET()] = 0
-	[addr + TASK_R14_OFFSET()] = 0
-	[addr + TASK_R15_OFFSET()] = 0
-
 end
 
