@@ -182,6 +182,9 @@ sub main(argc, args)
 	if argc == 2 then
 		fin = open(nextArg(args), 0)
 	else
+		fin = open("/init.psh", 0)
+		pish_main(fin)
+		close(fin)
 		fin = 0
 	end
 	pish_main(fin)
