@@ -14,7 +14,7 @@ sub page_init()
 
 	kmemset(page_getPDAddress(), 4096, 0)
 	idx = 0
-	addr = page_getPTAddress() | 7
+	addr = page_getPTAddress() | 3 ; supervisor-only until task_switch exposes application space
 	while idx < 256 do
 		page_setPDEntry(idx, addr)
 		idx = idx + 1
