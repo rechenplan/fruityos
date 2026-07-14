@@ -84,7 +84,7 @@ dd 0                            ; large sector count
 db 0x80
 db 0
 db 0x29
-dd 0x02002026
+dd 0x03002026
 db 'FRUITYOS   '
 db 'FAT16   '
 cli
@@ -319,7 +319,7 @@ efi_main:
 
     ; Pulp's three fixed-block heaps at 4 MiB.
     mov edx, 0x400000
-    mov r8d, 0x220
+    mov r8d, 0x2d0
     call allocate_at
     test rax, rax
     jnz allocation_failed
@@ -485,7 +485,7 @@ remap_pic:
     out 0xa1, al
     ret
 
-; OVMF commonly leaves VGA hardware in a graphics mode.  FruityOS 0.02 writes
+; OVMF commonly leaves VGA hardware in a graphics mode.  FruityOS 0.03 writes
 ; its console to 0xb8000, so restore the standard 80x25 color-text registers.
 set_vga_text_mode:
     ; Turn off the Bochs/QEMU VBE extension before touching VGA registers.

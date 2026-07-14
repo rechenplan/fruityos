@@ -3,7 +3,7 @@ sub PROGRAM_BASE_ADDR()
 end
 
 sub PROGRAM_STACK_ADDR()
-	return 16 << 20
+	return 136 << 20
 end
 
 sub TASK_BLOCK_ADDR()
@@ -15,7 +15,7 @@ sub PROGRAM_HEAP_ADDR()
 end
 
 sub MAX_ADDR()
-	return 16 << 20
+	return 136 << 20
 end
 
 sub KERNEL_BASE_ADDR()
@@ -112,6 +112,7 @@ end
 
 sub sys_putch(char)
 	local scr
+	debug_putch(char)
 	scr = global_getScr()
 	scr_putch(scr, char)
 end
@@ -137,7 +138,7 @@ sub sys_getdents64(fd, buf, size)
 		content = inode_getContent(inode)
 		while content != 0 do
 			[buf] = inode_getContentSize(content)
-			byte [buf + 16] = 35
+			byte [buf + 16] = 83
 			byte [buf + 17] = 0
 			if (inode_getType(content) == INODE_TYPE_DIR()) | (inode_getType(content) == INODE_TYPE_LINK()) then
 				byte [buf + 18] = 4
@@ -145,8 +146,8 @@ sub sys_getdents64(fd, buf, size)
 				byte [buf + 18] = 0
 			end
 			kstrcpy(buf + 19, inode_getName(content))
-			buf = buf + 35
-			written = written + 35
+			buf = buf + 83
+			written = written + 83
 			content = fba_getNext(content)
 		end
 	end
@@ -215,7 +216,9 @@ end
 
 sub sys_brk(brk)
 	if (brk >= MAX_ADDR()) then
-		kprintln("Application heap exausted!")
+		kputs("Application heap exhausted at ")
+		kputn(brk)
+		kputch(10)
 		die()
 	end
 	if (brk > task_getBrk(global_getCurrentPid())) then

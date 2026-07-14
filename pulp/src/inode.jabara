@@ -25,7 +25,7 @@ sub inode_cleanup(inode)
 end
 
 sub inode_getSize()
-	return 32
+	return 80
 end
 
 sub inode_getName(inode)
@@ -33,20 +33,20 @@ sub inode_getName(inode)
 end
 
 sub inode_getType(inode)
-	return [inode + 16] & ((1 << 32) - 1)
+	return [inode + 64] & ((1 << 32) - 1)
 end
 
 sub inode_getContentSize(inode)
-	return [inode + 20] & ((1 << 32) - 1)
+	return [inode + 68] & ((1 << 32) - 1)
 end
 
 sub inode_getContent(inode)
-	return [inode + 24]
+	return [inode + 72]
 end
 
 sub inode_setName(inode, name)
 	local i
-	while i < 16 do
+	while i < 64 do
 		byte [inode + i] = byte [name + i]
 		if byte [name + i] == 0 then
 			return 0
@@ -54,25 +54,25 @@ sub inode_setName(inode, name)
 		i = i + 1
 	end
 	; null terminate if name too long
-	byte [inode + 15] = 0
+	byte [inode + 63] = 0
 end
 
 sub inode_setType(inode, type)
-	byte [inode + 16] = (type >> 0)
-	byte [inode + 17] = (type >> 8)
-	byte [inode + 18] = (type >> 16)
-	byte [inode + 19] = (type >> 24)
+	byte [inode + 64] = (type >> 0)
+	byte [inode + 65] = (type >> 8)
+	byte [inode + 66] = (type >> 16)
+	byte [inode + 67] = (type >> 24)
 end
 
 sub inode_setContentSize(inode, size)
-	byte [inode + 20] = (size >> 0)
-	byte [inode + 21] = (size >> 8)
-	byte [inode + 22] = (size >> 16)
-	byte [inode + 23] = (size >> 24)
+	byte [inode + 68] = (size >> 0)
+	byte [inode + 69] = (size >> 8)
+	byte [inode + 70] = (size >> 16)
+	byte [inode + 71] = (size >> 24)
 end
 
 sub inode_setContent(inode, content)
-	[inode + 24] = content
+	[inode + 72] = content
 end
 
 sub inode_create(filename, type)

@@ -1,18 +1,24 @@
-# peel
+# Peel
 
-peel is a userland suite written in yuzu.
+Peel is the Jabara-written FruityOS userland. It provides the Pish shell, RAMFS
+utilities, Fred editor, Jar archiver, and Juicer compressor.
 
-	src/concat:	concatenates files
-	src/copy:	copies files
-	src/del:	deletes files
-	src/dir:	directory listing
-	src/echo:	echo to console
-	src/jar:	archive utility
-	src/juicer:	compressor / decompressor
-	src/mkdir:	create a directory
-	src/move:	move a file
-	src/pish:	shell
-	src/type:	read file and output to console
-	src/rmdir:	remove a directory
-	src/write:	write to a file from the console
-	src/fred:	fruity line editor
+## Build
+
+The host build produces FAP applications and the Linux packaging tools:
+
+```sh
+./build.sh
+```
+
+The native `build.psh` uses the bootstrap tools already in the initrd to rebuild
+sixteen ordinary applications under `peel/bin`, then copies them into the
+running system's `/bin` directory.
+
+Sources are organized as one directory per program under `src/`. Generated host
+FAPs are written to `bin/`; native intermediates use `tmp/` in the extracted
+checkout.
+
+See [Shell and userland](../docs/userland.md) for commands and formats, and
+[Initrd and native rebuild](../docs/initrd-native-build.md) for bootstrap and
+installation details.

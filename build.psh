@@ -1,6 +1,7 @@
+echo [ Building FruityOS natively with Jabara ]
 cd peel
-./build.psh
+build.psh
 cd ..
 cd pulp
-./build.psh
+build.psh
 cd ..

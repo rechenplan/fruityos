@@ -8,6 +8,7 @@ sub kmain(initrd)
 	heap_init()
 	global_init()
 	kunpack(initrd)
+	idt_sti()
 	kcls()
 
 	; fd = sys_open("/init.psh", 0)

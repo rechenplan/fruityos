@@ -9,3 +9,4 @@ echo "[ Building Jabara ]"
 
 "$root/src/jbc/build.sh"
 "$root/src/jc/build.sh"
+"$root/src/orgasm/build.sh"

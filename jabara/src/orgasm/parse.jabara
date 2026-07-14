@@ -1,0 +1,794 @@
+
+; zest parser
+
+sub parse_is_digit(c)
+	return (c >= byte ["0"]) & (c <= byte ["9"])
+end
+
+sub parse_mul(a, b)
+	local p
+	p = 0
+	while a > 0 do
+		a = a - 1
+		p = p + b
+	end
+	return p
+end
+
+sub parse_atoi(str)
+	local c, value, base = 10, digit, finish = str
+	while byte [finish] do finish = finish + 1 end
+	if (finish > str) & (byte [finish - 1] == byte ["b"]) then base = 2 end
+	c = byte [str]
+	if (c == byte ["0"]) & ((byte [str + 1] == byte ["x"]) | (byte [str + 1] == byte ["X"])) then base = 16 str = str + 2 c = byte [str] end
+	while parse_is_digit(c) | ((c >= byte ["a"]) & (c <= byte ["f"])) | ((c >= byte ["A"]) & (c <= byte ["F"])) do
+		if (base == 2) & (c == byte ["b"]) & (byte [str + 1] == 0) then return value end
+		if parse_is_digit(c) then digit = c - byte ["0"]
+		else
+			if c >= byte ["a"] then digit = c - byte ["a"] + 10 else digit = c - byte ["A"] + 10 end
+		end
+		value = parse_mul(value, base)
+		value = value + digit
+		str = str + 1
+		c = byte [str]
+	end
+	return value
+end
+
+sub parse_lookup_table(symbol, tab)
+	local name, value, tempSymbol, match, i
+	while ((value = [tab]) != -1) & (i < 8192) do
+		name = tab + 8
+		tempSymbol = symbol
+		match = byte [tempSymbol] == byte [name]
+		while (match != 0) & (byte [name] != 0) do
+			name = name + 1
+			tempSymbol = tempSymbol + 1
+			match = byte [tempSymbol] == byte [name]
+		end
+		match = match & ((byte [tempSymbol] == 0) | (byte [tempSymbol] == 58))
+		if match != 0 then
+			return value
+		end
+		tab = tab + 64
+		i = i + 1
+	end
+	return value
+end
+
+sub parse_puthex(n)
+	local d
+	d = 60
+	while d >= 0 do
+		putch(["0123456789ABCDEF" + ((n >> d) & 15)])
+		d = d - 4
+	end
+end
+
+sub parse_print_table(tab)
+	local i, c, v
+	while ((v = [tab]) != -1) & (i < 8192) do
+		parse_puthex(i)
+		putch(32)
+		putch(34)
+		lex_puts(tab + 8)
+		putch(34)
+		putch(32)
+		parse_puthex(v)
+		putch(10)
+		tab = tab + 64
+		i = i + 1
+	end
+	parse_puthex(i)
+end
+
+sub parse_insert_table(value, symbol, tab)
+	local i, c
+	while ([tab] != -1) & (i < 8191) do
+		tab = tab + 64
+		i = i + 1
+	end
+	[tab] = value
+	i = 8
+	while ((c = byte [symbol]) != 0) & (i < 63) do
+		if c != 58 then ; ":"
+			[tab + i] = c
+			i = i + 1
+		end
+		symbol = symbol + 1
+	end
+	while (i < 64) do
+		[tab + i] = 0
+		i = i + 1
+	end
+	[tab + 64] = -1 ; fix what we broke!
+end
+
+sub parse_update_table(value, symbol, tab)
+	local name, candidate, match
+	while [tab] != -1 do
+		name = tab + 8
+		candidate = symbol
+		match = 1
+		while (byte [name] != 0) & match do
+			match = byte [name] == byte [candidate]
+			name = name + 1
+			candidate = candidate + 1
+		end
+		if match & ((byte [candidate] == 0) | (byte [candidate] == 58)) then [tab] = value return 0 end
+		tab = tab + 64
+	end
+end
+
+sub parse_expect_register(token)
+	local reg = oa_register(token)
+	if reg < 0 then
+		lex_puts("expected register got ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	return reg
+end
+
+sub parse_expect_newline(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if (ptr != 0) then
+		if (byte [token] != 10) then
+			lex_puts("expected newline got ")
+			lex_puts(token)
+			putch(10)
+			exit()
+		end
+	end
+	return ptr
+end
+
+sub parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if (ptr != 0) then
+		if lex_keyword_lookup(token) != 49 then
+			lex_puts("expected comma got ")
+			lex_puts(token)
+			putch(10)
+			exit()
+		end
+	end
+	return ptr
+end
+
+
+sub parse_no_args(op, fout, ptr, token)
+	ptr = parse_expect_newline(ptr, token)
+	return emit_no_args(op, fout)
+end
+
+sub parse_int(op, fout, ptr, token)
+	local vec
+	ptr = lex_get_next_token(ptr, token)
+	vec = parse_atoi(token)
+	ptr = parse_expect_newline(ptr, token)
+	return emit_int(fout, vec)
+end
+
+sub parse_one_reg(op, fout, ptr, token)
+	local reg, value, bytes
+	ptr = lex_get_next_token(ptr, token)
+	if (op == 2) & parse_is_digit(byte [token]) then
+		value = parse_atoi(token)
+		bytes = oa_emit8(fout, 104)
+		return bytes + oa_emit32(fout, value)
+	end
+	reg = parse_expect_register(token)
+	ptr = parse_expect_newline(ptr, token)
+	return emit_one_reg(op, fout, reg)
+end
+
+sub parse_two_reg(op, fout, ptr, token, symtab)
+	local srcReg, dstReg, width, value, operation
+	ptr = lex_get_next_token(ptr, token)
+	if oa_streq(token, "byte") | oa_streq(token, "word") | oa_streq(token, "dword") | oa_streq(token, "qword") then
+		if oa_streq(token, "byte") then width = 1 end
+		if oa_streq(token, "word") then width = 2 end
+		if oa_streq(token, "dword") then width = 4 end
+		if oa_streq(token, "qword") then width = 8 end
+		ptr = lex_get_next_token(ptr, token)
+		if lex_keyword_lookup(token) != 50 then lex_puts("expected memory") exit() end
+		parse_memory(ptr, token, symtab)
+		ptr = parse_expect_comma(oa_mem_pointer, token)
+		ptr = lex_get_next_token(ptr, token)
+		srcReg = parse_expect_register(token)
+		if op == 14 then
+			if width == 1 then return oa_emit_op_memory(fout, 56, width, srcReg, oa_mem_base, oa_mem_displacement) end
+			return oa_emit_op_memory(fout, 57, width, srcReg, oa_mem_base, oa_mem_displacement)
+		end
+	end
+	dstReg = parse_expect_register(token)
+	width = oa_register_size(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if (byte [token] == byte ["-"]) | parse_is_digit(byte [token]) then
+		if byte [token] == byte ["-"] then
+			ptr = lex_get_next_token(ptr, token)
+			value = 0 - parse_atoi(token)
+		else value = parse_atoi(token) end
+		if op == 8 then operation = 1 end
+		if op == 9 then operation = 2 end
+		if op == 10 then operation = 3 end
+		if op == 11 then operation = 5 end
+		if op == 12 then operation = 4 end
+		if op == 14 then operation = 6 end
+		return oa_emit_reg_imm(fout, operation, width, dstReg, value)
+	end
+	srcReg = parse_expect_register(token)
+	ptr = parse_expect_newline(ptr, token)
+	if op == 8 then return oa_emit_reg_reg(fout, 1, width, srcReg, dstReg) end
+	if op == 9 then return oa_emit_reg_reg(fout, 41, width, srcReg, dstReg) end
+	if op == 10 then return oa_emit_reg_reg(fout, 33, width, srcReg, dstReg) end
+	if op == 11 then return oa_emit_reg_reg(fout, 49, width, srcReg, dstReg) end
+	if op == 12 then return oa_emit_reg_reg(fout, 9, width, srcReg, dstReg) end
+	if op == 13 then return oa_emit_reg_reg(fout, 133, width, srcReg, dstReg) end
+	if op == 14 then return oa_emit_reg_reg(fout, 57, width, srcReg, dstReg) end
+	return 0
+end
+
+sub parse_setcc(op, fout, ptr, token)
+	local reg, condition
+	ptr = lex_get_next_token(ptr, token)
+	reg = parse_expect_register(token)
+	ptr = parse_expect_newline(ptr, token)
+	if (op == 17) | (op == 19) then condition = 4 end
+	if (op == 18) | (op == 20) then condition = 5 end
+	if op == 21 then condition = 15 end
+	if op == 22 then condition = 12 end
+	if op == 23 then condition = 13 end
+	if op == 24 then condition = 14 end
+	return oa_emit_setcc(fout, condition, reg)
+end
+
+sub parse_shift(op, fout, ptr, token)
+	local dstReg, cl, width, value, bytes, extension
+	ptr = lex_get_next_token(ptr, token)
+	dstReg = parse_expect_register(token)
+	width = oa_register_size(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if parse_is_digit(byte [token]) then
+		value = parse_atoi(token)
+		if op == 15 then extension = 4 else extension = 5 end
+		bytes = oa_rex(fout, width, 0, dstReg, 0)
+		bytes = bytes + oa_emit8(fout, 193)
+		bytes = bytes + oa_emit8(fout, 192 | (extension << 3) | (dstReg & 7))
+		return bytes + oa_emit8(fout, value)
+	end
+	if lex_keyword_lookup(token) != 47 then
+		lex_puts("expected cl got ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	ptr = parse_expect_newline(ptr, token)
+	return emit_shift(op, fout, dstReg)
+end
+
+sub parse_call(op, fout, ptr, token, pos, symtab)
+	local reg, value, bytes
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) == 50 then
+		ptr = lex_get_next_token(ptr, token)
+		reg = parse_expect_register(token)
+		bytes = oa_rex(fout, 8, 0, reg, 0)
+		bytes = bytes + oa_emit8(fout, 255)
+		return bytes + oa_emit8(fout, 16 | (reg & 7))
+	end
+	reg = oa_register(token)
+	if reg >= 0 then
+		ptr = parse_expect_newline(ptr, token)
+		bytes = oa_rex(fout, 8, 0, reg, 0)
+		bytes = bytes + oa_emit8(fout, 255)
+		return bytes + oa_emit8(fout, 208 | (reg & 7))
+	end
+	value = parse_lookup_table(token, symtab)
+	if value < 0 then value = 0 end
+	ptr = parse_expect_newline(ptr, token)
+	return oa_emit_relative(fout, 232, value, pos)
+end
+
+sub parse_branch(op, fout, ptr, token, pos, symtab)
+	local value
+
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != -1 then
+		lex_puts("expected symbol got keyword ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	value = parse_lookup_table(token, symtab)
+	if (value == -1) & (fout != -1) then
+		lex_puts("expected symbol got ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	if (value == -2) then
+		lex_puts("no support for branching to extern ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	if op == 28 then return oa_emit_relative(fout, 233, value, pos) end
+	if op == 29 then return oa_emit_jcc(fout, 5, value, pos) end
+	if op == 30 then return oa_emit_jcc(fout, 4, value, pos) end
+	if op == 57 then return oa_emit_jcc(fout, 5, value, pos) end
+	if op == 58 then return oa_emit_jcc(fout, 6, value, pos) end
+	if op == 59 then return oa_emit_jcc(fout, 4, value, pos) end
+	if op == 60 then return oa_emit_jcc(fout, 2, value, pos) end
+	if op == 61 then return oa_emit_jcc(fout, 2, value, pos) end
+	return 0
+end
+
+
+sub parse_data(fout, width, ptr, token, symtab)
+	local bytes, value, more = 1, symbol
+	while more do
+		ptr = lex_get_next_token(ptr, token)
+		if byte [token] == 34 then
+			bytes = bytes + emit_string(fout, token)
+			ptr = lex_get_next_token(ptr, token)
+		else
+			if byte [token] == byte ["("] then
+				value = parse_expression_until(ptr, token, symtab, byte [")"], 0, 0)
+				value = parse_expression_until(oa_expr_pointer, token, symtab, byte [","], value, 1)
+			else
+				symbol = parse_lookup_table(token, symtab)
+				if symbol >= 0 then value = symbol else value = parse_atoi(token) end
+				value = parse_expression_until(ptr, token, symtab, byte [","], value, 1)
+			end
+			ptr = oa_expr_pointer
+			if width == 1 then bytes = bytes + oa_emit8(fout, value) end
+			if width == 2 then bytes = bytes + oa_emit16(fout, value) end
+			if width == 4 then bytes = bytes + oa_emit32(fout, value) end
+			if width == 8 then bytes = bytes + oa_emit64(fout, value) end
+		end
+		if byte [token] != byte [","] then more = 0 end
+	end
+	return bytes
+end
+
+sub parse_label(fout, pos, ptr, token, symtab)
+	local k, label, value, label_length
+	label = brk(-1)
+	brk(label + 64)
+	k = 0
+	while byte [token + k] do byte [label + k] = byte [token + k] k = k + 1 end
+	byte [label + k] = 0
+	label_length = k
+	if fout == -1 then
+		if parse_lookup_table(token, symtab) != -1 then
+			lex_puts("duplicate label ")
+			lex_puts(token)
+			putch(10)
+			exit(0)
+		end
+		parse_insert_table(pos, token, symtab)
+	end
+	ptr = lex_get_next_token(ptr, token)
+	if ptr == 0 then return 0 end
+	k = lex_keyword_lookup(token)
+	if (k != 81) & ((label_length == 0) | (byte [label + label_length - 1] != 58)) then
+		lex_puts("unknown instruction ")
+		lex_puts(label)
+		putch(10)
+		exit()
+	end
+	if k == 81 then
+		value = parse_expression_until(ptr, token, symtab, 10, 0, 0)
+		if fout == -1 then parse_update_table(value, label, symtab) end
+		return 0
+	end
+	if k == 31 then return parse_data(fout, 1, ptr, token, symtab) end
+	if k == 63 then return parse_data(fout, 8, ptr, token, symtab) end
+	if k == 64 then return parse_data(fout, 4, ptr, token, symtab) end
+	if k == 65 then return parse_data(fout, 2, ptr, token, symtab) end
+	return 0
+end
+
+sub parse_port_io(fout, ptr, token, input)
+	local first, second, value, bytes
+	ptr = lex_get_next_token(ptr, token)
+	first = oa_register(token)
+	if first < 0 then value = parse_atoi(token) end
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	second = oa_register(token)
+	if input then
+		if second == 2 then return oa_emit8(fout, 236) end
+		bytes = oa_emit8(fout, 228)
+		return bytes + oa_emit8(fout, parse_atoi(token))
+	end
+	if first == 2 then return oa_emit8(fout, 238) end
+	bytes = oa_emit8(fout, 230)
+	return bytes + oa_emit8(fout, value)
+end
+
+sub parse_db(fout, ptr, token)
+	local bytes, more = 1
+	while more do
+		ptr = lex_get_next_token(ptr, token)
+		if byte [token] == 34 then bytes = bytes + emit_string(fout, token)
+		else bytes = bytes + emit_byte(fout, parse_atoi(token)) end
+		ptr = lex_get_next_token(ptr, token)
+		if lex_keyword_lookup(token) != 49 then more = 0 end
+	end
+	return bytes
+end
+
+sub parse_apply(left, operation, right)
+	if operation == 1 then return left + right end
+	if operation == 2 then return left - right end
+	if operation == 3 then return parse_mul(left, right) end
+	if operation == 4 then return left << right end
+	if operation == 5 then return left >> right end
+	if operation == 6 then return left & right end
+	if operation == 7 then return left | right end
+	return right
+end
+
+; FruityOS assembly expressions are explicitly parenthesized where precedence
+; matters, so this compact evaluator can process their operator stream in order.
+sub parse_expression_until(ptr, token, symtab, terminator, value, have_value)
+	local right, operation, symbol
+	while ptr != 0 do
+		ptr = lex_get_next_token(ptr, token)
+		if ptr == 0 then oa_expr_pointer = 0 return value end
+		if (byte [token] == terminator) | (byte [token] == 10) then oa_expr_pointer = ptr return value end
+		if byte [token] == byte ["("] then
+			right = parse_expression_until(ptr, token, symtab, byte [")"], 0, 0)
+			ptr = oa_expr_pointer
+			if have_value == 0 then value = right have_value = 1
+			else value = parse_apply(value, operation, right) end
+		else
+			if oa_streq(token, "+") | oa_streq(token, "-") | oa_streq(token, "*") | oa_streq(token, "<<") | oa_streq(token, ">>") | oa_streq(token, "&") | oa_streq(token, "|") then
+				if oa_streq(token, "+") then operation = 1 end
+				if oa_streq(token, "-") then operation = 2 end
+				if oa_streq(token, "*") then operation = 3 end
+				if oa_streq(token, "<<") then operation = 4 end
+				if oa_streq(token, ">>") then operation = 5 end
+				if oa_streq(token, "&") then operation = 6 end
+				if oa_streq(token, "|") then operation = 7 end
+			else
+				symbol = parse_lookup_table(token, symtab)
+				if symbol >= 0 then right = symbol else right = parse_atoi(token) end
+				if have_value == 0 then value = right have_value = 1
+				else value = parse_apply(value, operation, right) end
+			end
+		end
+	end
+	oa_expr_pointer = ptr
+	return value
+end
+
+sub parse_imul(fout, ptr, token)
+	local destination, source, width, bytes
+	ptr = lex_get_next_token(ptr, token)
+	destination = parse_expect_register(token)
+	width = oa_register_size(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	source = parse_expect_register(token)
+	bytes = oa_rex(fout, width, destination, source, 0)
+	bytes = bytes + oa_emit8(fout, 15)
+	bytes = bytes + oa_emit8(fout, 175)
+	return bytes + oa_emit8(fout, 192 | ((destination & 7) << 3) | (source & 7))
+end
+
+sub parse_movzx(fout, ptr, token, symtab, pos)
+	local destination, width, source, bytes
+	ptr = lex_get_next_token(ptr, token)
+	destination = parse_expect_register(token)
+	width = oa_register_size(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if oa_streq(token, "byte") then ptr = lex_get_next_token(ptr, token) end
+	if lex_keyword_lookup(token) == 50 then
+		parse_memory(ptr, token, symtab)
+		bytes = oa_rex(fout, width, destination, oa_mem_base, 0)
+		bytes = bytes + oa_emit8(fout, 15)
+		bytes = bytes + oa_emit8(fout, 182)
+		return bytes + oa_emit_memory_tail(fout, destination, oa_mem_base, oa_mem_displacement)
+	end
+	source = parse_expect_register(token)
+	bytes = oa_rex(fout, width, destination, source, source >= 4)
+	bytes = bytes + oa_emit8(fout, 15)
+	bytes = bytes + oa_emit8(fout, 182)
+	return bytes + oa_emit8(fout, 192 | ((destination & 7) << 3) | (source & 7))
+end
+
+sub parse_system_memory(fout, ptr, token, symtab, pos, extension)
+	local bytes
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != 50 then lex_puts("expected [") exit() end
+	parse_memory(ptr, token, symtab)
+	if oa_mem_base >= 0 then bytes = oa_rex(fout, 4, 0, oa_mem_base, 0) end
+	bytes = bytes + oa_emit8(fout, 15)
+	bytes = bytes + oa_emit8(fout, 1)
+	if oa_mem_base >= 0 then return bytes + oa_emit_memory_tail(fout, extension, oa_mem_base, oa_mem_displacement) end
+	bytes = bytes + oa_emit8(fout, (extension << 3) | 5)
+	return bytes + oa_emit32(fout, oa_mem_displacement - pos - bytes - 4)
+end
+
+sub parse_memory(ptr, token, symtab)
+	local sign = 1, value
+	oa_mem_base = -1
+	oa_mem_index = -1
+	oa_mem_displacement = 0
+	oa_mem_relative = 0
+	ptr = lex_get_next_token(ptr, token)
+	if oa_streq(token, "rel") then
+		oa_mem_relative = 1
+		ptr = lex_get_next_token(ptr, token)
+		value = parse_lookup_table(token, symtab)
+		if value >= 0 then oa_mem_displacement = value end
+		ptr = lex_get_next_token(ptr, token)
+	else
+		oa_mem_base = oa_register(token)
+		if oa_mem_base < 0 then
+			value = parse_lookup_table(token, symtab)
+			if value >= 0 then oa_mem_displacement = value else oa_mem_displacement = parse_atoi(token) end
+		end
+		ptr = lex_get_next_token(ptr, token)
+		if (byte [token] == byte ["+"]) | (byte [token] == byte ["-"]) then
+			if byte [token] == byte ["-"] then sign = -1 end
+			ptr = lex_get_next_token(ptr, token)
+			oa_mem_index = oa_register(token)
+			if oa_mem_index < 0 then
+				if byte [token] == byte ["("] then
+					value = parse_expression_until(ptr, token, symtab, byte [")"], 0, 0)
+					oa_mem_displacement = oa_mem_displacement + (sign * value)
+					ptr = lex_get_next_token(oa_expr_pointer, token)
+				else
+				if parse_is_digit(byte [token]) then
+					oa_mem_displacement = oa_mem_displacement + (sign * parse_expression_until(ptr, token, symtab, byte ["]"], parse_atoi(token), 1))
+				else oa_mem_displacement = oa_mem_displacement + (sign * parse_expression_until(ptr, token, symtab, byte ["]"], 0, 0)) end
+				ptr = oa_expr_pointer
+				end
+			else ptr = lex_get_next_token(ptr, token) end
+		end
+	end
+	if byte [token] != byte ["]"] then lex_puts("expected ]") putch(10) exit() end
+	oa_mem_pointer = ptr
+end
+
+sub parse_mov(fout, ptr, token, symtab, pos)
+	local dstReg, srcReg, value, width = 8, opcode, bytes
+
+	ptr = lex_get_next_token(ptr, token)
+	if oa_streq(token, "qword") then width = 8 ptr = lex_get_next_token(ptr, token) end
+	if oa_streq(token, "dword") then width = 4 ptr = lex_get_next_token(ptr, token) end
+	if oa_streq(token, "word") then width = 2 ptr = lex_get_next_token(ptr, token) end
+	if oa_streq(token, "byte") then width = 1 ptr = lex_get_next_token(ptr, token) end
+	if lex_keyword_lookup(token) == 50 then ; "["
+		parse_memory(ptr, token, symtab)
+		ptr = oa_mem_pointer
+		ptr = parse_expect_comma(ptr, token)
+		ptr = lex_get_next_token(ptr, token)
+		srcReg = oa_register(token)
+		if srcReg >= 0 then
+			if width == 8 then width = oa_register_size(token) end
+			if oa_mem_relative then
+				if width == 1 then opcode = 136 else opcode = 137 end
+				return oa_emit_rip_memory(fout, opcode, width, srcReg, oa_mem_displacement, pos)
+			end
+			if oa_mem_base < 0 then
+				if width == 1 then opcode = 136 else opcode = 137 end
+				return oa_emit_absolute_memory(fout, opcode, width, srcReg, oa_mem_displacement)
+			end
+			if oa_mem_index >= 0 then
+				if width == 1 then opcode = 136 else opcode = 137 end
+				return oa_emit_index_memory(fout, opcode, width, srcReg, oa_mem_base, oa_mem_displacement)
+			end
+			return oa_emit_store_memory(fout, width, srcReg, oa_mem_base, oa_mem_displacement)
+		end
+		; Stable imm32 store used by generated record/global initialization.
+		value = parse_atoi(token)
+		if oa_mem_base < 0 then
+			bytes = oa_emit_absolute_memory(fout, 199, width, 0, oa_mem_displacement)
+			return bytes + oa_emit32(fout, value)
+		end
+		bytes = oa_rex(fout, width, 0, oa_mem_base, 0)
+		bytes = bytes + oa_emit8(fout, 199)
+		bytes = bytes + oa_emit_memory_tail(fout, 0, oa_mem_base, oa_mem_displacement)
+		return bytes + oa_emit32(fout, value)
+	else
+		if oa_segment(token) >= 0 then
+			dstReg = oa_segment(token)
+			ptr = parse_expect_comma(ptr, token)
+			ptr = lex_get_next_token(ptr, token)
+			srcReg = parse_expect_register(token)
+			bytes = oa_emit8(fout, 142)
+			return bytes + oa_emit8(fout, 192 | ((dstReg & 7) << 3) | (srcReg & 7))
+		end
+		if oa_streq(token, "cr3") then
+			ptr = parse_expect_comma(ptr, token)
+			ptr = lex_get_next_token(ptr, token)
+			srcReg = parse_expect_register(token)
+			bytes = oa_rex(fout, 8, 0, srcReg, 0)
+			bytes = bytes + oa_emit8(fout, 15)
+			bytes = bytes + oa_emit8(fout, 34)
+			return bytes + oa_emit8(fout, 192 | (3 << 3) | (srcReg & 7))
+		end
+		dstReg = parse_expect_register(token)
+		width = oa_register_size(token)
+			ptr = parse_expect_comma(ptr, token)
+			ptr = lex_get_next_token(ptr, token)
+
+			; load
+			if lex_keyword_lookup(token) == 50 then ; "["
+				parse_memory(ptr, token, symtab)
+				if oa_mem_relative then
+					if width == 1 then opcode = 138 else opcode = 139 end
+					return oa_emit_rip_memory(fout, opcode, width, dstReg, oa_mem_displacement, pos)
+				end
+				if oa_mem_base < 0 then
+					if width == 1 then opcode = 138 else opcode = 139 end
+					return oa_emit_absolute_memory(fout, opcode, width, dstReg, oa_mem_displacement)
+				end
+				if oa_mem_index >= 0 then
+					if width == 1 then opcode = 138 else opcode = 139 end
+					return oa_emit_index_memory(fout, opcode, width, dstReg, oa_mem_base, oa_mem_displacement)
+				end
+				return oa_emit_load_memory(fout, width, dstReg, oa_mem_base, oa_mem_displacement)
+			end
+
+			if oa_register(token) >= 0 then
+				if width == 1 then return oa_emit_reg_reg(fout, 136, width, oa_register(token), dstReg) end
+				return oa_emit_reg_reg(fout, 137, width, oa_register(token), dstReg)
+			end
+			; load immediate or symbol
+			if byte [token] == byte ["-"] then
+				ptr = lex_get_next_token(ptr, token)
+				value = 0 - parse_atoi(token)
+				value = parse_expression_until(ptr, token, symtab, 10, value, 1)
+			else
+				value = parse_lookup_table(token, symtab)
+				if value < 0 then value = parse_atoi(token) end
+				if byte [token] == byte ["("] then
+					value = parse_expression_until(ptr, token, symtab, byte [")"], 0, 0)
+					value = parse_expression_until(oa_expr_pointer, token, symtab, 10, value, 1)
+				else value = parse_expression_until(ptr, token, symtab, 10, value, 1) end
+			end
+			return oa_emit_reg_imm(fout, 0, width, dstReg, value)
+	end
+end
+
+sub parse_lea(fout, ptr, token, symtab, pos)
+	local destination, width
+	ptr = lex_get_next_token(ptr, token)
+	destination = parse_expect_register(token)
+	width = oa_register_size(token)
+	ptr = parse_expect_comma(ptr, token)
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != 50 then lex_puts("lea expects memory") putch(10) exit() end
+	parse_memory(ptr, token, symtab)
+	if oa_mem_relative then return oa_emit_rip_memory(fout, 141, width, destination, oa_mem_displacement, pos) end
+	if oa_mem_index >= 0 then return oa_emit_index_memory(fout, 141, width, destination, oa_mem_base, oa_mem_displacement) end
+	return oa_emit_lea_memory(fout, destination, oa_mem_base, oa_mem_displacement)
+end
+
+sub parse_extern(fout, pos, ptr, token, symtab)
+	ptr = lex_get_next_token(ptr, token)
+	if lex_keyword_lookup(token) != -1 then
+		lex_puts("expected symbol got keyword ")
+		lex_puts(token)
+		putch(10)
+		exit()
+	end
+	if fout == -1 then
+		if parse_lookup_table(token, symtab) == -1 then
+			; don't include externs in symbol table for now
+			; parse_insert_table(-2, token, symtab)
+		end
+	end
+end
+
+; if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass
+sub parse_file(fout, fin, symtab, org)
+
+	local buffer, ptr, token, c, k, pos, bytes
+
+	buffer = brk(-1)
+	token = brk(buffer + 65536)
+	brk(token + 65536)
+
+	pos = org
+	while c = fgetch(fin) & 255 do
+		ptr = buffer
+		while (c != 0) & (c != 10) do
+			[ptr] = c
+			ptr = ptr + 1
+			c = fgetch(fin) & 255
+		end
+		[ptr] = 0
+		ptr = buffer
+
+		ptr = lex_get_next_token(ptr, token)
+
+		if ptr then
+
+			k = lex_keyword_lookup(token)
+
+			; ret, syscall
+			if (k >= 0) & (k <= 1) then pos = pos + parse_no_args(k, fout, ptr, token) end
+
+			; int
+			if (k == 56) then pos = pos + parse_int(k, fout, ptr, token) end
+
+			; org changes symbol addresses without emitting padding.
+			if k == 54 then
+				ptr = lex_get_next_token(ptr, token)
+				pos = parse_atoi(token)
+			end
+
+			; push, pop, mul, div, neg, not
+			if (k >= 2) & (k <= 7) then pos = pos + parse_one_reg(k, fout, ptr, token) end
+
+			; add, sub, and, xor, or, test, cmp
+			if (k >= 8) & (k <= 14) then pos = pos + parse_two_reg(k, fout, ptr, token, symtab) end
+
+			; shl, shr
+			if (k >= 15) & (k <= 16) then pos = pos + parse_shift(k, fout, ptr, token) end
+
+			; sete, setne, setz, setnz, setg, setl, setge, setle
+			if (k >= 17) & (k <= 24) then pos = pos + parse_setcc(k, fout, ptr, token) end
+
+			; call
+			if k == 27 then pos = pos + parse_call(k, fout, ptr, token, pos, symtab) end
+
+			; jmp, jnz, jz
+			if (k >= 28) & (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
+			if (k >= 57) & (k <= 61) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
+
+			; label:
+			if k == -1 then pos = pos + parse_label(fout, pos, ptr, token, symtab) end
+
+			; extern
+			if k == 32 then parse_extern(fout, pos, ptr, token, symtab) end
+
+			; mov
+			if k == 25 then pos = pos + parse_mov(fout, ptr, token, symtab, pos) end
+			if k == 26 then pos = pos + parse_lea(fout, ptr, token, symtab, pos) end
+
+			; db
+			if k == 31 then pos = pos + parse_data(fout, 1, ptr, token, symtab) end
+			if k == 62 then
+				ptr = lex_get_next_token(ptr, token)
+				k = parse_atoi(token)
+				while (pos & (k - 1)) != 0 do pos = pos + oa_emit8(fout, 0) end
+			end
+			if k == 63 then pos = pos + parse_data(fout, 8, ptr, token, symtab) end
+			if k == 64 then pos = pos + parse_data(fout, 4, ptr, token, symtab) end
+			if k == 65 then pos = pos + parse_data(fout, 2, ptr, token, symtab) end
+			if k == 66 then pos = pos + parse_imul(fout, ptr, token) end
+			if k == 67 then pos = pos + parse_movzx(fout, ptr, token, symtab, pos) end
+			if k == 71 then pos = pos + oa_emit8(fout, 244) end
+			if k == 72 then pos = pos + oa_emit8(fout, 250) end
+			if k == 73 then pos = pos + oa_emit8(fout, 251) end
+			if k == 74 then bytes = oa_emit8(fout, 72) pos = pos + bytes + oa_emit8(fout, 207) end
+			if k == 75 then bytes = oa_emit8(fout, 72) pos = pos + bytes + oa_emit8(fout, 203) end
+			if k == 76 then pos = pos + parse_system_memory(fout, ptr, token, symtab, pos, 2) end
+			if k == 77 then pos = pos + parse_system_memory(fout, ptr, token, symtab, pos, 3) end
+			if k == 78 then
+				ptr = lex_get_next_token(ptr, token)
+				k = parse_expect_register(token)
+				bytes = oa_emit8(fout, 15)
+				bytes = bytes + oa_emit8(fout, 0)
+				pos = pos + bytes + oa_emit8(fout, 216 | (k & 7))
+			end
+			if k == 79 then pos = pos + parse_port_io(fout, ptr, token, 1) end
+			if k == 80 then pos = pos + parse_port_io(fout, ptr, token, 0) end
+
+		end
+	end
+	return pos - org
+end

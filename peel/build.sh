@@ -35,6 +35,13 @@ for source in "$root"/src/*/*.jabara; do
     "$root/bin/juicer.elf" c "$tmp/$program.raw" "$root/bin/$program.fap"
 done
 
+cat "$pith" "$fruity"/jabara/src/orgasm/*.jabara > "$tmp/orgasm.jabara"
+"$jc" fap "$tmp/orgasm.jabara" "$tmp/orgasm-generated.asm"
+cat "$tmp/orgasm-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \
+    > "$tmp/orgasm.asm"
+nasm -f bin "$tmp/orgasm.asm" -o "$tmp/orgasm.raw"
+"$root/bin/juicer.elf" c "$tmp/orgasm.raw" "$root/bin/orgasm.fap"
+
 cat "$pith" "$fruity"/yuzu/src/yc/*.yuzu > "$tmp/yc.jabara"
 "$jc" fap "$tmp/yc.jabara" "$tmp/yc-generated.asm"
 cat "$tmp/yc-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \

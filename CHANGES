@@ -30,3 +30,48 @@ Bugfixes:
 Notes:
 
 	Required RAM is now 16 MB.
+
+0.03
+
+FruityOS 0.03 completes the transition to the Jabara toolchain and adds a
+native UEFI boot path, reproducible source packaging, and an on-system userland
+rebuild.
+
+Changes:
+
+	1. Pulp and Peel now build with the self-hosted Jabara compiler.
+	2. Orgasm provides a Jabara-written, Zest-compatible assembler for every
+	   instruction and directive required by FruityOS.
+	3. The build produces legacy BIOS, standalone PE32+ EFI, and FAT16 UEFI
+	   disk images.
+	4. Every image contains a Jar- and Juicer-packaged snapshot of the current
+	   source worktree.
+	5. Startup extracts the checkout, rebuilds sixteen userland applications
+	   natively, and installs them into /bin.
+	6. The initrd contains only the ten host-built FAP files required to run
+	   the native build.
+	7. RAMFS inode names now support 63 characters, preserving generated source
+	   filenames.
+	8. Kernel heap and application mappings were expanded for the native
+	   compiler workflow.
+	9. Documentation is organized as a concise project overview and detailed
+	   guides under docs/.
+
+Bugfixes:
+
+	1. PE32+ sections, relocation metadata, memory-map handling, and firmware
+	   handoff were hardened for physical UEFI implementations.
+	2. BIOS startup now delays interrupts until the initrd has been copied out
+	   of the boot-image buffer, preventing IST-stack corruption.
+	3. QEMU run scripts use temporary image copies, avoiding stale write locks
+	   and accidental modification of release artifacts.
+	4. Orgasm now handles the byte operations, nested expressions, memory
+	   operands, and descriptor data used by Pulp and generated FAP assembly.
+	5. Native compilation no longer loses source files with long names or
+	   exhausts the original RAMFS data pool.
+
+Notes:
+
+	Secure Boot is not supported. Physical UEFI systems must disable it or use
+	a locally signed fruityos.efi. VGA-compatible text output and PS/2 keyboard
+	input are still required after firmware handoff.

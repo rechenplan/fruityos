@@ -1,1 +1,9 @@
-echo Welcome to FruityOS 0.02!
+echo Welcome to FruityOS 0.03!
+echo Unpacking the FruityOS source tree...
+mkdir /src/fruityos
+cd /src/fruityos
+juicer d ../fruityos.jz ../fruityos.jar
+jar x ../fruityos.jar
+del ../fruityos.jar
+echo Starting the native Jabara build...
+build.psh

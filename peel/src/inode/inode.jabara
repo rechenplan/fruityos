@@ -101,15 +101,15 @@ sub inode_getName(inode)
 end
 
 sub inode_getType(inode)
-        return [inode + 16] & ((1 << 32) - 1)
+        return [inode + 64] & ((1 << 32) - 1)
 end
 
 sub inode_getContentSize(inode)
-        return [inode + 20] & ((1 << 32) - 1)
+        return [inode + 68] & ((1 << 32) - 1)
 end
 
 sub inode_getContent(inode)
-        return [inode + 24]
+        return [inode + 72]
 end
 
 sub fba_getNext(blockAddr)

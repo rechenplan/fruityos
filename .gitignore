@@ -5,3 +5,5 @@ fruityos.efi
 fruityos_floppy.img
 log.txt
 initrd
+*.save
+*.swp

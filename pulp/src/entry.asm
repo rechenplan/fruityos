@@ -42,6 +42,11 @@ entry:
 	call kmain
 	jmp die
 
+debug_putch:
+	mov al, dil
+	out 0xe9, al
+	ret
+
 gdt_init:
         lgdt [gdtr]
 	mov ax, 0x10

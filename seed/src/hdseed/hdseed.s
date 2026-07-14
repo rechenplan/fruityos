@@ -4,7 +4,7 @@
 %define KERNEL_ADDR 0x10000
 %define STACK_ADDR 0x40000
 %define LOAD_ADDR 0x40000
-%define BLOCK_COUNT 127
+%define BLOCK_COUNT 768
 %define GDT_ADDR (gdt - 0x7c00) + LOAD_ADDR
 
 	; Canonicalize IP
@@ -24,11 +24,11 @@ start:
 	push 0xb800
 	pop gs
 
-        ; Read 512 sectors (256k) from begining of disk to memory
+        ; Read 768 sectors (384 KiB) from the beginning of disk to memory.
 
 	mov bx, LOAD_ADDR >> 4
 	mov bp, 0
-	mov cx, 8
+	mov cx, 12
 load:
 	mov word [dap + 0], 16
 	mov word [dap + 2], 64

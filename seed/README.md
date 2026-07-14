@@ -1,32 +1,19 @@
-# seed
+# Seed
 
-this repository will contain a collection of bootloaders for fruityos.
+Seed contains the FruityOS bootloaders.
 
-# fdseed
+- `hdseed` is the 512-byte legacy hard-disk loader used by
+  `fruityos_hdd.img`.
+- `fdseed` is the retained floppy-oriented loader.
+- `uefiseed` is a dependency-free x86-64 PE32+ EFI application and FAT16 image
+  generator written in NASM.
 
-a bootsector for a floppy image. there will be no file system on the floppy. it will simply contain pulp and the initrd written consecutively to disk.
+Both supported boot paths decompress Pulp at physical `0x10000`, place the
+initrd where it remains stable during kernel initialization, and enter the
+kernel at `0x10100` with the initrd pointer in `RSI`.
 
-1. load entire floppy disk into ram.
-2. decompress pulp in memory.
-4. decompress initrd in memory
-5. switch to long mode
-6. jump to pulp with pointer to decompressed initrd
+The root build produces the BIOS image, standalone `fruityos.efi`, and
+`fruityos_uefi.img` containing `EFI/BOOT/BOOTX64.EFI`.
 
-
-# hdseed
-
-a bootsector for a harddrive or other bootable media. behaves similar to fdseed.
-
-# uefiseed
-
-`src/uefiseed/uefiseed.asm` is a dependency-free x86-64 UEFI loader. The same
-NASM source contains its PE32+ header, embeds the compressed Pulp kernel and
-initrd, and can package the result as `EFI/BOOT/BOOTX64.EFI` in a FAT16 EFI
-system partition.
-
-The root build produces both a standalone `fruityos.efi` PE32+ application and
-`fruityos_uefi.img`, which contains that application at the removable-media
-path. The loader reserves FruityOS's fixed physical regions through UEFI, exits
-boot services, creates a temporary identity map, restores legacy VGA text mode
-and PIC routing, decompresses Pulp at `0x10000`, and jumps to its entry at
-`0x10100` with the initrd pointer in `RSI`.
+See [Boot and firmware](../docs/boot-and-firmware.md) for image layouts, PE
+structure, firmware calls, memory reservations, and hardware requirements.

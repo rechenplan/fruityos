@@ -77,9 +77,6 @@ sub idt_init()
 	byte [_idtr + 1] = 15
 	[_idtr + 2] = _idt
 	idt_load(_idtr)
-
-	idt_sti()
-
 end
 
 sub idt_cleanup()

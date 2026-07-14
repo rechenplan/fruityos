@@ -4,6 +4,7 @@ extern sub gdt_init()
 extern sub idt_cli()
 extern sub idt_load(address)
 extern sub idt_sti()
+extern sub debug_putch(character)
 extern sub tss_init()
 extern sub user_jmp()
 
