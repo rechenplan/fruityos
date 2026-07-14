@@ -29,7 +29,7 @@ sub heap_size256()
 end
 
 sub heap_size1024()
-	return 5 << 19
+	return 7 << 19
 end
 
 sub heap_addr32()

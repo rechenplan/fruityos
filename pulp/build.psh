@@ -1,7 +1,4 @@
 echo [ Building FruityOS kernel with Jabara ]
-mkdir bin
-mkdir tmp
-
 echo Building Pulp modules...
 concat tmp/fba.jabara src/platform.jabara src/fba.jabara
 jc part tmp/fba.jabara tmp/fba.asm

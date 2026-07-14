@@ -115,9 +115,10 @@ Ranges are half-open; the ending address is not included.
 | `0x00101000`–`0x00102000` | Page-directory-pointer table. |
 | `0x00102000`–`0x00103000` | Page directory. |
 | `0x00103000`–`0x00203000` | Page-table arena. |
+| `0x00300000`–`0x00400000` | Stable BIOS payload staging window during initialization. |
 | `0x00400000`–`0x00410000` | 32-byte heap pool. |
 | `0x00410000`–`0x00450000` | 256-byte heap pool. |
-| `0x00450000`–`0x006d0000` | 1024-byte heap pool. |
+| `0x00450000`–`0x007d0000` | 1024-byte heap pool. |
 | `0x00700000` onward | Stable UEFI initrd copy during initialization. |
 
 ## Ring-3 virtual memory map

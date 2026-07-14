@@ -48,7 +48,7 @@ directory changes.
 | `jc` | Compile Jabara to NASM-compatible assembly. |
 | `orgasm` | Assemble the subset used by Jabara and FruityOS. |
 
-The initial initrd does not contain this entire table. It begins with the nine
+The initial initrd does not contain this entire table. It begins with the six
 bootstrap FAPs documented in [Initrd and native rebuild](initrd-native-build.md)
 and compressed Jabara compiler assembly, then installs the sixteen newly built
 ordinary applications into `/bin`. FruityOS assembles `jc` before starting the

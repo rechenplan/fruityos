@@ -4,7 +4,8 @@
 %define KERNEL_ADDR 0x10000
 %define STACK_ADDR 0x40000
 %define LOAD_ADDR 0x40000
-%define BLOCK_COUNT 768
+%define PAYLOAD_ADDR 0x300000
+%define IMAGE_BLOCK_COUNT 2048
 %define GDT_ADDR (gdt - 0x7c00) + LOAD_ADDR
 
 	; Canonicalize IP
@@ -24,26 +25,13 @@ start:
 	push 0xb800
 	pop gs
 
-        ; Read 768 sectors (384 KiB) from the beginning of disk to memory.
-
-	mov bx, LOAD_ADDR >> 4
-	mov bp, 0
-	mov cx, 12
+        ; Copy the boot sector to its working address so the temporary GDT is
+        ; still available after firmware services are left behind.
 load:
-	mov word [dap + 0], 16
-	mov word [dap + 2], 64
-	mov word [dap + 4], 0
-	mov word [dap + 6], bx ; segment
-	mov word [dap + 8], bp ; starting block
-
         mov ah, 42h
         mov si, dap
         int 0x13
         jc load
-
-	add bx, 0x0800
-	add bp, 64
-	loop load
 
 	; Turn on A20 gate (fast A20)
 a20:	in al, 0x92
@@ -75,7 +63,7 @@ a20:	in al, 0x92
         mov word [0x3008], ax
 
         mov eax, 3
-        mov cx, 512 * 2
+	mov cx, 512 * 2
         mov di, 0x4000
 pt:     stosd
 	add di, 4
@@ -111,6 +99,47 @@ lmode:
 	mov ss, ax
 	mov rsp, STACK_ADDR
 
+	; The BIOS transfer is limited by conventional memory. Fetch the complete
+	; padded payload through the primary ATA controller into high memory.
+	mov r8d, 1
+	mov rdi, PAYLOAD_ADDR
+	mov ebp, IMAGE_BLOCK_COUNT - 1
+ata_read:
+	mov eax, r8d
+	shr eax, 24
+	and al, 0x0f
+	or al, 0xe0
+	mov dx, 0x1f6
+	out dx, al
+	mov dx, 0x1f2
+	mov al, 1
+	out dx, al
+	inc dx
+	mov eax, r8d
+	out dx, al
+	inc dx
+	shr eax, 8
+	out dx, al
+	inc dx
+	shr eax, 8
+	out dx, al
+	inc dx
+	inc dx
+	mov al, 0x20
+	out dx, al
+ata_wait:
+	in al, dx
+	test al, 0x80
+	jnz ata_wait
+	test al, 0x08
+	jz ata_wait
+	mov dx, 0x1f0
+	mov ecx, 256
+	rep insw
+	inc r8d
+	dec ebp
+	jnz ata_read
+
 	; Initialize PIC
 	mov al, 0x11
 	out 0x20, al
@@ -133,7 +162,7 @@ lmode:
 	out 0xa1, al
 
 	; Unpack kernel
-	mov rsi, 0x40200	; first 512 is bootsector
+	mov rsi, PAYLOAD_ADDR
 	mov rdi, KERNEL_ADDR
 unpack: lodsb
 	cmp al, 255
@@ -170,7 +199,7 @@ align 4
 dap:
         db 16                   ; size of packet
         db 0                    ; reserved
-        dw BLOCK_COUNT          ; number of blocks to transfer
+        dw 1                    ; number of blocks to transfer
         dw 0                    ; buffer ptr
 	dw LOAD_ADDR >> 4	; buffer seg
         dq 0                    ; block number
@@ -211,7 +240,7 @@ db 0x7F		; System ID (filesystem type)
 db 255		; ending head (255)
 dw 1023<<6 | 63	; ending sector (63) ending cylinder (1023)
 dd 0		; lba start
-dd BLOCK_COUNT	; lba block count
+dd IMAGE_BLOCK_COUNT	; lba block count
 
 times 510 - ($ - $$) db 0
 	dw 0xAA55

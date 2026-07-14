@@ -1,16 +1,11 @@
-echo Welcome to FruityOS 0.03!
-echo Unpacking the FruityOS source tree...
-mkdir /src/fruityos
-cd /src/fruityos
-juicer d ../fruityos.jz ../fruityos.jar
-jar x ../fruityos.jar
-del ../fruityos.jar ../fruityos.jz
-echo Decompressing the Jabara compiler assembly...
+cd /src
+juicer d fruityos.jz fruityos.jar
+del fruityos.jz
+jar x fruityos.jar
+del fruityos.jar
+cd fruityos
 juicer d jabara/jc.asm.jz jabara/jc.asm
-echo Assembling the Jabara compiler...
 orgasm f jabara/jc.asm /bin/jc.raw
-echo Compressing the Jabara compiler...
 juicer c /bin/jc.raw /bin/jc.fap
 del /bin/jc.raw jabara/jc.asm jabara/jc.asm.jz
-echo Starting the native Jabara build...
 build.psh

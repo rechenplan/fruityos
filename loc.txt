@@ -51,10 +51,10 @@
     19 ./jabara/lib/fap-stack-runtime.asm
      8 ./jabara/lib/fap-module-runtime.asm
     24 ./jabara/lib/pith.jabara
-   217 ./seed/src/hdseed/hdseed.s
+   246 ./seed/src/hdseed/hdseed.s
    258 ./seed/src/fdseed/fdseed.s
    974 ./seed/src/uefiseed/uefiseed.asm
-   192 ./peel/src/juicer/juicer.jabara
+   185 ./peel/src/juicer/juicer.jabara
     34 ./peel/src/move/move.jabara
    156 ./peel/src/jar/jar.jabara
    120 ./peel/src/dir/dir.jabara
@@ -90,4 +90,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 31689 total
+ 31711 total

@@ -23,20 +23,9 @@ sub nextarg(strPtr)
 	return strPtr + 1
 end
 
-sub mod(n, d)
-	local r, q
-	r = n
-	q = 0
-	while r >= d do
-		r = r - d
-		q = q + 1
-	end
-	return r
-end
-
 sub compress(fin, fout)
 	local bytePtr, c, e, windowPtr, windowSize, i, j, filePtr, fileSize, encoderPos,
-		distance, length, done, bestLength, bestDistance
+		distance, length, remainder, done, bestLength, bestDistance
 
 	bytePtr = malloc(3)
 	filePtr = malloc(2 << 20)
@@ -60,7 +49,11 @@ sub compress(fin, fout)
 			done = 0
 			while (encoderPos + length < fileSize) & (done == 0) & (length < 63) do
 				c = byte [filePtr + encoderPos + length]
-				e = byte [windowPtr + distance - mod(length, distance + 1)]
+				remainder = length
+				while remainder > distance do
+					remainder = remainder - distance - 1
+				end
+				e = byte [windowPtr + distance - remainder]
 				if c == e then
 					length = length + 1
 				else

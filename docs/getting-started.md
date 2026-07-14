@@ -97,7 +97,7 @@ longer than a minimal shell-only boot.
 
 | Path | Description |
 | --- | --- |
-| `fruityos_hdd.img` | Padded 384 KiB legacy BIOS hard-disk image. |
+| `fruityos_hdd.img` | Padded 1 MiB legacy BIOS hard-disk image. |
 | `fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
 | `fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
 | `pulp/bin/pulp.bin` | Uncompressed flat Pulp kernel. |

@@ -87,7 +87,7 @@ git ls-files --cached --others --exclude-standard
 The selected paths are copied to a temporary `fruityos/` tree. The build adds
 `jabara/jc.asm.jz` and `pulp/pulp-generated.asm`, creates a Jar archive, and
 compresses it to `initrd/src/fruityos.jz`. The uncompressed host-built
-`pulp.bin` is omitted so the legacy BIOS image remains within its 384 KiB load
+`pulp.bin` is omitted so the legacy BIOS image remains within its 1 MiB load
 window.
 
 This means uncommitted, unignored source files are deliberately included in the
@@ -105,6 +105,9 @@ The BIOS image is a direct concatenation:
 ```text
 hdseed.bin + pulp.sys + initrd.jar + zero padding
 ```
+
+The build rejects an unpadded BIOS payload larger than 1 MiB instead of
+silently truncating it.
 
 The UEFI build embeds `pulp.sys` and `initrd.jar` in `fruityos.efi`, then places
 that application at the standard removable-media path inside

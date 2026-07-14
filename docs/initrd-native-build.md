@@ -12,12 +12,9 @@ The generated staging tree is:
 initrd/
 ├── bin/
 │   ├── concat.fap
-│   ├── copy.fap
 │   ├── del.fap
-│   ├── echo.fap
 │   ├── jar.fap
 │   ├── juicer.fap
-│   ├── mkdir.fap
 │   ├── orgasm.fap
 │   └── pish.fap
 ├── lib/
@@ -28,19 +25,21 @@ initrd/
 └── init.psh
 ```
 
-These nine FAPs form the binary bootstrap set:
+These six FAPs form the binary bootstrap set:
 
 | Program | Why it must be host-built in the initrd |
 | --- | --- |
 | `pish` | Runs `/init.psh`, nested build scripts, and external commands. |
-| `echo` | Reports init and build progress. |
-| `mkdir` | Creates `/src/fruityos` and native build directories. |
 | `del` | Removes the temporary decompressed source Jar. |
 | `jar` | Extracts the source checkout. |
 | `juicer` | Decompresses the checkout and creates native FAP streams. |
 | `concat` | Combines Jabara sources, generated assembly, and runtimes. |
 | `orgasm` | Assembles generated FAP assembly inside FruityOS. |
-| `copy` | Installs the freshly built userland into `/bin`. |
+
+The source archive contains the empty native output directories. The Peel build
+creates `echo.fap` directly in `/bin` before reporting progress, then writes all
+remaining applications there as they are built. This removes `mkdir`, `echo`,
+and `copy` from the host-built bootstrap set.
 
 The host uses `jc` to generate the complete compiler assembly, including its FAP
 entry and runtime, then compresses it into the source checkout as
@@ -81,11 +80,12 @@ Pulp launches `/bin/pish.fap`. With no explicit script argument, Pish opens
 `/init.psh`. That script performs:
 
 ```text
-mkdir /src/fruityos
-cd /src/fruityos
-juicer d ../fruityos.jz ../fruityos.jar
-jar x ../fruityos.jar
-del ../fruityos.jar ../fruityos.jz
+cd /src
+juicer d fruityos.jz fruityos.jar
+del fruityos.jz
+jar x fruityos.jar
+del fruityos.jar
+cd fruityos
 juicer d jabara/jc.asm.jz jabara/jc.asm
 orgasm f jabara/jc.asm /bin/jc.raw
 juicer c /bin/jc.raw /bin/jc.fap
@@ -93,19 +93,21 @@ del /bin/jc.raw jabara/jc.asm jabara/jc.asm.jz
 build.psh
 ```
 
-The extracted archive has `fruityos/` as its root contents, so the working
-directory becomes the checkout itself. When `build.psh` returns, Pish remains
-in `/src/fruityos` and displays the interactive prompt.
+The archive is rooted at `fruityos/`, so extraction under `/src` recreates the
+checkout directory. Deleting each outer archive as soon as it is no longer
+needed bounds peak RAMFS use. When `build.psh` returns, Pish remains in
+`/src/fruityos` and displays the interactive prompt.
 
 ## Native build sequence
 
 The checkout's root `build.psh` invokes `peel/build.psh` and then
 `pulp/build.psh`.
 
-The Peel script builds each ordinary userland application with the bootstrap
-`concat`, `jc`, `orgasm`, and `juicer` tools. Intermediate Jabara, assembly, and
-raw files are deleted after each application to return their RAMFS blocks;
-compressed results remain in `peel/bin` inside the checkout.
+The Peel script first builds `echo` directly in `/bin`, then builds each
+ordinary userland application with the bootstrap `concat`, `jc`, `orgasm`, and
+`juicer` tools. Intermediate Jabara, assembly, and raw files are deleted after
+each application to return their RAMFS blocks; compressed results replace or
+extend the applications in `/bin` immediately.
 
 The following applications are rebuilt:
 
@@ -113,10 +115,7 @@ The following applications are rebuilt:
 concat copy del dir echo fill fred inode jar juicer mkdir move pish rmdir type write
 ```
 
-After every build succeeds, the script explicitly copies all sixteen FAP files
-from `peel/bin` to `/bin`. `copy.fap` copies its own replacement early in this
-phase; later copy commands therefore exercise the native binary. The following
-completion message is also executed through the newly installed `echo.fap`.
+The completion message is executed through the newly built `echo.fap`.
 
 The native install changes only RAMFS. It does not modify the boot image or host
 working tree and disappears at shutdown.

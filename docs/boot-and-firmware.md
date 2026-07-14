@@ -13,26 +13,27 @@ produce the same handoff to Pulp: the kernel is decompressed at physical
 | `0x00000` | 512-byte `hdseed` sector with boot signature. |
 | `0x00200` | Juicer-compressed kernel, `pulp.sys`. |
 | after `pulp.sys` | Uncompressed Jar archive containing the initrd. |
-| through `0x5ffff` | Zero padding to the fixed 384 KiB image size. |
+| through `0xfffff` | Zero padding to the fixed 1 MiB image size. |
 
-The padding is functional: `hdseed` reads twelve groups of 64 sectors, or 768
-sectors total. A larger unannounced payload would be truncated by the loader;
-the host build therefore reports the unpadded size and then pads to exactly
-384 KiB.
+The padding is functional: `hdseed` reads 2047 payload sectors through the
+primary ATA controller. The host build reports the unpadded size, rejects a
+payload larger than 1 MiB, and pads valid images to exactly 1 MiB.
 
 ## BIOS startup
 
 Firmware loads sector zero at `0x7c00`. `hdseed` then:
 
-1. reads the 384 KiB image to physical `0x40000` using an extended disk-address
-   packet;
+1. copies the boot sector to physical `0x40000` using an extended disk-address
+   packet so its temporary GDT remains available;
 2. enables A20;
 3. creates temporary four-level page tables beginning at `0x1000`;
 4. loads a temporary GDT, enables PAE and long mode, and performs a far jump to
    64-bit code;
-5. remaps the legacy PIC;
-6. expands the Juicer kernel stream at `0x10000`;
-7. leaves `RSI` at the following initrd Jar and jumps to `0x10100`.
+5. reads the complete padded disk payload to physical `0x300000` with LBA28
+   PIO through the primary ATA controller;
+6. remaps the legacy PIC;
+7. expands the Juicer kernel stream at `0x10000`;
+8. leaves `RSI` at the following initrd Jar and jumps to `0x10100`.
 
 The kernel's first 256 bytes are the system-call function-pointer table. That is
 why the executable entry is exactly `kernel + 0x100` rather than the beginning

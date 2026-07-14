@@ -12,7 +12,7 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 echo "[ Creating initial RAM filesystem ]"
 rm -rf "$root/initrd"
 mkdir -p "$root/initrd/bin" "$root/initrd/lib" "$root/initrd/src"
-for program in concat copy del echo jar juicer mkdir orgasm pish; do
+for program in concat del jar juicer orgasm pish; do
     cp "$root/peel/bin/$program.fap" "$root/initrd/bin"
 done
 cp "$root/jabara/lib/elf-runtime.asm" "$root/jabara/lib/fap-runtime.asm" \
@@ -22,7 +22,8 @@ cp "$root/scripts/init.psh" "$root/initrd/init.psh"
 echo "[ Packaging FruityOS source tree ]"
 source_tmp=$(mktemp -d "${TMPDIR:-/tmp}/fruityos-source-XXXXXX")
 trap 'rm -rf "$source_tmp"' EXIT HUP INT TERM
-mkdir -p "$source_tmp/fruityos"
+mkdir -p "$source_tmp/fruityos/peel/bin" "$source_tmp/fruityos/peel/tmp" \
+    "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp"
 git -C "$root" ls-files --cached --others --exclude-standard -z | \
     tar -C "$root" --null -T - -cf - | \
     tar -C "$source_tmp/fruityos" -xf -
@@ -34,7 +35,7 @@ cat "$source_tmp/fruityos/pulp/src/platform.jabara" \
     "$source_tmp/fruityos/pulp/pulp-generated.asm"
 rm -f "$source_tmp/pulp.jabara"
 (
-    cd "$source_tmp/fruityos"
+    cd "$source_tmp"
     "$root/peel/bin/jar.elf" c "$source_tmp/fruityos.jar"
 )
 "$root/peel/bin/juicer.elf" c "$source_tmp/fruityos.jar" \
@@ -50,8 +51,13 @@ cd "$root"
 
 cat "$root/seed/bin/hdseed.bin" "$root/pulp/bin/pulp.sys" "$root/initrd.jar" \
     > "$root/fruityos_hdd.img"
-stat --printf="FruityOS size is %s bytes.\n" "$root/fruityos_hdd.img"
-truncate -s 384K "$root/fruityos_hdd.img"
+image_size=$(stat --printf="%s" "$root/fruityos_hdd.img")
+echo "FruityOS size is $image_size bytes."
+if test "$image_size" -gt 1048576; then
+    echo "build.sh: BIOS image exceeds its 1 MiB load window" >&2
+    exit 1
+fi
+truncate -s 1M "$root/fruityos_hdd.img"
 find . -regex '.*\.\(jabara\|yuzu\|asm\|s\|c\)' -print | \
     xargs wc -l > "$root/loc.txt"
 
