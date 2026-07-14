@@ -181,10 +181,13 @@ default rel
 %define EXIT_BOOT_OFFSET       232
 %define PAGE_SIZE              4096
 %define INITRD_ADDRESS         0x700000
+%define IMAGE_BASE             0x1000000
 
 ; ---------------------------------------------------------------------------
 ; DOS and PE32+ headers.  No linker, objcopy, GNU-EFI stub, or external header
-; is involved.  The single writable .text section is position-independent.
+; is involved.  The code is position-independent, but a conventional preferred
+; base and a real relocation directory are supplied for strict PE/COFF loaders.
+; Code and data also have separate permissions for firmware that enforces W^X.
 ; ---------------------------------------------------------------------------
 
 dos_header:
@@ -196,20 +199,21 @@ times 0x80 - ($ - $$) db 0
 pe_header:
 dd 0x00004550                  ; PE\0\0
 dw 0x8664                      ; AMD64
-dw 1                           ; one section
+dw 3                           ; .text, .data, and .reloc
 dd 0                           ; timestamp
 dd 0, 0                        ; COFF symbols
 dw optional_end - optional_header
-dw 0x020e                      ; executable with COFF/debug information stripped
+dw 0x022e                      ; executable, large-address-aware, stripped
 
 optional_header:
 dw 0x20b                       ; PE32+
 db 0, 2                        ; linker version
-dd section_raw_size
-dd 0, 0
-dd 0x1000 + efi_main - section_start
+dd text_raw_size
+dd data_raw_size + reloc_raw_size
+dd 0
+dd 0x1000 + efi_main - text_start
 dd 0x1000
-dq 0                           ; position-independent image base
+dq IMAGE_BASE                  ; preferred load address; relocatable elsewhere
 dd 0x1000                      ; section alignment
 dd 0x200                       ; file alignment
 dw 0, 0                        ; OS version
@@ -220,26 +224,46 @@ dd image_size
 dd 0x200                       ; headers size
 dd 0                           ; checksum
 dw 10                          ; EFI application
-dw 0                           ; DLL characteristics
+dw 0x0140                      ; dynamic base and NX compatible
 dq 0x100000, 0x1000            ; stack reserve and commit
 dq 0x100000, 0x1000            ; heap reserve and commit
 dd 0
 dd 16                          ; data-directory count
-times 16 * 8 db 0
+times 5 * 8 db 0
+dd reloc_rva, reloc_virtual_size ; base relocation directory
+times 10 * 8 db 0
 optional_end:
 
 db '.text', 0, 0, 0
-dd section_virtual_size
+dd text_virtual_size
 dd 0x1000
-dd section_raw_size
+dd text_raw_size
 dd 0x200
 dd 0, 0
 dw 0, 0
-dd 0xe0000020                  ; code, execute, read, write
+dd 0x60000020                  ; code, execute, read
+
+db '.data', 0, 0, 0
+dd data_virtual_size
+dd data_rva
+dd data_raw_size
+dd data_raw_offset
+dd 0, 0
+dw 0, 0
+dd 0xc0000040                  ; initialized data, read, write
+
+db '.reloc', 0, 0
+dd reloc_virtual_size
+dd reloc_rva
+dd reloc_raw_size
+dd reloc_raw_offset
+dd 0, 0
+dw 0, 0
+dd 0x42000040                  ; initialized data, read, discardable
 
 times 0x200 - ($ - $$) db 0
 
-section_start:
+text_start:
 
 ; EFI entry: RCX is the image handle and RDX is EFI_SYSTEM_TABLE.
 efi_main:
@@ -608,6 +632,18 @@ load_vga_font:
     pop rbx
     ret
 
+text_end:
+text_virtual_size equ text_end - text_start
+text_raw_size equ (text_virtual_size + 0x1ff) & ~0x1ff
+data_rva equ 0x1000 + ((text_virtual_size + 0xfff) & ~0xfff)
+data_raw_offset equ data_rva - (0x1000 - 0x200)
+times text_raw_size - text_virtual_size db 0
+; Keep every section at the same RVA-to-file-offset delta as .text. NASM's
+; flat-binary relative expressions then match the addresses assigned by the
+; PE loader even though each virtual section begins on a 4 KiB boundary.
+times data_raw_offset - ($ - $$) db 0
+
+data_start:
 vga_registers:
 db 0x67
 db 0x03, 0x00, 0x03, 0x00, 0x02
@@ -886,6 +922,9 @@ db 0x00, 0x00, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0xfe, 0x00,
 db 0x00, 0x00, 0x00, 0x3e, 0x60, 0xc0, 0xc0, 0xfe, 0xc0, 0xc0, 0x60, 0x3e, 0x00, 0x00, 0x00, 0x00
 
 align 8
+; This unused preferred-base value gives the PE loader one genuine DIR64 fixup.
+; All live loader references remain RIP-relative.
+image_base_fixup:   dq IMAGE_BASE
 allocation_address: dq 0
 memory_map_size:    dq 0
 memory_map_key:     dq 0
@@ -911,10 +950,25 @@ memory_map:
 times 65536 db 0
 memory_map_end:
 
-section_end:
-section_virtual_size equ section_end - section_start
-section_raw_size equ (section_virtual_size + 0x1ff) & ~0x1ff
-image_size equ 0x1000 + ((section_virtual_size + 0xfff) & ~0xfff)
-times section_raw_size - section_virtual_size db 0
+data_end:
+data_virtual_size equ data_end - data_start
+data_raw_size equ (data_virtual_size + 0x1ff) & ~0x1ff
+reloc_rva equ data_rva + ((data_virtual_size + 0xfff) & ~0xfff)
+reloc_raw_offset equ reloc_rva - (0x1000 - 0x200)
+times data_raw_size - data_virtual_size db 0
+times reloc_raw_offset - ($ - $$) db 0
+
+reloc_start:
+dd image_base_fixup_rva & ~0xfff
+dd reloc_virtual_size
+dw 0xa000 | (image_base_fixup_rva & 0xfff) ; IMAGE_REL_BASED_DIR64
+dw 0                                      ; 32-bit block alignment
+reloc_end:
+reloc_virtual_size equ reloc_end - reloc_start
+reloc_raw_size equ (reloc_virtual_size + 0x1ff) & ~0x1ff
+times reloc_raw_size - reloc_virtual_size db 0
+
+image_base_fixup_rva equ data_rva + image_base_fixup - data_start
+image_size equ reloc_rva + ((reloc_virtual_size + 0xfff) & ~0xfff)
 
 %endif

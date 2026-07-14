@@ -31,8 +31,7 @@ assemble_elf() {
     chmod +x "$2"
 }
 
-for test in error-missing-main error-sub-value error-undeclared-extern \
-    error-var-alias error-lambda-alias; do
+for test in error-missing-main error-sub-value error-undeclared-extern; do
     expect_failure "$root/tests/$test.jabara"
 done
 
@@ -83,8 +82,7 @@ done
 assemble_elf "$tmp/jc-self-record.asm" "$tmp/jc-self-record"
 "$tmp/jc-self-record"
 
-for test in error-missing-main error-sub-value error-undeclared-extern \
-    error-var-alias error-lambda-alias; do
+for test in error-missing-main error-sub-value error-undeclared-extern; do
     expect_jc_failure "$root/tests/$test.jabara"
 done
 

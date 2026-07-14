@@ -34,7 +34,7 @@ typedef struct Lexer {
 
 typedef enum ExprKind {
     EX_NUMBER, EX_STRING, EX_NAME, EX_DEREF, EX_BYTE, EX_UNARY,
-    EX_BINARY, EX_ASSIGN, EX_CALL, EX_LAMBDA, EX_MEMBER
+    EX_BINARY, EX_ASSIGN, EX_CALL, EX_CLOSURE, EX_MEMBER
 } ExprKind;
 
 typedef enum StmtKind {

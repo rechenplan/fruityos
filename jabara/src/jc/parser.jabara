@@ -88,7 +88,7 @@ sub ps_parse_primary()
             ps_expect(T_RPAREN())
           else
             if ps_accept(T_FN()) then
-              expr = ps_expr(EX_LAMBDA(), line)
+              expr = ps_expr(EX_CLOSURE(), line)
               expr.text = ps_text()
               if ps_accept(T_COLON()) then expr.tag = ps_text() end
               ps_expect(T_DO())

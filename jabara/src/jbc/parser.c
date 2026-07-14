@@ -97,7 +97,7 @@ static Expr *parse_primary(Parser *parser)
         expr = parse_expression(parser);
         expect(parser, TOK_RPAREN);
     } else if (accept(parser, TOK_FN)) {
-        expr = new_expr(EX_LAMBDA, line);
+        expr = new_expr(EX_CLOSURE, line);
         expr->text = take_text(parser);
         parse_optional_tag(parser, &expr->tag);
         expect(parser, TOK_DO);

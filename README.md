@@ -61,7 +61,8 @@ This starts QEMU with OVMF and `fruityos_uefi.img`. The UEFI image contains a
 FAT16 EFI system partition whose `EFI/BOOT/BOOTX64.EFI` file embeds both the
 compressed kernel and the initrd. The build also leaves the same standalone
 PE32+ EFI application at `fruityos.efi` for copying to an existing EFI system
-partition.
+partition. The generated application is unsigned, so physical machines must
+either have Secure Boot disabled or use a copy signed with a trusted key.
 
 To boot that standalone PE directly through a temporary virtual EFI system
 partition, use:

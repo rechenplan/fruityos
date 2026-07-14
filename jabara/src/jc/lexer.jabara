@@ -47,8 +47,6 @@ sub lx_keyword(text)
   if jc_streq(text, "fn") then return T_FN() end
   if jc_streq(text, "record") then return T_RECORD() end
   if jc_streq(text, "extern") then return T_EXTERN() end
-  if jc_streq(text, "var") then jc_error_at(1, 1, "var has been removed; use local") end
-  if jc_streq(text, "lambda") then jc_error_at(1, 1, "lambda has been removed; use fn") end
   return T_ID()
 end
 

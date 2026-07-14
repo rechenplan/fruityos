@@ -105,8 +105,8 @@ end
 
 Other important rules:
 
-- Declare variables with `local`; the removed `var` spelling is an error.
-- Create closures with `fn`; the removed `lambda` spelling is an error.
+- Declare variables with `local`.
+- Create closures with `fn`.
 - Named `sub` routines are direct-call only. Wrap a call in `fn` to make a
   callable value.
 - Direct subroutines and calls accept at most six arguments. Each `fn` accepts

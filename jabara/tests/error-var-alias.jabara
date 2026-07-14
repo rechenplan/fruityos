@@ -1,4 +1,0 @@
-sub main()
-  var value = 0
-  return value
-end

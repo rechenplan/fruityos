@@ -102,10 +102,6 @@ void lexer_next(Lexer *lexer)
     if (isalpha(c) || c == '_') {
         do { advance(lexer); } while (isalnum(current(lexer)) || current(lexer) == '_');
         lexer->token.text = slice(lexer->source, start, lexer->position);
-        if (strcmp(lexer->token.text, "var") == 0)
-            fatal_at(line, column, "var has been removed; use local");
-        if (strcmp(lexer->token.text, "lambda") == 0)
-            fatal_at(line, column, "lambda has been removed; use fn");
         lexer->token.kind = keyword(lexer->token.text);
         return;
     }

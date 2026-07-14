@@ -1,4 +1,0 @@
-sub main()
-  local identity = lambda value do return value end
-  return identity(0)
-end

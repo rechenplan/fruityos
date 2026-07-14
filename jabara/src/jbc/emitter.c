@@ -19,12 +19,12 @@ typedef struct Scope {
     int is_global;
 } Scope;
 
-typedef struct LambdaInfo {
+typedef struct ClosureInfo {
     const Expr *expr;
     Scope *scope;
     int label;
-    struct LambdaInfo *next;
-} LambdaInfo;
+    struct ClosureInfo *next;
+} ClosureInfo;
 
 typedef struct Emitter {
     FILE *out;
@@ -32,8 +32,8 @@ typedef struct Emitter {
     Scope global_scope;
     Scope *function_scopes;
     Scope *scope;
-    LambdaInfo *lambdas;
-    LambdaInfo **lambda_tail;
+    ClosureInfo *closures;
+    ClosureInfo **closure_tail;
     unsigned long label;
     unsigned long return_label;
     int format;
@@ -406,10 +406,10 @@ static void emit_closure_call(Emitter *emitter, const Expr *expr)
     fprintf(emitter->out, "\tadd\trsp, %lu\n", (unsigned long)((count + 1U) * 8U));
 }
 
-static Scope *new_lambda_scope(Emitter *emitter, const Expr *expr, int label_number)
+static Scope *new_closure_scope(Emitter *emitter, const Expr *expr, int label_number)
 {
     Scope *scope = (Scope *)xmalloc(sizeof(*scope));
-    LambdaInfo *info = (LambdaInfo *)xmalloc(sizeof(*info));
+    ClosureInfo *info = (ClosureInfo *)xmalloc(sizeof(*info));
     memset(scope, 0, sizeof(*scope));
     scope->parent = emitter->scope;
     scope_add(emitter, scope, expr->text, expr->tag, expr->line);
@@ -418,16 +418,16 @@ static Scope *new_lambda_scope(Emitter *emitter, const Expr *expr, int label_num
     info->scope = scope;
     info->label = label_number;
     info->next = NULL;
-    *emitter->lambda_tail = info;
-    emitter->lambda_tail = &info->next;
+    *emitter->closure_tail = info;
+    emitter->closure_tail = &info->next;
     return scope;
 }
 
-static void emit_lambda_value(Emitter *emitter, const Expr *expr)
+static void emit_closure_value(Emitter *emitter, const Expr *expr)
 {
     int label_number = (int)new_label(emitter);
-    (void)new_lambda_scope(emitter, expr, label_number);
-    fprintf(emitter->out, "\tlea\trax, [rel __jabara_lambda_%d]\n", label_number);
+    (void)new_closure_scope(emitter, expr, label_number);
+    fprintf(emitter->out, "\tlea\trax, [rel __jabara_closure_%d]\n", label_number);
     line(emitter, "\tpush\trax");
     if (emitter->scope->is_global) line(emitter, "\txor\trax, rax");
     else line(emitter, "\tmov\trax, [rbp - 8]");
@@ -521,7 +521,7 @@ static void emit_expr(Emitter *emitter, const Expr *expr)
             emit_closure_call(emitter, expr);
         }
         break;
-    case EX_LAMBDA: emit_lambda_value(emitter, expr); break;
+    case EX_CLOSURE: emit_closure_value(emitter, expr); break;
     }
 }
 
@@ -638,14 +638,14 @@ static void emit_function(Emitter *emitter, const Function *function)
     emitter->scope = &emitter->global_scope;
 }
 
-static void emit_lambda_function(Emitter *emitter, LambdaInfo *info)
+static void emit_closure_function(Emitter *emitter, ClosureInfo *info)
 {
     Scope *saved_scope = emitter->scope;
     unsigned long saved_return = emitter->return_label;
     int i;
     emitter->scope = info->scope;
     emitter->return_label = new_label(emitter);
-    fprintf(emitter->out, "\n__jabara_lambda_%d:\n", info->label);
+    fprintf(emitter->out, "\n__jabara_closure_%d:\n", info->label);
     line(emitter, "\tpush\trbp");
     line(emitter, "\tmov\trbp, rsp");
     line(emitter, "\tsub\trsp, 32");
@@ -745,7 +745,7 @@ int emit_program(const Program *program, const char *output_path, int format)
 {
     Emitter emitter;
     const Function *function;
-    LambdaInfo *lambda;
+    ClosureInfo *closure;
     FILE *out = fopen(output_path, "w");
     if (out == NULL) { fprintf(stderr, "jabara: cannot create %s\n", output_path); return -1; }
     memset(&emitter, 0, sizeof(emitter));
@@ -754,7 +754,7 @@ int emit_program(const Program *program, const char *output_path, int format)
     emitter.format = format;
     emitter.global_scope.is_global = 1;
     emitter.scope = &emitter.global_scope;
-    emitter.lambda_tail = &emitter.lambdas;
+    emitter.closure_tail = &emitter.closures;
     function = find_function(&emitter, "main");
     if (format != FORMAT_MODULE && (function == NULL || function->is_extern))
         fatal_at(1, 1, "program requires sub main");
@@ -768,10 +768,10 @@ int emit_program(const Program *program, const char *output_path, int format)
         if (!function->is_extern) emit_function(&emitter, function);
         function = function->next;
     }
-    lambda = emitter.lambdas;
-    while (lambda != NULL) {
-        emit_lambda_function(&emitter, lambda);
-        lambda = lambda->next;
+    closure = emitter.closures;
+    while (closure != NULL) {
+        emit_closure_function(&emitter, closure);
+        closure = closure->next;
     }
     if (format != FORMAT_MODULE) {
         emit_allocator(&emitter);
@@ -790,13 +790,13 @@ int emit_program(const Program *program, const char *output_path, int format)
     }
     if (format == FORMAT_MODULE) line(&emitter, "__jabara_file_end:");
     if (fclose(out) != 0) emitter.failed = 1;
-    lambda = emitter.lambdas;
-    while (lambda != NULL) {
-        LambdaInfo *next = lambda->next;
-        bindings_dispose(lambda->scope->bindings);
-        free(lambda->scope);
-        free(lambda);
-        lambda = next;
+    closure = emitter.closures;
+    while (closure != NULL) {
+        ClosureInfo *next = closure->next;
+        bindings_dispose(closure->scope->bindings);
+        free(closure->scope);
+        free(closure);
+        closure = next;
     }
     bindings_dispose(emitter.global_scope.bindings);
     while (emitter.function_scopes != NULL) {

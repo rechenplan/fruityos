@@ -164,9 +164,6 @@ result = 40 + 2
 Locals are visible throughout their containing subroutine or closure. A local
 written inside an `if` or `while` is still part of that containing scope.
 
-Older source may use `var`, but that spelling has been removed. The compiler
-reports an error and asks you to use `local`.
-
 ## Arithmetic and comparisons
 
 Jabara provides these binary operators:
@@ -440,9 +437,6 @@ end
 The inner closure captures `amount`. Its environment is stored on the heap, so
 it remains valid after the outer closure returns. Captured variables are shared
 locations: assigning to a captured variable changes what sibling closures see.
-
-The former keyword `lambda` has been removed. Use `fn`; the compiler diagnoses
-`lambda` rather than silently treating it as an ordinary name.
 
 Calls with several arguments apply a chain of one-argument closures. For
 example, `function(a, b)` first applies `a`, then applies `b` to the closure

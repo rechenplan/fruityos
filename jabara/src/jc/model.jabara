@@ -8,9 +8,9 @@ record Record name, fields:Name, line, next:Record
 record Program records:Record, functions:Function, statements:Stmt
 record Binding name, tag, slot, next:Binding
 record Scope parent:Scope, bindings:Binding, slot_count, is_global, next_owned:Scope
-record LambdaInfo expr:Expr, scope:Scope, label, next:LambdaInfo
+record ClosureInfo expr:Expr, scope:Scope, label, next:ClosureInfo
 record Lookup binding:Binding, owner:Scope, depth
-record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, lambdas:LambdaInfo, lambda_tail:LambdaInfo, label, return_label, format
+record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, closures:ClosureInfo, closure_tail:ClosureInfo, label, return_label, format
 
 sub EX_NUMBER() return 0 end
 sub EX_STRING() return 1 end
@@ -21,7 +21,7 @@ sub EX_UNARY() return 5 end
 sub EX_BINARY() return 6 end
 sub EX_ASSIGN() return 7 end
 sub EX_CALL() return 8 end
-sub EX_LAMBDA() return 9 end
+sub EX_CLOSURE() return 9 end
 sub EX_MEMBER() return 10 end
 
 sub ST_LOCAL() return 0 end

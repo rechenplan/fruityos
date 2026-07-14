@@ -342,23 +342,23 @@ sub em_emit_closure_call(emitter:Emitter, expr:Expr)
   em_text("\tadd\trsp, ") em_number((count + 1) * 8) em_newline()
 end
 
-sub em_new_lambda_scope(emitter:Emitter, expr:Expr, number)
-  local scope:Scope = Scope(), info:LambdaInfo = LambdaInfo()
+sub em_new_closure_scope(emitter:Emitter, expr:Expr, number)
+  local scope:Scope = Scope(), info:ClosureInfo = ClosureInfo()
   scope.parent = emitter.scope
   em_scope_add(emitter, scope, expr.text, expr.tag, expr.line)
   em_collect_locals(emitter, scope, expr.body)
   info.expr = expr
   info.scope = scope
   info.label = number
-  if emitter.lambdas == 0 then emitter.lambdas = info else emitter.lambda_tail.next = info end
-  emitter.lambda_tail = info
+  if emitter.closures == 0 then emitter.closures = info else emitter.closure_tail.next = info end
+  emitter.closure_tail = info
   return scope
 end
 
-sub em_emit_lambda_value(emitter:Emitter, expr:Expr)
+sub em_emit_closure_value(emitter:Emitter, expr:Expr)
   local number = em_new_label(emitter)
-  em_new_lambda_scope(emitter, expr, number)
-  em_text("\tlea\trax, [rel __jabara_lambda_") em_number(number) em_line("]")
+  em_new_closure_scope(emitter, expr, number)
+  em_text("\tlea\trax, [rel __jabara_closure_") em_number(number) em_line("]")
   em_instruction("push\trax")
   if emitter.scope.is_global then em_instruction("xor\trax, rax")
   else em_instruction("mov\trax, [rbp - 8]") end
@@ -447,7 +447,7 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
     em_emit_closure_call(emitter, expr)
     return 0
   end
-  if expr.kind == EX_LAMBDA() then em_emit_lambda_value(emitter, expr) return 0 end
+  if expr.kind == EX_CLOSURE() then em_emit_closure_value(emitter, expr) return 0 end
   jc_error_at(expr.line, 1, "unsupported expression")
 end
 
@@ -567,12 +567,12 @@ sub em_emit_function(emitter:Emitter, function:Function)
   emitter.scope = emitter.global_scope
 end
 
-sub em_emit_lambda_function(emitter:Emitter, info:LambdaInfo)
+sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
   local saved_scope:Scope = emitter.scope
   local saved_return = emitter.return_label, index = 2
   emitter.scope = info.scope
   emitter.return_label = em_new_label(emitter)
-  em_text("\n__jabara_lambda_") em_number(info.label) em_line(":")
+  em_text("\n__jabara_closure_") em_number(info.label) em_line(":")
   em_instruction("push\trbp")
   em_instruction("mov\trbp, rsp")
   em_instruction("sub\trsp, 32")
@@ -669,7 +669,7 @@ sub em_emit_flat_header(format)
 end
 
 sub em_emit_program(program:Program, format)
-  local emitter:Emitter = Emitter(), function:Function, info:LambdaInfo, binding:Binding
+  local emitter:Emitter = Emitter(), function:Function, info:ClosureInfo, binding:Binding
   emitter.program = program
   emitter.format = format
   emitter.global_scope = Scope()
@@ -689,9 +689,9 @@ sub em_emit_program(program:Program, format)
     if function.is_extern == 0 then em_emit_function(emitter, function) end
     function = function.next
   end
-  info = emitter.lambdas
+  info = emitter.closures
   while info != 0 do
-    em_emit_lambda_function(emitter, info)
+    em_emit_closure_function(emitter, info)
     info = info.next
   end
   if format != 2 then

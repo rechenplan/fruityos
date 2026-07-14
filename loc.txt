@@ -22,21 +22,19 @@
     27 ./jabara/src/jc/main.jabara
     77 ./jabara/src/jc/model.jabara
    302 ./jabara/src/jc/parser.jabara
-   185 ./jabara/src/jc/lexer.jabara
+   183 ./jabara/src/jc/lexer.jabara
    711 ./jabara/src/jc/emitter.jabara
    131 ./jabara/src/jc/runtime.jabara
    417 ./jabara/src/jbc/parser.c
-   199 ./jabara/src/jbc/lexer.c
+   195 ./jabara/src/jbc/lexer.c
     76 ./jabara/src/jbc/jbc.c
    809 ./jabara/src/jbc/emitter.c
-     4 ./jabara/tests/error-lambda-alias.jabara
     25 ./jabara/tests/arguments.jabara
     23 ./jabara/tests/closure.jabara
      3 ./jabara/tests/error-undeclared-extern.jabara
     10 ./jabara/tests/compat.jabara
      8 ./jabara/tests/error-sub-value.jabara
      3 ./jabara/tests/error-missing-main.jabara
-     4 ./jabara/tests/error-var-alias.jabara
     26 ./jabara/tests/record.jabara
    121 ./jabara/lib/elf-runtime.asm
      1 ./jabara/lib/jc-fap-config.jabara
@@ -45,7 +43,7 @@
     24 ./jabara/lib/pith.jabara
    217 ./seed/src/hdseed/hdseed.s
    258 ./seed/src/fdseed/fdseed.s
-   920 ./seed/src/uefiseed/uefiseed.asm
+   974 ./seed/src/uefiseed/uefiseed.asm
    192 ./peel/src/juicer/juicer.jabara
     34 ./peel/src/move/move.jabara
    156 ./peel/src/jar/jar.jabara
@@ -81,4 +79,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 12711 total
+ 12751 total
