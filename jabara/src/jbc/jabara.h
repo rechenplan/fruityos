@@ -107,7 +107,7 @@ const char *token_name(TokenKind kind);
 
 Program *parse_program(const char *source);
 void program_dispose(Program *program);
-int emit_program(const Program *program, const char *output_path);
+int emit_program(const Program *program, const char *output_path, int format);
 
 void *xmalloc(size_t size);
 void *xrealloc(void *pointer, size_t size);

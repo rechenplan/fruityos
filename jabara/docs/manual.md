@@ -23,28 +23,38 @@ and finishes with `end`. Here the parameter list is empty. Returning zero tells
 the surrounding system that the program completed successfully.
 
 Save the example as `first.jabara`. From the `jabara` directory, compile it to
-NASM assembly with either compiler:
+a single flat NASM source file with either compiler:
 
 ```sh
-bin/jc first.jabara first.asm
+bin/jc elf first.jabara first.asm
 ```
 
 `jc` is the compiler written in Jabara. The smaller bootstrap compiler is
 available as `bin/jbc` and accepts the same command-line arguments.
 
-The compiler produces assembly rather than a finished executable. Inside the
-FruityOS source tree, the supplied start code and runtime can be used to make a
-Linux executable:
+The first argument selects the loading environment. For Linux, the generated
+assembly already contains a minimal 64-bit ELF header, startup code, runtime,
+program code, and globals. Assemble it directly as a flat binary:
 
 ```sh
-cat ../yuzu/lib/_start.asm first.asm ../yuzu/lib/libpith.asm > first-linked.asm
-nasm -felf64 first-linked.asm -o first.o
-ld first.o -o first
+nasm -f bin first.asm -o first
+chmod +x first
 ./first
 echo $?
 ```
 
-The final command should print `0`.
+The final command should print `0`. To target FruityOS instead, select `fap`:
+
+```sh
+bin/jc fap first.jabara first-fap.asm
+nasm -f bin first-fap.asm -o first.raw
+../peel/bin/juicer.elf c first.raw first.fap
+```
+
+FAP assembly uses FruityOS's load address and system-call interface. Jabara
+does not run NASM or Juicer itself; the generated file is ready for those two
+steps. Juicer compression is optional while inspecting the raw image, but a
+normal FruityOS `.fap` file is the juiced form.
 
 ## Comments and whitespace
 
@@ -401,7 +411,7 @@ end
 ## External subroutines
 
 An external declaration tells the compiler that a directly callable routine
-will be supplied when the assembly is linked:
+is supplied by the runtime included in the flat assembly:
 
 ```jabara
 extern sub write(fd, buffer, count)
@@ -412,8 +422,9 @@ expected arguments. Jabara's standard Pith declarations are collected in
 `lib/pith.jabara`; they include file operations, process operations, and basic
 memory-related system calls.
 
-External declarations do not themselves provide an implementation. The final
-assembly must still be linked with code defining the declared symbols.
+External declarations do not themselves provide an implementation. Jabara
+emits the standard Pith routines for the selected environment: Linux targets
+use Linux system calls, and FAP targets use the FruityOS system-call interrupt.
 
 ## Program-scope declarations and statements
 

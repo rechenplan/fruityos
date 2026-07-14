@@ -58,13 +58,17 @@ int main(int argc, char **argv)
     char *source;
     Program *program;
     int status;
-    if (argc != 3) {
-        fprintf(stderr, "usage: %s input.jabara output.asm\n", argv[0]);
+    int format;
+    if (argc != 4) {
+        fprintf(stderr, "usage: %s elf|fap input.jabara output.asm\n", argv[0]);
         return EXIT_FAILURE;
     }
-    source = read_file(argv[1]);
+    if (strcmp(argv[1], "elf") == 0) format = 0;
+    else if (strcmp(argv[1], "fap") == 0) format = 1;
+    else { fputs("jabara: format must be elf or fap\n", stderr); return EXIT_FAILURE; }
+    source = read_file(argv[2]);
     program = parse_program(source);
-    status = emit_program(program, argv[2]);
+    status = emit_program(program, argv[3], format);
     program_dispose(program);
     free(source);
     return status == 0 ? EXIT_SUCCESS : EXIT_FAILURE;

@@ -4,8 +4,8 @@ open:
 	int 132
 	ret
 creat:
-        mov rax, 1
-        int 132
+    mov rax, 1
+    int 132
 	ret
 close:
 	mov rax, 2

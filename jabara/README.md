@@ -2,10 +2,10 @@
 
 This directory follows Yuzu's bootstrap layout. The small ANSI C bootstrap
 compiler lives in `src/jbc` and builds as `bin/jbc`; the self-hosted compiler
-lives in `src/jc` and builds as `bin/jc` and `bin/jc-self`. The bootstrap
-compiler
-keeps yuzu's x86-64 NASM output and SysV `sub` ABI, and adds initialized local
-declarations plus anonymous lexical closures.
+lives in `src/jc` and builds as `bin/jc` and `bin/jc-self`. Both compilers
+accept `elf|fap input output.asm` and emit one flat NASM source file. ELF output
+includes a minimal 64-bit Linux ELF header; FAP output uses the FruityOS load
+address and is ready for `nasm -f bin` followed by Juicer.
 
 Language features:
 
@@ -21,8 +21,8 @@ Language features:
 * A call through a local or captured name dispatches its two-word closure
   (`code`, `context`). Named `sub` routines are direct-call only; wrap a call
   in `fn` when a routine must be used as a value.
-* `extern sub name(parameters)` declares a direct SysV routine supplied by the
-  runtime or linked assembly. `lib/pith.jabara` declares the standard Pith
+* `extern sub name(parameters)` declares a direct routine supplied by the
+  emitted target runtime. `lib/pith.jabara` declares the standard Pith
   routines.
 * Every program must declare `sub main`. Program-scope statements, when
   present, run at the start of that explicit `main`.
@@ -46,4 +46,6 @@ Build and test with:
 
 The build first produces `jbc`, uses it to compile `jc`, and then uses `jc` to
 compile itself again. The test target exercises both Jabara compilers and the
-Yuzu compatibility path.
+Yuzu compatibility path. It also compiles every program under `peel/src` with
+the self-hosted compiler and leaves the resulting Linux executables in
+`fruityos/bin`.
