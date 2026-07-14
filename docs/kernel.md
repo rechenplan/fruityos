@@ -81,9 +81,8 @@ An inode is 80 bytes:
 | 68 | 4 | Content size. |
 | 72 | 8 | Content or child-list pointer. |
 
-Names longer than 63 bytes are truncated and NUL-terminated. The enlarged name
-field is required for generated sources such as `fap-module-runtime.asm` in the
-packaged repository.
+Names longer than 63 bytes are truncated and NUL-terminated. The 64-byte field
+accommodates the generated filenames used during the native build.
 
 RAMFS is not backed by the boot disk after startup. Every change, including the
 native `/bin` installation, is lost at reset.

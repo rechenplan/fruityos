@@ -81,8 +81,8 @@ often more useful than source-level stepping.
 - New language sources outside `yuzu/` use the `.jabara` suffix.
 - Target runtimes remain separate from compiler output.
 - Host scripts use temporary directories for generated intermediate files.
-- The source archive includes tracked and unignored worktree files, so ignore
-  rules are part of the boot-image boundary.
+- The source archive contains only the explicit native-rebuild inputs listed in
+  `build.sh`; new native dependencies must be added to that staging manifest.
 - The system-call table must remain at Pulp offset zero and entry at `0x100`.
 - Initrd bootstrap additions should be justified by an actual startup or native
   build dependency. Ordinary utilities should be built inside FruityOS.

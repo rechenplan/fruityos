@@ -6,9 +6,9 @@ RAM filesystem, and starts the Pish shell in ring 3.
 
 The repository includes its own systems language, compiler, assembler,
 bootloaders, kernel, userland, archive format, and compression format. Every
-host build also packages the current source tree into the initrd. At boot,
-FruityOS extracts that tree, rebuilds its userland natively with Jabara and
-Orgasm, and installs the new applications in `/bin`.
+host build also packages the minimal native-rebuild source set into the initrd.
+At boot, FruityOS extracts that tree, rebuilds its userland natively with Jabara
+and Orgasm, and installs the new applications in `/bin`.
 
 ## Build and run
 

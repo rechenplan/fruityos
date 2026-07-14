@@ -23,17 +23,17 @@ echo "[ Packaging FruityOS source tree ]"
 source_tmp=$(mktemp -d "${TMPDIR:-/tmp}/fruityos-source-XXXXXX")
 trap 'rm -rf "$source_tmp"' EXIT HUP INT TERM
 mkdir -p "$source_tmp/fruityos/peel/bin" "$source_tmp/fruityos/peel/tmp" \
-    "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp"
-git -C "$root" ls-files --cached --others --exclude-standard -z | \
-    tar -C "$root" --null -T - -cf - | \
+    "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp" \
+    "$source_tmp/fruityos/jabara"
+tar -C "$root" -cf - \
+    build.psh \
+    peel/build.psh peel/src \
+    pulp/build.psh pulp/src \
+    jabara/lib/pith.jabara jabara/lib/fap-runtime.asm \
+    jabara/lib/fap-stack-runtime.asm | \
     tar -C "$source_tmp/fruityos" -xf -
 "$root/peel/bin/juicer.elf" c "$root/peel/bin/jc.asm" \
     "$source_tmp/fruityos/jabara/jc.asm.jz"
-cat "$source_tmp/fruityos/pulp/src/platform.jabara" \
-    "$source_tmp/fruityos"/pulp/src/*.jabara > "$source_tmp/pulp.jabara"
-"$root/jabara/bin/jc" module "$source_tmp/pulp.jabara" \
-    "$source_tmp/fruityos/pulp/pulp-generated.asm"
-rm -f "$source_tmp/pulp.jabara"
 (
     cd "$source_tmp"
     "$root/peel/bin/jar.elf" c "$source_tmp/fruityos.jar"

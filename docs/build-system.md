@@ -69,36 +69,28 @@ dispatch table must remain at kernel offset zero and executable entry remains at
 offset `0x100`. The selected assembler emits `pulp.bin`; host Juicer produces
 `pulp.sys`.
 
-As part of source packaging, the root build also places the current generated
-Pulp assembly in the archived checkout. The native build does not reuse that
-artifact: it compiles each implementation as a namespaced `part`, combines the
-parts with one module containing shared globals, assembles them with Orgasm,
-and compresses the result with Juicer.
+The native build compiles each implementation as a namespaced `part`, combines
+the parts with one module containing shared globals, assembles them with
+Orgasm, and compresses the result with Juicer.
 
-## Source snapshot
+## Native source archive
 
-The packaged checkout is not a downloaded release. It is a snapshot of all
-tracked and unignored files in the current worktree, selected with:
+The root build copies an explicit native-source manifest to a temporary
+`fruityos/` tree: the three `.psh` build files, Peel and Pulp sources, and the
+three Jabara library/runtime files those scripts reference. It adds the
+generated `jabara/jc.asm.jz`, creates a Jar archive, and compresses it to
+`initrd/src/fruityos.jz`.
 
-```text
-git ls-files --cached --others --exclude-standard
-```
-
-The selected paths are copied to a temporary `fruityos/` tree. The build adds
-`jabara/jc.asm.jz` and `pulp/pulp-generated.asm`, creates a Jar archive, and
-compresses it to `initrd/src/fruityos.jz`. The uncompressed host-built
-`pulp.bin` is omitted so the legacy BIOS image remains within its 1 MiB load
-window.
-
-This means uncommitted, unignored source files are deliberately included in the
-booted checkout. Generated files ignored by Git are excluded unless the build
-explicitly stages them.
+Documentation, host shell scripts, tests, Yuzu compatibility sources,
+bootloader sources, and unrelated repository files are excluded. The
+uncompressed host-built `pulp.bin` is also omitted so the legacy BIOS image
+remains within its 1 MiB load window.
 
 ## Initrd and image assembly
 
 The initrd staging tree contains the minimal host-built bootstrap applications,
-two target runtime assembly files, `/init.psh`, and the compressed source
-snapshot. Host Jar turns this tree into `initrd.jar`.
+two target runtime assembly files, `/init.psh`, and the compressed native
+source archive. Host Jar turns this tree into `initrd.jar`.
 
 The BIOS image is a direct concatenation:
 
@@ -116,7 +108,7 @@ that application at the standard removable-media path inside
 ## Reproducibility boundaries
 
 The build avoids timestamps in the custom Jar and Juicer formats and writes a
-zero PE timestamp. The source snapshot nevertheless reflects the current
-worktree, and tool output can depend on the installed compiler, NASM, and shell
-versions. The UEFI FAT image uses fixed geometry and directory entries rather
-than invoking a host filesystem formatter.
+zero PE timestamp. The staged native inputs reflect the current worktree, and
+tool output can depend on the installed compiler, NASM, and shell versions. The
+UEFI FAT image uses fixed geometry and directory entries rather than invoking a
+host filesystem formatter.

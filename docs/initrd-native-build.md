@@ -61,18 +61,26 @@ Juicer installed in `/bin`.
 
 ## Source archive
 
-During every host build, the root script snapshots all tracked and unignored
-worktree files. It adds the compressed generated Jabara compiler assembly and
-the current Pulp assembly, then
-creates:
+During every host build, the root script stages only the inputs used by the
+native rebuild:
+
+- the root, Peel, and Pulp `.psh` build files;
+- all Peel Jabara application sources;
+- all Pulp Jabara and handwritten assembly sources;
+- `pith.jabara`, `fap-runtime.asm`, and `fap-stack-runtime.asm`;
+- the compressed generated Jabara compiler assembly, `jabara/jc.asm.jz`;
+- empty Peel and Pulp output directories.
+
+Documentation, host shell scripts, tests, compatibility toolchains, bootloader
+sources, and other repository files are not placed in `fruityos.jz`. The host
+then creates:
 
 1. `fruityos.jar`, a Jar archive rooted at `fruityos/`;
 2. `fruityos.jz`, its Juicer-compressed representation;
 3. `initrd/src/fruityos.jz`, the copy embedded in both boot images.
 
-No network access occurs at boot. “Repository” refers to the packaged current
-worktree, including uncommitted files that are neither ignored nor generated
-outside the explicit staging rules.
+No network access occurs at boot. The extracted `fruityos/` directory is a
+minimal native-build source tree rather than a complete repository snapshot.
 
 ## Startup script
 

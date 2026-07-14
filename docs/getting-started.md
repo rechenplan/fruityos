@@ -74,17 +74,13 @@ keyboard controller after leaving firmware services.
 ## Expected startup
 
 Both boot paths unpack the initrd and launch Pish. The boot script then extracts
-the packaged repository, performs the native userland build, installs the new
-FAP files in `/bin`, and returns to an interactive prompt:
+the minimal native source tree, performs the native userland and kernel builds,
+installs the new FAP files in `/bin`, and returns to an interactive prompt:
 
 ```text
 Welcome to FruityOS 0.03!
-Unpacking the FruityOS source tree...
-Decompressing the Jabara compiler assembly...
-Assembling the Jabara compiler...
-Compressing the Jabara compiler...
-Starting the native Jabara build...
-...
+[ Building FruityOS natively with Jabara ]
+[ Building FruityOS userland with Jabara ]
 Userland Jabara build complete.
 Pulp native Jabara build complete.
 /src/fruityos>
