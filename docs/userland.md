@@ -6,7 +6,9 @@ directory utilities, the Fred editor, and the Jar and Juicer build tools.
 ## Pish
 
 Pish is a small command interpreter, not a POSIX shell. At initial startup it
-runs `/init.psh` and then reads commands interactively.
+runs `/init.psh` and then reads commands interactively. Invoking `pish` from an
+existing shell starts a nested interactive shell without rerunning the boot
+script; `exit` returns to the parent shell.
 
 Search order for a command is:
 

@@ -62,7 +62,7 @@
     55 ./peel/src/copy/copy.jabara
     73 ./peel/src/fill/fill.jabara
    174 ./peel/src/inode/inode.jabara
-   192 ./peel/src/pish/pish.jabara
+   194 ./peel/src/pish/pish.jabara
    324 ./peel/src/fred/fred.jabara
    101 ./peel/src/write/write.jabara
     54 ./peel/src/concat/concat.jabara
@@ -90,4 +90,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 31711 total
+ 31713 total
