@@ -33,11 +33,12 @@ bin/jc elf first.jabara first.asm
 available as `bin/jbc` and accepts the same command-line arguments.
 
 The first argument selects the loading environment. For Linux, the generated
-assembly already contains a minimal 64-bit ELF header, startup code, runtime,
-program code, and globals. Assemble it directly as a flat binary:
+assembly contains the Linux load address and a minimal 64-bit ELF header. Append
+the separate Linux runtime and assemble the combined source as a flat binary:
 
 ```sh
-nasm -f bin first.asm -o first
+cat first.asm lib/elf-runtime.asm > first-linked.asm
+nasm -f bin first-linked.asm -o first
 chmod +x first
 ./first
 echo $?
@@ -47,14 +48,22 @@ The final command should print `0`. To target FruityOS instead, select `fap`:
 
 ```sh
 bin/jc fap first.jabara first-fap.asm
-nasm -f bin first-fap.asm -o first.raw
+cat first-fap.asm lib/fap-runtime.asm > first-fap-linked.asm
+nasm -f bin first-fap-linked.asm -o first.raw
 ../peel/bin/juicer.elf c first.raw first.fap
 ```
 
-FAP assembly uses FruityOS's load address and system-call interface. Jabara
-does not run NASM or Juicer itself; the generated file is ready for those two
-steps. Juicer compression is optional while inspecting the raw image, but a
-normal FruityOS `.fap` file is the juiced form.
+FAP assembly uses FruityOS's load address. Its startup and system-call interface
+live in `lib/fap-runtime.asm`, just as Linux's live in
+`lib/elf-runtime.asm`. Jabara does not run NASM or Juicer itself. Juicer
+compression is optional while inspecting the raw image, but a normal FruityOS
+`.fap` file is the juiced form.
+
+There is also an advanced `module` format. It emits headerless assembly with
+stack-based subroutine environments and no target runtime, so platform code can
+combine it with hand-written assembly before one final `nasm -f bin` step. The
+FruityOS kernel uses this mode; ordinary applications should use `elf` or
+`fap`.
 
 ## Comments and whitespace
 

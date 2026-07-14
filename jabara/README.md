@@ -3,9 +3,12 @@
 This directory follows Yuzu's bootstrap layout. The small ANSI C bootstrap
 compiler lives in `src/jbc` and builds as `bin/jbc`; the self-hosted compiler
 lives in `src/jc` and builds as `bin/jc` and `bin/jc-self`. Both compilers
-accept `elf|fap input output.asm` and emit one flat NASM source file. ELF output
-includes a minimal 64-bit Linux ELF header; FAP output uses the FruityOS load
-address and is ready for `nasm -f bin` followed by Juicer.
+accept `elf|fap|module input output.asm` and emit NASM source. ELF output
+includes a minimal 64-bit ELF header and is linked with `lib/elf-runtime.asm`
+before NASM; FAP output uses the FruityOS load address and is linked with
+`lib/fap-runtime.asm` before NASM and Juicer. The headerless
+`module` format is for combining Jabara routines with platform assembly, as the
+FruityOS kernel build does.
 
 Language features:
 

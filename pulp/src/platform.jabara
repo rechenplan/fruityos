@@ -1,0 +1,10 @@
+extern sub die()
+extern sub flush_tlb(address)
+extern sub gdt_init()
+extern sub idt_cli()
+extern sub idt_load(address)
+extern sub idt_sti()
+extern sub tss_init()
+extern sub user_jmp()
+
+local _scr, _kb, _ramfs, _brk, _page, _idt, _idtr, _pid

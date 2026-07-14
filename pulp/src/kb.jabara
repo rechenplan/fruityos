@@ -224,7 +224,7 @@ sub kb_s2c_u(kb, scancode)
                 return byte ["asdfghjkl;'`" + scancode - 30]
         end
         if (scancode >= 43) & (scancode <= 53) then     
-                return byte ["\zxcvbnm,./" + scancode - 43]
+                return byte ["\\zxcvbnm,./" + scancode - 43]
         end
 
 	; left shift

@@ -42,6 +42,7 @@ typedef struct Emitter {
 
 #define FORMAT_ELF 0
 #define FORMAT_FAP 1
+#define FORMAT_MODULE 2
 
 static void emit_expr(Emitter *emitter, const Expr *expr);
 static void emit_statements(Emitter *emitter, const Stmt *statement);
@@ -589,6 +590,7 @@ static void emit_function(Emitter *emitter, const Function *function)
     const Name *parameter;
     int parameter_count = 0;
     int i;
+    int environment_size;
     unsigned long saved_return = emitter->return_label;
     scope = (Scope *)xmalloc(sizeof(*scope));
     memset(scope, 0, sizeof(*scope));
@@ -605,14 +607,20 @@ static void emit_function(Emitter *emitter, const Function *function)
     collect_locals(emitter, scope, function->body);
     emitter->scope = scope;
     emitter->return_label = new_label(emitter);
+    environment_size = ((scope->slot_count + 1) * 8 + 15) & -16;
     fprintf(emitter->out, "\nglobal %s\n%s:\n", function->name, function->name);
     line(emitter, "\tpush\trbp");
     line(emitter, "\tmov\trbp, rsp");
-    line(emitter, "\tsub\trsp, 64");
+    fprintf(emitter->out, "\tsub\trsp, %d\n",
+            64 + (emitter->format == FORMAT_MODULE ? environment_size : 0));
     for (i = 0; i < parameter_count; ++i)
         fprintf(emitter->out, "\tmov\t[rbp - %d], %s\n", 16 + i * 8, registers[i]);
-    fprintf(emitter->out, "\tmov\trdi, %d\n", (scope->slot_count + 1) * 8);
-    line(emitter, "\tcall\t__jabara_alloc");
+    if (emitter->format == FORMAT_MODULE)
+        fprintf(emitter->out, "\tlea\trax, [rbp - %d]\n", 64 + environment_size);
+    else {
+        fprintf(emitter->out, "\tmov\trdi, %d\n", (scope->slot_count + 1) * 8);
+        line(emitter, "\tcall\t__jabara_alloc");
+    }
     line(emitter, "\tmov\t[rbp - 8], rax");
     emit_zero_environment(emitter, scope->slot_count);
     for (i = 0; i < parameter_count; ++i) {
@@ -709,6 +717,8 @@ static void emit_flat_header(Emitter *emitter)
     line(emitter, "bits 64");
     if (emitter->format == FORMAT_FAP) {
         line(emitter, "org 0x801000");
+        line(emitter, "_start:");
+        line(emitter, "\tjmp\t__jabara_fap_start");
     } else {
         line(emitter, "org 0x400000");
         line(emitter, "__elf_header:");
@@ -729,55 +739,6 @@ static void emit_flat_header(Emitter *emitter)
         line(emitter, "\tdq __jabara_file_end - $$");
         line(emitter, "\tdq 4096");
     }
-    line(emitter, "_start:");
-    if (emitter->format == FORMAT_ELF) {
-        line(emitter, "\tpop\trdi");
-        line(emitter, "\tpop\trsi");
-    }
-    line(emitter, "\tcall\tmain");
-    line(emitter, "\tmov\trdi, rax");
-    line(emitter, "\tcall\texit");
-}
-
-static void emit_linux_runtime(Emitter *emitter)
-{
-    line(emitter, "\nmmap:\n\tmov rax,9\n\tmov r10,rcx\n\tsyscall\n\tret");
-    line(emitter, "brk:\n\tmov rax,12\n\tsyscall\n\tret");
-    line(emitter, "close:\n\tmov rax,3\n\tsyscall\n\tret");
-    line(emitter, "creat:\n\tmov rax,85\n\tmov rsi,511\n\tsyscall\n\tret");
-    line(emitter, "exit:\n\tmov rax,60\n\tsyscall\n\thlt");
-    line(emitter, "getch:\n\txor rdi,rdi");
-    line(emitter, "fgetch:\n\tpush rax\n\tpush rsp\n\tpop rsi\n\tmov rdx,1\n\tcall read\n\tpop rdx\n\ttest rax,rax\n\tjz .done\n\tmov rax,rdx\n.done:\n\tret");
-    line(emitter, "open:\n\tmov rax,2\n\tsyscall\n\tret");
-    line(emitter, "putch:\n\tmov rsi,rdi\n\tmov rdi,1");
-    line(emitter, "fputch:\n\tpush rsi\n\tpush rsp\n\tpop rsi\n\tmov rdx,1\n\tcall write\n\tpop rax\n\tret");
-    line(emitter, "read:\n\txor rax,rax\n\tsyscall\n\tret");
-    line(emitter, "seek:\n\tmov rax,8\n\tsyscall\n\tret");
-    line(emitter, "write:\n\tmov rax,1\n\tsyscall\n\tret");
-    line(emitter, "getcwd:\n\tmov rax,79\n\tsyscall\n\tret");
-    line(emitter, "exec:\n\tmov rax,59\n\txor rdx,rdx\n\tsyscall\n\tret");
-    line(emitter, "fork:\n\tmov rax,57\n\tsyscall\n\tret");
-    line(emitter, "waitpid:\n\tmov rax,61\n\txor rsi,rsi\n\txor rdx,rdx\n\txor r10,r10\n\tsyscall\n\tret");
-    line(emitter, "chdir:\n\tmov rax,80\n\tsyscall\n\tret");
-    line(emitter, "getdents64:\n\tmov rax,217\n\tsyscall\n\tret");
-    line(emitter, "unlink:\n\tmov rax,87\n\tsyscall\n\tret");
-    line(emitter, "rename:\n\tmov rax,82\n\tsyscall\n\tret");
-    line(emitter, "mkdir:\n\tmov rax,83\n\tmov rsi,511\n\tsyscall\n\tret");
-    line(emitter, "rmdir:\n\tmov rax,84\n\tsyscall\n\tret");
-    line(emitter, "dup2:\n\tmov rax,33\n\tsyscall\n\tret");
-}
-
-static void emit_fap_runtime(Emitter *emitter)
-{
-    static const char *const names[] = {"open","creat","close","read","write",
-        "fgetch","fputch","seek","getch","putch","getcwd","getdents64",
-        "rename","mkdir","rmdir","chdir","unlink","exec","fork","waitpid",
-        "dup2","brk","mmap","exit"};
-    size_t i;
-    for (i = 0U; i < sizeof(names) / sizeof(names[0]); ++i) {
-        fprintf(emitter->out, "%s:\n\tmov rax,%lu\n\tint 132\n\tret\n",
-                names[i], (unsigned long)i);
-    }
 }
 
 int emit_program(const Program *program, const char *output_path, int format)
@@ -795,12 +756,13 @@ int emit_program(const Program *program, const char *output_path, int format)
     emitter.scope = &emitter.global_scope;
     emitter.lambda_tail = &emitter.lambdas;
     function = find_function(&emitter, "main");
-    if (function == NULL || function->is_extern)
+    if (format != FORMAT_MODULE && (function == NULL || function->is_extern))
         fatal_at(1, 1, "program requires sub main");
     validate_records(&emitter);
     collect_locals(&emitter, &emitter.global_scope, program->statements);
     line(&emitter, "; generated by the jabara bootstrap compiler");
-    emit_flat_header(&emitter);
+    if (format == FORMAT_MODULE) line(&emitter, "bits 64");
+    else emit_flat_header(&emitter);
     function = program->functions;
     while (function != NULL) {
         if (!function->is_extern) emit_function(&emitter, function);
@@ -811,12 +773,14 @@ int emit_program(const Program *program, const char *output_path, int format)
         emit_lambda_function(&emitter, lambda);
         lambda = lambda->next;
     }
-    emit_allocator(&emitter);
-    if (format == FORMAT_FAP) emit_fap_runtime(&emitter);
-    else emit_linux_runtime(&emitter);
+    if (format != FORMAT_MODULE) {
+        emit_allocator(&emitter);
+    }
     line(&emitter, "\nalign 8");
-    line(&emitter, "__jabara_heap: dq 0");
-    line(&emitter, "__jabara_heap_end: dq 0");
+    if (format != FORMAT_MODULE) {
+        line(&emitter, "__jabara_heap: dq 0");
+        line(&emitter, "__jabara_heap_end: dq 0");
+    }
     {
         Binding *binding = emitter.global_scope.bindings;
         while (binding != NULL) {
@@ -824,7 +788,7 @@ int emit_program(const Program *program, const char *output_path, int format)
             binding = binding->next;
         }
     }
-    line(&emitter, "__jabara_file_end:");
+    if (format == FORMAT_MODULE) line(&emitter, "__jabara_file_end:");
     if (fclose(out) != 0) emitter.failed = 1;
     lambda = emitter.lambdas;
     while (lambda != NULL) {

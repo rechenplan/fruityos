@@ -9,11 +9,14 @@ trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 
 mkdir -p "$jabara/bin"
 cat "$root"/*.jabara > "$tmp/jc.jabara"
-"$bootstrap" elf "$tmp/jc.jabara" "$tmp/jc.asm"
+"$bootstrap" elf "$tmp/jc.jabara" "$tmp/jc-generated.asm"
+cat "$tmp/jc-generated.asm" "$jabara/lib/elf-runtime.asm" > "$tmp/jc.asm"
 nasm -f bin "$tmp/jc.asm" -o "$jabara/bin/jc"
 chmod +x "$jabara/bin/jc"
 
-"$jabara/bin/jc" elf "$tmp/jc.jabara" "$tmp/jc-self.asm"
+"$jabara/bin/jc" elf "$tmp/jc.jabara" "$tmp/jc-self-generated.asm"
+cat "$tmp/jc-self-generated.asm" "$jabara/lib/elf-runtime.asm" \
+    > "$tmp/jc-self.asm"
 nasm -f bin "$tmp/jc-self.asm" -o "$jabara/bin/jc-self"
 chmod +x "$jabara/bin/jc-self"
 

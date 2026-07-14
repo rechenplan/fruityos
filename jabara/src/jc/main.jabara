@@ -3,14 +3,17 @@ sub main(argc, argv)
   local source, program:Program, format
   if argc != 4 then
     jc_output = 2
-    jc_line("usage: jc elf|fap input.jabara output.asm")
+    jc_line("usage: jc elf|fap|module input.jabara output.asm")
     return 1
   end
   format_path = jc_next_argument(argv)
   if jc_streq(format_path, "elf") then format = 0
   else
     if jc_streq(format_path, "fap") then format = 1
-    else jc_error_at(1, 1, "format must be elf or fap") end
+    else
+      if jc_streq(format_path, "module") then format = 2
+      else jc_error_at(1, 1, "format must be elf, fap, or module") end
+    end
   end
   input_path = jc_next_argument(format_path)
   output_path = jc_next_argument(input_path)

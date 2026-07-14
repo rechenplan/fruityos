@@ -516,7 +516,7 @@ end
 
 sub em_emit_function(emitter:Emitter, function:Function)
   local scope:Scope = Scope(), parameter:Name = function.parameters
-  local count = 0, index = 0, saved_return = emitter.return_label
+  local count = 0, index = 0, saved_return = emitter.return_label, environment_size
   scope.parent = emitter.global_scope
   scope.next_owned = emitter.function_scopes
   emitter.function_scopes = scope
@@ -529,23 +529,30 @@ sub em_emit_function(emitter:Emitter, function:Function)
   em_collect_locals(emitter, scope, function.body)
   emitter.scope = scope
   emitter.return_label = em_new_label(emitter)
+  environment_size = (((scope.slot_count + 1) * 8) + 15) & -16
   em_text("\nglobal ") em_text(function.name) em_newline()
   em_text(function.name) em_line(":")
   em_instruction("push\trbp")
   em_instruction("mov\trbp, rsp")
-  em_instruction("sub\trsp, 64")
+  em_text("\tsub\trsp, ")
+  if emitter.format == 2 then em_number(64 + environment_size) else em_number(64) end
+  em_newline()
   while index < count do
-    em_text("\tmov\t[rbp - ") em_number(16 + index * 8) em_text("], ")
+    em_text("\tmov\t[rbp - ") em_number(16 + (index * 8)) em_text("], ")
     em_line(em_register(index))
     index = index + 1
   end
-  em_text("\tmov\trdi, ") em_number((scope.slot_count + 1) * 8) em_newline()
-  em_instruction("call\t__jabara_alloc")
+  if emitter.format == 2 then
+    em_text("\tlea\trax, [rbp - ") em_number(64 + environment_size) em_line("]")
+  else
+    em_text("\tmov\trdi, ") em_number((scope.slot_count + 1) * 8) em_newline()
+    em_instruction("call\t__jabara_alloc")
+  end
   em_instruction("mov\t[rbp - 8], rax")
   em_zero_environment(scope.slot_count)
   index = 0
   while index < count do
-    em_text("\tmov\trdx, [rbp - ") em_number(16 + index * 8) em_line("]")
+    em_text("\tmov\trdx, [rbp - ") em_number(16 + (index * 8)) em_line("]")
     em_text("\tmov\t[rax + ") em_number((index + 1) * 8) em_line("], rdx")
     index = index + 1
   end
@@ -637,6 +644,8 @@ sub em_emit_flat_header(format)
   em_line("bits 64")
   if format == 1 then
     em_line("org 0x801000")
+    em_line("_start:")
+    em_instruction("jmp\t__jabara_fap_start")
   else
     em_line("org 0x400000")
     em_line("__elf_header:")
@@ -657,76 +666,6 @@ sub em_emit_flat_header(format)
     em_line("\tdq __jabara_file_end - $$")
     em_line("\tdq 4096")
   end
-  em_line("_start:")
-  if format == 0 then em_instruction("pop\trdi") em_instruction("pop\trsi") end
-  em_instruction("call\tmain")
-  em_instruction("mov\trdi, rax")
-  em_instruction("call\texit")
-end
-
-sub em_emit_linux_runtime()
-  em_line("\nmmap:\n\tmov rax,9\n\tmov r10,rcx\n\tsyscall\n\tret")
-  em_line("brk:\n\tmov rax,12\n\tsyscall\n\tret")
-  em_line("close:\n\tmov rax,3\n\tsyscall\n\tret")
-  em_line("creat:\n\tmov rax,85\n\tmov rsi,511\n\tsyscall\n\tret")
-  em_line("exit:\n\tmov rax,60\n\tsyscall\n\thlt")
-  em_line("getch:\n\txor rdi,rdi")
-  em_line("fgetch:\n\tpush rax\n\tpush rsp\n\tpop rsi\n\tmov rdx,1\n\tcall read\n\tpop rdx\n\ttest rax,rax\n\tjz .done\n\tmov rax,rdx\n.done:\n\tret")
-  em_line("open:\n\tmov rax,2\n\tsyscall\n\tret")
-  em_line("putch:\n\tmov rsi,rdi\n\tmov rdi,1")
-  em_line("fputch:\n\tpush rsi\n\tpush rsp\n\tpop rsi\n\tmov rdx,1\n\tcall write\n\tpop rax\n\tret")
-  em_line("read:\n\txor rax,rax\n\tsyscall\n\tret")
-  em_line("seek:\n\tmov rax,8\n\tsyscall\n\tret")
-  em_line("write:\n\tmov rax,1\n\tsyscall\n\tret")
-  em_line("getcwd:\n\tmov rax,79\n\tsyscall\n\tret")
-  em_line("exec:\n\tmov rax,59\n\txor rdx,rdx\n\tsyscall\n\tret")
-  em_line("fork:\n\tmov rax,57\n\tsyscall\n\tret")
-  em_line("waitpid:\n\tmov rax,61\n\txor rsi,rsi\n\txor rdx,rdx\n\txor r10,r10\n\tsyscall\n\tret")
-  em_line("chdir:\n\tmov rax,80\n\tsyscall\n\tret")
-  em_line("getdents64:\n\tmov rax,217\n\tsyscall\n\tret")
-  em_line("unlink:\n\tmov rax,87\n\tsyscall\n\tret")
-  em_line("rename:\n\tmov rax,82\n\tsyscall\n\tret")
-  em_line("mkdir:\n\tmov rax,83\n\tmov rsi,511\n\tsyscall\n\tret")
-  em_line("rmdir:\n\tmov rax,84\n\tsyscall\n\tret")
-  em_line("dup2:\n\tmov rax,33\n\tsyscall\n\tret")
-end
-
-sub em_fap_runtime_name(index)
-  if index == 0 then return "open" end
-  if index == 1 then return "creat" end
-  if index == 2 then return "close" end
-  if index == 3 then return "read" end
-  if index == 4 then return "write" end
-  if index == 5 then return "fgetch" end
-  if index == 6 then return "fputch" end
-  if index == 7 then return "seek" end
-  if index == 8 then return "getch" end
-  if index == 9 then return "putch" end
-  if index == 10 then return "getcwd" end
-  if index == 11 then return "getdents64" end
-  if index == 12 then return "rename" end
-  if index == 13 then return "mkdir" end
-  if index == 14 then return "rmdir" end
-  if index == 15 then return "chdir" end
-  if index == 16 then return "unlink" end
-  if index == 17 then return "exec" end
-  if index == 18 then return "fork" end
-  if index == 19 then return "waitpid" end
-  if index == 20 then return "dup2" end
-  if index == 21 then return "brk" end
-  if index == 22 then return "mmap" end
-  return "exit"
-end
-
-sub em_emit_fap_runtime()
-  local index = 0
-  while index < 24 do
-    em_text(em_fap_runtime_name(index)) em_line(":")
-    em_text("\tmov rax,") em_number(index) em_newline()
-    em_instruction("int\t132")
-    em_instruction("ret")
-    index = index + 1
-  end
 end
 
 sub em_emit_program(program:Program, format)
@@ -737,12 +676,14 @@ sub em_emit_program(program:Program, format)
   emitter.global_scope.is_global = 1
   emitter.scope = emitter.global_scope
   function = em_find_function(emitter, "main")
-  if function == 0 then jc_error_at(1, 1, "program requires sub main") end
-  if function.is_extern then jc_error_at(1, 1, "program requires sub main") end
+  if format != 2 then
+    if function == 0 then jc_error_at(1, 1, "program requires sub main") end
+    if function.is_extern then jc_error_at(1, 1, "program requires sub main") end
+  end
   em_validate_records(emitter)
   em_collect_locals(emitter, emitter.global_scope, program.statements)
   em_line("; generated by the jabara compiler")
-  em_emit_flat_header(format)
+  if format == 2 then em_line("bits 64") else em_emit_flat_header(format) end
   function = program.functions
   while function != 0 do
     if function.is_extern == 0 then em_emit_function(emitter, function) end
@@ -753,15 +694,18 @@ sub em_emit_program(program:Program, format)
     em_emit_lambda_function(emitter, info)
     info = info.next
   end
-  em_emit_allocator()
-  if format == 1 then em_emit_fap_runtime() else em_emit_linux_runtime() end
+  if format != 2 then
+    em_emit_allocator()
+  end
   em_line("\nalign 8")
-  em_line("__jabara_heap: dq 0")
-  em_line("__jabara_heap_end: dq 0")
+  if format != 2 then
+    em_line("__jabara_heap: dq 0")
+    em_line("__jabara_heap_end: dq 0")
+  end
   binding = emitter.global_scope.bindings
   while binding != 0 do
     em_text("__jabara_global_") em_text(binding.name) em_line(": dq 0")
     binding = binding.next
   end
-  em_line("__jabara_file_end:")
+  if format == 2 then em_line("__jabara_file_end:") end
 end

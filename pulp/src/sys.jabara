@@ -56,17 +56,26 @@ sub sys_read(fd, buf, size)
 	if (inode_getType(fd_getInode(fd)) != INODE_TYPE_FILE()) then
 		return 0
 	end
-	fd_read(fd, buf, size)
+	return fd_read(fd, buf, size)
 end
 
 sub sys_write(fd, buf, size)
+	local i
 	if (fd == 0) then
 		return 0
+	end
+	if (fd == 1) | (fd == 2) then
+		i = 0
+		while i < size do
+			sys_putch(byte [buf + i])
+			i = i + 1
+		end
+		return size
 	end
 	if (inode_getType(fd_getInode(fd)) != INODE_TYPE_FILE()) then
 		return 0
 	end
-	fd_write(fd, buf, size)
+	return fd_write(fd, buf, size)
 end
 
 sub sys_fgetch(fd)

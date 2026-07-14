@@ -10,10 +10,12 @@ trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 
 mkdir -p "$output"
 
-for source in "$peel"/src/*/*.yuzu; do
+for source in "$peel"/src/*/*.jabara; do
     program=$(basename "$(dirname -- "$source")")
     cat "$root/lib/pith.jabara" "$source" > "$tmp/$program.jabara"
-    "$root/bin/jc" elf "$tmp/$program.jabara" "$tmp/$program.asm"
+    "$root/bin/jc" elf "$tmp/$program.jabara" "$tmp/$program-generated.asm"
+    cat "$tmp/$program-generated.asm" "$root/lib/elf-runtime.asm" \
+        > "$tmp/$program.asm"
     nasm -f bin "$tmp/$program.asm" -o "$output/$program"
     chmod +x "$output/$program"
 done

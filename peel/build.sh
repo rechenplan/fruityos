@@ -1,138 +1,63 @@
 #!/bin/sh
+set -eu
 
-rm -rf bin tmp
-mkdir bin tmp
+root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+fruity=$(CDPATH= cd -- "$root/.." && pwd)
+jc="$fruity/jabara/bin/jc"
+pith="$fruity/jabara/lib/pith.jabara"
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/peel-build-XXXXXX")
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 
-echo "[ Building FruityOS userland ]"
+rm -rf "$root/bin"
+mkdir -p "$root/bin"
 
-echo Building jar for Linux...
-../yuzu/bin/yc src/jar/jar.yuzu tmp/jar.s
-cat ../yuzu/lib/_start.asm tmp/jar.s ../yuzu/lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest e tmp/a.s bin/jar.elf
+echo "[ Building FruityOS userland with Jabara ]"
 
-echo Building juicer for Linux...
-../yuzu/bin/yc src/juicer/juicer.yuzu tmp/juicer.s
-cat ../yuzu/lib/_start.asm tmp/juicer.s ../yuzu/lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest e tmp/a.s bin/juicer.elf
+compile() {
+    format=$1
+    source=$2
+    output=$3
+    name=$(basename "$output")
+    cat "$pith" "$source" > "$tmp/$name.jabara"
+    "$jc" "$format" "$tmp/$name.jabara" "$tmp/$name-generated.asm"
+    cat "$tmp/$name-generated.asm" \
+        "$fruity/jabara/lib/$format-runtime.asm" > "$tmp/$name.asm"
+    nasm -f bin "$tmp/$name.asm" -o "$output"
+}
 
-echo Building concat...
-../yuzu/bin/yc src/concat/concat.yuzu tmp/concat.asm
-cat lib/_start.asm tmp/concat.asm lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/concat.fap
+compile elf "$root/src/jar/jar.jabara" "$root/bin/jar.elf"
+compile elf "$root/src/juicer/juicer.jabara" "$root/bin/juicer.elf"
+chmod +x "$root/bin/jar.elf" "$root/bin/juicer.elf"
 
-echo Building echo...
-../yuzu/bin/yc src/echo/echo.yuzu tmp/echo.s
-cat lib/_start.asm tmp/echo.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/echo.fap
+for source in "$root"/src/*/*.jabara; do
+    program=$(basename "$(dirname -- "$source")")
+    compile fap "$source" "$tmp/$program.raw"
+    "$root/bin/juicer.elf" c "$tmp/$program.raw" "$root/bin/$program.fap"
+done
 
-echo Building del...
-../yuzu/bin/yc src/del/del.yuzu tmp/del.s
-cat lib/_start.asm tmp/del.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/del.fap
+cat "$pith" "$fruity"/yuzu/src/yc/*.yuzu > "$tmp/yc.jabara"
+"$jc" fap "$tmp/yc.jabara" "$tmp/yc-generated.asm"
+cat "$tmp/yc-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \
+    > "$tmp/yc.asm"
+nasm -f bin "$tmp/yc.asm" -o "$tmp/yc.raw"
+"$root/bin/juicer.elf" c "$tmp/yc.raw" "$root/bin/yc.fap"
 
-echo Building type...
-../yuzu/bin/yc src/type/type.yuzu tmp/type.s
-cat lib/_start.asm tmp/type.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/type.fap
+cat "$pith" "$fruity/yuzu/src/zest/main.yuzu" \
+    "$fruity/yuzu/src/zest/lex.yuzu" "$fruity/yuzu/src/zest/parse.yuzu" \
+    "$fruity/yuzu/src/zest/emit.yuzu" "$fruity/yuzu/src/zest/elf.yuzu" \
+    > "$tmp/zest.jabara"
+"$jc" fap "$tmp/zest.jabara" "$tmp/zest-generated.asm"
+cat "$tmp/zest-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \
+    > "$tmp/zest.asm"
+nasm -f bin "$tmp/zest.asm" -o "$tmp/zest.raw"
+"$root/bin/juicer.elf" c "$tmp/zest.raw" "$root/bin/zest.fap"
 
-echo Building write...
-../yuzu/bin/yc src/write/write.yuzu tmp/write.s
-cat lib/_start.asm tmp/write.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/write.fap
+cat "$fruity"/jabara/src/jc/*.jabara \
+    "$fruity/jabara/lib/jc-fap-config.jabara" > "$tmp/jc.jabara"
+"$jc" module "$tmp/jc.jabara" "$tmp/jc-module.asm"
+cat "$fruity/jabara/lib/fap-module-runtime.asm" \
+    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/jc-module.asm" > "$tmp/jc.asm"
+nasm -f bin "$tmp/jc.asm" -o "$tmp/jc.raw"
+"$root/bin/juicer.elf" c "$tmp/jc.raw" "$root/bin/jc.fap"
 
-echo Building dir...
-../yuzu/bin/yc src/dir/dir.yuzu tmp/dir.s
-cat lib/_start.asm tmp/dir.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/dir.fap
-
-echo Building mkdir...
-../yuzu/bin/yc src/mkdir/mkdir.yuzu tmp/mkdir.s
-cat lib/_start.asm tmp/mkdir.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/mkdir.fap
-
-echo Building rmdir...
-../yuzu/bin/yc src/rmdir/rmdir.yuzu tmp/rmdir.s
-cat lib/_start.asm tmp/rmdir.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/rmdir.fap
-
-echo Building copy...
-../yuzu/bin/yc src/copy/copy.yuzu tmp/copy.s
-cat lib/_start.asm tmp/copy.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/copy.fap
-
-echo Building move...
-../yuzu/bin/yc src/move/move.yuzu tmp/move.s
-cat lib/_start.asm tmp/move.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/move.fap
-
-echo Building juicer...
-../yuzu/bin/yc src/juicer/juicer.yuzu tmp/juicer.s
-cat lib/_start.asm tmp/juicer.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/juicer.fap
-
-echo Building jar...
-../yuzu/bin/yc src/jar/jar.yuzu tmp/juicer.s
-cat lib/_start.asm tmp/juicer.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/jar.fap
-
-echo Building fred...
-../yuzu/bin/yc src/fred/fred.yuzu tmp/fred.s
-cat lib/_start.asm tmp/fred.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/fred.fap
-
-echo Building inode...
-../yuzu/bin/yc src/inode/inode.yuzu tmp/inode.s
-cat lib/_start.asm tmp/inode.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/inode.fap
-
-echo Building pish...
-../yuzu/bin/yc src/pish/pish.yuzu tmp/pish.s
-cat lib/_start.asm tmp/pish.s lib/libpith.asm > tmp/a.s
-../yuzu/bin/zest f tmp/a.s tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/pish.fap
-
-echo Building yc...
-echo Compiling yc.yuzu...
-../yuzu/bin/yc ../yuzu/src/yc/yc.yuzu tmp/yc.asm
-echo Compiling parser.yuzu...
-../yuzu/bin/yc ../yuzu/src/yc/parser.yuzu tmp/parser.asm
-echo Compiling lexer.yuzu...
-../yuzu/bin/yc ../yuzu/src/yc/lexer.yuzu tmp/lexer.asm
-echo Compiling emitter.yuzu...
-../yuzu/bin/yc ../yuzu/src/yc/emitter.yuzu tmp/emitter.asm
-cat lib/_start.asm tmp/yc.asm tmp/parser.asm tmp/lexer.asm tmp/emitter.asm lib/libpith.asm > tmp/a.asm
-echo Assembling...
-../yuzu/bin/zest f tmp/a.asm tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/yc.fap
-
-echo Building zest...
-echo Compiling main.yuzu...
-../yuzu/bin/yc ../yuzu/src/zest/main.yuzu tmp/main.asm
-echo Compiling parse.yuzu...
-../yuzu/bin/yc ../yuzu/src/zest/parse.yuzu tmp/parser.asm
-echo Compiling lex.yuzu...
-../yuzu/bin/yc ../yuzu/src/zest/lex.yuzu tmp/lexer.asm
-echo Compiling emit.yuzu...
-../yuzu/bin/yc ../yuzu/src/zest/emit.yuzu tmp/emitter.asm
-echo Compiling elf.yuzu...
-../yuzu/bin/yc ../yuzu/src/zest/elf.yuzu tmp/elf.asm
-cat lib/_start.asm tmp/main.asm tmp/parser.asm tmp/lexer.asm tmp/emitter.asm tmp/elf.asm lib/libpith.asm > tmp/a.asm
-echo Assembling...
-../yuzu/bin/zest f tmp/a.asm tmp/a.bin
-bin/juicer.elf c tmp/a.bin bin/zest.fap
-
-rm -rf tmp
+echo "peel: Jabara userland build passed"
