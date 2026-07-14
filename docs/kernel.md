@@ -119,7 +119,7 @@ Ranges are half-open; the ending address is not included.
 | `0x00400000`–`0x00410000` | 32-byte heap pool. |
 | `0x00410000`–`0x00450000` | 256-byte heap pool. |
 | `0x00450000`–`0x007d0000` | 1024-byte heap pool. |
-| `0x00700000` onward | Stable UEFI initrd copy during initialization. |
+| `0x02000000` onward | Stable UEFI initrd copy during initialization. |
 
 ## Ring-3 virtual memory map
 

@@ -57,12 +57,12 @@ Before leaving firmware services, UEFI Seed:
 1. prints a loading message through `EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL`;
 2. reserves FruityOS's fixed kernel, paging, heap, and initrd regions with
    `AllocatePages(AllocateAddress, EfiLoaderData, ...)`;
-3. decompresses Pulp to `0x10000` and copies the initrd to `0x700000`;
+3. decompresses Pulp to `0x10000` and copies the initrd to `0x2000000`;
 4. obtains a current memory-map key and calls `ExitBootServices`, retrying when
    the key changes;
 5. creates a temporary identity mapping for the first 4 GiB;
 6. restores legacy PIC routing and VGA text registers, font, and palette;
-7. sets `RSP` to `0x40000`, `RSI` to `0x700000`, and jumps to `0x10100`.
+7. sets `RSP` to `0x40000`, `RSI` to `0x2000000`, and jumps to `0x10100`.
 
 Progress characters are also written to debug port `0xE9`. QEMU can expose
 those characters with `-debugcon stdio`, which distinguishes firmware loading,

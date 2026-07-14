@@ -180,7 +180,7 @@ default rel
 %define GET_MEMORY_MAP_OFFSET  56
 %define EXIT_BOOT_OFFSET       232
 %define PAGE_SIZE              4096
-%define INITRD_ADDRESS         0x700000
+%define INITRD_ADDRESS         0x2000000
 %define IMAGE_BASE             0x1000000
 
 ; ---------------------------------------------------------------------------
@@ -319,14 +319,15 @@ efi_main:
 
     ; Pulp's three fixed-block heaps at 4 MiB.
     mov edx, 0x400000
-    mov r8d, 0x2d0
+    mov r8d, 0x3d0
     call allocate_at
     test rax, rax
     jnz allocation_failed
     mov al, '4'
     out 0xe9, al
 
-    ; A stable copy of the initrd, above the kernel heaps and below task memory.
+    ; A stable copy of the initrd, above the kernel heaps and PE image and
+    ; below the first task's physical arena.
     mov edx, INITRD_ADDRESS
     mov r8, (initrd_end - initrd_payload + PAGE_SIZE - 1) / PAGE_SIZE
     call allocate_at
