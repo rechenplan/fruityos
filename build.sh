@@ -17,8 +17,6 @@ for program in concat copy del echo jar juicer mkdir orgasm pish; do
 done
 cp "$root/jabara/lib/elf-runtime.asm" "$root/jabara/lib/fap-runtime.asm" \
     "$root/initrd/lib"
-"$root/peel/bin/juicer.elf" c "$root/peel/bin/jc.asm" \
-    "$root/initrd/lib/jc.asm.jz"
 cp "$root/scripts/init.psh" "$root/initrd/init.psh"
 
 echo "[ Packaging FruityOS source tree ]"
@@ -28,11 +26,12 @@ mkdir -p "$source_tmp/fruityos"
 git -C "$root" ls-files --cached --others --exclude-standard -z | \
     tar -C "$root" --null -T - -cf - | \
     tar -C "$source_tmp/fruityos" -xf -
+"$root/peel/bin/juicer.elf" c "$root/peel/bin/jc.asm" \
+    "$source_tmp/fruityos/jabara/jc.asm.jz"
 cat "$source_tmp/fruityos/pulp/src/platform.jabara" \
     "$source_tmp/fruityos"/pulp/src/*.jabara > "$source_tmp/pulp.jabara"
 "$root/jabara/bin/jc" module "$source_tmp/pulp.jabara" \
     "$source_tmp/fruityos/pulp/pulp-generated.asm"
-cp "$root/pulp/bin/pulp.bin" "$source_tmp/fruityos/pulp/pulp.bin"
 rm -f "$source_tmp/pulp.jabara"
 (
     cd "$source_tmp/fruityos"

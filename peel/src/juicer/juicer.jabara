@@ -39,7 +39,7 @@ sub compress(fin, fout)
 		distance, length, done, bestLength, bestDistance
 
 	bytePtr = malloc(3)
-	filePtr = malloc(1 << 20)
+	filePtr = malloc(2 << 20)
 	windowPtr = malloc(1024)
 	windowSize = 0
 
@@ -115,7 +115,7 @@ end
 
 sub decompress(fin, fout)
 	local filePtr, fileSize, bytePtr, length, distance, i
-	filePtr = malloc(1 << 20)
+	filePtr = malloc(2 << 20)
 	bytePtr = malloc(2)
 
 	while read(fin, bytePtr, 1) > 0 do

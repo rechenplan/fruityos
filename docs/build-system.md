@@ -49,9 +49,9 @@ For each Peel program, `peel/build.sh`:
 5. compresses it into `peel/bin/<name>.fap` with Juicer.
 
 The script additionally generates the compiler assembly and assembler FAP
-needed by the native build. The initrd carries Juicer-compressed `jc.asm`;
-FruityOS decompresses, assembles, and compresses it during startup instead of
-embedding a host-assembled `jc.fap`.
+needed by the native build. The packaged source archive carries the generated
+assembly as `jabara/jc.asm.jz`; FruityOS extracts, decompresses, assembles, and
+compresses it during startup instead of embedding a host-assembled `jc.fap`.
 Only the bootstrap subset described in
 [Initrd and native rebuild](initrd-native-build.md) is placed in the initrd.
 
@@ -70,10 +70,10 @@ offset `0x100`. The selected assembler emits `pulp.bin`; host Juicer produces
 `pulp.sys`.
 
 As part of source packaging, the root build also places the current generated
-Pulp assembly and `pulp.bin` in the archived checkout. The native build does not
-reuse those artifacts: it compiles each implementation as a namespaced `part`,
-combines the parts with one module containing shared globals, assembles them
-with Orgasm, and compresses the result with Juicer.
+Pulp assembly in the archived checkout. The native build does not reuse that
+artifact: it compiles each implementation as a namespaced `part`, combines the
+parts with one module containing shared globals, assembles them with Orgasm,
+and compresses the result with Juicer.
 
 ## Source snapshot
 
@@ -85,8 +85,10 @@ git ls-files --cached --others --exclude-standard
 ```
 
 The selected paths are copied to a temporary `fruityos/` tree. The build adds
-`pulp/pulp-generated.asm` and the current `pulp/pulp.bin`, creates a Jar archive,
-and compresses it to `initrd/src/fruityos.jz`.
+`jabara/jc.asm.jz` and `pulp/pulp-generated.asm`, creates a Jar archive, and
+compresses it to `initrd/src/fruityos.jz`. The uncompressed host-built
+`pulp.bin` is omitted so the legacy BIOS image remains within its 384 KiB load
+window.
 
 This means uncommitted, unignored source files are deliberately included in the
 booted checkout. Generated files ignored by Git are excluded unless the build

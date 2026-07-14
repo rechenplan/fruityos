@@ -93,9 +93,10 @@ Changes:
 	   allocation-heavy parser and compression loops.
 	6. Native Peel and Pulp builds delete intermediate files as soon as they are
 	   no longer needed, returning their RAMFS blocks to the kernel.
-	7. The host now packages compressed Jabara compiler assembly instead of
-	   jc.fap; FruityOS decompresses, assembles, and compresses jc during startup,
-	   reducing the binary bootstrap set from ten FAPs to nine.
+	7. The host now adds compressed generated Jabara compiler assembly to
+	   fruityos.jz instead of packaging jc.fap; FruityOS extracts, decompresses,
+	   assembles, and compresses jc during startup, reducing the binary bootstrap
+	   set from ten FAPs to nine.
 
 Bugfixes:
 
@@ -105,6 +106,8 @@ Bugfixes:
 	3. Native kernel intermediates no longer exhaust the fixed-block RAMFS pool.
 	4. Orgasm now uses hashed symbol lookup and native integer multiplication,
 	   allowing it to assemble the generated Jabara compiler during startup.
+	5. Juicer's working buffer now accommodates the source checkout with the
+	   generated compiler assembly included.
 
 Notes:
 
