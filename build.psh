@@ -1,3 +1,6 @@
+cd jabara
+build.psh
+cd ..
 cd peel
 build.psh
 cd ..

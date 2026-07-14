@@ -1,8 +1,8 @@
 # Jabara
 
 Jabara is FruityOS's compact, self-hosted 64-bit systems language. The compiler
-translates Jabara into NASM-compatible assembly for Linux ELF programs,
-FruityOS FAP applications, or headerless modules.
+translates one or more source files into headerless NASM-compatible module
+assembly. Assembly headers and runtimes select the target format.
 
 ## Build
 
@@ -20,7 +20,7 @@ This produces:
 The compiler interface is:
 
 ```text
-jc elf|fap|module|part input.jabara output.asm
+jc input.jabara [input.jabara ...] output.asm
 ```
 
 Compiler output must be combined with the appropriate runtime and assembled.
@@ -34,7 +34,8 @@ jabara/
 ├── src/jc/              self-hosted compiler
 ├── src/orgasm/          FruityOS-focused assembler
 ├── lib/pith.jabara      platform service declarations
-├── lib/elf-runtime.asm  Linux startup and services
+├── lib/elf-header.asm   manual flat ELF64 header and startup
+├── lib/elf-runtime.asm  Linux services and allocator
 ├── lib/fap-runtime.asm  FruityOS startup and services
 ├── tests/               compiler regression inputs
 └── docs/manual.md       language tutorial and reference
@@ -47,7 +48,7 @@ jabara/
 ./src/orgasm/test.sh
 ```
 
-The suites cover bootstrapping, self-hosting, diagnostics, generated formats,
+The suites cover bootstrapping, self-hosting, diagnostics, selected runtimes,
 Orgasm, Juicer round trips, compatibility tools, and every Peel application.
 
 See the [language manual](docs/manual.md) for Jabara syntax and the integrated

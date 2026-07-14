@@ -11,21 +11,22 @@ The generated staging tree is:
 ```text
 initrd/
 ├── bin/
-│   ├── concat.fap
 │   ├── del.fap
 │   ├── jar.fap
 │   ├── juicer.fap
 │   ├── orgasm.fap
 │   └── pish.fap
-├── lib/
-│   ├── elf-runtime.asm
-│   └── fap-runtime.asm
 ├── src/
 │   └── fruityos.jz
-└── init.psh
+├── init.psh
+└── pulp.sys
 ```
 
-These six FAPs form the binary bootstrap set:
+All Seed variants locate the compressed kernel through the `/pulp.sys` Jar
+entry. Pulp receives the Jar start and installs that entry in RAMFS along with
+the rest of the initrd.
+
+These five FAPs form the binary bootstrap set:
 
 | Program | Why it must be host-built in the initrd |
 | --- | --- |
@@ -33,10 +34,10 @@ These six FAPs form the binary bootstrap set:
 | `del` | Removes the temporary decompressed source Jar. |
 | `jar` | Extracts the source checkout. |
 | `juicer` | Decompresses the checkout and creates native FAP streams. |
-| `concat` | Combines Jabara sources, generated assembly, and runtimes. |
 | `orgasm` | Assembles generated FAP assembly inside FruityOS. |
 
-The source archive contains the empty native output directories. The Peel build
+Multifile `jc` and Orgasm eliminate the need for `concat` during bootstrap. The
+source archive contains the empty native output directories. The Peel build
 creates `echo.fap` directly in `/bin` before reporting progress, then writes all
 remaining applications there as they are built. This removes `mkdir`, `echo`,
 and `copy` from the host-built bootstrap set.
@@ -48,6 +49,12 @@ archive, decompresses the compiler assembly, and has Orgasm assemble it to a
 temporary raw binary. Juicer then creates `/bin/jc.fap`. The raw binary and both
 assembly forms are deleted, leaving the compiler ready for the native source
 build without making it one of the host-assembled bootstrap binaries.
+
+First, `jabara/build.psh` compiles the packaged compiler sources with the
+initial compiler and replaces `/bin/jc.fap`. The replacement compiler then
+compiles the packaged Orgasm sources; the initial assembler turns that output
+into the replacement `/bin/orgasm.fap`. Both Peel and Pulp are built only after
+the source-built compiler and assembler are installed.
 
 Utilities such as `dir`, `fred`, `move`, `type`, and `write` are not copied from
 the host. They appear in `/bin` only after the native build succeeds.
@@ -64,10 +71,12 @@ Juicer installed in `/bin`.
 During every host build, the root script stages only the inputs used by the
 native rebuild:
 
-- the root, Peel, and Pulp `.psh` build files;
+- the root, Peel, Jabara, and Pulp `.psh` build files;
 - all Peel Jabara application sources;
 - all Pulp Jabara and handwritten assembly sources;
-- `pith.jabara`, `fap-runtime.asm`, and `fap-stack-runtime.asm`;
+- the Jabara-written compiler and Orgasm sources;
+- `jc-fap-config.jabara`, `pith.jabara`, `fap-module-runtime.asm`,
+  `fap-runtime.asm`, and `fap-stack-runtime.asm`;
 - the compressed generated Jabara compiler assembly, `jabara/jc.asm.jz`;
 - empty Peel and Pulp output directories.
 
@@ -95,7 +104,7 @@ jar x fruityos.jar
 del fruityos.jar
 cd fruityos
 juicer d jabara/jc.asm.jz jabara/jc.asm
-orgasm f jabara/jc.asm /bin/jc.raw
+orgasm jabara/jc.asm /bin/jc.raw
 juicer c /bin/jc.raw /bin/jc.fap
 del /bin/jc.raw jabara/jc.asm jabara/jc.asm.jz
 build.psh
@@ -108,14 +117,15 @@ needed bounds peak RAMFS use. When `build.psh` returns, Pish remains in
 
 ## Native build sequence
 
-The checkout's root `build.psh` invokes `peel/build.psh` and then
-`pulp/build.psh`.
+The checkout's root `build.psh` invokes `jabara/build.psh`, `peel/build.psh`,
+and then `pulp/build.psh`.
 
 The Peel script first builds `echo` directly in `/bin`, then builds each
-ordinary userland application with the bootstrap `concat`, `jc`, `orgasm`, and
-`juicer` tools. Intermediate Jabara, assembly, and raw files are deleted after
-each application to return their RAMFS blocks; compressed results replace or
-extend the applications in `/bin` immediately.
+ordinary userland application with the source-built `jc` and `orgasm` and the
+bootstrap `juicer` tool. Sources and runtime assembly are passed directly to
+their multifile tools. Intermediate generated assembly and raw files are
+deleted after each application to return their RAMFS blocks;
+compressed results replace or extend the applications in `/bin` immediately.
 
 The following applications are rebuilt:
 
@@ -125,22 +135,22 @@ concat copy del dir echo fill fred inode jar juicer mkdir move pish rmdir type w
 
 The completion message is executed through the newly built `echo.fap`.
 
+The preceding Jabara stage replaces the initially assembled `jc.fap` and the
+bootstrap `orgasm.fap` with FAPs compiled from their packaged Jabara sources.
+The Peel stage then replaces its bootstrap utilities using those tools. This
+means every FAP in `/bin` at the interactive prompt has been compiled from the
+extracted source tree.
+
 The native install changes only RAMFS. It does not modify the boot image or host
 working tree and disappears at shutdown.
 
 ## Native kernel stage
 
-`pulp/build.psh` compiles each kernel implementation file separately with
-`jc part`. Each compiler input combines `platform.jabara`, which provides the
-shared extern declarations and global names, with one implementation file.
-The small inputs stay within the target-side compiler arena.
-
-Part output namespaces compiler-private labels and omits repeated global
-storage. The platform declarations are compiled once with `jc module` to emit
-the shared global block. Native `concat` combines the handwritten entry and IDT
-assembly, all generated parts, and that global block; Orgasm emits
-`pulp/bin/pulp.bin`, and Juicer emits `pulp/bin/pulp.sys`. These artifacts do not
-replace the running kernel, but they verify that the packaged checkout can
+`pulp/build.psh` passes `platform.jabara` and every kernel implementation to one
+multifile `jc` invocation. It then passes the handwritten entry assembly, IDT
+assembly, and generated module directly to multifile Orgasm. Orgasm emits
+`pulp/bin/pulp.bin`, and Juicer emits `pulp/bin/pulp.sys`. These artifacts do
+not replace the running kernel, but they verify that the packaged checkout can
 rebuild Pulp entirely inside FruityOS.
 
 ## Archive and compression formats

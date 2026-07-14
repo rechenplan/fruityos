@@ -800,5 +800,7 @@ sub parse_file(fout, fin, symtab, org)
 
 		end
 	end
-	return pos - org
+	bytes = pos - org
+	brk(buffer)
+	return bytes
 end

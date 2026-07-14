@@ -119,13 +119,20 @@ sub jc_next_argument(argument)
   return argument + 1
 end
 
-sub jc_read_source(path)
-  local fd = open(path, 0), buffer, cursor, count
-  if fd < 0 then jc_error_at(1, 1, "cannot open input") end
-  buffer = jc_alloc(128 << 10)
+sub jc_read_sources(path, file_count)
+  local fd, buffer, cursor, count, index = 0
+  buffer = jc_alloc(file_count * ((128 << 10) + 1))
   cursor = buffer
-  while (count = read(fd, cursor, 4096)) > 0 do cursor = cursor + count end
-  close(fd)
+  while index < file_count do
+    fd = open(path, 0)
+    if fd < 0 then jc_error_at(1, 1, "cannot open input") end
+    while (count = read(fd, cursor, 4096)) > 0 do cursor = cursor + count end
+    close(fd)
+    byte [cursor] = 10
+    cursor = cursor + 1
+    path = jc_next_argument(path)
+    index = index + 1
+  end
   byte [cursor] = 0
   return buffer
 end

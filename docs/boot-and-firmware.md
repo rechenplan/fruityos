@@ -11,8 +11,7 @@ produce the same handoff to Pulp: the kernel is decompressed at physical
 | Image offset | Contents |
 | --- | --- |
 | `0x00000` | 512-byte `hdseed` sector with boot signature. |
-| `0x00200` | Juicer-compressed kernel, `pulp.sys`. |
-| after `pulp.sys` | Uncompressed Jar archive containing the initrd. |
+| `0x00200` | Uncompressed Jar archive containing the initrd and `/pulp.sys`. |
 | through `0xfffff` | Zero padding to the fixed 1 MiB image size. |
 
 The padding is functional: `hdseed` reads 2047 payload sectors through the
@@ -31,9 +30,9 @@ Firmware loads sector zero at `0x7c00`. `hdseed` then:
    64-bit code;
 5. reads the complete padded disk payload to physical `0x300000` with LBA28
    PIO through the primary ATA controller;
-6. remaps the legacy PIC;
-7. expands the Juicer kernel stream at `0x10000`;
-8. leaves `RSI` at the following initrd Jar and jumps to `0x10100`.
+6. walks the Jar records until it finds `./pulp.sys`;
+7. expands that Juicer stream at `0x10000`;
+8. restores `RSI` to the Jar start and jumps to `0x10100`.
 
 The kernel's first 256 bytes are the system-call function-pointer table. That is
 why the executable entry is exactly `kernel + 0x100` rather than the beginning
@@ -47,7 +46,8 @@ optional header, `.text`, `.data`, and `.reloc` sections, and a real DIR64 base
 relocation. Code and data use separate permissions, and the image declares the
 EFI application subsystem.
 
-The application embeds both `pulp.sys` and `initrd.jar`. Its EFI entry follows
+The application embeds only `initrd.jar`; `/pulp.sys` is an ordinary entry in
+that archive. Its EFI entry follows
 the Microsoft x64 calling convention used by x86-64 UEFI: `RCX` contains the
 image handle and `RDX` the system table. Calls reserve shadow space and preserve
 the required nonvolatile registers.
@@ -57,11 +57,12 @@ Before leaving firmware services, UEFI Seed:
 1. prints a loading message through `EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL`;
 2. reserves FruityOS's fixed kernel, paging, heap, and initrd regions with
    `AllocatePages(AllocateAddress, EfiLoaderData, ...)`;
-3. decompresses Pulp to `0x10000` and copies the initrd to `0x2000000`;
+3. copies the initrd to `0x2000000`, locates `/pulp.sys` in its Jar records, and
+   decompresses Pulp to `0x10000`;
 4. obtains a current memory-map key and calls `ExitBootServices`, retrying when
    the key changes;
 5. creates a temporary identity mapping for the first 4 GiB;
-6. restores legacy PIC routing and VGA text registers, font, and palette;
+6. restores VGA text registers, font, and palette;
 7. sets `RSP` to `0x40000`, `RSI` to `0x2000000`, and jumps to `0x10100`.
 
 Progress characters are also written to debug port `0xE9`. QEMU can expose
@@ -81,6 +82,13 @@ The same assembly source has a packaging mode that emits
 The path is the standard x86-64 removable-media fallback. The application can
 also be copied to an existing EFI system partition and registered with the
 machine's boot manager.
+
+## Floppy image
+
+`fruityos_floppy.img` is a 1.44 MiB floppy image containing `fdseed` followed by the
+same initrd Jar. The loader reads the first 19 cylinders, scans the Jar for
+`/pulp.sys`, decompresses it, and passes the Jar start to Pulp. The host build
+rejects an unpadded floppy payload larger than its 342 KiB load window.
 
 ## Physical-machine requirements
 

@@ -1,15 +1,15 @@
-   127 ./pulp/src/idt.jabara
+   128 ./pulp/src/idt.jabara
    145 ./pulp/src/scr.jabara
    273 ./pulp/src/entry.asm
    163 ./pulp/src/fd.jabara
-   243 ./pulp/src/idt.asm
+   261 ./pulp/src/idt.asm
    266 ./pulp/src/sys.jabara
    261 ./pulp/src/kb.jabara
     68 ./pulp/src/global.jabara
     78 ./pulp/src/page.jabara
     84 ./pulp/src/list.jabara
    140 ./pulp/src/utils.jabara
-   117 ./pulp/src/platform.jabara
+   118 ./pulp/src/platform.jabara
     88 ./pulp/src/fba.jabara
    154 ./pulp/src/task.jabara
     22 ./pulp/src/kmain.jabara
@@ -17,24 +17,21 @@
     81 ./pulp/src/heap.jabara
     30 ./pulp/src/x86.jabara
    147 ./pulp/src/inode.jabara
-   121 ./initrd/lib/elf-runtime.asm
-   101 ./initrd/lib/fap-runtime.asm
-    55 ./jabara/src/orgasm/main.jabara
+    61 ./jabara/src/orgasm/main.jabara
    252 ./jabara/src/orgasm/emit.jabara
-   804 ./jabara/src/orgasm/parse.jabara
+   806 ./jabara/src/orgasm/parse.jabara
    143 ./jabara/src/orgasm/lex.jabara
    242 ./jabara/src/orgasm/modern.jabara
-   108 ./jabara/src/orgasm/elf.jabara
-    30 ./jabara/src/jc/main.jabara
+    23 ./jabara/src/jc/main.jabara
     77 ./jabara/src/jc/model.jabara
    302 ./jabara/src/jc/parser.jabara
    183 ./jabara/src/jc/lexer.jabara
-   739 ./jabara/src/jc/emitter.jabara
-   131 ./jabara/src/jc/runtime.jabara
+   629 ./jabara/src/jc/emitter.jabara
+   138 ./jabara/src/jc/runtime.jabara
    417 ./jabara/src/jbc/parser.c
    195 ./jabara/src/jbc/lexer.c
-    76 ./jabara/src/jbc/jbc.c
-   809 ./jabara/src/jbc/emitter.c
+    84 ./jabara/src/jbc/jbc.c
+   715 ./jabara/src/jbc/emitter.c
     25 ./jabara/tests/arguments.jabara
     23 ./jabara/tests/closure.jabara
      3 ./jabara/tests/error-undeclared-extern.jabara
@@ -45,15 +42,16 @@
      6 ./jabara/tests/part-a.jabara
      6 ./jabara/tests/part-b.jabara
     26 ./jabara/tests/record.jabara
-   121 ./jabara/lib/elf-runtime.asm
+   127 ./jabara/lib/elf-runtime.asm
      1 ./jabara/lib/jc-fap-config.jabara
    101 ./jabara/lib/fap-runtime.asm
+    27 ./jabara/lib/elf-header.asm
     19 ./jabara/lib/fap-stack-runtime.asm
      8 ./jabara/lib/fap-module-runtime.asm
     24 ./jabara/lib/pith.jabara
-   246 ./seed/src/hdseed/hdseed.s
-   258 ./seed/src/fdseed/fdseed.s
-   975 ./seed/src/uefiseed/uefiseed.asm
+   244 ./seed/src/hdseed/hdseed.s
+   187 ./seed/src/fdseed/fdseed.s
+   973 ./seed/src/uefiseed/uefiseed.asm
    185 ./peel/src/juicer/juicer.jabara
     34 ./peel/src/move/move.jabara
    156 ./peel/src/jar/jar.jabara
@@ -70,7 +68,7 @@
     32 ./peel/src/rmdir/rmdir.jabara
     31 ./peel/src/mkdir/mkdir.jabara
     54 ./peel/src/type/type.jabara
- 17159 ./peel/bin/jc.asm
+ 16146 ./peel/bin/jc.asm
      9 ./peel/lib/_start.asm
     99 ./peel/lib/libpith.asm
     37 ./yuzu/doc/manual.yuzu
@@ -90,4 +88,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 31714 total
+ 30161 total

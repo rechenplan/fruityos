@@ -1,30 +1,23 @@
 sub main(argc, argv)
-  local format_path, input_path, output_path
-  local source, program:Program, format
-  if argc != 4 then
+  local input_path, output_path, input_count, index = 0
+  local source, program:Program
+  if argc < 3 then
     jc_output = 2
-    jc_line("usage: jc elf|fap|module|part input.jabara output.asm")
+    jc_line("usage: jc input.jabara [input.jabara ...] output.asm")
     return 1
   end
-  format_path = jc_next_argument(argv)
-  if jc_streq(format_path, "elf") then format = 0
-  else
-    if jc_streq(format_path, "fap") then format = 1
-    else
-      if jc_streq(format_path, "module") then format = 2
-      else
-        if jc_streq(format_path, "part") then format = 3
-        else jc_error_at(1, 1, "format must be elf, fap, module, or part") end
-      end
-    end
+  input_path = jc_next_argument(argv)
+  input_count = argc - 2
+  output_path = input_path
+  while index < input_count do
+    output_path = jc_next_argument(output_path)
+    index = index + 1
   end
-  input_path = jc_next_argument(format_path)
-  output_path = jc_next_argument(input_path)
-  source = jc_read_source(input_path)
+  source = jc_read_sources(input_path, input_count)
   jc_output = creat(output_path)
   if jc_output < 0 then jc_error_at(1, 1, "cannot create output") end
   program = ps_parse_program(source)
-  em_emit_program(program, format, input_path)
+  em_emit_program(program)
   close(jc_output)
   return 0
 end

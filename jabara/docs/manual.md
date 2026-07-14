@@ -23,7 +23,7 @@ compiled by itself. A C compiler and NASM must be installed.
 Both compilers accept the same interface:
 
 ```text
-jc elf|fap|module|part input.jabara output.asm
+jc input.jabara [input.jabara ...] output.asm
 ```
 
 They only generate assembly. They do not invoke NASM, link a runtime, compress
@@ -47,67 +47,54 @@ Save the example as `first.jabara`. From the `jabara` directory, generate its
 Linux NASM source with either compiler:
 
 ```sh
-bin/jc elf first.jabara first.asm
+bin/jc first.jabara first.asm
 ```
 
 `jc` is the compiler written in Jabara. The smaller bootstrap compiler is
 available as `bin/jbc` and accepts the same command-line arguments.
 
-The first argument selects the loading environment. For Linux, the generated
-assembly contains the Linux load address and a minimal 64-bit ELF header. Append
-the separate Linux runtime and assemble the combined source as a flat binary:
+The compiler output does not select a loading environment. For Linux, prepend
+the manual ELF header, append the Linux runtime, and assemble the combined
+source as a flat binary:
 
 ```sh
-cat first.asm lib/elf-runtime.asm > first-linked.asm
+cat lib/elf-header.asm first.asm lib/elf-runtime.asm > first-linked.asm
 nasm -f bin first-linked.asm -o first
 chmod +x first
 ./first
 echo $?
 ```
 
-The final command should print `0`. To target FruityOS instead, select `fap`:
+The final command should print `0`. To target FruityOS, choose the FAP startup
+and runtime assembly instead:
 
 ```sh
-bin/jc fap first.jabara first-fap.asm
-cat first-fap.asm lib/fap-runtime.asm > first-fap-linked.asm
+bin/jc first.jabara first-fap.asm
+cat lib/fap-stack-runtime.asm lib/fap-runtime.asm first-fap.asm \
+  > first-fap-linked.asm
 nasm -f bin first-fap-linked.asm -o first.raw
 ../peel/bin/juicer.elf c first.raw first.fap
 ```
 
-FAP assembly uses FruityOS's load address. Its startup and system-call interface
-live in `lib/fap-runtime.asm`, just as Linux's live in
-`lib/elf-runtime.asm`. Jabara does not run NASM or Juicer itself. Juicer
+`fap-stack-runtime.asm` supplies FruityOS's origin, entry point, and allocator;
+`fap-runtime.asm` supplies its system-call interface. Jabara does not run NASM
+or Juicer itself. Juicer
 compression is optional while inspecting the raw image, but a normal FruityOS
 `.fap` file is the juiced form.
 
-There is also an advanced `module` format. It emits headerless assembly with
-stack-based subroutine environments and no target runtime, so platform code can
-combine it with hand-written assembly before one final `nasm -f bin` step. A
-module does not need `main`; its subroutines may instead be called by the
-surrounding assembly. The FruityOS kernel uses this mode, while ordinary
-applications should use `elf` or `fap`.
+All Jabara compilation is implicit module compilation: headerless assembly with
+stack-based subroutine environments and no target runtime. A source set does
+not need `main`; its subroutines may instead be called by surrounding assembly.
+Pass multiple sources before the output path to compile them as one program.
 
-Records and closure objects still need the symbol `__jabara_alloc`. The flat
-`elf` and `fap` formats emit that allocator automatically. A module using those
-features must obtain it from its surrounding platform; a module containing
-only ordinary subroutines does not need it. Because an ordinary module
+Records and closure objects need the symbol `__jabara_alloc`, supplied by the
+chosen runtime or surrounding platform. A program containing only ordinary
+subroutines does not need it. Because an ordinary
 subroutine keeps its environment on the stack, a closure that captures one of
 its locals must not outlive that subroutine.
 
-The `part` format is the separately compiled form of `module`. It uses the
-input basename to namespace compiler-private labels and omits global storage and
-the module footer. Concatenate one or more parts with exactly one ordinary
-module that supplies shared globals, then assemble the combined source. Pulp's
-native build uses this mode to keep every compiler invocation small.
-
-The four formats differ as follows:
-
-| Format | Origin | Prefix | Runtime to append | Needs `main` |
-| --- | ---: | --- | --- | --- |
-| `elf` | `0x400000` | Minimal 64-bit ELF header | `lib/elf-runtime.asm` | Yes |
-| `fap` | `0x801000` | FruityOS entry jump | `lib/fap-runtime.asm` | Yes |
-| `module` | Chosen by surrounding source | Headerless | Platform-defined | No |
-| `part` | Chosen by surrounding source | Headerless fragment | Platform-defined | No |
+The compiler has no ELF, FAP, or part modes. Origins and executable headers are
+always explicit assembly inputs at the assembly stage.
 
 ## Comments and whitespace
 
@@ -482,11 +469,12 @@ expected arguments. Jabara's standard Pith declarations are collected in
 memory-related system calls.
 
 External declarations do not themselves provide an implementation. Jabara
-does not embed the Pith routines. Append `lib/elf-runtime.asm` for Linux or
-`lib/fap-runtime.asm` for FruityOS as shown in the first-program commands. The
+does not embed the Pith routines. Select the ELF header and runtime for Linux,
+or the FAP startup and runtime for FruityOS, as shown in the first-program
+commands. The
 Linux runtime implements Pith with Linux system calls; the FAP runtime uses the
 FruityOS system-call interrupt. A module's surrounding platform must supply any
-external symbols the module calls.
+external symbols the generated assembly calls.
 
 ## Program-scope declarations and statements
 

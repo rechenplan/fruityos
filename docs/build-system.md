@@ -42,11 +42,11 @@ remains the default and is still required by bootstrap and bootloader stages.
 
 For each Peel program, `peel/build.sh`:
 
-1. concatenates `jabara/lib/pith.jabara` with the program source;
-2. invokes `jc fap` to generate assembly at the FruityOS application origin;
-3. appends `jabara/lib/fap-runtime.asm`;
-4. assembles the raw application;
-5. compresses it into `peel/bin/<name>.fap` with Juicer.
+1. passes `jabara/lib/pith.jabara` and the program source to multifile `jc`;
+2. selects the FAP origin, startup, allocator, and system calls with runtime
+   assembly files;
+3. assembles the raw application;
+4. compresses it into `peel/bin/<name>.fap` with Juicer.
 
 The script additionally generates the compiler assembly and assembler FAP
 needed by the native build. The packaged source archive carries the generated
@@ -57,29 +57,29 @@ Only the bootstrap subset described in
 
 ## Kernel build
 
-`pulp/build.sh` concatenates `pulp/src/platform.jabara` and all kernel Jabara
-sources, then invokes:
+`pulp/build.sh` passes all kernel Jabara sources to one compiler invocation:
 
 ```text
-jc module pulp.jabara pulp-generated.asm
+jc pulp/src/*.jabara pulp-generated.asm
 ```
 
-The generated module is combined with `entry.asm` and `idt.asm`. The system-call
+The generated module is assembled with `entry.asm` and `idt.asm`. The system-call
 dispatch table must remain at kernel offset zero and executable entry remains at
 offset `0x100`. The selected assembler emits `pulp.bin`; host Juicer produces
 `pulp.sys`.
 
-The native build compiles each implementation as a namespaced `part`, combines
-the parts with one module containing shared globals, assembles them with
-Orgasm, and compresses the result with Juicer.
+The native build uses the same single multifile compiler invocation, passes the
+three assembly inputs directly to the newly source-built Orgasm, and compresses
+the result with Juicer. The native Jabara compiler and Orgasm rebuild runs
+before both userland and kernel builds.
 
 ## Native source archive
 
 The root build copies an explicit native-source manifest to a temporary
-`fruityos/` tree: the three `.psh` build files, Peel and Pulp sources, and the
-three Jabara library/runtime files those scripts reference. It adds the
-generated `jabara/jc.asm.jz`, creates a Jar archive, and compresses it to
-`initrd/src/fruityos.jz`.
+`fruityos/` tree: the root and three component `.psh` build files, Peel and Pulp sources, the
+Jabara-written compiler and Orgasm sources, and the Jabara library/runtime
+files those programs reference. It adds the generated `jabara/jc.asm.jz`,
+creates a Jar archive, and compresses it to `initrd/src/fruityos.jz`.
 
 Documentation, host shell scripts, tests, Yuzu compatibility sources,
 bootloader sources, and unrelated repository files are excluded. The
@@ -88,22 +88,25 @@ remains within its 1 MiB load window.
 
 ## Initrd and image assembly
 
-The initrd staging tree contains the minimal host-built bootstrap applications,
-two target runtime assembly files, `/init.psh`, and the compressed native
-source archive. Host Jar turns this tree into `initrd.jar`.
+The initrd staging tree contains `/pulp.sys`, the minimal host-built bootstrap
+applications, two target runtime assembly files, `/init.psh`, and the
+compressed native source archive. Host Jar turns this tree into `initrd.jar`.
 
 The BIOS image is a direct concatenation:
 
 ```text
-hdseed.bin + pulp.sys + initrd.jar + zero padding
+hdseed.bin + initrd.jar + zero padding
 ```
 
 The build rejects an unpadded BIOS payload larger than 1 MiB instead of
 silently truncating it.
 
-The UEFI build embeds `pulp.sys` and `initrd.jar` in `fruityos.efi`, then places
-that application at the standard removable-media path inside
-`fruityos_uefi.img`.
+The floppy image similarly combines `fdseed.bin` and `initrd.jar`, then pads to
+1.44 MiB. Every seed scans the Jar records for `/pulp.sys`; no image depends on
+its archive position.
+
+The UEFI build embeds `initrd.jar` in `fruityos.efi`, then places that
+application at the standard removable-media path inside `fruityos_uefi.img`.
 
 ## Reproducibility boundaries
 

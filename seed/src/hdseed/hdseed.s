@@ -140,29 +140,26 @@ ata_wait:
 	dec ebp
 	jnz ata_read
 
-	; Initialize PIC
-	mov al, 0x11
-	out 0x20, al
-	out 0xa0, al
-
-	; Map IRQ0 - IRQ7 to int 0x20 - int 0x27
-	; Map IRQ8 - IRQ16 to int 0x28 - int 0x30
-	mov al, 0x20
-	out 0x21, al
-	mov al, 0x28
-	out 0xa1, al
-
-	mov al, 0x04
-	out 0x21, al
-	mov al, 0x02
-	out 0xa1, al
-	mov al, 0x05
-	out 0x21, al
-	mov al, 0x01
-	out 0xa1, al
+	; Find /pulp.sys in the initrd Jar.
+	mov rsi, PAYLOAD_ADDR
+	mov rbx, rsi
+	mov rdx, 0x7379732e706c7570
+find_pulp:
+	cmp byte [rsi], 0
+	je find_pulp
+	cmp [rsi + 2], rdx
+	je pulp_found
+skip_name:
+	lodsb
+	test al, al
+	jnz skip_name
+	mov rax, [rsi]
+	lea rsi, [rsi + rax + 8]
+	jmp find_pulp
+pulp_found:
+	add rsi, 19
 
 	; Unpack kernel
-	mov rsi, PAYLOAD_ADDR
 	mov rdi, KERNEL_ADDR
 unpack: lodsb
 	cmp al, 255
@@ -191,9 +188,10 @@ zero:	mov al, 255
 lit:	stosb
 	jmp unpack
 
-	; notice rsi contains pointer to initrd
-	mov rdi, rsi
-boot:	jmp KERNEL_ADDR + 0x100
+	; Pass the Jar start, not the kernel entry, to Pulp.
+boot:	mov rsi, rbx
+	jmp KERNEL_ADDR + 0x100
+
 
 align 4
 dap:

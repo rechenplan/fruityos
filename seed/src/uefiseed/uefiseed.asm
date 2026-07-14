@@ -5,7 +5,7 @@
 ; contains it as EFI/BOOT/BOOTX64.EFI.
 ;
 ; PE application:
-;   nasm -f bin -DPULP_SYS='"pulp.sys"' -DINITRD_JAR='"initrd.jar"' \
+;   nasm -f bin -DINITRD_JAR='"initrd.jar"' \
 ;       uefiseed.asm -o BOOTX64.EFI
 ;
 ; FAT image:
@@ -162,9 +162,6 @@ bits 64
 org 0
 default rel
 
-%ifndef PULP_SYS
-  %error "PULP_SYS must name the compressed FruityOS kernel"
-%endif
 %ifndef INITRD_JAR
   %error "INITRD_JAR must name the FruityOS initrd archive"
 %endif
@@ -336,8 +333,32 @@ efi_main:
     mov al, '5'
     out 0xe9, al
 
+    ; Copy the complete initrd to its stable post-firmware address.
+    lea rsi, [rel initrd_payload]
+    mov edi, INITRD_ADDRESS
+    mov ecx, initrd_end - initrd_payload
+    rep movsb
+
+    ; Find /pulp.sys in the initrd Jar.
+    mov esi, INITRD_ADDRESS
+.find_pulp:
+    cmp byte [rsi], 0
+    je pulp_missing
+    lea rdi, [rel pulp_name]
+    mov ecx, 11
+    repe cmpsb
+    je .pulp_found
+.skip_name:
+    lodsb
+    test al, al
+    jnz .skip_name
+    mov rax, [rsi]
+    lea rsi, [rsi + rax + 8]
+    jmp .find_pulp
+.pulp_found:
+    add rsi, 8
+
     ; Expand the Juicer-compressed kernel directly to its linked address.
-    lea rsi, [rel kernel_payload]
     mov edi, 0x10000
 .unpack:
     lodsb
@@ -366,11 +387,6 @@ efi_main:
     jmp .unpack
 
 .kernel_ready:
-    lea rsi, [rel initrd_payload]
-    mov edi, INITRD_ADDRESS
-    mov ecx, initrd_end - initrd_payload
-    rep movsb
-
     ; ExitBootServices requires the key from the immediately preceding memory
     ; map.  Retry if firmware changes the key while completing the call.
 .exit_retry:
@@ -397,7 +413,6 @@ efi_main:
     out 0xe9, al
     call make_identity_map
     call set_vga_text_mode
-    call remap_pic
 
     mov rsp, 0x40000
     mov esi, INITRD_ADDRESS
@@ -415,6 +430,11 @@ map_failed:
     mov al, 'M'
     out 0xe9, al
     lea rdx, [rel map_message]
+    jmp report_error
+pulp_missing:
+    mov al, 'P'
+    out 0xe9, al
+    lea rdx, [rel pulp_message]
 report_error:
     call print
     mov rax, EFI_LOAD_ERROR
@@ -465,25 +485,6 @@ make_identity_map:
     loop .page
     mov eax, 0x1000
     mov cr3, rax
-    ret
-
-; Restore the legacy PIC layout expected by Pulp's IDT.
-remap_pic:
-    mov al, 0x11
-    out 0x20, al
-    out 0xa0, al
-    mov al, 0x20
-    out 0x21, al
-    mov al, 0x28
-    out 0xa1, al
-    mov al, 0x04
-    out 0x21, al
-    mov al, 0x02
-    out 0xa1, al
-    mov al, 0x05
-    out 0x21, al
-    mov al, 0x01
-    out 0xa1, al
     ret
 
 ; OVMF commonly leaves VGA hardware in a graphics mode.  FruityOS 0.03 writes
@@ -935,11 +936,8 @@ descriptor_version: dd 0
 loading_message:    dw 13, 10, 'u','e','f','i','s','e','e','d',':',' ','l','o','a','d','i','n','g',' ','F','r','u','i','t','y','O','S','.','.','.',13,10,0
 allocation_message: dw 'u','e','f','i','s','e','e','d',':',' ','f','i','x','e','d',' ','m','e','m','o','r','y',' ','i','s',' ','u','n','a','v','a','i','l','a','b','l','e',13,10,0
 map_message:        dw 'u','e','f','i','s','e','e','d',':',' ','c','a','n','n','o','t',' ','r','e','a','d',' ','t','h','e',' ','U','E','F','I',' ','m','e','m','o','r','y',' ','m','a','p',13,10,0
-
-align 16
-kernel_payload:
-incbin PULP_SYS
-kernel_payload_end:
+pulp_message:       dw 'u','e','f','i','s','e','e','d',':',' ','/','p','u','l','p','.','s','y','s',' ','i','s',' ','m','i','s','s','i','n','g',13,10,0
+pulp_name:          db './pulp.sys', 0
 
 align 16
 initrd_payload:

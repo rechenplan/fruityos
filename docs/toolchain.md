@@ -13,30 +13,23 @@ the host Pulp build.
 | `jc` | Jabara | Normal self-hosted compiler. |
 | `jc-self` | Output of `jc` compiling itself | Bootstrap consistency artifact. |
 
-The bootstrap compiler accepts `elf`, `fap`, and `module`. The self-hosted
-compiler additionally accepts the separately linkable `part` format:
+Both compilers expose one implicit module compilation interface and accept one
+or more source files:
 
 ```text
-jc elf|fap|module|part input.jabara output.asm
+jc input.jabara [input.jabara ...] output.asm
 ```
 
-The output is assembly. A separate runtime, assembler, and optional compression
-step produces a runnable file.
-
-## Output formats
-
-| Format | Origin | Generated prefix | Runtime | Primary use |
-| --- | ---: | --- | --- | --- |
-| `elf` | `0x400000` | Minimal flat ELF64 header | `elf-runtime.asm` | Linux bootstrap tools and tests. |
-| `fap` | `0x801000` | FruityOS entry trampoline | `fap-runtime.asm` | Peel applications. |
-| `module` | Supplied externally | None | Platform-supplied | Pulp and embedded compiler modules. |
-| `part` | Supplied externally | None | Platform-supplied | Separately compiled module fragments. |
+Inputs are parsed in command-line order. The output is headerless, origin-free
+assembly; selected assembly headers and runtimes determine the executable
+format during assembly.
 
 An ELF build looks like:
 
 ```sh
-jabara/bin/jc elf program.jabara program-generated.asm
-cat program-generated.asm jabara/lib/elf-runtime.asm > program.asm
+jabara/bin/jc program.jabara program-generated.asm
+cat jabara/lib/elf-header.asm program-generated.asm \
+    jabara/lib/elf-runtime.asm > program.asm
 nasm -f bin program.asm -o program
 chmod +x program
 ```
@@ -44,31 +37,30 @@ chmod +x program
 A FruityOS application follows the same separation:
 
 ```sh
-jabara/bin/jc fap program.jabara program-generated.asm
-cat program-generated.asm jabara/lib/fap-runtime.asm > program.asm
+jabara/bin/jc jabara/lib/pith.jabara program.jabara program-generated.asm
+cat jabara/lib/fap-stack-runtime.asm jabara/lib/fap-runtime.asm \
+    program-generated.asm > program.asm
 nasm -f bin program.asm -o program.raw
 peel/bin/juicer.elf c program.raw program.fap
 ```
 
-Inside FruityOS, `orgasm f` replaces NASM for the raw FAP assembly step.
+Inside FruityOS, Orgasm accepts those assembly files directly, so no combined
+temporary assembly file is needed.
 
 ## Platform runtimes
 
 `jabara/lib/pith.jabara` declares external Pith services used by applications.
 The runtime assembly implements those services for a target:
 
-- `elf-runtime.asm` translates calls to Linux system calls and supplies Linux
-  process startup;
+- `elf-header.asm` supplies the manual ELF64 header, origin, and entry point;
+- `elf-runtime.asm` translates calls to Linux system calls and supplies the
+  allocator and end marker;
 - `fap-runtime.asm` translates calls to FruityOS interrupt `0x84`, obtains
   startup arguments from the task page, and exits through Pulp.
 
-The `module` output has no entry wrapper or Pith implementation. Its surrounding
+Compiler output has no entry wrapper, origin, or Pith implementation. Its surrounding
 platform must provide every referenced external symbol, including the allocator
 when records or captured functions are used.
-
-The `part` output follows the same calling convention but namespaces private
-labels from its input basename and omits global storage. Multiple parts can
-therefore be concatenated with one `module` output that owns the shared globals.
 
 ## Jabara model
 
@@ -84,19 +76,18 @@ for syntax, examples, memory rules, records, and target interfaces.
 
 ## Orgasm
 
-Orgasm lives in `jabara/src/orgasm` and is written entirely in Jabara. It is
-backward-compatible with the Zest command modes used by FruityOS:
+Orgasm lives in `jabara/src/orgasm` and is written entirely in Jabara. It has no
+output modes and accepts one or more assembly inputs:
 
 ```text
-orgasm f input.asm output.bin
-orgasm e input.asm output.elf
+orgasm input.asm [input.asm ...] output
 ```
 
-Its lexer, parser, expression evaluator, emitter, and ELF writer support the
-directives, registers, address expressions, descriptor data, and x86-64
-instructions emitted by `jc` and used by Pulp. Regression tests assemble a FAP
-fixture, build Orgasm through its own path, and compare Pulp assembly against
-the expected output behavior.
+Inputs share one symbol table and are assembled in command-line order. Only
+`org` changes the address; ELF files require a manual assembly header such as
+`elf-header.asm`. Its lexer, parser, expression evaluator, and emitter support
+the directives, registers, address expressions, descriptor data, and x86-64
+instructions emitted by `jc` and used by Pulp.
 
 Orgasm is intentionally scoped to FruityOS rather than being a general NASM
 replacement. NASM remains necessary for bootstrap and the 16-bit/firmware

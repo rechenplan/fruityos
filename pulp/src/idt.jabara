@@ -12,6 +12,7 @@ sub idt_init()
 
 	local i
 
+	pic_init()
 	_idt = 61440 ; 0xf000
 
 	idt_set2(_idt, 0, [exception_de])

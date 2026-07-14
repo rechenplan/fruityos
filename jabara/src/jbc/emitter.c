@@ -36,13 +36,8 @@ typedef struct Emitter {
     ClosureInfo **closure_tail;
     unsigned long label;
     unsigned long return_label;
-    int format;
     int failed;
 } Emitter;
-
-#define FORMAT_ELF 0
-#define FORMAT_FAP 1
-#define FORMAT_MODULE 2
 
 static void emit_expr(Emitter *emitter, const Expr *expr);
 static void emit_statements(Emitter *emitter, const Stmt *statement);
@@ -611,16 +606,10 @@ static void emit_function(Emitter *emitter, const Function *function)
     fprintf(emitter->out, "\nglobal %s\n%s:\n", function->name, function->name);
     line(emitter, "\tpush\trbp");
     line(emitter, "\tmov\trbp, rsp");
-    fprintf(emitter->out, "\tsub\trsp, %d\n",
-            64 + (emitter->format == FORMAT_MODULE ? environment_size : 0));
+    fprintf(emitter->out, "\tsub\trsp, %d\n", 64 + environment_size);
     for (i = 0; i < parameter_count; ++i)
         fprintf(emitter->out, "\tmov\t[rbp - %d], %s\n", 16 + i * 8, registers[i]);
-    if (emitter->format == FORMAT_MODULE)
-        fprintf(emitter->out, "\tlea\trax, [rbp - %d]\n", 64 + environment_size);
-    else {
-        fprintf(emitter->out, "\tmov\trdi, %d\n", (scope->slot_count + 1) * 8);
-        line(emitter, "\tcall\t__jabara_alloc");
-    }
+    fprintf(emitter->out, "\tlea\trax, [rbp - %d]\n", 64 + environment_size);
     line(emitter, "\tmov\t[rbp - 8], rax");
     emit_zero_environment(emitter, scope->slot_count);
     for (i = 0; i < parameter_count; ++i) {
@@ -671,77 +660,7 @@ static void emit_closure_function(Emitter *emitter, ClosureInfo *info)
     emitter->scope = saved_scope;
 }
 
-static void emit_allocator(Emitter *emitter)
-{
-    line(emitter, "\n__jabara_alloc:");
-    line(emitter, "\tpush\trbx");
-    line(emitter, "\tadd\trdi, 15");
-    line(emitter, "\tand\trdi, -16");
-    line(emitter, "\tmov\trbx, rdi");
-    line(emitter, "\tmov\trax, [rel __jabara_heap]");
-    line(emitter, "\ttest\trax, rax");
-    line(emitter, "\tjz\t__jabara_alloc_arena");
-    line(emitter, "\tmov\trdx, [rel __jabara_heap_end]");
-    line(emitter, "\tlea\trcx, [rax + rbx]");
-    line(emitter, "\tcmp\trcx, rdx");
-    line(emitter, "\tjbe\t__jabara_alloc_ready");
-    line(emitter, "__jabara_alloc_arena:");
-    line(emitter, "\tmov\trdi, -1");
-    line(emitter, "\tcall\tbrk");
-    line(emitter, "\ttest\trax, rax");
-    line(emitter, "\tjz\t__jabara_out_of_memory");
-    line(emitter, "\tlea\trdx, [rax + 4194304]");
-    line(emitter, "\tmov\trdi, rdx");
-    line(emitter, "\tpush\trax");
-    line(emitter, "\tpush\trdx");
-    line(emitter, "\tcall\tbrk");
-    line(emitter, "\tpop\trdx");
-    line(emitter, "\tpop\trcx");
-    line(emitter, "\tcmp\trax, rdx");
-    line(emitter, "\tjne\t__jabara_out_of_memory");
-    line(emitter, "\tmov\trax, rcx");
-    line(emitter, "\tlea\trcx, [rax + rbx]");
-    line(emitter, "\tmov\t[rel __jabara_heap_end], rdx");
-    line(emitter, "__jabara_alloc_ready:");
-    line(emitter, "\tmov\t[rel __jabara_heap], rcx");
-    line(emitter, "\tpop\trbx");
-    line(emitter, "\tret");
-    line(emitter, "__jabara_out_of_memory:");
-    line(emitter, "\tpop\trbx");
-    line(emitter, "\tmov\trdi, 127");
-    line(emitter, "\tcall\texit");
-}
-
-static void emit_flat_header(Emitter *emitter)
-{
-    line(emitter, "bits 64");
-    if (emitter->format == FORMAT_FAP) {
-        line(emitter, "org 0x801000");
-        line(emitter, "_start:");
-        line(emitter, "\tjmp\t__jabara_fap_start");
-    } else {
-        line(emitter, "org 0x400000");
-        line(emitter, "__elf_header:");
-        line(emitter, "\tdb 127,69,76,70,2,1,1,0,0,0,0,0,0,0,0,0");
-        line(emitter, "\tdw 2,62");
-        line(emitter, "\tdd 1");
-        line(emitter, "\tdq _start");
-        line(emitter, "\tdq __elf_program_header - $$");
-        line(emitter, "\tdq 0");
-        line(emitter, "\tdd 0");
-        line(emitter, "\tdw 64,56,1,0,0,0");
-        line(emitter, "__elf_program_header:");
-        line(emitter, "\tdd 1,7");
-        line(emitter, "\tdq 0");
-        line(emitter, "\tdq $$");
-        line(emitter, "\tdq $$");
-        line(emitter, "\tdq __jabara_file_end - $$");
-        line(emitter, "\tdq __jabara_file_end - $$");
-        line(emitter, "\tdq 4096");
-    }
-}
-
-int emit_program(const Program *program, const char *output_path, int format)
+int emit_program(const Program *program, const char *output_path)
 {
     Emitter emitter;
     const Function *function;
@@ -751,18 +670,13 @@ int emit_program(const Program *program, const char *output_path, int format)
     memset(&emitter, 0, sizeof(emitter));
     emitter.out = out;
     emitter.program = program;
-    emitter.format = format;
     emitter.global_scope.is_global = 1;
     emitter.scope = &emitter.global_scope;
     emitter.closure_tail = &emitter.closures;
-    function = find_function(&emitter, "main");
-    if (format != FORMAT_MODULE && (function == NULL || function->is_extern))
-        fatal_at(1, 1, "program requires sub main");
     validate_records(&emitter);
     collect_locals(&emitter, &emitter.global_scope, program->statements);
     line(&emitter, "; generated by the jabara bootstrap compiler");
-    if (format == FORMAT_MODULE) line(&emitter, "bits 64");
-    else emit_flat_header(&emitter);
+    line(&emitter, "bits 64");
     function = program->functions;
     while (function != NULL) {
         if (!function->is_extern) emit_function(&emitter, function);
@@ -773,14 +687,7 @@ int emit_program(const Program *program, const char *output_path, int format)
         emit_closure_function(&emitter, closure);
         closure = closure->next;
     }
-    if (format != FORMAT_MODULE) {
-        emit_allocator(&emitter);
-    }
     line(&emitter, "\nalign 8");
-    if (format != FORMAT_MODULE) {
-        line(&emitter, "__jabara_heap: dq 0");
-        line(&emitter, "__jabara_heap_end: dq 0");
-    }
     {
         Binding *binding = emitter.global_scope.bindings;
         while (binding != NULL) {
@@ -788,7 +695,6 @@ int emit_program(const Program *program, const char *output_path, int format)
             binding = binding->next;
         }
     }
-    if (format == FORMAT_MODULE) line(&emitter, "__jabara_file_end:");
     if (fclose(out) != 0) emitter.failed = 1;
     closure = emitter.closures;
     while (closure != NULL) {

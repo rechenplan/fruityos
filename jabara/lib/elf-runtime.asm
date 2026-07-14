@@ -1,9 +1,15 @@
-_start:
-	pop rdi
-	pop rsi
-	call main
-	mov rdi, rax
-	call exit
+__jabara_alloc:
+	push rbx
+	add rdi, 7
+	and rdi, -8
+	mov rbx, rdi
+	mov rdi, -1
+	call brk
+	lea rdi, [rax + rbx]
+	call brk
+	sub rax, rbx
+	pop rbx
+	ret
 
 mmap:
 	mov rax, 9

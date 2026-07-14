@@ -10,20 +10,25 @@ else
     echo "orgasm test files: $tmp"
 fi
 
-cat "$jabara/lib/pith.jabara" "$jabara/tests/closure.jabara" \
-    > "$tmp/closure.jabara"
-"$jabara/bin/jc" fap "$tmp/closure.jabara" "$tmp/closure-generated.asm"
-cat "$tmp/closure-generated.asm" "$jabara/lib/fap-runtime.asm" \
+"$jabara/bin/jc" "$jabara/lib/pith.jabara" \
+    "$jabara/tests/closure.jabara" "$tmp/closure-generated.asm"
+cat "$jabara/lib/fap-stack-runtime.asm" "$jabara/lib/fap-runtime.asm" \
+    "$tmp/closure-generated.asm" \
     > "$tmp/closure.asm"
-"$jabara/bin/orgasm" f "$tmp/closure.asm" "$tmp/closure.raw"
+"$jabara/bin/orgasm" "$jabara/lib/fap-stack-runtime.asm" \
+    "$jabara/lib/fap-runtime.asm" "$tmp/closure-generated.asm" \
+    "$tmp/closure.raw"
 nasm -f bin "$tmp/closure.asm" -o "$tmp/closure-nasm.raw"
 test -s "$tmp/closure.raw"
 
-cat "$jabara/lib/pith.jabara" "$root"/*.jabara > "$tmp/orgasm.jabara"
-"$jabara/bin/jc" fap "$tmp/orgasm.jabara" "$tmp/orgasm-generated.asm"
-cat "$tmp/orgasm-generated.asm" "$jabara/lib/fap-runtime.asm" \
+"$jabara/bin/jc" "$jabara/lib/pith.jabara" "$root"/*.jabara \
+    "$tmp/orgasm-generated.asm"
+cat "$jabara/lib/fap-stack-runtime.asm" "$jabara/lib/fap-runtime.asm" \
+    "$tmp/orgasm-generated.asm" \
     > "$tmp/orgasm.asm"
-"$jabara/bin/orgasm" f "$tmp/orgasm.asm" "$tmp/orgasm.raw"
+"$jabara/bin/orgasm" "$jabara/lib/fap-stack-runtime.asm" \
+    "$jabara/lib/fap-runtime.asm" "$tmp/orgasm-generated.asm" \
+    "$tmp/orgasm.raw"
 nasm -f bin "$tmp/orgasm.asm" -o "$tmp/orgasm-nasm.raw"
 test -s "$tmp/orgasm.raw"
 
@@ -44,25 +49,25 @@ mov al, dil
 out 0x20, al
 mov [0x800000 + (6 << 3)], rdi
 EOF
-"$jabara/bin/orgasm" f "$tmp/descriptor.asm" "$tmp/descriptor.raw"
+"$jabara/bin/orgasm" "$tmp/descriptor.asm" "$tmp/descriptor.raw"
 nasm -f bin "$tmp/descriptor.asm" -o "$tmp/descriptor-nasm.raw"
 cmp "$tmp/descriptor.raw" "$tmp/descriptor-nasm.raw"
 
-"$jabara/bin/jc" module "$tmp/orgasm.jabara" "$tmp/orgasm-module.asm"
-cat "$jabara/../peel/lib/_start.asm" "$tmp/orgasm-module.asm" \
-    "$jabara/../yuzu/lib/libpith.asm" > "$tmp/orgasm-self.asm"
-"$jabara/bin/orgasm" e "$tmp/orgasm-self.asm" "$tmp/orgasm-self"
+"$jabara/bin/jc" "$jabara/lib/pith.jabara" "$root"/*.jabara \
+    "$tmp/orgasm-module.asm"
+"$jabara/bin/orgasm" "$jabara/lib/elf-header.asm" \
+    "$tmp/orgasm-module.asm" "$jabara/lib/elf-runtime.asm" \
+    "$tmp/orgasm-self"
 chmod +x "$tmp/orgasm-self"
 if "$tmp/orgasm-self" > "$tmp/orgasm-self.out"; then :; fi
 grep -q "usage: orgasm" "$tmp/orgasm-self.out"
 
 fruity=$(CDPATH= cd -- "$jabara/.." && pwd)
-cat "$fruity/pulp/src/platform.jabara" "$fruity"/pulp/src/*.jabara \
-    > "$tmp/pulp.jabara"
-"$jabara/bin/jc" module "$tmp/pulp.jabara" "$tmp/pulp-generated.asm"
+"$jabara/bin/jc" "$fruity"/pulp/src/*.jabara "$tmp/pulp-generated.asm"
 cat "$fruity/pulp/src/entry.asm" "$fruity/pulp/src/idt.asm" \
     "$tmp/pulp-generated.asm" > "$tmp/pulp.asm"
-"$jabara/bin/orgasm" f "$tmp/pulp.asm" "$tmp/pulp.bin"
+"$jabara/bin/orgasm" "$fruity/pulp/src/entry.asm" \
+    "$fruity/pulp/src/idt.asm" "$tmp/pulp-generated.asm" "$tmp/pulp.bin"
 nasm -f bin "$tmp/pulp.asm" -o "$tmp/pulp-nasm.bin"
 test -s "$tmp/pulp.bin"
 

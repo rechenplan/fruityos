@@ -32,7 +32,8 @@ The IDT occupies one 4 KiB page at `0xf000`. CPU exception handlers print a
 diagnostic and stop. IRQ0 acknowledges the timer but does not schedule tasks.
 IRQ1 reads PS/2 set-1 keyboard scancodes, translates them, and feeds the kernel
 line buffer. The PIC is remapped to the conventional protected-mode vectors by
-both Seed paths.
+`idt_init`, so every Seed variant enters with the same interrupt-disabled
+contract.
 
 System calls use the DPL-3 interrupt gate at vector `0x84`; details are in
 [System-call ABI](system-calls.md).

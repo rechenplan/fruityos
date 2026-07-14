@@ -50,11 +50,12 @@ directory changes.
 | `jc` | Compile Jabara to NASM-compatible assembly. |
 | `orgasm` | Assemble the subset used by Jabara and FruityOS. |
 
-The initial initrd does not contain this entire table. It begins with the six
+The initial initrd does not contain this entire table. It begins with the five
 bootstrap FAPs documented in [Initrd and native rebuild](initrd-native-build.md)
 and compressed Jabara compiler assembly, then installs the sixteen newly built
 ordinary applications into `/bin`. FruityOS assembles `jc` before starting the
-native build; the resulting `jc` and bootstrap `orgasm` tools remain in place.
+native build; both `jc` and `orgasm` are then rebuilt from their packaged
+Jabara sources before the rest of userland and Pulp.
 Host builds also produce `yc.fap` and `zest.fap` compatibility artifacts under
 `peel/bin`, but they are not required for the native OS build and are therefore
 not placed in the initrd.

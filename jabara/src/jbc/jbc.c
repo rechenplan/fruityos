@@ -33,24 +33,31 @@ void fatal_at(int line, int column, const char *message)
     exit(EXIT_FAILURE);
 }
 
-static char *read_file(const char *path)
+static void append_file(char **buffer, size_t *length, size_t *capacity, const char *path)
 {
     FILE *file = fopen(path, "rb");
-    long length;
-    char *buffer;
+    long file_length;
+    char *file_buffer;
     size_t got;
     if (file == NULL) { fprintf(stderr, "jabara: cannot open %s: %s\n", path, strerror(errno)); exit(EXIT_FAILURE); }
-    if (fseek(file, 0L, SEEK_END) != 0 || (length = ftell(file)) < 0L ||
+    if (fseek(file, 0L, SEEK_END) != 0 || (file_length = ftell(file)) < 0L ||
         fseek(file, 0L, SEEK_SET) != 0) {
         fprintf(stderr, "jabara: cannot read %s\n", path); exit(EXIT_FAILURE);
     }
-    buffer = (char *)xmalloc((size_t)length + 1U);
-    got = fread(buffer, 1U, (size_t)length, file);
-    if (got != (size_t)length || fclose(file) != 0) {
+    file_buffer = (char *)xmalloc((size_t)file_length);
+    got = fread(file_buffer, 1U, (size_t)file_length, file);
+    if (got != (size_t)file_length || fclose(file) != 0) {
         fprintf(stderr, "jabara: cannot read %s\n", path); exit(EXIT_FAILURE);
     }
-    buffer[got] = '\0';
-    return buffer;
+    if (*length + got + 2U > *capacity) {
+        *capacity = (*length + got + 2U) * 2U;
+        *buffer = (char *)xrealloc(*buffer, *capacity);
+    }
+    memcpy(*buffer + *length, file_buffer, got);
+    *length += got;
+    (*buffer)[(*length)++] = '\n';
+    (*buffer)[*length] = '\0';
+    free(file_buffer);
 }
 
 int main(int argc, char **argv)
@@ -58,18 +65,19 @@ int main(int argc, char **argv)
     char *source;
     Program *program;
     int status;
-    int format;
-    if (argc != 4) {
-        fprintf(stderr, "usage: %s elf|fap|module input.jabara output.asm\n", argv[0]);
+    int i;
+    size_t length = 0U;
+    size_t capacity = 1U;
+    if (argc < 3) {
+        fprintf(stderr, "usage: %s input.jabara [input.jabara ...] output.asm\n", argv[0]);
         return EXIT_FAILURE;
     }
-    if (strcmp(argv[1], "elf") == 0) format = 0;
-    else if (strcmp(argv[1], "fap") == 0) format = 1;
-    else if (strcmp(argv[1], "module") == 0) format = 2;
-    else { fputs("jabara: format must be elf, fap, or module\n", stderr); return EXIT_FAILURE; }
-    source = read_file(argv[2]);
+    source = (char *)xmalloc(capacity);
+    source[0] = '\0';
+    for (i = 1; i < argc - 1; ++i)
+        append_file(&source, &length, &capacity, argv[i]);
     program = parse_program(source);
-    status = emit_program(program, argv[3], format);
+    status = emit_program(program, argv[argc - 1]);
     program_dispose(program);
     free(source);
     return status == 0 ? EXIT_SUCCESS : EXIT_FAILURE;

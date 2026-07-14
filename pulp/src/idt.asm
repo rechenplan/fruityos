@@ -12,6 +12,24 @@ idt_cli:
 	cli
 	ret
 
+pic_init:
+	mov al, 0x11
+	out 0x20, al
+	out 0xa0, al
+	mov al, 0x20
+	out 0x21, al
+	mov al, 0x28
+	out 0xa1, al
+	mov al, 0x04
+	out 0x21, al
+	mov al, 0x02
+	out 0xa1, al
+	mov al, 0x05
+	out 0x21, al
+	mov al, 0x01
+	out 0xa1, al
+	ret
+
 	; division error
 exception_de: dq de
 de:	mov rdi, de_msg

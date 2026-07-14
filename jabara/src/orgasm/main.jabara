@@ -6,11 +6,28 @@ sub main_next_arg(args)
 	return args + 1
 end
 
-sub main(argc, args)
-	local symtab, reltab, i, fin, fout, textSize, vaddr, format, infile, outfile
+sub main_assemble(files, count, fout, symtab)
+	local i = 0, fin, pos = 0
+	while i < count do
+		fin = open(files, 0)
+		if fin <= 0 then
+			lex_puts("error opening ")
+			lex_puts(files)
+			putch(10)
+			exit()
+		end
+		pos = pos + parse_file(fout, fin, symtab, pos)
+		close(fin)
+		files = main_next_arg(files)
+		i = i + 1
+	end
+end
 
-	if argc != 4 then
-		lex_puts("usage: orgasm e|f infile outfile")
+sub main(argc, args)
+	local symtab, i, files, outfile, fout
+
+	if argc < 3 then
+		lex_puts("usage: orgasm input.asm [input.asm ...] output")
 		putch(10)
 		exit()
 	end
@@ -23,33 +40,22 @@ sub main(argc, args)
 		[symtab + (i << 6)] = -1
 		i = i + 1
 	end
-	format = main_next_arg(args)
-	infile = main_next_arg(format)
-	fin = open(infile, 0)
-	outfile = main_next_arg(infile)
+	files = main_next_arg(args)
+	outfile = files
+	i = 0
+	while i < (argc - 2) do
+		outfile = main_next_arg(outfile)
+		i = i + 1
+	end
 	fout = creat(outfile)
 
-	if (fin <= 0) | (fout <= 0) then
-		lex_puts("error opening files")
+	if fout <= 0 then
+		lex_puts("error creating output")
 		putch(10)
 		exit()
 	end
 
-	if byte [format] == byte ["e"] then
-		vaddr = 134512640 ; 0x8048000
-		textSize = parse_file(-1, fin, symtab, vaddr + 120)
-		seek(fin, 0, 0)
-		elf_write_header(fout, textSize, vaddr)
-		parse_file(fout, fin, symtab, vaddr + 120)
-	end
-
-	if byte [format] == byte ["f"] then
-		vaddr = (8 << 20) + 4096; 0x801000
-		parse_file(-1, fin, symtab, vaddr) ; build symbol table
-		seek(fin, 0, 0)
-		parse_file(fout, fin, symtab, vaddr) ; write output
-	end
-
-	close(fin)
+	main_assemble(files, argc - 2, -1, symtab)
+	main_assemble(files, argc - 2, fout, symtab)
 	close(fout)
 end

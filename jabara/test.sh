@@ -12,37 +12,37 @@ elf_runtime="$root/lib/elf-runtime.asm"
 fap_runtime="$root/lib/fap-runtime.asm"
 
 expect_failure() {
-    if "$root/bin/jbc" elf "$1" "$tmp/error.asm" >/dev/null 2>&1; then
+    if "$root/bin/jbc" "$1" "$tmp/error.asm" >/dev/null 2>&1; then
         echo "jabara: expected compilation to fail: $1" >&2
         exit 1
     fi
 }
 
 expect_jc_failure() {
-    if "$root/bin/jc" elf "$1" "$tmp/jc-error.asm" >/dev/null 2>&1; then
+    if "$root/bin/jc" "$1" "$tmp/jc-error.asm" >/dev/null 2>&1; then
         echo "jc: expected compilation to fail: $1" >&2
         exit 1
     fi
 }
 
 assemble_elf() {
-    cat "$1" "$elf_runtime" > "$1-linked.asm"
+    cat "$root/lib/elf-header.asm" "$1" "$elf_runtime" > "$1-linked.asm"
     nasm -f bin "$1-linked.asm" -o "$2"
     chmod +x "$2"
 }
 
-for test in error-missing-main error-sub-value error-undeclared-extern; do
+for test in error-sub-value error-undeclared-extern; do
     expect_failure "$root/tests/$test.jabara"
 done
 
 for test in closure record; do
-    "$root/bin/jbc" elf "$root/tests/$test.jabara" "$tmp/$test.asm"
+    "$root/bin/jbc" "$root/tests/$test.jabara" "$tmp/$test.asm"
     assemble_elf "$tmp/$test.asm" "$tmp/$test"
     "$tmp/$test"
 done
 
 cat "$pith" "$root/tests/arguments.jabara" > "$tmp/arguments.jabara"
-"$root/bin/jbc" elf "$tmp/arguments.jabara" "$tmp/arguments.asm"
+"$root/bin/jbc" "$tmp/arguments.jabara" "$tmp/arguments.asm"
 assemble_elf "$tmp/arguments.asm" "$tmp/arguments"
 set +e
 "$tmp/arguments" "$root/tests/compat.jabara" "$tmp/arguments.out"
@@ -52,7 +52,7 @@ test "$argument_status" -eq 3
 test -f "$tmp/arguments.out"
 
 cat "$pith" "$fruity"/src/yc/*.yuzu > "$tmp/yc.jabara"
-"$root/bin/jbc" elf "$tmp/yc.jabara" "$tmp/yc-flat.asm"
+"$root/bin/jbc" "$tmp/yc.jabara" "$tmp/yc-flat.asm"
 assemble_elf "$tmp/yc-flat.asm" "$tmp/yc"
 "$tmp/yc" "$root/tests/compat.jabara" "$tmp/selfhost.asm"
 cat "$fruity/lib/_start.asm" "$tmp/selfhost.asm" "$fruity/lib/libpith.asm" \
@@ -69,37 +69,24 @@ cat "$fruity/src/zest/main.yuzu" "$fruity/src/zest/lex.yuzu" \
     "$fruity/src/zest/parse.yuzu" "$fruity/src/zest/emit.yuzu" \
     "$fruity/src/zest/elf.yuzu" > "$tmp/zest.jabara"
 cat "$pith" "$tmp/zest.jabara" > "$tmp/zest-with-pith.jabara"
-"$root/bin/jbc" elf "$tmp/zest-with-pith.jabara" "$tmp/zest.asm"
+"$root/bin/jbc" "$tmp/zest-with-pith.jabara" "$tmp/zest.asm"
 assemble_elf "$tmp/zest.asm" "$tmp/zest"
 
 for test in closure record; do
-    "$root/bin/jc" elf "$root/tests/$test.jabara" "$tmp/jc-$test.asm"
+    "$root/bin/jc" "$root/tests/$test.jabara" "$tmp/jc-$test.asm"
     assemble_elf "$tmp/jc-$test.asm" "$tmp/jc-$test"
     "$tmp/jc-$test"
 done
 
-"$root/bin/jc-self" elf "$root/tests/record.jabara" "$tmp/jc-self-record.asm"
+"$root/bin/jc-self" "$root/tests/record.jabara" "$tmp/jc-self-record.asm"
 assemble_elf "$tmp/jc-self-record.asm" "$tmp/jc-self-record"
 "$tmp/jc-self-record"
 
-"$root/bin/jc" part "$root/tests/part-a.jabara" "$tmp/part-a.asm"
-"$root/bin/jc" part "$root/tests/part-b.jabara" "$tmp/part-b.asm"
-"$root/bin/jc" module "$root/tests/part-globals.jabara" "$tmp/part-globals.asm"
-grep -q '__jabara_part_a_jabara_label_' "$tmp/part-a.asm"
-grep -q '__jabara_part_b_jabara_label_' "$tmp/part-b.asm"
-if grep -q '^__jabara_global_' "$tmp/part-a.asm" "$tmp/part-b.asm"; then
-    echo "jc: part unexpectedly emitted global storage" >&2
-    exit 1
-fi
-cat "$tmp/part-a.asm" "$tmp/part-b.asm" "$tmp/part-globals.asm" \
-    > "$tmp/parts.asm"
-nasm -f bin "$tmp/parts.asm" -o "$tmp/parts.bin"
-
-for test in error-missing-main error-sub-value error-undeclared-extern; do
+for test in error-sub-value error-undeclared-extern; do
     expect_jc_failure "$root/tests/$test.jabara"
 done
 
-"$root/bin/jc" elf "$tmp/yc.jabara" "$tmp/jc-yc-flat.asm"
+"$root/bin/jc" "$tmp/yc.jabara" "$tmp/jc-yc-flat.asm"
 assemble_elf "$tmp/jc-yc-flat.asm" "$tmp/jc-yc"
 "$tmp/jc-yc" "$root/tests/compat.jabara" "$tmp/jc-compat.asm"
 cat "$fruity/lib/_start.asm" "$tmp/jc-compat.asm" "$fruity/lib/libpith.asm" \
@@ -112,12 +99,16 @@ jc_compat_status=$?
 set -e
 test "$jc_compat_status" -eq 10
 
-"$root/bin/jbc" fap "$root/tests/record.jabara" "$tmp/record-jbc.asm"
-"$root/bin/jc" fap "$root/tests/record.jabara" "$tmp/record-jc.asm"
-grep -q '^org 0x801000$' "$tmp/record-jbc.asm"
-grep -q '^org 0x801000$' "$tmp/record-jc.asm"
-cat "$tmp/record-jbc.asm" "$fap_runtime" > "$tmp/record-jbc-linked.asm"
-cat "$tmp/record-jc.asm" "$fap_runtime" > "$tmp/record-jc-linked.asm"
+"$root/bin/jbc" "$root/tests/record.jabara" "$tmp/record-jbc.asm"
+"$root/bin/jc" "$root/tests/record.jabara" "$tmp/record-jc.asm"
+if grep -q '^org ' "$tmp/record-jbc.asm" "$tmp/record-jc.asm"; then
+    echo "jabara: compiler output unexpectedly selects an origin" >&2
+    exit 1
+fi
+cat "$root/lib/fap-stack-runtime.asm" "$fap_runtime" \
+    "$tmp/record-jbc.asm" > "$tmp/record-jbc-linked.asm"
+cat "$root/lib/fap-stack-runtime.asm" "$fap_runtime" \
+    "$tmp/record-jc.asm" > "$tmp/record-jc-linked.asm"
 nasm -f bin "$tmp/record-jbc-linked.asm" -o "$tmp/record-jbc.raw"
 nasm -f bin "$tmp/record-jc-linked.asm" -o "$tmp/record-jc.raw"
 if test -x "$juicer"; then
@@ -128,7 +119,7 @@ if test -x "$juicer"; then
     "$juicer" d "$tmp/jc-record.fap" "$tmp/jc-record-roundtrip.raw"
     cmp "$tmp/record-jc.raw" "$tmp/jc-record-roundtrip.raw"
     first_byte=$(od -An -N1 -t u1 "$tmp/record-jbc.raw")
-    test "$first_byte" -eq 233
+    test "$first_byte" -eq 235
 fi
 
 "$root/test-peel.sh"

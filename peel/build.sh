@@ -14,14 +14,20 @@ mkdir -p "$root/bin"
 echo "[ Building FruityOS userland with Jabara ]"
 
 compile() {
-    format=$1
+    target=$1
     source=$2
     output=$3
     name=$(basename "$output")
-    cat "$pith" "$source" > "$tmp/$name.jabara"
-    "$jc" "$format" "$tmp/$name.jabara" "$tmp/$name-generated.asm"
-    cat "$tmp/$name-generated.asm" \
-        "$fruity/jabara/lib/$format-runtime.asm" > "$tmp/$name.asm"
+    "$jc" "$pith" "$source" "$tmp/$name-generated.asm"
+    if test "$target" = elf; then
+        cat "$fruity/jabara/lib/elf-header.asm" \
+            "$tmp/$name-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
+            > "$tmp/$name.asm"
+    else
+        cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
+            "$fruity/jabara/lib/fap-runtime.asm" \
+            "$tmp/$name-generated.asm" > "$tmp/$name.asm"
+    fi
     nasm -f bin "$tmp/$name.asm" -o "$output"
 }
 
@@ -31,47 +37,37 @@ chmod +x "$root/bin/jar.elf" "$root/bin/juicer.elf"
 
 for source in "$root"/src/*/*.jabara; do
     program=$(basename "$(dirname -- "$source")")
-    if test "$program" = juicer; then
-        cat "$pith" "$source" > "$tmp/$program.jabara"
-        "$jc" module "$tmp/$program.jabara" "$tmp/$program-generated.asm"
-        cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
-            "$fruity/jabara/lib/fap-runtime.asm" \
-            "$tmp/$program-generated.asm" > "$tmp/$program.asm"
-        nasm -f bin "$tmp/$program.asm" -o "$tmp/$program.raw"
-    else
-        compile fap "$source" "$tmp/$program.raw"
-    fi
+    compile fap "$source" "$tmp/$program.raw"
     "$root/bin/juicer.elf" c "$tmp/$program.raw" "$root/bin/$program.fap"
 done
 
-cat "$pith" "$fruity"/jabara/src/orgasm/*.jabara > "$tmp/orgasm.jabara"
-"$jc" module "$tmp/orgasm.jabara" "$tmp/orgasm-generated.asm"
+"$jc" "$pith" "$fruity"/jabara/src/orgasm/*.jabara \
+    "$tmp/orgasm-generated.asm"
 cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
     "$fruity/jabara/lib/fap-runtime.asm" "$tmp/orgasm-generated.asm" \
     > "$tmp/orgasm.asm"
 nasm -f bin "$tmp/orgasm.asm" -o "$tmp/orgasm.raw"
 "$root/bin/juicer.elf" c "$tmp/orgasm.raw" "$root/bin/orgasm.fap"
 
-cat "$pith" "$fruity"/yuzu/src/yc/*.yuzu > "$tmp/yc.jabara"
-"$jc" fap "$tmp/yc.jabara" "$tmp/yc-generated.asm"
-cat "$tmp/yc-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \
+"$jc" "$pith" "$fruity"/yuzu/src/yc/*.yuzu "$tmp/yc-generated.asm"
+cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
+    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/yc-generated.asm" \
     > "$tmp/yc.asm"
 nasm -f bin "$tmp/yc.asm" -o "$tmp/yc.raw"
 "$root/bin/juicer.elf" c "$tmp/yc.raw" "$root/bin/yc.fap"
 
-cat "$pith" "$fruity/yuzu/src/zest/main.yuzu" \
+"$jc" "$pith" "$fruity/yuzu/src/zest/main.yuzu" \
     "$fruity/yuzu/src/zest/lex.yuzu" "$fruity/yuzu/src/zest/parse.yuzu" \
     "$fruity/yuzu/src/zest/emit.yuzu" "$fruity/yuzu/src/zest/elf.yuzu" \
-    > "$tmp/zest.jabara"
-"$jc" fap "$tmp/zest.jabara" "$tmp/zest-generated.asm"
-cat "$tmp/zest-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \
+    "$tmp/zest-generated.asm"
+cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
+    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/zest-generated.asm" \
     > "$tmp/zest.asm"
 nasm -f bin "$tmp/zest.asm" -o "$tmp/zest.raw"
 "$root/bin/juicer.elf" c "$tmp/zest.raw" "$root/bin/zest.fap"
 
-cat "$fruity"/jabara/src/jc/*.jabara \
-    "$fruity/jabara/lib/jc-fap-config.jabara" > "$tmp/jc.jabara"
-"$jc" module "$tmp/jc.jabara" "$tmp/jc-module.asm"
+"$jc" "$fruity"/jabara/src/jc/*.jabara \
+    "$fruity/jabara/lib/jc-fap-config.jabara" "$tmp/jc-module.asm"
 cat "$fruity/jabara/lib/fap-module-runtime.asm" \
     "$fruity/jabara/lib/fap-runtime.asm" "$tmp/jc-module.asm" \
     > "$root/bin/jc.asm"

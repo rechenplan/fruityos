@@ -1,0 +1,9 @@
+jc src/jc/emitter.jabara src/jc/lexer.jabara src/jc/main.jabara src/jc/model.jabara src/jc/parser.jabara src/jc/runtime.jabara lib/jc-fap-config.jabara tmp/jc-generated.asm
+orgasm lib/fap-module-runtime.asm lib/fap-runtime.asm tmp/jc-generated.asm tmp/jc.raw
+juicer c tmp/jc.raw /bin/jc.fap
+del tmp/jc-generated.asm tmp/jc.raw
+
+jc lib/pith.jabara src/orgasm/emit.jabara src/orgasm/lex.jabara src/orgasm/main.jabara src/orgasm/modern.jabara src/orgasm/parse.jabara tmp/orgasm-generated.asm
+orgasm lib/fap-stack-runtime.asm lib/fap-runtime.asm tmp/orgasm-generated.asm tmp/orgasm.raw
+juicer c tmp/orgasm.raw /bin/orgasm.fap
+del tmp/orgasm-generated.asm tmp/orgasm.raw
