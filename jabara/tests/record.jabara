@@ -1,0 +1,26 @@
+record Pair left, right record Box value:Pair, left
+
+sub total(pair:Pair)
+  return pair.left + pair.right
+end
+
+sub main()
+  local pair:Pair = Pair(), box:Box = Box(), nested:Pair = Pair(), get_right
+
+  pair.left = 20
+  pair.right = 22
+  box.left = 7
+  nested.right = 42
+  box.value = nested
+  get_right = fn item:Pair do return item.right end
+
+  if (total(pair) == 42) &&
+     (get_right(pair) == 22) &&
+     (box.left == 7) &&
+     (box.value.right == 42) &&
+     (box.value.left == 0) then
+    pair.left = fn value do return value + 1 end
+    return pair.left(41) - 42
+  end
+  return 1
+end

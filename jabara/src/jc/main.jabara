@@ -1,0 +1,17 @@
+sub main(argc, argv)
+  local input_path, output_path, source, program:Program
+  if argc != 3 then
+    jc_output = 2
+    jc_line("usage: jc input.jabara output.asm")
+    return 1
+  end
+  input_path = jc_next_argument(argv)
+  output_path = jc_next_argument(input_path)
+  source = jc_read_source(input_path)
+  jc_output = creat(output_path)
+  if jc_output < 0 then jc_error_at(1, 1, "cannot create output") end
+  program = ps_parse_program(source)
+  em_emit_program(program)
+  close(jc_output)
+  return 0
+end

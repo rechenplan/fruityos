@@ -1,6 +1,9 @@
 cd yuzu
 ./build.sh
 cd ..
+cd jabara
+./build.sh
+cd ..
 cd peel
 ./build.sh
 cd ..

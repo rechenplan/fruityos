@@ -1,0 +1,668 @@
+sub em_text(text)
+  jc_puts(text)
+end
+
+sub em_number(number)
+  jc_putn(number)
+end
+
+sub em_newline()
+  jc_putc(10)
+end
+
+sub em_line(text)
+  jc_line(text)
+end
+
+sub em_instruction(text)
+  jc_putc(9)
+  jc_line(text)
+end
+
+sub em_new_label(emitter:Emitter)
+  emitter.label = emitter.label + 1
+  return emitter.label
+end
+
+sub em_label(number)
+  em_text("__jabara_label_")
+  em_number(number)
+end
+
+sub em_return_label(number)
+  em_text("__jabara_return_")
+  em_number(number)
+end
+
+sub em_find_function(emitter:Emitter, name)
+  local function:Function = emitter.program.functions
+  while function != 0 do
+    if jc_streq(function.name, name) then return function end
+    function = function.next
+  end
+  return 0
+end
+
+sub em_find_record(emitter:Emitter, name)
+  local definition:Record = emitter.program.records
+  while definition != 0 do
+    if jc_streq(definition.name, name) then return definition end
+    definition = definition.next
+  end
+  return 0
+end
+
+sub em_find_record_field(definition:Record, name)
+  local field:Name = definition.fields
+  while field != 0 do
+    if jc_streq(field.name, name) then return field end
+    field = field.next
+  end
+  return 0
+end
+
+sub em_record_field_offset(definition:Record, name)
+  local field:Name = definition.fields, offset = 0
+  while field != 0 do
+    if jc_streq(field.name, name) then return offset end
+    offset = offset + 8
+    field = field.next
+  end
+  return -1
+end
+
+sub em_record_field_count(definition:Record)
+  local field:Name = definition.fields, count = 0
+  while field != 0 do count = count + 1 field = field.next end
+  return count
+end
+
+sub em_validate_records(emitter:Emitter)
+  local definition:Record = emitter.program.records, other:Record, field:Name
+  while definition != 0 do
+    if em_find_function(emitter, definition.name) != 0 then
+      jc_error_at(definition.line, 1, "record and sub have the same name")
+    end
+    other = definition.next
+    while other != 0 do
+      if jc_streq(definition.name, other.name) then
+        jc_error_at(other.line, 1, "duplicate record name")
+      end
+      other = other.next
+    end
+    field = definition.fields
+    while field != 0 do
+      if field.tag != 0 then
+        if em_find_record(emitter, field.tag) == 0 then
+          jc_error_at(definition.line, 1, "record field has an unknown tag")
+        end
+      end
+      field = field.next
+    end
+    definition = definition.next
+  end
+end
+
+sub em_scope_own(scope:Scope, name)
+  local binding:Binding = scope.bindings
+  while binding != 0 do
+    if jc_streq(binding.name, name) then return binding end
+    binding = binding.next
+  end
+  return 0
+end
+
+sub em_scope_add(emitter:Emitter, scope:Scope, name, tag, line)
+  local binding:Binding = Binding(), tail:Binding
+  if em_scope_own(scope, name) != 0 then jc_error_at(line, 1, "duplicate local name") end
+  if tag != 0 then
+    if em_find_record(emitter, tag) == 0 then
+      jc_error_at(line, 1, "variable has an unknown tag")
+    end
+  end
+  binding.name = name
+  binding.tag = tag
+  if scope.is_global then binding.slot = 0
+  else scope.slot_count = scope.slot_count + 1 binding.slot = scope.slot_count end
+  if scope.bindings == 0 then scope.bindings = binding
+  else
+    tail = scope.bindings
+    while tail.next != 0 do tail = tail.next end
+    tail.next = binding
+  end
+end
+
+sub em_collect_locals(emitter:Emitter, scope:Scope, statement:Stmt)
+  local name:Name
+  while statement != 0 do
+    if statement.kind == ST_LOCAL() then
+      name = statement.names
+      while name != 0 do
+        em_scope_add(emitter, scope, name.name, name.tag, statement.line)
+        name = name.next
+      end
+    end
+    if statement.kind == ST_IF() then
+      em_collect_locals(emitter, scope, statement.body)
+      em_collect_locals(emitter, scope, statement.else_body)
+    end
+    if statement.kind == ST_WHILE() then em_collect_locals(emitter, scope, statement.body) end
+    statement = statement.next
+  end
+end
+
+sub em_lookup(scope:Scope, name)
+  local result:Lookup = Lookup(), level = 0, binding:Binding
+  while scope != 0 do
+    binding = em_scope_own(scope, name)
+    if binding != 0 then
+      result.binding = binding
+      result.owner = scope
+      result.depth = level
+      return result
+    end
+    if scope.is_global == 0 then level = level + 1 end
+    scope = scope.parent
+  end
+  return result
+end
+
+sub em_name_is_bound(emitter:Emitter, name)
+  local lookup:Lookup = em_lookup(emitter.scope, name)
+  return lookup.binding != 0
+end
+
+sub em_expr_record_type(emitter:Emitter, expr:Expr)
+  local lookup:Lookup, definition:Record, field:Name
+  if expr.kind == EX_NAME() then
+    lookup = em_lookup(emitter.scope, expr.text)
+    if lookup.binding != 0 then
+      if lookup.binding.tag != 0 then return em_find_record(emitter, lookup.binding.tag) end
+    end
+  end
+  if (expr.kind == EX_CALL()) && (expr.left.kind == EX_NAME()) then
+    if em_name_is_bound(emitter, expr.left.text) == 0 then
+      return em_find_record(emitter, expr.left.text)
+    end
+  end
+  if expr.kind == EX_MEMBER() then
+    definition = em_expr_record_type(emitter, expr.left)
+    if definition != 0 then
+      field = em_find_record_field(definition, expr.text)
+      if field == 0 then jc_error_at(expr.line, 1, "tagged record has no such field") end
+      if field.tag != 0 then return em_find_record(emitter, field.tag) end
+    end
+  end
+  if expr.kind == EX_ASSIGN() then return em_expr_record_type(emitter, expr.right) end
+  return 0
+end
+
+sub em_emit_name_address(emitter:Emitter, name)
+  local lookup:Lookup = em_lookup(emitter.scope, name), index = 0
+  if lookup.binding == 0 then
+    em_text("\tlea\trax, [rel ") em_text(name) em_line("]")
+    return 0
+  end
+  if lookup.owner.is_global then
+    em_text("\tlea\trax, [rel __jabara_global_") em_text(name) em_line("]")
+    return 0
+  end
+  em_instruction("mov\trax, [rbp - 8]")
+  while index < lookup.depth do em_instruction("mov\trax, [rax]") index = index + 1 end
+  em_text("\tadd\trax, ") em_number(lookup.binding.slot * 8) em_newline()
+end
+
+sub em_emit_lvalue_address(emitter:Emitter, expr:Expr)
+  local definition:Record, field:Name, offset
+  if expr.kind == EX_BYTE() then expr = expr.left end
+  if expr.kind == EX_NAME() then em_emit_name_address(emitter, expr.text) return 0 end
+  if expr.kind == EX_DEREF() then em_emit_expr(emitter, expr.left) return 0 end
+  if expr.kind == EX_MEMBER() then
+    definition = em_expr_record_type(emitter, expr.left)
+    if definition == 0 then jc_error_at(expr.line, 1, "member access requires a record tag") end
+    field = em_find_record_field(definition, expr.text)
+    if field == 0 then jc_error_at(expr.line, 1, "tagged record has no such field") end
+    offset = em_record_field_offset(definition, expr.text)
+    em_emit_expr(emitter, expr.left)
+    if offset != 0 then em_text("\tadd\trax, ") em_number(offset) em_newline() end
+    return 0
+  end
+  jc_error_at(expr.line, 1, "expression is not assignable")
+end
+
+sub em_register(index)
+  if index == 0 then return "rdi" end
+  if index == 1 then return "rsi" end
+  if index == 2 then return "rdx" end
+  if index == 3 then return "rcx" end
+  if index == 4 then return "r8" end
+  return "r9"
+end
+
+sub em_comparison(instruction)
+  em_instruction("xor\trdx, rdx")
+  em_instruction("cmp\trax, rdi")
+  em_text("\t") em_text(instruction) em_line("\tdl")
+  em_instruction("mov\trax, rdx")
+end
+
+sub em_emit_binary(emitter:Emitter, expr:Expr)
+  em_emit_expr(emitter, expr.right)
+  em_instruction("push\trax")
+  em_emit_expr(emitter, expr.left)
+  em_instruction("pop\trdi")
+  if expr.op == T_PLUS() then em_instruction("add\trax, rdi") return 0 end
+  if expr.op == T_MINUS() then em_instruction("sub\trax, rdi") return 0 end
+  if expr.op == T_STAR() then em_instruction("imul\trax, rdi") return 0 end
+  if expr.op == T_SLASH() then
+    em_instruction("xor\trdx, rdx") em_instruction("div\trdi") return 0
+  end
+  if expr.op == T_PERCENT() then
+    em_instruction("xor\trdx, rdx") em_instruction("div\trdi")
+    em_instruction("mov\trax, rdx") return 0
+  end
+  if expr.op == T_AMP() then em_instruction("and\trax, rdi") return 0 end
+  if expr.op == T_PIPE() then em_instruction("or\trax, rdi") return 0 end
+  if expr.op == T_XOR() then em_instruction("xor\trax, rdi") return 0 end
+  if expr.op == T_SHL() then em_instruction("mov\trcx, rdi") em_instruction("shl\trax, cl") return 0 end
+  if expr.op == T_SHR() then em_instruction("mov\trcx, rdi") em_instruction("shr\trax, cl") return 0 end
+  if expr.op == T_AND() then
+    em_instruction("test\trax, rax") em_instruction("setnz\tal") em_instruction("movzx\trax, al")
+    em_instruction("test\trdi, rdi") em_instruction("setnz\tdil") em_instruction("movzx\trdi, dil")
+    em_instruction("and\trax, rdi") return 0
+  end
+  if expr.op == T_OR() then
+    em_instruction("test\trax, rax") em_instruction("setnz\tal") em_instruction("movzx\trax, al")
+    em_instruction("test\trdi, rdi") em_instruction("setnz\tdil") em_instruction("movzx\trdi, dil")
+    em_instruction("or\trax, rdi") return 0
+  end
+  if expr.op == T_EQ() then em_comparison("sete") return 0 end
+  if expr.op == T_NE() then em_comparison("setne") return 0 end
+  if expr.op == T_LT() then em_comparison("setl") return 0 end
+  if expr.op == T_LE() then em_comparison("setle") return 0 end
+  if expr.op == T_GT() then em_comparison("setg") return 0 end
+  if expr.op == T_GE() then em_comparison("setge") return 0 end
+  jc_error_at(expr.line, 1, "unsupported binary operator")
+end
+
+sub em_call_is_direct(emitter:Emitter, callee:Expr)
+  if callee.kind != EX_NAME() then return 0 end
+  if em_name_is_bound(emitter, callee.text) then return 0 end
+  return em_find_function(emitter, callee.text) != 0
+end
+
+sub em_call_is_constructor(emitter:Emitter, callee:Expr)
+  if callee.kind != EX_NAME() then return 0 end
+  if em_name_is_bound(emitter, callee.text) then return 0 end
+  return em_find_record(emitter, callee.text) != 0
+end
+
+sub em_emit_direct_call(emitter:Emitter, expr:Expr)
+  local argument:Expr = expr.arguments, count = 0, index
+  if expr.argument_count > 6 then jc_error_at(expr.line, 1, "calls support at most six arguments") end
+  while argument != 0 do
+    em_emit_expr(emitter, argument)
+    em_instruction("push\trax")
+    count = count + 1
+    argument = argument.next
+  end
+  index = count - 1
+  while index >= 0 do
+    em_text("\tpop\t") em_line(em_register(index))
+    index = index - 1
+  end
+  em_text("\tcall\t") em_line(expr.left.text)
+end
+
+sub em_emit_closure_call(emitter:Emitter, expr:Expr)
+  local argument:Expr = expr.arguments, index = 0, count = expr.argument_count
+  em_emit_expr(emitter, expr.left)
+  em_instruction("push\trax")
+  while argument != 0 do
+    em_emit_expr(emitter, argument)
+    em_instruction("push\trax")
+    argument = argument.next
+  end
+  if count == 0 then
+    em_instruction("mov\trax, [rsp]")
+    em_instruction("mov\trdi, [rax + 8]")
+    em_instruction("xor\trsi, rsi")
+    em_instruction("call\t[rax]")
+  else
+    while index < count do
+      if index == 0 then
+        em_text("\tmov\trax, [rsp + ") em_number(count * 8) em_line("]")
+      end
+      em_instruction("mov\trdi, [rax + 8]")
+      em_text("\tmov\trsi, [rsp + ") em_number((count - 1 - index) * 8) em_line("]")
+      em_instruction("call\t[rax]")
+      index = index + 1
+    end
+  end
+  em_text("\tadd\trsp, ") em_number((count + 1) * 8) em_newline()
+end
+
+sub em_new_lambda_scope(emitter:Emitter, expr:Expr, number)
+  local scope:Scope = Scope(), info:LambdaInfo = LambdaInfo()
+  scope.parent = emitter.scope
+  em_scope_add(emitter, scope, expr.text, expr.tag, expr.line)
+  em_collect_locals(emitter, scope, expr.body)
+  info.expr = expr
+  info.scope = scope
+  info.label = number
+  if emitter.lambdas == 0 then emitter.lambdas = info else emitter.lambda_tail.next = info end
+  emitter.lambda_tail = info
+  return scope
+end
+
+sub em_emit_lambda_value(emitter:Emitter, expr:Expr)
+  local number = em_new_label(emitter)
+  em_new_lambda_scope(emitter, expr, number)
+  em_text("\tlea\trax, [rel __jabara_lambda_") em_number(number) em_line("]")
+  em_instruction("push\trax")
+  if emitter.scope.is_global then em_instruction("xor\trax, rax")
+  else em_instruction("mov\trax, [rbp - 8]") end
+  em_instruction("push\trax")
+  em_instruction("mov\trdi, 16")
+  em_instruction("call\t__jabara_alloc")
+  em_instruction("pop\trdx")
+  em_instruction("pop\trcx")
+  em_instruction("mov\t[rax], rcx")
+  em_instruction("mov\t[rax + 8], rdx")
+end
+
+sub em_emit_string(emitter:Emitter, text)
+  local number = em_new_label(emitter), pointer = text
+  em_text("\tjmp\t__jabara_string_after_") em_number(number) em_newline()
+  em_text("__jabara_string_") em_number(number) em_text(": db ")
+  if byte [pointer] == 0 then em_text("0") end
+  while byte [pointer] != 0 do
+    em_number(byte [pointer]) em_text(",")
+    pointer = pointer + 1
+    if byte [pointer] == 0 then em_text("0") end
+  end
+  em_newline()
+  em_text("__jabara_string_after_") em_number(number) em_line(":")
+  em_text("\tlea\trax, [rel __jabara_string_") em_number(number) em_line("]")
+end
+
+sub em_emit_record_constructor(emitter:Emitter, expr:Expr)
+  local definition:Record = em_find_record(emitter, expr.left.text)
+  local count = em_record_field_count(definition), index = 0
+  if expr.argument_count != 0 then jc_error_at(expr.line, 1, "record constructors take no arguments") end
+  if count == 0 then em_instruction("mov\trdi, 8")
+  else em_text("\tmov\trdi, ") em_number(count * 8) em_newline() end
+  em_instruction("call\t__jabara_alloc")
+  while index < count do
+    em_text("\tmov\tqword [rax + ") em_number(index * 8) em_line("], 0")
+    index = index + 1
+  end
+end
+
+sub em_emit_expr(emitter:Emitter, expr:Expr)
+  local lookup:Lookup
+  if expr.kind == EX_NUMBER() then em_text("\tmov\trax, ") em_number(expr.number) em_newline() return 0 end
+  if expr.kind == EX_STRING() then em_emit_string(emitter, expr.text) return 0 end
+  if expr.kind == EX_NAME() then
+    lookup = em_lookup(emitter.scope, expr.text)
+    if lookup.binding == 0 then
+      if em_find_function(emitter, expr.text) != 0 then
+        jc_error_at(expr.line, 1, "sub cannot be used as a value; wrap it in fn")
+      end
+      em_text("\tlea\trax, [rel ") em_text(expr.text) em_line("]")
+    else
+      em_emit_name_address(emitter, expr.text)
+      em_instruction("mov\trax, [rax]")
+    end
+    return 0
+  end
+  if expr.kind == EX_DEREF() then em_emit_expr(emitter, expr.left) em_instruction("mov\trax, [rax]") return 0 end
+  if expr.kind == EX_MEMBER() then em_emit_lvalue_address(emitter, expr) em_instruction("mov\trax, [rax]") return 0 end
+  if expr.kind == EX_BYTE() then
+    em_emit_lvalue_address(emitter, expr.left) em_instruction("movzx\trax, byte [rax]") return 0
+  end
+  if expr.kind == EX_UNARY() then
+    em_emit_expr(emitter, expr.left)
+    if expr.op == T_MINUS() then em_instruction("neg\trax") return 0 end
+    if expr.op == T_BNOT() then em_instruction("not\trax") return 0 end
+    em_instruction("test\trax, rax") em_instruction("setz\tal") em_instruction("movzx\trax, al")
+    return 0
+  end
+  if expr.kind == EX_BINARY() then em_emit_binary(emitter, expr) return 0 end
+  if expr.kind == EX_ASSIGN() then
+    em_emit_lvalue_address(emitter, expr.left)
+    em_instruction("push\trax")
+    em_emit_expr(emitter, expr.right)
+    em_instruction("pop\trdi")
+    if expr.left.kind == EX_BYTE() then em_instruction("mov\t[rdi], al")
+    else em_instruction("mov\t[rdi], rax") end
+    return 0
+  end
+  if expr.kind == EX_CALL() then
+    if em_call_is_constructor(emitter, expr.left) then em_emit_record_constructor(emitter, expr) return 0 end
+    if em_call_is_direct(emitter, expr.left) then em_emit_direct_call(emitter, expr) return 0 end
+    if (expr.left.kind == EX_NAME()) && (em_name_is_bound(emitter, expr.left.text) == 0) then
+      jc_error_at(expr.line, 1, "call to undeclared sub")
+    end
+    em_emit_closure_call(emitter, expr)
+    return 0
+  end
+  if expr.kind == EX_LAMBDA() then em_emit_lambda_value(emitter, expr) return 0 end
+  jc_error_at(expr.line, 1, "unsupported expression")
+end
+
+sub em_emit_initializers(emitter:Emitter, name:Name)
+  while name != 0 do
+    if name.initializer != 0 then
+      em_emit_name_address(emitter, name.name)
+      em_instruction("push\trax")
+      em_emit_expr(emitter, name.initializer)
+      em_instruction("pop\trdi")
+      em_instruction("mov\t[rdi], rax")
+    end
+    name = name.next
+  end
+end
+
+sub em_emit_statements(emitter:Emitter, statement:Stmt)
+  local otherwise, done, again
+  while statement != 0 do
+    if statement.kind == ST_LOCAL() then em_emit_initializers(emitter, statement.names) end
+    if statement.kind == ST_EXPR() then em_emit_expr(emitter, statement.expr) end
+    if statement.kind == ST_RETURN() then
+      em_emit_expr(emitter, statement.expr)
+      em_text("\tjmp\t") em_return_label(emitter.return_label) em_newline()
+    end
+    if statement.kind == ST_IF() then
+      otherwise = em_new_label(emitter)
+      done = em_new_label(emitter)
+      em_emit_expr(emitter, statement.expr)
+      em_instruction("test\trax, rax")
+      em_text("\tjz\t") em_label(otherwise) em_newline()
+      em_emit_statements(emitter, statement.body)
+      em_text("\tjmp\t") em_label(done) em_newline()
+      em_label(otherwise) em_line(":")
+      em_emit_statements(emitter, statement.else_body)
+      em_label(done) em_line(":")
+    end
+    if statement.kind == ST_WHILE() then
+      again = em_new_label(emitter)
+      done = em_new_label(emitter)
+      em_label(again) em_line(":")
+      em_emit_expr(emitter, statement.expr)
+      em_instruction("test\trax, rax")
+      em_text("\tjz\t") em_label(done) em_newline()
+      em_emit_statements(emitter, statement.body)
+      em_text("\tjmp\t") em_label(again) em_newline()
+      em_label(done) em_line(":")
+    end
+    statement = statement.next
+  end
+end
+
+sub em_zero_environment(slots)
+  local index = 0
+  while index <= slots do
+    em_text("\tmov\tqword [rax + ") em_number(index * 8) em_line("], 0")
+    index = index + 1
+  end
+end
+
+sub em_parameter_count(function:Function)
+  local parameter:Name = function.parameters, count = 0
+  while parameter != 0 do count = count + 1 parameter = parameter.next end
+  return count
+end
+
+sub em_emit_function(emitter:Emitter, function:Function)
+  local scope:Scope = Scope(), parameter:Name = function.parameters
+  local count = 0, index = 0, saved_return = emitter.return_label
+  scope.parent = emitter.global_scope
+  scope.next_owned = emitter.function_scopes
+  emitter.function_scopes = scope
+  while parameter != 0 do
+    em_scope_add(emitter, scope, parameter.name, parameter.tag, function.line)
+    count = count + 1
+    parameter = parameter.next
+  end
+  if count > 6 then jc_error_at(function.line, 1, "sub supports at most six parameters") end
+  em_collect_locals(emitter, scope, function.body)
+  emitter.scope = scope
+  emitter.return_label = em_new_label(emitter)
+  em_text("\nglobal ") em_text(function.name) em_newline()
+  em_text(function.name) em_line(":")
+  em_instruction("push\trbp")
+  em_instruction("mov\trbp, rsp")
+  em_instruction("sub\trsp, 64")
+  while index < count do
+    em_text("\tmov\t[rbp - ") em_number(16 + index * 8) em_text("], ")
+    em_line(em_register(index))
+    index = index + 1
+  end
+  em_text("\tmov\trdi, ") em_number((scope.slot_count + 1) * 8) em_newline()
+  em_instruction("call\t__jabara_alloc")
+  em_instruction("mov\t[rbp - 8], rax")
+  em_zero_environment(scope.slot_count)
+  index = 0
+  while index < count do
+    em_text("\tmov\trdx, [rbp - ") em_number(16 + index * 8) em_line("]")
+    em_text("\tmov\t[rax + ") em_number((index + 1) * 8) em_line("], rdx")
+    index = index + 1
+  end
+  if jc_streq(function.name, "main") then em_emit_statements(emitter, emitter.program.statements) end
+  em_emit_statements(emitter, function.body)
+  em_instruction("xor\trax, rax")
+  em_return_label(emitter.return_label) em_line(":")
+  em_instruction("mov\trsp, rbp")
+  em_instruction("pop\trbp")
+  em_instruction("ret")
+  emitter.return_label = saved_return
+  emitter.scope = emitter.global_scope
+end
+
+sub em_emit_lambda_function(emitter:Emitter, info:LambdaInfo)
+  local saved_scope:Scope = emitter.scope
+  local saved_return = emitter.return_label, index = 2
+  emitter.scope = info.scope
+  emitter.return_label = em_new_label(emitter)
+  em_text("\n__jabara_lambda_") em_number(info.label) em_line(":")
+  em_instruction("push\trbp")
+  em_instruction("mov\trbp, rsp")
+  em_instruction("sub\trsp, 32")
+  em_instruction("mov\t[rbp - 16], rdi")
+  em_instruction("mov\t[rbp - 24], rsi")
+  em_text("\tmov\trdi, ") em_number((info.scope.slot_count + 1) * 8) em_newline()
+  em_instruction("call\t__jabara_alloc")
+  em_instruction("mov\t[rbp - 8], rax")
+  em_zero_environment(info.scope.slot_count)
+  em_instruction("mov\trdx, [rbp - 16]")
+  em_instruction("mov\t[rax], rdx")
+  em_instruction("mov\trdx, [rbp - 24]")
+  em_instruction("mov\t[rax + 8], rdx")
+  while index <= info.scope.slot_count do
+    em_text("\tmov\tqword [rax + ") em_number(index * 8) em_line("], 0")
+    index = index + 1
+  end
+  em_emit_statements(emitter, info.expr.body)
+  em_instruction("xor\trax, rax")
+  em_return_label(emitter.return_label) em_line(":")
+  em_instruction("mov\trsp, rbp")
+  em_instruction("pop\trbp")
+  em_instruction("ret")
+  emitter.return_label = saved_return
+  emitter.scope = saved_scope
+end
+
+sub em_emit_allocator()
+  em_line("\n__jabara_alloc:")
+  em_instruction("push\trbx")
+  em_instruction("add\trdi, 15")
+  em_instruction("and\trdi, -16")
+  em_instruction("mov\trbx, rdi")
+  em_instruction("mov\trax, [rel __jabara_heap]")
+  em_instruction("mov\trdx, [rel __jabara_heap_end]")
+  em_instruction("lea\trcx, [rax + rbx]")
+  em_instruction("test\trax, rax")
+  em_instruction("jz\t__jabara_alloc_arena")
+  em_instruction("cmp\trcx, rdx")
+  em_instruction("jbe\t__jabara_alloc_ready")
+  em_line("__jabara_alloc_arena:")
+  em_instruction("xor\trdi, rdi")
+  em_instruction("mov\trsi, 67108864")
+  em_instruction("mov\trdx, 3")
+  em_instruction("mov\tr10, 34")
+  em_instruction("mov\tr8, -1")
+  em_instruction("xor\tr9, r9")
+  em_instruction("mov\trax, 9")
+  em_instruction("syscall")
+  em_instruction("cmp\trax, -4095")
+  em_instruction("jae\t__jabara_out_of_memory")
+  em_instruction("lea\trdx, [rax + 67108864]")
+  em_instruction("mov\t[rel __jabara_heap_end], rdx")
+  em_instruction("lea\trcx, [rax + rbx]")
+  em_line("__jabara_alloc_ready:")
+  em_instruction("mov\t[rel __jabara_heap], rcx")
+  em_instruction("pop\trbx")
+  em_instruction("ret")
+  em_line("__jabara_out_of_memory:")
+  em_instruction("pop\trbx")
+  em_instruction("mov\trax, 60")
+  em_instruction("mov\trdi, 127")
+  em_instruction("syscall")
+end
+
+sub em_emit_program(program:Program)
+  local emitter:Emitter = Emitter(), function:Function, info:LambdaInfo, binding:Binding
+  emitter.program = program
+  emitter.global_scope = Scope()
+  emitter.global_scope.is_global = 1
+  emitter.scope = emitter.global_scope
+  function = em_find_function(emitter, "main")
+  if function == 0 then jc_error_at(1, 1, "program requires sub main") end
+  if function.is_extern then jc_error_at(1, 1, "program requires sub main") end
+  em_validate_records(emitter)
+  em_collect_locals(emitter, emitter.global_scope, program.statements)
+  em_line("; generated by the jabara compiler")
+  em_line("bits 64")
+  em_line("section .bss")
+  em_line("align 8")
+  em_line("__jabara_heap: resq 1")
+  em_line("__jabara_heap_end: resq 1")
+  binding = emitter.global_scope.bindings
+  while binding != 0 do
+    em_text("__jabara_global_") em_text(binding.name) em_line(": resq 1")
+    binding = binding.next
+  end
+  em_line("section .text")
+  function = program.functions
+  while function != 0 do
+    if function.is_extern == 0 then em_emit_function(emitter, function) end
+    function = function.next
+  end
+  info = emitter.lambdas
+  while info != 0 do
+    em_emit_lambda_function(emitter, info)
+    info = info.next
+  end
+  em_emit_allocator()
+end

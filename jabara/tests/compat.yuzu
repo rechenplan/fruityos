@@ -1,0 +1,10 @@
+sub main(argc, argv)
+  local a, b
+  a = 0
+  b = 1
+  while a < 10 do
+    a = a + b
+  end
+  if b == 1 then b = a end
+  return a;
+end

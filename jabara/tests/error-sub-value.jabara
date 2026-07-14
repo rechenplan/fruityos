@@ -1,0 +1,8 @@
+sub helper(value)
+  return value
+end
+
+sub main()
+  local callable = helper
+  return callable(0)
+end

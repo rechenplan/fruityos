@@ -16,6 +16,12 @@
    140 ./pulp/src/utils.yuzu
    130 ./pulp/src/idt.yuzu
    163 ./pulp/src/fd.yuzu
+   417 ./jabara/src/jbc/parser.c
+   199 ./jabara/src/jbc/lexer.c
+    71 ./jabara/src/jbc/jbc.c
+   762 ./jabara/src/jbc/emitter.c
+    10 ./jabara/tests/compat.yuzu
+    25 ./jabara/tests/arguments.yuzu
    192 ./peel/src/juicer/juicer.yuzu
     34 ./peel/src/move/move.yuzu
    156 ./peel/src/jar/jar.yuzu
@@ -50,4 +56,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
-  7780 total
+  9264 total

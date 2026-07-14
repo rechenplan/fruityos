@@ -1,0 +1,3 @@
+sub main()
+  return putch(0)
+end

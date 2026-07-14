@@ -1,6 +1,9 @@
 cd yuzu
 ./cleanup.sh
 cd ..
+cd jabara
+./cleanup.sh
+cd ..
 cd peel
 ./cleanup.sh
 cd ..

@@ -1,0 +1,77 @@
+record Token kind, text, number, line, column
+record Lexer source, position, line, column, token:Token
+record Name name, tag, initializer:Expr, next:Name
+record Expr kind, line, text, tag, number, op, left:Expr, right:Expr, arguments:Expr, argument_count, body:Stmt, next:Expr
+record Stmt kind, line, names:Name, expr:Expr, body:Stmt, else_body:Stmt, next:Stmt
+record Function name, parameters:Name, body:Stmt, line, is_extern, next:Function
+record Record name, fields:Name, line, next:Record
+record Program records:Record, functions:Function, statements:Stmt
+record Binding name, tag, slot, next:Binding
+record Scope parent:Scope, bindings:Binding, slot_count, is_global, next_owned:Scope
+record LambdaInfo expr:Expr, scope:Scope, label, next:LambdaInfo
+record Lookup binding:Binding, owner:Scope, depth
+record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, lambdas:LambdaInfo, lambda_tail:LambdaInfo, label, return_label
+
+sub EX_NUMBER() return 0 end
+sub EX_STRING() return 1 end
+sub EX_NAME() return 2 end
+sub EX_DEREF() return 3 end
+sub EX_BYTE() return 4 end
+sub EX_UNARY() return 5 end
+sub EX_BINARY() return 6 end
+sub EX_ASSIGN() return 7 end
+sub EX_CALL() return 8 end
+sub EX_LAMBDA() return 9 end
+sub EX_MEMBER() return 10 end
+
+sub ST_LOCAL() return 0 end
+sub ST_IF() return 1 end
+sub ST_WHILE() return 2 end
+sub ST_RETURN() return 3 end
+sub ST_EXPR() return 4 end
+
+sub T_EOF() return 0 end
+sub T_ID() return 1 end
+sub T_NUMBER() return 2 end
+sub T_STRING() return 3 end
+sub T_LPAREN() return 4 end
+sub T_RPAREN() return 5 end
+sub T_LBRACKET() return 6 end
+sub T_RBRACKET() return 7 end
+sub T_COMMA() return 8 end
+sub T_DOT() return 9 end
+sub T_COLON() return 10 end
+sub T_PLUS() return 11 end
+sub T_MINUS() return 12 end
+sub T_STAR() return 13 end
+sub T_SLASH() return 14 end
+sub T_PERCENT() return 15 end
+sub T_AMP() return 16 end
+sub T_AND() return 17 end
+sub T_PIPE() return 18 end
+sub T_OR() return 19 end
+sub T_XOR() return 20 end
+sub T_EQ() return 21 end
+sub T_ASSIGN() return 22 end
+sub T_NE() return 23 end
+sub T_BNOT() return 24 end
+sub T_NOT() return 25 end
+sub T_SHL() return 26 end
+sub T_LE() return 27 end
+sub T_LT() return 28 end
+sub T_SHR() return 29 end
+sub T_GE() return 30 end
+sub T_GT() return 31 end
+sub T_LOCAL() return 32 end
+sub T_IF() return 33 end
+sub T_THEN() return 34 end
+sub T_ELSE() return 35 end
+sub T_END() return 36 end
+sub T_WHILE() return 37 end
+sub T_DO() return 38 end
+sub T_SUB() return 39 end
+sub T_RETURN() return 40 end
+sub T_BYTE() return 41 end
+sub T_FN() return 42 end
+sub T_RECORD() return 43 end
+sub T_EXTERN() return 44 end

@@ -1,0 +1,23 @@
+sub add(left, right)
+  return left + right
+end
+
+sub main()
+  local make_counter, counter, add_value
+  make_counter = fn ignored do
+    local value = 40
+    return fn increment do
+      value = value + increment
+      return value
+    end
+  end
+  counter = make_counter(0)
+  add_value = fn left do
+    return fn right do return add(left, right) end
+  end
+  if (counter(2) == 42) && (add_value(20, 22) == 42) then
+    return 0
+  else
+    return 1
+  end
+end

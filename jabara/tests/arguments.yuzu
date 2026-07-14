@@ -1,0 +1,25 @@
+sub next_argument(argument)
+  while byte [argument] do argument = argument + 1 end
+  return argument + 1
+end
+
+sub main(argc, argv)
+  local buffer, buffer_ptr, tmp_ptr, n, fd
+  buffer = brk(-1)
+  brk(buffer + (256 << 10))
+  tmp_ptr = buffer
+  argv = next_argument(argv)
+  fd = open(argv, 0)
+  if fd > 0 then
+    while (n = read(fd, tmp_ptr, 1)) > 0 do
+      tmp_ptr = tmp_ptr + n
+    end
+    byte [tmp_ptr] = 0
+    close(fd)
+  else
+    return 99
+  end
+  fd = creat(next_argument(argv))
+  close(fd)
+  return fd
+end

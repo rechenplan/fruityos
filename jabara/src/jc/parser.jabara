@@ -1,0 +1,302 @@
+local ps_lexer:Lexer
+
+sub ps_kind()
+  return ps_lexer.token.kind
+end
+
+sub ps_accept(kind)
+  if ps_kind() != kind then return 0 end
+  lx_next(ps_lexer)
+  return 1
+end
+
+sub ps_expect(kind)
+  if ps_accept(kind) then return 0 end
+  jc_error_at(ps_lexer.token.line, ps_lexer.token.column, "unexpected token")
+end
+
+sub ps_text()
+  local result
+  if ps_kind() != T_ID() then
+    jc_error_at(ps_lexer.token.line, ps_lexer.token.column, "expected identifier")
+  end
+  result = jc_copy(ps_lexer.token.text)
+  lx_next(ps_lexer)
+  return result
+end
+
+sub ps_expr(kind, line)
+  local expr:Expr = Expr()
+  expr.kind = kind
+  expr.line = line
+  return expr
+end
+
+sub ps_stmt(kind, line)
+  local stmt:Stmt = Stmt()
+  stmt.kind = kind
+  stmt.line = line
+  return stmt
+end
+
+sub ps_name()
+  local name:Name = Name()
+  name.name = ps_text()
+  if ps_accept(T_COLON()) then name.tag = ps_text() end
+  return name
+end
+
+sub ps_parse_statements(stop_else)
+  local head:Stmt, tail:Stmt, statement:Stmt
+  while (ps_kind() != T_EOF()) && (ps_kind() != T_END()) &&
+        ((stop_else == 0) || (ps_kind() != T_ELSE())) do
+    if (ps_kind() == T_SUB()) || (ps_kind() == T_RECORD()) || (ps_kind() == T_EXTERN()) then
+      jc_error_at(ps_lexer.token.line, ps_lexer.token.column,
+                  "declaration is only allowed at program scope")
+    end
+    statement = ps_parse_statement()
+    if head == 0 then head = statement else tail.next = statement end
+    tail = statement
+  end
+  return head
+end
+
+sub ps_parse_primary()
+  local token:Token = ps_lexer.token, line = token.line
+  local expr:Expr, call:Expr, member:Expr, argument:Expr, argument_tail:Expr, done
+  if token.kind == T_NUMBER() then
+    expr = ps_expr(EX_NUMBER(), line)
+    expr.number = token.number
+    lx_next(ps_lexer)
+  else
+    if token.kind == T_STRING() then
+      expr = ps_expr(EX_STRING(), line)
+      expr.text = jc_copy(token.text)
+      lx_next(ps_lexer)
+    else
+      if token.kind == T_ID() then
+        expr = ps_expr(EX_NAME(), line)
+        expr.text = ps_text()
+      else
+        if ps_accept(T_LBRACKET()) then
+          expr = ps_expr(EX_DEREF(), line)
+          expr.left = ps_parse_expression()
+          ps_expect(T_RBRACKET())
+        else
+          if ps_accept(T_LPAREN()) then
+            expr = ps_parse_expression()
+            ps_expect(T_RPAREN())
+          else
+            if ps_accept(T_FN()) then
+              expr = ps_expr(EX_LAMBDA(), line)
+              expr.text = ps_text()
+              if ps_accept(T_COLON()) then expr.tag = ps_text() end
+              ps_expect(T_DO())
+              expr.body = ps_parse_statements(0)
+              ps_expect(T_END())
+            else
+              jc_error_at(token.line, token.column, "expected expression")
+            end
+          end
+        end
+      end
+    end
+  end
+  while (ps_kind() == T_LPAREN()) || (ps_kind() == T_DOT()) do
+    if ps_accept(T_LPAREN()) then
+      call = ps_expr(EX_CALL(), line)
+      call.left = expr
+      argument_tail = 0
+      if ps_kind() != T_RPAREN() then
+        done = 0
+        while done == 0 do
+          argument = ps_parse_expression()
+          if call.arguments == 0 then call.arguments = argument else argument_tail.next = argument end
+          argument_tail = argument
+          call.argument_count = call.argument_count + 1
+          if ps_accept(T_COMMA()) == 0 then done = 1 end
+        end
+      end
+      ps_expect(T_RPAREN())
+      expr = call
+    else
+      ps_expect(T_DOT())
+      member = ps_expr(EX_MEMBER(), line)
+      member.left = expr
+      member.text = ps_text()
+      expr = member
+    end
+  end
+  return expr
+end
+
+sub ps_parse_unary()
+  local kind = ps_kind(), line = ps_lexer.token.line
+  local expr:Expr
+  if (kind == T_MINUS()) || (kind == T_NOT()) || (kind == T_BNOT()) then
+    lx_next(ps_lexer)
+    expr = ps_expr(EX_UNARY(), line)
+    expr.op = kind
+    expr.left = ps_parse_unary()
+    return expr
+  end
+  if ps_accept(T_BYTE()) then
+    expr = ps_expr(EX_BYTE(), line)
+    expr.left = ps_parse_unary()
+    return expr
+  end
+  return ps_parse_primary()
+end
+
+sub ps_is_binary(kind)
+  return (kind >= T_PLUS()) && (kind <= T_GT()) &&
+         (kind != T_ASSIGN()) && (kind != T_BNOT()) && (kind != T_NOT())
+end
+
+sub ps_parse_binary()
+  local left:Expr = ps_parse_unary(), binary:Expr, operation
+  while ps_is_binary(ps_kind()) do
+    operation = ps_kind()
+    binary = ps_expr(EX_BINARY(), ps_lexer.token.line)
+    lx_next(ps_lexer)
+    binary.op = operation
+    binary.left = left
+    binary.right = ps_parse_unary()
+    left = binary
+  end
+  return left
+end
+
+sub ps_is_lvalue(expr:Expr)
+  if (expr.kind == EX_NAME()) || (expr.kind == EX_DEREF()) ||
+     (expr.kind == EX_MEMBER()) then return 1 end
+  if expr.kind == EX_BYTE() then
+    expr = expr.left
+    return (expr.kind == EX_NAME()) || (expr.kind == EX_DEREF()) ||
+           (expr.kind == EX_MEMBER())
+  end
+  return 0
+end
+
+sub ps_parse_expression()
+  local left:Expr = ps_parse_binary(), assignment:Expr
+  if ps_accept(T_ASSIGN()) then
+    if ps_is_lvalue(left) == 0 then jc_error_at(left.line, 1, "assignment requires an lvalue") end
+    assignment = ps_expr(EX_ASSIGN(), left.line)
+    assignment.left = left
+    assignment.right = ps_parse_expression()
+    return assignment
+  end
+  return left
+end
+
+sub ps_parse_statement()
+  local line = ps_lexer.token.line
+  local statement:Stmt, name:Name, tail:Name
+  if ps_accept(T_LOCAL()) then
+    statement = ps_stmt(ST_LOCAL(), line)
+    while 1 do
+      name = ps_name()
+      if ps_accept(T_ASSIGN()) then name.initializer = ps_parse_expression() end
+      if statement.names == 0 then statement.names = name else tail.next = name end
+      tail = name
+      if ps_accept(T_COMMA()) == 0 then return statement end
+    end
+  end
+  if ps_accept(T_IF()) then
+    statement = ps_stmt(ST_IF(), line)
+    statement.expr = ps_parse_expression()
+    ps_expect(T_THEN())
+    statement.body = ps_parse_statements(1)
+    if ps_accept(T_ELSE()) then statement.else_body = ps_parse_statements(0) end
+    ps_expect(T_END())
+    return statement
+  end
+  if ps_accept(T_WHILE()) then
+    statement = ps_stmt(ST_WHILE(), line)
+    statement.expr = ps_parse_expression()
+    ps_expect(T_DO())
+    statement.body = ps_parse_statements(0)
+    ps_expect(T_END())
+    return statement
+  end
+  if ps_accept(T_RETURN()) then
+    statement = ps_stmt(ST_RETURN(), line)
+    statement.expr = ps_parse_expression()
+    return statement
+  end
+  statement = ps_stmt(ST_EXPR(), line)
+  statement.expr = ps_parse_expression()
+  return statement
+end
+
+sub ps_parse_function(is_extern)
+  local function:Function = Function(), parameter:Name, tail:Name, done
+  function.line = ps_lexer.token.line
+  function.is_extern = is_extern
+  if is_extern then ps_expect(T_EXTERN()) end
+  ps_expect(T_SUB())
+  function.name = ps_text()
+  ps_expect(T_LPAREN())
+  if ps_kind() != T_RPAREN() then
+    done = 0
+    while done == 0 do
+      parameter = ps_name()
+      if function.parameters == 0 then function.parameters = parameter else tail.next = parameter end
+      tail = parameter
+      if ps_accept(T_COMMA()) == 0 then done = 1 end
+    end
+  end
+  ps_expect(T_RPAREN())
+  if is_extern == 0 then
+    function.body = ps_parse_statements(0)
+    ps_expect(T_END())
+  end
+  return function
+end
+
+sub ps_parse_record()
+  local definition:Record = Record(), field:Name, tail:Name, existing:Name
+  definition.line = ps_lexer.token.line
+  ps_expect(T_RECORD())
+  definition.name = ps_text()
+  while 1 do
+    field = ps_name()
+    existing = definition.fields
+    while existing != 0 do
+      if jc_streq(existing.name, field.name) then
+        jc_error_at(definition.line, 1, "duplicate record field")
+      end
+      existing = existing.next
+    end
+    if definition.fields == 0 then definition.fields = field else tail.next = field end
+    tail = field
+    if ps_accept(T_COMMA()) == 0 then return definition end
+  end
+end
+
+sub ps_parse_program(source)
+  local program:Program = Program()
+  local definition:Record, record_tail:Record
+  local function:Function, function_tail:Function
+  local statement:Stmt, statement_tail:Stmt
+  ps_lexer = lx_init(source)
+  while ps_kind() != T_EOF() do
+    if ps_kind() == T_RECORD() then
+      definition = ps_parse_record()
+      if program.records == 0 then program.records = definition else record_tail.next = definition end
+      record_tail = definition
+    else
+      if (ps_kind() == T_SUB()) || (ps_kind() == T_EXTERN()) then
+        function = ps_parse_function(ps_kind() == T_EXTERN())
+        if program.functions == 0 then program.functions = function else function_tail.next = function end
+        function_tail = function
+      else
+        statement = ps_parse_statement()
+        if program.statements == 0 then program.statements = statement else statement_tail.next = statement end
+        statement_tail = statement
+      end
+    end
+  end
+  return program
+end
