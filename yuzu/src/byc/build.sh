@@ -1,10 +1,15 @@
-echo "Building byc..."
-gcc -fno-builtin -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ lexer.c -o lexer.o
-gcc -fno-builtin -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ parser.c -o parser.o
-gcc -fno-builtin -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ emitter.c -o emitter.o
-gcc -fno-builtin -fno-stack-protector -Wno-builtin-declaration-mismatch -Wno-int-conversion -Wno-builtin-declaration-mismatch -nostdlib -Os -c -I../../include/ byc.c -o byc.o
-echo "extern main" > _.asm
-cat ../../lib/_start.asm ../../lib/libpith.asm >> _.asm
-nasm _.asm -felf64 -o _.o
-ld -s -n lexer.o parser.o emitter.o byc.o _.o -o ../../bin/byc
-rm _.asm *.o
+#!/bin/sh
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+fruity=$(CDPATH= cd -- "$root/.." && pwd)
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/byc-build-XXXXXX")
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+
+mkdir -p "$root/bin"
+cat "$fruity/jabara/lib/pith.jabara" "$root"/src/yc/*.yuzu > "$tmp/byc.jabara"
+"$fruity/jabara/bin/jc" elf "$tmp/byc.jabara" "$tmp/byc-generated.asm"
+cat "$tmp/byc-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
+    > "$tmp/byc.asm"
+nasm -f bin "$tmp/byc.asm" -o "$root/bin/byc"
+chmod +x "$root/bin/byc"

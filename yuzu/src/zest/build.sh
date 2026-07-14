@@ -1,7 +1,18 @@
-echo "Building zest..."
-cat main.yuzu lex.yuzu parse.yuzu emit.yuzu elf.yuzu > _.yuzu
-../../bin/byc _.yuzu _.asm
-cat ../../lib/_start.asm _.asm ../../lib/libpith.asm > elf.asm
-nasm elf.asm -felf64 -o zest.o
-ld -n -s zest.o -o ../../bin/zest
-rm _.* zest.* elf.asm
+#!/bin/sh
+set -eu
+
+root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+fruity=$(CDPATH= cd -- "$root/.." && pwd)
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/zest-build-XXXXXX")
+trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+
+mkdir -p "$root/bin"
+cat "$fruity/jabara/lib/pith.jabara" "$root/src/zest/main.yuzu" \
+    "$root/src/zest/lex.yuzu" "$root/src/zest/parse.yuzu" \
+    "$root/src/zest/emit.yuzu" "$root/src/zest/elf.yuzu" \
+    > "$tmp/zest.jabara"
+"$fruity/jabara/bin/jc" elf "$tmp/zest.jabara" "$tmp/zest-generated.asm"
+cat "$tmp/zest-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
+    > "$tmp/zest.asm"
+nasm -f bin "$tmp/zest.asm" -o "$root/bin/zest"
+chmod +x "$root/bin/zest"

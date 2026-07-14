@@ -1,36 +1,34 @@
-cd yuzu
-./build.sh
-cd ..
-cd jabara
-./build.sh
-cd ..
-cd peel
-./build.sh
-cd ..
-cd seed
-./build.sh
-cd ..
-cd pulp
-./build.sh
-cd ..
+#!/bin/sh
+set -eu
 
+root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
-echo [ Creating initial RAM filesystem ]
-mkdir initrd
-cd initrd
+"$root/jabara/build.sh"
+"$root/yuzu/build.sh"
+"$root/peel/build.sh"
+"$root/seed/build.sh"
+"$root/pulp/build.sh"
 
-mkdir bin
-mkdir src
+echo "[ Creating initial RAM filesystem ]"
+rm -rf "$root/initrd"
+mkdir -p "$root/initrd/bin" "$root/initrd/lib" "$root/initrd/src"
+cp "$root"/peel/bin/*.fap "$root/initrd/bin"
+cp "$root/jabara/lib/elf-runtime.asm" "$root/jabara/lib/fap-runtime.asm" \
+    "$root/initrd/lib"
+cp "$root/scripts/init.psh" "$root/initrd/init.psh"
 
-cp ../peel/bin/*.fap bin
-cp ../scripts/init.psh init.psh
-../peel/bin/jar.elf c initrd.jar
-mv initrd.jar ../
-cd ..
+cd "$root/initrd"
+"$root/peel/bin/jar.elf" c initrd.jar
+mv initrd.jar "$root/initrd.jar"
+cd "$root"
 
-cat seed/bin/hdseed.bin pulp/bin/pulp.sys initrd.jar > fruityos_hdd.img
-stat --printf="FruityOS size is %s bytes.\n" fruityos_hdd.img
-truncate -s 256K fruityos_hdd.img
-find -regex '.*\.\(yuzu\|asm\|c\)' -print | xargs wc -l > loc.txt
+cat "$root/seed/bin/hdseed.bin" "$root/pulp/bin/pulp.sys" "$root/initrd.jar" \
+    > "$root/fruityos_hdd.img"
+stat --printf="FruityOS size is %s bytes.\n" "$root/fruityos_hdd.img"
+truncate -s 256K "$root/fruityos_hdd.img"
+find . -regex '.*\.\(jabara\|yuzu\|asm\|s\|c\)' -print | \
+    xargs wc -l > "$root/loc.txt"
 
-rm -f initrd.jar
+rm -f "$root/initrd.jar"
+
+echo "fruityos: Jabara and NASM build passed"

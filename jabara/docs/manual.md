@@ -8,9 +8,30 @@ itself.
 This guide assumes that you have never seen Jabara before. We will begin with a
 program that does nothing, and introduce one idea at a time.
 
+## Building Jabara
+
+From the `jabara` directory, build the bootstrap and self-hosted compilers:
+
+```sh
+./build.sh
+```
+
+This creates three programs in `bin/`: `jbc`, the ANSI C bootstrap compiler;
+`jc`, the compiler written in Jabara; and `jc-self`, the same Jabara compiler
+compiled by itself. A C compiler and NASM must be installed.
+
+Both compilers accept the same interface:
+
+```text
+jc elf|fap|module input.jabara output.asm
+```
+
+They only generate assembly. They do not invoke NASM, link a runtime, compress
+a FAP file, or run the result.
+
 ## Your first program
 
-Every Jabara program needs a subroutine named `main`:
+An executable Jabara program needs a subroutine named `main`:
 
 ```jabara
 sub main()
@@ -22,8 +43,8 @@ A subroutine begins with `sub`, has a name and a parenthesized parameter list,
 and finishes with `end`. Here the parameter list is empty. Returning zero tells
 the surrounding system that the program completed successfully.
 
-Save the example as `first.jabara`. From the `jabara` directory, compile it to
-a single flat NASM source file with either compiler:
+Save the example as `first.jabara`. From the `jabara` directory, generate its
+Linux NASM source with either compiler:
 
 ```sh
 bin/jc elf first.jabara first.asm
@@ -61,9 +82,25 @@ compression is optional while inspecting the raw image, but a normal FruityOS
 
 There is also an advanced `module` format. It emits headerless assembly with
 stack-based subroutine environments and no target runtime, so platform code can
-combine it with hand-written assembly before one final `nasm -f bin` step. The
-FruityOS kernel uses this mode; ordinary applications should use `elf` or
-`fap`.
+combine it with hand-written assembly before one final `nasm -f bin` step. A
+module does not need `main`; its subroutines may instead be called by the
+surrounding assembly. The FruityOS kernel uses this mode, while ordinary
+applications should use `elf` or `fap`.
+
+Records and closure objects still need the symbol `__jabara_alloc`. The flat
+`elf` and `fap` formats emit that allocator automatically. A module using those
+features must obtain it from its surrounding platform; a module containing
+only ordinary subroutines does not need it. Because an ordinary module
+subroutine keeps its environment on the stack, a closure that captures one of
+its locals must not outlive that subroutine.
+
+The three formats differ as follows:
+
+| Format | Origin | Prefix | Runtime to append | Needs `main` |
+| --- | ---: | --- | --- | --- |
+| `elf` | `0x400000` | Minimal 64-bit ELF header | `lib/elf-runtime.asm` | Yes |
+| `fap` | `0x801000` | FruityOS entry jump | `lib/fap-runtime.asm` | Yes |
+| `module` | Chosen by surrounding source | Headerless | Platform-defined | No |
 
 ## Comments and whitespace
 
@@ -79,6 +116,11 @@ end
 Spaces, tabs, and newlines normally have no syntactic meaning. Indentation is
 not required, but consistent two-space indentation makes nested code easier to
 read.
+
+Newlines are not statement terminators. The grammar tells the compiler when a
+construct is complete. This is particularly visible in record declarations,
+whose comma-separated field list may continue across any number of lines and
+ends after the last field without `end` or a newline terminator.
 
 ## Values and local variables
 
@@ -121,6 +163,9 @@ result = 40 + 2
 
 Locals are visible throughout their containing subroutine or closure. A local
 written inside an `if` or `while` is still part of that containing scope.
+
+Older source may use `var`, but that spelling has been removed. The compiler
+reports an error and asks you to use `local`.
 
 ## Arithmetic and comparisons
 
@@ -335,7 +380,8 @@ end
 ```
 
 Tags are compile-time layout information, not runtime type information. An
-untagged variable is simply a word, and member access through it is rejected:
+untagged variable is simply a word. Jabara has no dynamic descriptor fallback,
+and member access through an untagged word is rejected:
 
 ```jabara
 local untagged = Point()
@@ -395,6 +441,9 @@ The inner closure captures `amount`. Its environment is stored on the heap, so
 it remains valid after the outer closure returns. Captured variables are shared
 locations: assigning to a captured variable changes what sibling closures see.
 
+The former keyword `lambda` has been removed. Use `fn`; the compiler diagnoses
+`lambda` rather than silently treating it as an ordinary name.
+
 Calls with several arguments apply a chain of one-argument closures. For
 example, `function(a, b)` first applies `a`, then applies `b` to the closure
 returned by the first application.
@@ -420,7 +469,7 @@ end
 ## External subroutines
 
 An external declaration tells the compiler that a directly callable routine
-is supplied by the runtime included in the flat assembly:
+will be supplied by assembly combined with the compiler's output:
 
 ```jabara
 extern sub write(fd, buffer, count)
@@ -432,8 +481,11 @@ expected arguments. Jabara's standard Pith declarations are collected in
 memory-related system calls.
 
 External declarations do not themselves provide an implementation. Jabara
-emits the standard Pith routines for the selected environment: Linux targets
-use Linux system calls, and FAP targets use the FruityOS system-call interrupt.
+does not embed the Pith routines. Append `lib/elf-runtime.asm` for Linux or
+`lib/fap-runtime.asm` for FruityOS as shown in the first-program commands. The
+Linux runtime implements Pith with Linux system calls; the FAP runtime uses the
+FruityOS system-call interrupt. A module's surrounding platform must supply any
+external symbols the module calls.
 
 ## Program-scope declarations and statements
 
@@ -453,7 +505,10 @@ end
 ```
 
 Other program-scope statements are executed at the beginning of the explicit
-`main` subroutine. An explicit `sub main` is still required. Beginners will
+`main` subroutine. An explicit `sub main` is required by the `elf` and `fap`
+formats. The `module` format permits omitting `main`; when it is omitted, there
+is no entry point at which program-scope executable statements can run, so keep
+module initialization in a subroutine that the platform calls. Beginners will
 usually find it clearest to keep executable statements inside `main` and use
 program scope only for globals and declarations.
 
@@ -500,7 +555,44 @@ When a small Jabara program behaves unexpectedly, check these points first:
    of closures.
 6. Strings are pointers to zero-terminated bytes, not managed string objects.
 7. Memory access is unchecked, and allocated records are not reclaimed.
-8. Every program needs an explicit `sub main`.
+8. Every `elf` or `fap` program needs an explicit `sub main`; a `module` does
+   not.
+
+## Compact syntax reference
+
+Identifiers begin with a letter or underscore and continue with letters,
+digits, or underscores. Integer literals use decimal digits; write a negative
+value with unary `-`. The language's reserved words are:
+
+```text
+local if then else end while do sub return byte fn record extern
+```
+
+`record`, `sub`, and `extern sub` declarations belong at program scope. A
+direct subroutine and a direct call may have at most six parameters or
+arguments. Assignable expressions are variables, record members, word memory
+locations such as `[address]`, and byte locations such as `byte [address]`.
+
+Strings recognize `\n`, `\r`, `\t`, `\\`, and `\"`. There are no implicit
+managed strings, arrays, floating-point values, exceptions, or garbage
+collector. These omissions are part of Jabara's deliberately small execution
+model; raw words and memory operations remain available when a higher-level
+abstraction is not built into the language.
+
+## Running the tests
+
+From the `jabara` directory:
+
+```sh
+./test.sh
+```
+
+The suite compares the bootstrap and self-hosted compilers, checks records,
+closures, diagnostics, ELF and FAP output, and exercises the retained compiler
+compatibility tests. When the repository's Juicer tool is available, it also
+checks a FAP compression and decompression round trip. Finally, it compiles all
+Peel programs with `jc` and leaves their Linux executables in the repository's
+top-level `bin/` directory.
 
 ## Where to go next
 
