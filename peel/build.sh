@@ -73,8 +73,7 @@ cat "$fruity"/jabara/src/jc/*.jabara \
     "$fruity/jabara/lib/jc-fap-config.jabara" > "$tmp/jc.jabara"
 "$jc" module "$tmp/jc.jabara" "$tmp/jc-module.asm"
 cat "$fruity/jabara/lib/fap-module-runtime.asm" \
-    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/jc-module.asm" > "$tmp/jc.asm"
-nasm -f bin "$tmp/jc.asm" -o "$tmp/jc.raw"
-"$root/bin/juicer.elf" c "$tmp/jc.raw" "$root/bin/jc.fap"
+    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/jc-module.asm" \
+    > "$root/bin/jc.asm"
 
 echo "peel: Jabara userland build passed"

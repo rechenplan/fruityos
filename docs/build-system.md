@@ -48,10 +48,12 @@ For each Peel program, `peel/build.sh`:
 4. assembles the raw application;
 5. compresses it into `peel/bin/<name>.fap` with Juicer.
 
-The script additionally installs the compiler and assembler FAPs needed by the
-native build. The host build creates the complete set, but only the bootstrap
-subset described in [Initrd and native rebuild](initrd-native-build.md) is
-placed in the initrd.
+The script additionally generates the compiler assembly and assembler FAP
+needed by the native build. The initrd carries Juicer-compressed `jc.asm`;
+FruityOS decompresses, assembles, and compresses it during startup instead of
+embedding a host-assembled `jc.fap`.
+Only the bootstrap subset described in
+[Initrd and native rebuild](initrd-native-build.md) is placed in the initrd.
 
 ## Kernel build
 

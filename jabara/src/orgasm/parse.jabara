@@ -6,13 +6,7 @@ sub parse_is_digit(c)
 end
 
 sub parse_mul(a, b)
-	local p
-	p = 0
-	while a > 0 do
-		a = a - 1
-		p = p + b
-	end
-	return p
+	return a * b
 end
 
 sub parse_atoi(str)
@@ -35,25 +29,37 @@ sub parse_atoi(str)
 	return value
 end
 
+sub parse_symbol_hash(symbol)
+	local hash, c
+	while (c = byte [symbol]) != 0 do
+		if c == 58 then return hash end
+		hash = ((hash * 33) + c) & 8191
+		symbol = symbol + 1
+	end
+	return hash
+end
+
+sub parse_symbol_matches(symbol, name)
+	local match = 1
+	while (byte [name] != 0) & match do
+		match = byte [name] == byte [symbol]
+		name = name + 1
+		symbol = symbol + 1
+	end
+	return match & ((byte [symbol] == 0) | (byte [symbol] == 58))
+end
+
 sub parse_lookup_table(symbol, tab)
-	local name, value, tempSymbol, match, i
-	while ((value = [tab]) != -1) & (i < 8192) do
-		name = tab + 8
-		tempSymbol = symbol
-		match = byte [tempSymbol] == byte [name]
-		while (match != 0) & (byte [name] != 0) do
-			name = name + 1
-			tempSymbol = tempSymbol + 1
-			match = byte [tempSymbol] == byte [name]
-		end
-		match = match & ((byte [tempSymbol] == 0) | (byte [tempSymbol] == 58))
-		if match != 0 then
-			return value
-		end
-		tab = tab + 64
+	local index = parse_symbol_hash(symbol), entry, value, i
+	while i < 8192 do
+		entry = tab + (index << 6)
+		value = [entry]
+		if value == -1 then return -1 end
+		if parse_symbol_matches(symbol, entry + 8) then return value end
+		index = (index + 1) & 8191
 		i = i + 1
 	end
-	return value
+	return -1
 end
 
 sub parse_puthex(n)
@@ -67,15 +73,18 @@ end
 
 sub parse_print_table(tab)
 	local i, c, v
-	while ((v = [tab]) != -1) & (i < 8192) do
-		parse_puthex(i)
-		putch(32)
-		putch(34)
-		lex_puts(tab + 8)
-		putch(34)
-		putch(32)
-		parse_puthex(v)
-		putch(10)
+	while i < 8192 do
+		v = [tab]
+		if v != -1 then
+			parse_puthex(i)
+			putch(32)
+			putch(34)
+			lex_puts(tab + 8)
+			putch(34)
+			putch(32)
+			parse_puthex(v)
+			putch(10)
+		end
 		tab = tab + 64
 		i = i + 1
 	end
@@ -83,40 +92,41 @@ sub parse_print_table(tab)
 end
 
 sub parse_insert_table(value, symbol, tab)
-	local i, c
-	while ([tab] != -1) & (i < 8191) do
-		tab = tab + 64
-		i = i + 1
-	end
-	[tab] = value
-	i = 8
-	while ((c = byte [symbol]) != 0) & (i < 63) do
-		if c != 58 then ; ":"
-			[tab + i] = c
-			i = i + 1
+	local index = parse_symbol_hash(symbol), entry, i, c, offset
+	while i < 8192 do
+		entry = tab + (index << 6)
+		if [entry] == -1 then
+			[entry] = value
+			offset = 8
+			while ((c = byte [symbol]) != 0) & (offset < 63) do
+				if c != 58 then
+					byte [entry + offset] = c
+					offset = offset + 1
+				end
+				symbol = symbol + 1
+			end
+			while offset < 64 do
+				byte [entry + offset] = 0
+				offset = offset + 1
+			end
+			return 0
 		end
-		symbol = symbol + 1
-	end
-	while (i < 64) do
-		[tab + i] = 0
+		index = (index + 1) & 8191
 		i = i + 1
 	end
-	[tab + 64] = -1 ; fix what we broke!
+	lex_puts("symbol table full")
+	putch(10)
+	exit()
 end
 
 sub parse_update_table(value, symbol, tab)
-	local name, candidate, match
-	while [tab] != -1 do
-		name = tab + 8
-		candidate = symbol
-		match = 1
-		while (byte [name] != 0) & match do
-			match = byte [name] == byte [candidate]
-			name = name + 1
-			candidate = candidate + 1
-		end
-		if match & ((byte [candidate] == 0) | (byte [candidate] == 58)) then [tab] = value return 0 end
-		tab = tab + 64
+	local index = parse_symbol_hash(symbol), entry, i
+	while i < 8192 do
+		entry = tab + (index << 6)
+		if [entry] == -1 then return 0 end
+		if parse_symbol_matches(symbol, entry + 8) then [entry] = value return 0 end
+		index = (index + 1) & 8191
+		i = i + 1
 	end
 end
 

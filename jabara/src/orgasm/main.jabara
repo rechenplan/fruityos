@@ -6,14 +6,6 @@ sub main_next_arg(args)
 	return args + 1
 end
 
-sub main_write_table(fd, tab)
-	while [tab] != -1 do
-		write(fd, tab, 64)
-		tab = tab + 64
-	end
-	write(fd, tab, 64)
-end
-
 sub main(argc, args)
 	local symtab, reltab, i, fin, fout, textSize, vaddr, format, infile, outfile
 
@@ -26,7 +18,11 @@ sub main(argc, args)
 	symtab = brk(-1)
 	brk(symtab + 524288)
 
-	[symtab] = -1
+	i = 0
+	while i < 8192 do
+		[symtab + (i << 6)] = -1
+		i = i + 1
+	end
 	format = main_next_arg(args)
 	infile = main_next_arg(format)
 	fin = open(infile, 0)

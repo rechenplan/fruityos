@@ -16,20 +16,20 @@ initrd/
 │   ├── del.fap
 │   ├── echo.fap
 │   ├── jar.fap
-│   ├── jc.fap
 │   ├── juicer.fap
 │   ├── mkdir.fap
 │   ├── orgasm.fap
 │   └── pish.fap
 ├── lib/
 │   ├── elf-runtime.asm
-│   └── fap-runtime.asm
+│   ├── fap-runtime.asm
+│   └── jc.asm.jz
 ├── src/
 │   └── fruityos.jz
 └── init.psh
 ```
 
-These ten FAPs form the bootstrap set:
+These nine FAPs form the binary bootstrap set:
 
 | Program | Why it must be host-built in the initrd |
 | --- | --- |
@@ -40,9 +40,15 @@ These ten FAPs form the bootstrap set:
 | `jar` | Extracts the source checkout. |
 | `juicer` | Decompresses the checkout and creates native FAP streams. |
 | `concat` | Combines Jabara sources, generated assembly, and runtimes. |
-| `jc` | Compiles Jabara sources into FAP assembly. |
 | `orgasm` | Assembles generated FAP assembly inside FruityOS. |
 | `copy` | Installs the freshly built userland into `/bin`. |
+
+The host uses `jc` to generate the complete compiler assembly, including its FAP
+entry and runtime, then stores it as `/lib/jc.asm.jz` to keep the boot image
+compact. At startup, Juicer restores `/lib/jc.asm`, Orgasm assembles it to a
+temporary raw binary, and Juicer creates `/bin/jc.fap`. The raw binary and both
+assembly files are then deleted, leaving the compiler ready for the native
+source build without making it one of the host-assembled bootstrap binaries.
 
 Utilities such as `dir`, `fred`, `move`, `type`, and `write` are not copied from
 the host. They appear in `/bin` only after the native build succeeds.
@@ -74,6 +80,10 @@ Pulp launches `/bin/pish.fap`. With no explicit script argument, Pish opens
 `/init.psh`. That script performs:
 
 ```text
+juicer d /lib/jc.asm.jz /lib/jc.asm
+orgasm f /lib/jc.asm /bin/jc.raw
+juicer c /bin/jc.raw /bin/jc.fap
+del /bin/jc.raw /lib/jc.asm /lib/jc.asm.jz
 mkdir /src/fruityos
 cd /src/fruityos
 juicer d ../fruityos.jz ../fruityos.jar

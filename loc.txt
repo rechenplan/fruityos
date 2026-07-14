@@ -19,9 +19,9 @@
    147 ./pulp/src/inode.jabara
    121 ./initrd/lib/elf-runtime.asm
    101 ./initrd/lib/fap-runtime.asm
-    59 ./jabara/src/orgasm/main.jabara
+    55 ./jabara/src/orgasm/main.jabara
    252 ./jabara/src/orgasm/emit.jabara
-   794 ./jabara/src/orgasm/parse.jabara
+   804 ./jabara/src/orgasm/parse.jabara
    143 ./jabara/src/orgasm/lex.jabara
    242 ./jabara/src/orgasm/modern.jabara
    108 ./jabara/src/orgasm/elf.jabara
@@ -70,6 +70,7 @@
     32 ./peel/src/rmdir/rmdir.jabara
     31 ./peel/src/mkdir/mkdir.jabara
     54 ./peel/src/type/type.jabara
+ 17159 ./peel/bin/jc.asm
      9 ./peel/lib/_start.asm
     99 ./peel/lib/libpith.asm
     37 ./yuzu/doc/manual.yuzu
@@ -89,4 +90,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 14524 total
+ 31689 total

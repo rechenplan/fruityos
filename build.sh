@@ -12,11 +12,13 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 echo "[ Creating initial RAM filesystem ]"
 rm -rf "$root/initrd"
 mkdir -p "$root/initrd/bin" "$root/initrd/lib" "$root/initrd/src"
-for program in concat copy del echo jar jc juicer mkdir orgasm pish; do
+for program in concat copy del echo jar juicer mkdir orgasm pish; do
     cp "$root/peel/bin/$program.fap" "$root/initrd/bin"
 done
 cp "$root/jabara/lib/elf-runtime.asm" "$root/jabara/lib/fap-runtime.asm" \
     "$root/initrd/lib"
+"$root/peel/bin/juicer.elf" c "$root/peel/bin/jc.asm" \
+    "$root/initrd/lib/jc.asm.jz"
 cp "$root/scripts/init.psh" "$root/initrd/init.psh"
 
 echo "[ Packaging FruityOS source tree ]"
