@@ -1,5 +1,7 @@
 bin
 fruityos_hdd.img
+fruityos_uefi.img
+fruityos.efi
 fruityos_floppy.img
 log.txt
 initrd

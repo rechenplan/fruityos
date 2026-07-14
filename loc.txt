@@ -1,5 +1,5 @@
    130 ./pulp/src/idt.jabara
-   146 ./pulp/src/scr.jabara
+   145 ./pulp/src/scr.jabara
    268 ./pulp/src/entry.asm
    163 ./pulp/src/fd.jabara
    243 ./pulp/src/idt.asm
@@ -45,6 +45,7 @@
     24 ./jabara/lib/pith.jabara
    217 ./seed/src/hdseed/hdseed.s
    258 ./seed/src/fdseed/fdseed.s
+   920 ./seed/src/uefiseed/uefiseed.asm
    192 ./peel/src/juicer/juicer.jabara
     34 ./peel/src/move/move.jabara
    156 ./peel/src/jar/jar.jabara
@@ -80,4 +81,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 11792 total
+ 12711 total

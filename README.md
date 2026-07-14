@@ -1,9 +1,9 @@
 # FruityOS
 
 FruityOS is a small, monotasking, 64-bit operating system for x86 PCs. It boots
-through the legacy BIOS, enters long mode without GRUB or another external boot
-manager, loads a kernel and RAM filesystem from a flat disk image, and starts an
-interactive shell in ring 3.
+through either legacy BIOS or x86-64 UEFI without GRUB or another external boot
+manager, loads a kernel and RAM filesystem, and starts an interactive shell in
+ring 3.
 
 The current kernel and userland are written in
 [Jabara](jabara/docs/manual.md), the repository's compact systems language, with
@@ -13,7 +13,7 @@ it to build the Jabara compiler, and then has that compiler compile itself.
 
 FruityOS 0.02 currently provides:
 
-- a 512-byte BIOS boot sector and direct long-mode transition;
+- 512-byte BIOS and native PE32+ UEFI boot paths;
 - a ring-0 kernel with paging, a GDT, TSS, IDT, exception handlers, PIC and
   keyboard interrupt handling;
 - a ring-3 application environment and `int 0x84` system-call interface;
@@ -35,7 +35,8 @@ The supplied setup script targets Debian and Ubuntu systems:
 ./init.sh
 ```
 
-It installs GCC, NASM, GDB, and QEMU. Build and boot the hard-disk image with:
+It installs GCC, NASM, GDB, QEMU, and OVMF. Build and boot the BIOS hard-disk
+image with:
 
 ```sh
 ./build.sh
@@ -48,6 +49,25 @@ It installs GCC, NASM, GDB, and QEMU. Build and boot the hard-disk image with:
 ```text
 Welcome to FruityOS 0.02!
 />
+```
+
+To use the UEFI image instead:
+
+```sh
+./run-uefi.sh
+```
+
+This starts QEMU with OVMF and `fruityos_uefi.img`. The UEFI image contains a
+FAT16 EFI system partition whose `EFI/BOOT/BOOTX64.EFI` file embeds both the
+compressed kernel and the initrd. The build also leaves the same standalone
+PE32+ EFI application at `fruityos.efi` for copying to an existing EFI system
+partition.
+
+To boot that standalone PE directly through a temporary virtual EFI system
+partition, use:
+
+```sh
+./run-pe.sh
 ```
 
 The finished image is always padded to 256 KiB. The booted system itself uses
@@ -66,13 +86,15 @@ To clean generated artifacts:
 | --- | --- |
 | `jabara/` | Jabara's C bootstrap compiler (`jbc`), self-hosted compiler (`jc`), runtimes, tests, and language manual. |
 | `pulp/` | The FruityOS kernel, written in Jabara with assembly entry, interrupt, descriptor-table, and context-switch code. |
-| `seed/` | NASM boot sectors. `hdseed` is used by the normal image; `fdseed` is the alternate floppy-oriented loader. |
+| `seed/` | NASM bootloaders: `hdseed`, `fdseed`, and the single-source PE32+ `uefiseed`. |
 | `peel/` | Jabara userland: Pish, file utilities, archive/compression tools, and native compiler tools. |
 | `yuzu/` | The retained Yuzu sources and compatibility toolchain. Files outside this directory use the `.jabara` extension. |
 | `scripts/` | Files copied into the initial RAM filesystem, currently `/init.psh`. |
 | `initrd/` | Generated staging tree for the initial RAM filesystem. |
 | `bin/` | Linux Peel executables produced by the Jabara test suite. |
 | `fruityos_hdd.img` | Generated, bootable 256 KiB raw hard-disk image. |
+| `fruityos.efi` | Standalone PE32+ UEFI application with the kernel and initrd embedded. |
+| `fruityos_uefi.img` | Generated UEFI disk image containing the loader, kernel, and initrd. |
 
 The short READMEs inside individual components are historical notes. This file
 describes the integrated system built by the current root `build.sh`.
@@ -93,8 +115,11 @@ make-based build system:
 5. `pulp/build.sh` compiles the Jabara kernel as a headerless module, combines
    it with Pulp's assembly, assembles one flat kernel, and compresses it with
    Juicer.
-6. The root build creates the initrd archive and concatenates `hdseed.bin`,
-   `pulp.sys`, and the archive into `fruityos_hdd.img`.
+6. The root build creates the initrd archive and uses it for both images. It
+   concatenates `hdseed.bin`, `pulp.sys`, and the archive into
+   `fruityos_hdd.img`; `uefiseed.asm` embeds the kernel and archive in the
+   standalone `fruityos.efi` PE file and packages it as `BOOTX64.EFI` inside
+   the FAT16 `fruityos_uefi.img`.
 
 Jabara keeps target runtimes separate from generated program assembly. Linux
 programs are combined with `jabara/lib/elf-runtime.asm`; FruityOS programs are
@@ -130,6 +155,15 @@ descriptor tables and paging, initializes its fixed-block heap, unpacks the
 initrd into RAMFS, and launches `/bin/pish.fap` in ring 3. Pish executes
 `/init.psh` and then enters its interactive loop.
 
+The UEFI path is implemented entirely in `seed/src/uefiseed/uefiseed.asm`.
+That file contains its own DOS and PE32+ headers and also has a packaging mode
+that emits the MBR, FATs, directories, and `BOOTX64.EFI` payload. At boot it
+reserves FruityOS's fixed physical regions with UEFI boot services, decompresses
+Pulp at `0x10000`, copies the initrd to `0x700000`, obtains the final firmware
+memory map, calls `ExitBootServices`, installs a temporary identity map, and
+jumps to `0x10100`. It also restores the PIC and legacy VGA text state expected
+by FruityOS 0.02.
+
 ## Memory map
 
 All addresses below are hexadecimal. Ranges are half-open: the ending address
@@ -153,6 +187,7 @@ is the first byte not included in the region.
 | `0x00400000`–`0x00410000` | Kernel heap pool for allocations up to 32 bytes. |
 | `0x00410000`–`0x00420000` | Kernel heap pool for allocations up to 256 bytes. |
 | `0x00420000`–`0x00620000` | Kernel heap pool for allocations up to 1024 bytes, including RAMFS file blocks. |
+| `0x00700000` onward | UEFI Seed's stable initrd copy during kernel initialization; unused by the BIOS path. |
 
 Pulp initially identity-maps the first 512 MiB as supervisor memory. On a task
 switch it replaces page-directory entries 4 through 7, exposing only the
@@ -332,7 +367,8 @@ sector at `0x7c00` and the Pulp entry at `0x10100`.
 FruityOS is useful as a compact language/OS co-development environment, but its
 scope is intentionally narrow:
 
-- x86-64 legacy BIOS boot only; no UEFI path;
+- x86-64 BIOS or UEFI boot; the console still requires VGA-compatible text
+  hardware and keyboard input still requires a PS/2-compatible controller;
 - one active user program at a time and no preemptive scheduler;
 - volatile RAMFS only, with no post-boot disk access;
 - no networking, audio, graphics mode, USB stack, SMP, or ACPI support;

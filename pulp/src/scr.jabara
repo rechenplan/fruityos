@@ -14,7 +14,7 @@ sub scr_putch(scr, char)
 	screenRowCnt = scr_getRowCnt(scr)
 	screenColCnt = scr_getColumnCnt(scr)
 
-	byte [scr_getCursorAddress(scr)] = 0
+	byte [scr_getCursorAddress(scr)] = 32
 	byte [scr_getCursorAddress(scr) + 1] = 7
 
 	if char == 10 then ; new line
@@ -143,4 +143,3 @@ end
 sub scr_getColumnCnt(scr)
 	return [scr + (3 << 3)]
 end
-

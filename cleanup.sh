@@ -13,4 +13,4 @@ cd ..
 cd pulp
 ./cleanup.sh
 cd ..
-rm -rf initrd.jar *.img log.txt tmp
+rm -rf initrd.jar *.img fruityos.efi log.txt tmp

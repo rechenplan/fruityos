@@ -22,6 +22,9 @@ cd "$root/initrd"
 mv initrd.jar "$root/initrd.jar"
 cd "$root"
 
+"$root/seed/src/uefiseed/build.sh" "$root/pulp/bin/pulp.sys" \
+    "$root/initrd.jar" "$root/fruityos_uefi.img"
+
 cat "$root/seed/bin/hdseed.bin" "$root/pulp/bin/pulp.sys" "$root/initrd.jar" \
     > "$root/fruityos_hdd.img"
 stat --printf="FruityOS size is %s bytes.\n" "$root/fruityos_hdd.img"

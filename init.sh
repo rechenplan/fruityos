@@ -1,1 +1,1 @@
-sudo apt install nasm gcc gdb qemu-system-x86
+sudo apt install nasm gcc gdb qemu-system-x86 ovmf
