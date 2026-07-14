@@ -1,2 +1,66 @@
 echo [ Building FruityOS kernel with Jabara ]
-echo Current Jabara and Orgasm generated pulp.bin is ready.
+mkdir bin
+mkdir tmp
+
+echo Building Pulp modules...
+concat tmp/fba.jabara src/platform.jabara src/fba.jabara
+jc part tmp/fba.jabara tmp/fba.asm
+del tmp/fba.jabara
+concat tmp/fd.jabara src/platform.jabara src/fd.jabara
+jc part tmp/fd.jabara tmp/fd.asm
+del tmp/fd.jabara
+concat tmp/global.jabara src/platform.jabara src/global.jabara
+jc part tmp/global.jabara tmp/global.asm
+del tmp/global.jabara
+concat tmp/heap.jabara src/platform.jabara src/heap.jabara
+jc part tmp/heap.jabara tmp/heap.asm
+del tmp/heap.jabara
+concat tmp/idt.jabara src/platform.jabara src/idt.jabara
+jc part tmp/idt.jabara tmp/idt.asm
+del tmp/idt.jabara
+concat tmp/inode.jabara src/platform.jabara src/inode.jabara
+jc part tmp/inode.jabara tmp/inode.asm
+del tmp/inode.jabara
+concat tmp/kb.jabara src/platform.jabara src/kb.jabara
+jc part tmp/kb.jabara tmp/kb.asm
+del tmp/kb.jabara
+concat tmp/kmain.jabara src/platform.jabara src/kmain.jabara
+jc part tmp/kmain.jabara tmp/kmain.asm
+del tmp/kmain.jabara
+concat tmp/list.jabara src/platform.jabara src/list.jabara
+jc part tmp/list.jabara tmp/list.asm
+del tmp/list.jabara
+concat tmp/page.jabara src/platform.jabara src/page.jabara
+jc part tmp/page.jabara tmp/page.asm
+del tmp/page.jabara
+concat tmp/ramfs.jabara src/platform.jabara src/ramfs.jabara
+jc part tmp/ramfs.jabara tmp/ramfs.asm
+del tmp/ramfs.jabara
+concat tmp/scr.jabara src/platform.jabara src/scr.jabara
+jc part tmp/scr.jabara tmp/scr.asm
+del tmp/scr.jabara
+concat tmp/sys.jabara src/platform.jabara src/sys.jabara
+jc part tmp/sys.jabara tmp/sys.asm
+del tmp/sys.jabara
+concat tmp/task.jabara src/platform.jabara src/task.jabara
+jc part tmp/task.jabara tmp/task.asm
+del tmp/task.jabara
+concat tmp/utils.jabara src/platform.jabara src/utils.jabara
+jc part tmp/utils.jabara tmp/utils.asm
+del tmp/utils.jabara
+concat tmp/x86.jabara src/platform.jabara src/x86.jabara
+jc part tmp/x86.jabara tmp/x86.asm
+del tmp/x86.jabara
+
+echo Building Pulp globals...
+jc module src/platform.jabara tmp/platform.asm
+
+echo Assembling Pulp with Orgasm...
+concat tmp/pulp.asm src/entry.asm src/idt.asm tmp/fba.asm tmp/fd.asm tmp/global.asm tmp/heap.asm tmp/idt.asm tmp/inode.asm tmp/kb.asm tmp/kmain.asm tmp/list.asm tmp/page.asm tmp/ramfs.asm tmp/scr.asm tmp/sys.asm tmp/task.asm tmp/utils.asm tmp/x86.asm tmp/platform.asm
+del tmp/fba.asm tmp/fd.asm tmp/global.asm tmp/heap.asm tmp/idt.asm tmp/inode.asm tmp/kb.asm tmp/kmain.asm tmp/list.asm tmp/page.asm tmp/ramfs.asm tmp/scr.asm tmp/sys.asm tmp/task.asm tmp/utils.asm tmp/x86.asm tmp/platform.asm
+orgasm f tmp/pulp.asm bin/pulp.bin
+echo Compressing Pulp with Juicer...
+del tmp/pulp.asm
+juicer c bin/pulp.bin bin/pulp.sys
+
+echo Pulp native Jabara build complete.

@@ -68,9 +68,10 @@ offset `0x100`. The selected assembler emits `pulp.bin`; host Juicer produces
 `pulp.sys`.
 
 As part of source packaging, the root build also places the current generated
-Pulp assembly and `pulp.bin` in the archived checkout. Pulp is too large for the
-current target-side compiler/assembler arena, so the native kernel stage reports
-the already generated artifact instead of attempting an unsafe second parse.
+Pulp assembly and `pulp.bin` in the archived checkout. The native build does not
+reuse those artifacts: it compiles each implementation as a namespaced `part`,
+combines the parts with one module containing shared globals, assembles them
+with Orgasm, and compresses the result with Juicer.
 
 ## Source snapshot
 

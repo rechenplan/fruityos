@@ -47,6 +47,13 @@ These ten FAPs form the bootstrap set:
 Utilities such as `dir`, `fred`, `move`, `type`, and `write` are not copied from
 the host. They appear in `/bin` only after the native build succeeds.
 
+The bootstrap Orgasm and Juicer FAPs use Jabara's stack-based module calling
+convention. Their tight parser and compression loops therefore consume heap only
+for explicit records and buffers, rather than allocating a persistent
+environment for every helper call while processing the kernel artifacts. The
+native userland build preserves this calling convention for the replacement
+Juicer installed in `/bin`.
+
 ## Source archive
 
 During every host build, the root script snapshots all tracked and unignored
@@ -86,8 +93,8 @@ The checkout's root `build.psh` invokes `peel/build.psh` and then
 
 The Peel script builds each ordinary userland application with the bootstrap
 `concat`, `jc`, `orgasm`, and `juicer` tools. Intermediate Jabara, assembly, and
-raw files live in `peel/tmp`; compressed results remain in `peel/bin` inside the
-checkout.
+raw files are deleted after each application to return their RAMFS blocks;
+compressed results remain in `peel/bin` inside the checkout.
 
 The following applications are rebuilt:
 
@@ -105,14 +112,18 @@ working tree and disappears at shutdown.
 
 ## Native kernel stage
 
-The host packages `pulp/pulp-generated.asm` and `pulp/pulp.bin` from the current
-sources. Full target-side parsing of the combined Pulp input exceeds the current
-application arena, so `pulp/build.psh` identifies that current generated binary
-as ready instead of launching a build that would exhaust memory.
+`pulp/build.psh` compiles each kernel implementation file separately with
+`jc part`. Each compiler input combines `platform.jabara`, which provides the
+shared extern declarations and global names, with one implementation file.
+The small inputs stay within the target-side compiler arena.
 
-This is different from silently retaining an old kernel: the host build always
-regenerates `pulp.bin` before packaging the source tree. Native userland remains
-fully rebuilt and installed on every boot.
+Part output namespaces compiler-private labels and omits repeated global
+storage. The platform declarations are compiled once with `jc module` to emit
+the shared global block. Native `concat` combines the handwritten entry and IDT
+assembly, all generated parts, and that global block; Orgasm emits
+`pulp/bin/pulp.bin`, and Juicer emits `pulp/bin/pulp.sys`. These artifacts do not
+replace the running kernel, but they verify that the packaged checkout can
+rebuild Pulp entirely inside FruityOS.
 
 ## Archive and compression formats
 

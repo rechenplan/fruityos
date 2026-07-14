@@ -104,8 +104,9 @@ FruityOS is intentionally narrow:
 - no heap/stack collision guard in application space;
 - `fork`, `waitpid`, `dup2`, and `mmap` compatibility stubs;
 - Pish has no pipes, redirection, quoting, wildcard expansion, or environment;
-- full native Pulp compilation exceeds the current target application arena, so
-  the host-generated current Pulp assembly and binary are packaged instead.
+- native Pulp compilation is split into per-file parts to fit the target
+  application arena; the rebuilt artifacts remain in RAMFS and do not replace
+  the currently running kernel.
 
 These are descriptions of the present implementation, not compatibility
 promises. The project is best treated as a compact OS/toolchain laboratory.

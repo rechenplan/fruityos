@@ -9,7 +9,7 @@
     78 ./pulp/src/page.jabara
     84 ./pulp/src/list.jabara
    140 ./pulp/src/utils.jabara
-    11 ./pulp/src/platform.jabara
+   117 ./pulp/src/platform.jabara
     88 ./pulp/src/fba.jabara
    154 ./pulp/src/task.jabara
     22 ./pulp/src/kmain.jabara
@@ -25,11 +25,11 @@
    143 ./jabara/src/orgasm/lex.jabara
    242 ./jabara/src/orgasm/modern.jabara
    108 ./jabara/src/orgasm/elf.jabara
-    27 ./jabara/src/jc/main.jabara
+    30 ./jabara/src/jc/main.jabara
     77 ./jabara/src/jc/model.jabara
    302 ./jabara/src/jc/parser.jabara
    183 ./jabara/src/jc/lexer.jabara
-   711 ./jabara/src/jc/emitter.jabara
+   739 ./jabara/src/jc/emitter.jabara
    131 ./jabara/src/jc/runtime.jabara
    417 ./jabara/src/jbc/parser.c
    195 ./jabara/src/jbc/lexer.c
@@ -40,11 +40,15 @@
      3 ./jabara/tests/error-undeclared-extern.jabara
     10 ./jabara/tests/compat.jabara
      8 ./jabara/tests/error-sub-value.jabara
+     1 ./jabara/tests/part-globals.jabara
      3 ./jabara/tests/error-missing-main.jabara
+     6 ./jabara/tests/part-a.jabara
+     6 ./jabara/tests/part-b.jabara
     26 ./jabara/tests/record.jabara
    121 ./jabara/lib/elf-runtime.asm
      1 ./jabara/lib/jc-fap-config.jabara
    101 ./jabara/lib/fap-runtime.asm
+    19 ./jabara/lib/fap-stack-runtime.asm
      8 ./jabara/lib/fap-module-runtime.asm
     24 ./jabara/lib/pith.jabara
    217 ./seed/src/hdseed/hdseed.s
@@ -85,4 +89,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 14355 total
+ 14524 total

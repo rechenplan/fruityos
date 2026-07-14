@@ -75,3 +75,33 @@ Notes:
 	Secure Boot is not supported. Physical UEFI systems must disable it or use
 	a locally signed fruityos.efi. VGA-compatible text output and PS/2 keyboard
 	input are still required after firmware handoff.
+
+Unreleased
+
+The native build now rebuilds Pulp from its Jabara sources inside FruityOS.
+
+Changes:
+
+	1. The self-hosted Jabara compiler has a part output format for separately
+	   compiled, headerless module fragments with namespaced private labels.
+	2. Pulp declares its cross-module interface explicitly and compiles each
+	   implementation file independently during the native build.
+	3. Native concat combines the generated parts, handwritten entry and IDT
+	   assembly, and one shared global block before Orgasm assembles pulp.bin.
+	4. Native Juicer compresses the rebuilt kernel to pulp.sys.
+	5. Orgasm and Juicer FAPs use stack-based Jabara environments for their
+	   allocation-heavy parser and compression loops.
+	6. Native Peel and Pulp builds delete intermediate files as soon as they are
+	   no longer needed, returning their RAMFS blocks to the kernel.
+
+Bugfixes:
+
+	1. Separately compiled Jabara modules no longer collide on compiler-private
+	   control-flow and string labels.
+	2. Large native kernel assembly no longer exhausts the application heap.
+	3. Native kernel intermediates no longer exhaust the fixed-block RAMFS pool.
+
+Notes:
+
+	The rebuilt Pulp artifacts remain in RAMFS and do not replace the kernel
+	that is currently running.

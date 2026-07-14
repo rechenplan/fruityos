@@ -82,6 +82,19 @@ done
 assemble_elf "$tmp/jc-self-record.asm" "$tmp/jc-self-record"
 "$tmp/jc-self-record"
 
+"$root/bin/jc" part "$root/tests/part-a.jabara" "$tmp/part-a.asm"
+"$root/bin/jc" part "$root/tests/part-b.jabara" "$tmp/part-b.asm"
+"$root/bin/jc" module "$root/tests/part-globals.jabara" "$tmp/part-globals.asm"
+grep -q '__jabara_part_a_jabara_label_' "$tmp/part-a.asm"
+grep -q '__jabara_part_b_jabara_label_' "$tmp/part-b.asm"
+if grep -q '^__jabara_global_' "$tmp/part-a.asm" "$tmp/part-b.asm"; then
+    echo "jc: part unexpectedly emitted global storage" >&2
+    exit 1
+fi
+cat "$tmp/part-a.asm" "$tmp/part-b.asm" "$tmp/part-globals.asm" \
+    > "$tmp/parts.asm"
+nasm -f bin "$tmp/parts.asm" -o "$tmp/parts.bin"
+
 for test in error-missing-main error-sub-value error-undeclared-extern; do
     expect_jc_failure "$root/tests/$test.jabara"
 done

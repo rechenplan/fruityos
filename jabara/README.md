@@ -20,7 +20,7 @@ This produces:
 The compiler interface is:
 
 ```text
-jc elf|fap|module input.jabara output.asm
+jc elf|fap|module|part input.jabara output.asm
 ```
 
 Compiler output must be combined with the appropriate runtime and assembled.

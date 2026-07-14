@@ -13,10 +13,11 @@ the host Pulp build.
 | `jc` | Jabara | Normal self-hosted compiler. |
 | `jc-self` | Output of `jc` compiling itself | Bootstrap consistency artifact. |
 
-All implement the same command shape:
+The bootstrap compiler accepts `elf`, `fap`, and `module`. The self-hosted
+compiler additionally accepts the separately linkable `part` format:
 
 ```text
-jc elf|fap|module input.jabara output.asm
+jc elf|fap|module|part input.jabara output.asm
 ```
 
 The output is assembly. A separate runtime, assembler, and optional compression
@@ -29,6 +30,7 @@ step produces a runnable file.
 | `elf` | `0x400000` | Minimal flat ELF64 header | `elf-runtime.asm` | Linux bootstrap tools and tests. |
 | `fap` | `0x801000` | FruityOS entry trampoline | `fap-runtime.asm` | Peel applications. |
 | `module` | Supplied externally | None | Platform-supplied | Pulp and embedded compiler modules. |
+| `part` | Supplied externally | None | Platform-supplied | Separately compiled module fragments. |
 
 An ELF build looks like:
 
@@ -63,6 +65,10 @@ The runtime assembly implements those services for a target:
 The `module` output has no entry wrapper or Pith implementation. Its surrounding
 platform must provide every referenced external symbol, including the allocator
 when records or captured functions are used.
+
+The `part` output follows the same calling convention but namespaces private
+labels from its input basename and omits global storage. Multiple parts can
+therefore be concatenated with one `module` output that owns the shared globals.
 
 ## Jabara model
 

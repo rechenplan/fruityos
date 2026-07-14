@@ -23,7 +23,7 @@ compiled by itself. A C compiler and NASM must be installed.
 Both compilers accept the same interface:
 
 ```text
-jc elf|fap|module input.jabara output.asm
+jc elf|fap|module|part input.jabara output.asm
 ```
 
 They only generate assembly. They do not invoke NASM, link a runtime, compress
@@ -94,13 +94,20 @@ only ordinary subroutines does not need it. Because an ordinary module
 subroutine keeps its environment on the stack, a closure that captures one of
 its locals must not outlive that subroutine.
 
-The three formats differ as follows:
+The `part` format is the separately compiled form of `module`. It uses the
+input basename to namespace compiler-private labels and omits global storage and
+the module footer. Concatenate one or more parts with exactly one ordinary
+module that supplies shared globals, then assemble the combined source. Pulp's
+native build uses this mode to keep every compiler invocation small.
+
+The four formats differ as follows:
 
 | Format | Origin | Prefix | Runtime to append | Needs `main` |
 | --- | ---: | --- | --- | --- |
 | `elf` | `0x400000` | Minimal 64-bit ELF header | `lib/elf-runtime.asm` | Yes |
 | `fap` | `0x801000` | FruityOS entry jump | `lib/fap-runtime.asm` | Yes |
 | `module` | Chosen by surrounding source | Headerless | Platform-defined | No |
+| `part` | Chosen by surrounding source | Headerless fragment | Platform-defined | No |
 
 ## Comments and whitespace
 

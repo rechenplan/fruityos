@@ -1,0 +1,6 @@
+local shared
+
+sub part_b(value)
+  if value == shared then return "part b" end
+  return 0
+end

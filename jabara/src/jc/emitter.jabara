@@ -24,14 +24,39 @@ sub em_new_label(emitter:Emitter)
   return emitter.label
 end
 
-sub em_label(number)
-  em_text("__jabara_label_")
+sub em_private_prefix(emitter:Emitter)
+  local pointer = emitter.prefix, scan = emitter.prefix, character, count = 0
+  if emitter.format != 3 then return 0 end
+  while byte [scan] != 0 do
+    if byte [scan] == 47 then pointer = scan + 1 end
+    scan = scan + 1
+  end
+  while ((character = byte [pointer]) != 0) & (count < 32) do
+    if ((character >= 48) & (character <= 57)) | ((character >= 65) & (character <= 90)) | ((character >= 97) & (character <= 122)) then
+      jc_putc(character)
+    else
+      jc_putc(95)
+    end
+    pointer = pointer + 1
+    count = count + 1
+  end
+  jc_putc(95)
+end
+
+sub em_private_label(emitter:Emitter, kind, number)
+  em_text("__jabara_")
+  em_private_prefix(emitter)
+  em_text(kind)
+  em_text("_")
   em_number(number)
 end
 
-sub em_return_label(number)
-  em_text("__jabara_return_")
-  em_number(number)
+sub em_label(emitter:Emitter, number)
+  em_private_label(emitter, "label", number)
+end
+
+sub em_return_label(emitter:Emitter, number)
+  em_private_label(emitter, "return", number)
 end
 
 sub em_find_function(emitter:Emitter, name)
@@ -358,7 +383,7 @@ end
 sub em_emit_closure_value(emitter:Emitter, expr:Expr)
   local number = em_new_label(emitter)
   em_new_closure_scope(emitter, expr, number)
-  em_text("\tlea\trax, [rel __jabara_closure_") em_number(number) em_line("]")
+  em_text("\tlea\trax, [rel ") em_private_label(emitter, "closure", number) em_line("]")
   em_instruction("push\trax")
   if emitter.scope.is_global then em_instruction("xor\trax, rax")
   else em_instruction("mov\trax, [rbp - 8]") end
@@ -373,8 +398,8 @@ end
 
 sub em_emit_string(emitter:Emitter, text)
   local number = em_new_label(emitter), pointer = text
-  em_text("\tjmp\t__jabara_string_after_") em_number(number) em_newline()
-  em_text("__jabara_string_") em_number(number) em_text(": db ")
+  em_text("\tjmp\t") em_private_label(emitter, "string_after", number) em_newline()
+  em_private_label(emitter, "string", number) em_text(": db ")
   if byte [pointer] == 0 then em_text("0") end
   while byte [pointer] != 0 do
     em_number(byte [pointer]) em_text(",")
@@ -382,8 +407,8 @@ sub em_emit_string(emitter:Emitter, text)
     if byte [pointer] == 0 then em_text("0") end
   end
   em_newline()
-  em_text("__jabara_string_after_") em_number(number) em_line(":")
-  em_text("\tlea\trax, [rel __jabara_string_") em_number(number) em_line("]")
+  em_private_label(emitter, "string_after", number) em_line(":")
+  em_text("\tlea\trax, [rel ") em_private_label(emitter, "string", number) em_line("]")
 end
 
 sub em_emit_record_constructor(emitter:Emitter, expr:Expr)
@@ -471,30 +496,30 @@ sub em_emit_statements(emitter:Emitter, statement:Stmt)
     if statement.kind == ST_EXPR() then em_emit_expr(emitter, statement.expr) end
     if statement.kind == ST_RETURN() then
       em_emit_expr(emitter, statement.expr)
-      em_text("\tjmp\t") em_return_label(emitter.return_label) em_newline()
+      em_text("\tjmp\t") em_return_label(emitter, emitter.return_label) em_newline()
     end
     if statement.kind == ST_IF() then
       otherwise = em_new_label(emitter)
       done = em_new_label(emitter)
       em_emit_expr(emitter, statement.expr)
       em_instruction("test\trax, rax")
-      em_text("\tjz\t") em_label(otherwise) em_newline()
+      em_text("\tjz\t") em_label(emitter, otherwise) em_newline()
       em_emit_statements(emitter, statement.body)
-      em_text("\tjmp\t") em_label(done) em_newline()
-      em_label(otherwise) em_line(":")
+      em_text("\tjmp\t") em_label(emitter, done) em_newline()
+      em_label(emitter, otherwise) em_line(":")
       em_emit_statements(emitter, statement.else_body)
-      em_label(done) em_line(":")
+      em_label(emitter, done) em_line(":")
     end
     if statement.kind == ST_WHILE() then
       again = em_new_label(emitter)
       done = em_new_label(emitter)
-      em_label(again) em_line(":")
+      em_label(emitter, again) em_line(":")
       em_emit_expr(emitter, statement.expr)
       em_instruction("test\trax, rax")
-      em_text("\tjz\t") em_label(done) em_newline()
+      em_text("\tjz\t") em_label(emitter, done) em_newline()
       em_emit_statements(emitter, statement.body)
-      em_text("\tjmp\t") em_label(again) em_newline()
-      em_label(done) em_line(":")
+      em_text("\tjmp\t") em_label(emitter, again) em_newline()
+      em_label(emitter, done) em_line(":")
     end
     statement = statement.next
   end
@@ -535,14 +560,14 @@ sub em_emit_function(emitter:Emitter, function:Function)
   em_instruction("push\trbp")
   em_instruction("mov\trbp, rsp")
   em_text("\tsub\trsp, ")
-  if emitter.format == 2 then em_number(64 + environment_size) else em_number(64) end
+  if emitter.format >= 2 then em_number(64 + environment_size) else em_number(64) end
   em_newline()
   while index < count do
     em_text("\tmov\t[rbp - ") em_number(16 + (index * 8)) em_text("], ")
     em_line(em_register(index))
     index = index + 1
   end
-  if emitter.format == 2 then
+  if emitter.format >= 2 then
     em_text("\tlea\trax, [rbp - ") em_number(64 + environment_size) em_line("]")
   else
     em_text("\tmov\trdi, ") em_number((scope.slot_count + 1) * 8) em_newline()
@@ -559,7 +584,7 @@ sub em_emit_function(emitter:Emitter, function:Function)
   if jc_streq(function.name, "main") then em_emit_statements(emitter, emitter.program.statements) end
   em_emit_statements(emitter, function.body)
   em_instruction("xor\trax, rax")
-  em_return_label(emitter.return_label) em_line(":")
+  em_return_label(emitter, emitter.return_label) em_line(":")
   em_instruction("mov\trsp, rbp")
   em_instruction("pop\trbp")
   em_instruction("ret")
@@ -572,7 +597,7 @@ sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
   local saved_return = emitter.return_label, index = 2
   emitter.scope = info.scope
   emitter.return_label = em_new_label(emitter)
-  em_text("\n__jabara_closure_") em_number(info.label) em_line(":")
+  em_newline() em_private_label(emitter, "closure", info.label) em_line(":")
   em_instruction("push\trbp")
   em_instruction("mov\trbp, rsp")
   em_instruction("sub\trsp, 32")
@@ -592,7 +617,7 @@ sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
   end
   em_emit_statements(emitter, info.expr.body)
   em_instruction("xor\trax, rax")
-  em_return_label(emitter.return_label) em_line(":")
+  em_return_label(emitter, emitter.return_label) em_line(":")
   em_instruction("mov\trsp, rbp")
   em_instruction("pop\trbp")
   em_instruction("ret")
@@ -668,22 +693,23 @@ sub em_emit_flat_header(format)
   end
 end
 
-sub em_emit_program(program:Program, format)
+sub em_emit_program(program:Program, format, prefix)
   local emitter:Emitter = Emitter(), function:Function, info:ClosureInfo, binding:Binding
   emitter.program = program
   emitter.format = format
+  emitter.prefix = prefix
   emitter.global_scope = Scope()
   emitter.global_scope.is_global = 1
   emitter.scope = emitter.global_scope
   function = em_find_function(emitter, "main")
-  if format != 2 then
+  if format < 2 then
     if function == 0 then jc_error_at(1, 1, "program requires sub main") end
     if function.is_extern then jc_error_at(1, 1, "program requires sub main") end
   end
   em_validate_records(emitter)
   em_collect_locals(emitter, emitter.global_scope, program.statements)
   em_line("; generated by the jabara compiler")
-  if format == 2 then em_line("bits 64") else em_emit_flat_header(format) end
+  if format >= 2 then em_line("bits 64") else em_emit_flat_header(format) end
   function = program.functions
   while function != 0 do
     if function.is_extern == 0 then em_emit_function(emitter, function) end
@@ -694,18 +720,20 @@ sub em_emit_program(program:Program, format)
     em_emit_closure_function(emitter, info)
     info = info.next
   end
-  if format != 2 then
+  if format < 2 then
     em_emit_allocator()
   end
-  em_line("\nalign 8")
-  if format != 2 then
-    em_line("__jabara_heap: dq 0")
-    em_line("__jabara_heap_end: dq 0")
+  if format != 3 then
+    em_line("\nalign 8")
+    if format < 2 then
+      em_line("__jabara_heap: dq 0")
+      em_line("__jabara_heap_end: dq 0")
+    end
+    binding = emitter.global_scope.bindings
+    while binding != 0 do
+      em_text("__jabara_global_") em_text(binding.name) em_line(": dq 0")
+      binding = binding.next
+    end
+    if format == 2 then em_line("__jabara_file_end:") end
   end
-  binding = emitter.global_scope.bindings
-  while binding != 0 do
-    em_text("__jabara_global_") em_text(binding.name) em_line(": dq 0")
-    binding = binding.next
-  end
-  if format == 2 then em_line("__jabara_file_end:") end
 end

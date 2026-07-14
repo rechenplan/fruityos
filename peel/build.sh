@@ -31,13 +31,23 @@ chmod +x "$root/bin/jar.elf" "$root/bin/juicer.elf"
 
 for source in "$root"/src/*/*.jabara; do
     program=$(basename "$(dirname -- "$source")")
-    compile fap "$source" "$tmp/$program.raw"
+    if test "$program" = juicer; then
+        cat "$pith" "$source" > "$tmp/$program.jabara"
+        "$jc" module "$tmp/$program.jabara" "$tmp/$program-generated.asm"
+        cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
+            "$fruity/jabara/lib/fap-runtime.asm" \
+            "$tmp/$program-generated.asm" > "$tmp/$program.asm"
+        nasm -f bin "$tmp/$program.asm" -o "$tmp/$program.raw"
+    else
+        compile fap "$source" "$tmp/$program.raw"
+    fi
     "$root/bin/juicer.elf" c "$tmp/$program.raw" "$root/bin/$program.fap"
 done
 
 cat "$pith" "$fruity"/jabara/src/orgasm/*.jabara > "$tmp/orgasm.jabara"
-"$jc" fap "$tmp/orgasm.jabara" "$tmp/orgasm-generated.asm"
-cat "$tmp/orgasm-generated.asm" "$fruity/jabara/lib/fap-runtime.asm" \
+"$jc" module "$tmp/orgasm.jabara" "$tmp/orgasm-generated.asm"
+cat "$fruity/jabara/lib/fap-stack-runtime.asm" \
+    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/orgasm-generated.asm" \
     > "$tmp/orgasm.asm"
 nasm -f bin "$tmp/orgasm.asm" -o "$tmp/orgasm.raw"
 "$root/bin/juicer.elf" c "$tmp/orgasm.raw" "$root/bin/orgasm.fap"
