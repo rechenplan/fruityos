@@ -22,7 +22,7 @@ Build every component and generate all boot images:
 ./build.sh
 ```
 
-The build requires a C compiler (cc) and NASM for bootstrapping the
+The build requires a ANSI C compiler (cc) and NASM for bootstrapping the
 Jabara compiler, Orgasm assembler, and bootloaders. After that it is
 entirely self-hosting :). Standard POSIX shell utilities are required
 by build scripts. QEMU and OVMF are required only for the supplied run
