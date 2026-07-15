@@ -2,7 +2,7 @@
 ; zest emitter
 
 sub emit_int(fd, vec)
-	if fd != -1 then
+	if fd >= 0 then
 		fputch(fd, 205)
 		fputch(fd, vec)
 	end
@@ -13,13 +13,13 @@ end
 sub emit_no_args(op, fd)
 	local bytes
 	if op == 0 then
-		if fd != -1 then
+		if fd >= 0 then
 			fputch(fd, 195) ; 0xC3
 		end
 		bytes = 1
 	end
 	if op == 1 then
-		if fd != -1 then
+		if fd >= 0 then
 			fputch(fd, 15) ; 0x0F
 			fputch(fd, 5)  ; 0x05
 		end
@@ -33,18 +33,18 @@ sub emit_one_reg(op, fd, reg)
 	local extension
 	if op <= 3 then
 		if reg > 7 then
-			if fd != -1 then fputch(fd, 65) end
+			if fd >= 0 then fputch(fd, 65) end
 			reg = reg - 8
 			extension = 1
 		end
-		if fd != -1 then fputch(fd, reg + 64 + (op << 3)) end
+		if fd >= 0 then fputch(fd, reg + 64 + (op << 3)) end
 		return extension + 1
 	end
 	if op == 4 then extension = 224 end
 	if op == 5 then extension = 240 end
 	if op == 6 then extension = 216 end
 	if op == 7 then extension = 208 end
-	if fd != -1 then
+	if fd >= 0 then
 		fputch(fd, 72)
 		fputch(fd, 247)
 		fputch(fd, extension + reg)
@@ -55,7 +55,7 @@ end
 ; op: 15 = shl, 16 = shr
 sub emit_shift(op, fd, dstReg)
 	local mod
-	if fd != -1 then
+	if fd >= 0 then
 		mod = dstReg + 224 ; 0xE0
 		fputch(fd, 72) ; 0x48
 		fputch(fd, 211) ; 0xD3
@@ -69,7 +69,7 @@ sub emit_string(fd, str)
 	local bytes
 	str = str + 1 ; skip initial quote
 	while byte [str] != 34 do
-		if fd != -1 then fputch(fd, byte [str]) end
+		if fd >= 0 then fputch(fd, byte [str]) end
 		str = str + 1
 		bytes = bytes + 1
 	end

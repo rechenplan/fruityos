@@ -63,6 +63,10 @@ cmp "$tmp/descriptor.raw" "$tmp/descriptor-nasm.raw"
 chmod +x "$tmp/orgasm-self"
 if "$tmp/orgasm-self" > "$tmp/orgasm-self.out"; then :; fi
 grep -q "usage: orgasm" "$tmp/orgasm-self.out"
+"$tmp/orgasm-self" "$jabara/lib/fap-stack-runtime.asm" \
+    "$jabara/lib/fap-runtime.asm" "$tmp/closure-generated.asm" \
+    "$tmp/closure-self.raw"
+cmp "$tmp/closure.raw" "$tmp/closure-self.raw"
 
 fruity=$(CDPATH= cd "$jabara/.." && pwd)
 "$jabara/bin/jc" "$fruity"/pulp/src/*.jabara "$tmp/pulp-generated.asm"

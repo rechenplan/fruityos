@@ -37,8 +37,9 @@ sys:
 	dq sys_keyboard
 
 entry:
-	push rsi ; pointer to initrd
-	pop rdi ; pointer to initrd
+	mov rdi, rsi ; pointer to initrd
+	mov rsp, 0x40000 ; keep the kernel stack below the remapped task window
+	xor rbp, rbp
 	call kmain
 	jmp die
 

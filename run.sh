@@ -52,7 +52,8 @@ cp "$source_image" "$image"
 case $1 in
     uefi)
         qemu-system-x86_64 -m 512 -bios "$ovmf" \
-            -drive "format=raw,file=$image,index=0,if=ide" -no-reboot
+            -drive "format=raw,file=$image,if=none,id=fruitydisk" \
+            -device "ide-hd,drive=fruitydisk,bootindex=0" -no-reboot
         ;;
     hdd)
         qemu-system-x86_64 -m 512 \

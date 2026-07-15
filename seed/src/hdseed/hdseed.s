@@ -142,7 +142,7 @@ ata_wait:
 
 	; Find /pulp.sys in the initrd Jar.
 	mov rsi, PAYLOAD_ADDR
-	mov rbx, rsi
+	mov r12, rsi
 	mov rdx, 0x7379732e706c7570
 find_pulp:
 	cmp byte [rsi], 0
@@ -167,7 +167,7 @@ pulp_found:
 %include "juicer-runtime.asm"
 
 	; Pass the Jar start, not the kernel entry, to Pulp.
-boot:	mov rsi, rbx
+boot:	mov rsi, r12
 	jmp KERNEL_ADDR + 0x100
 
 

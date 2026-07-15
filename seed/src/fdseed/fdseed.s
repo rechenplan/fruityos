@@ -107,7 +107,7 @@ lmode:	mov ax, DATA_SEG
 
 	; Find /pulp.sys in the initrd Jar after the boot sector.
 	mov rsi, 0x40200
-	mov rbx, rsi
+	mov r12, rsi
 	mov rdx, 0x7379732e706c7570
 find_pulp:
 	cmp byte [rsi], 0
@@ -131,7 +131,7 @@ skip_name:
 
 %include "juicer-runtime.asm"
 
-boot:	mov rsi, rbx
+boot:	mov rsi, r12
 	jmp KERNEL_ADDR + 0x100
 
 gdt:

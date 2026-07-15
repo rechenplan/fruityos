@@ -1,6 +1,6 @@
     27 ./pulp/src/idt.jabara
    105 ./pulp/src/scr.jabara
-   273 ./pulp/src/entry.asm
+   274 ./pulp/src/entry.asm
    163 ./pulp/src/fd.jabara
    675 ./pulp/src/idt.asm
    272 ./pulp/src/sys.jabara
@@ -90,4 +90,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 24955 total
+ 24956 total
