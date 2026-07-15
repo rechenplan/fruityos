@@ -16,9 +16,10 @@ From the `jabara` directory, build the bootstrap and self-hosted compilers:
 ./build.sh
 ```
 
-This creates three programs in `bin/`: `jbc`, the ANSI C bootstrap compiler;
-`jc`, the compiler written in Jabara; and `jc-self`, the same Jabara compiler
-compiled by itself. A C compiler and NASM must be installed.
+This creates four programs in `bin/`: `jbc`, the ANSI C bootstrap compiler;
+`jc`, the compiler written in Jabara; `jc-self`, the same Jabara compiler
+compiled by itself; and `orgasm`, the assembler used for generated code. A C
+compiler and NASM must be installed to bootstrap the toolchain.
 
 Both compilers accept the same interface:
 
@@ -26,7 +27,7 @@ Both compilers accept the same interface:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-They only generate assembly. They do not invoke NASM, link a runtime, compress
+They only generate assembly. They do not invoke Orgasm, add a runtime, compress
 a FAP file, or run the result.
 
 ## Your first program
@@ -44,7 +45,7 @@ and finishes with `end`. Here the parameter list is empty. Returning zero tells
 the surrounding system that the program completed successfully.
 
 Save the example as `first.jabara`. From the `jabara` directory, generate its
-Linux NASM source with either compiler:
+assembly source with either compiler:
 
 ```sh
 bin/jc first.jabara first.asm
@@ -53,13 +54,11 @@ bin/jc first.jabara first.asm
 `jc` is the compiler written in Jabara. The smaller bootstrap compiler is
 available as `bin/jbc` and accepts the same command-line arguments.
 
-The compiler output does not select a loading environment. For Linux, prepend
-the manual ELF header, append the Linux runtime, and assemble the combined
-source as a flat binary:
+The compiler output does not select a loading environment. For Linux, pass the
+manual ELF header, generated source, and Linux runtime to Orgasm in that order:
 
 ```sh
-cat lib/elf-header.asm first.asm lib/elf-runtime.asm > first-linked.asm
-nasm -f bin first-linked.asm -o first
+bin/orgasm lib/elf-header.asm first.asm lib/elf-runtime.asm first
 chmod +x first
 ./first
 echo $?
@@ -70,15 +69,14 @@ and runtime assembly instead:
 
 ```sh
 bin/jc first.jabara first-fap.asm
-cat lib/fap-stack-runtime.asm lib/fap-runtime.asm first-fap.asm \
-  > first-fap-linked.asm
-nasm -f bin first-fap-linked.asm -o first.raw
+bin/orgasm lib/fap-stack-runtime.asm lib/fap-runtime.asm \
+  first-fap.asm first.raw
 ../peel/bin/juicer.elf c first.raw first.fap
 ```
 
 `fap-stack-runtime.asm` supplies FruityOS's origin, entry point, and allocator;
-`fap-runtime.asm` supplies its system-call interface. Jabara does not run NASM
-or Juicer itself. Juicer
+`fap-runtime.asm` supplies its system-call interface. Jabara does not run
+Orgasm or Juicer itself. Juicer
 compression is optional while inspecting the raw image, but a normal FruityOS
 `.fap` file is the juiced form.
 

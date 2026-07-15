@@ -21,8 +21,9 @@ cp "$root/scripts/init.psh" "$root/initrd/init.psh"
 
 echo "[ Packaging FruityOS source tree ]"
 source_tmp=${TMPDIR:-/tmp}/fruityos-source-$$
+source_jar=$source_tmp.jar
 (umask 077 && mkdir "$source_tmp") || exit 1
-trap 'rm -rf "$source_tmp"' 0
+trap 'rm -rf "$source_tmp"; rm -f "$source_jar"' 0
 trap 'exit 1' 1 2 3 15
 mkdir -p "$source_tmp/fruityos/peel/bin" "$source_tmp/fruityos/peel/tmp" \
     "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp" \
@@ -48,9 +49,9 @@ tar -C "$root" -cf - \
     "$source_tmp/fruityos/jabara/jc.asm.jz"
 (
     cd "$source_tmp"
-    "$root/peel/bin/jar.elf" c "$source_tmp/fruityos.jar"
+    "$root/peel/bin/jar.elf" c "$source_jar"
 )
-"$root/peel/bin/juicer.elf" c "$source_tmp/fruityos.jar" \
+"$root/peel/bin/juicer.elf" c "$source_jar" \
     "$root/initrd/src/fruityos.jz"
 
 cd "$root/initrd"
@@ -108,6 +109,7 @@ find . -type f \( -name '*.jabara' -o -name '*.yuzu' -o \
     -exec wc -l {} + > "$root/loc.txt"
 
 rm -f "$root/initrd.jar"
+rm -f "$source_jar"
 rm -rf "$source_tmp"
 trap - 0 1 2 3 15
 
