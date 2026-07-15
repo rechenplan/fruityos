@@ -1,7 +1,6 @@
 sub kmain(initrd)
 	local fd
 
-	kputs("Booting...")
 	gdt_init()
 	page_init()
 	tss_init()
@@ -11,13 +10,8 @@ sub kmain(initrd)
 	kunpack(initrd)
 	idt_sti()
 	kcls()
-
-	; fd = sys_open("/init.psh", 0)
-	; if fd != 0 then
-	;	pish_main(fd)
-	; end
-	; sys_close(fd)
-
+	kputs("Booting...")
+	kputch(10)
 	sys_exec("/bin/pish.fap", 0, 0)
 	user_jmp()
 end

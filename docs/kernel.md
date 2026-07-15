@@ -10,13 +10,13 @@ by the language.
 Seed enters Pulp at physical `0x10100` with interrupts disabled and `RSI`
 pointing to the initrd. `kmain` initializes subsystems in this order:
 
-1. `Booting...` through `kputs` (immediately mirrored to debug port `0xE9`)
-2. GDT
-3. paging
-4. TSS
-5. IDT
-6. fixed-block kernel heap
-7. global console and keyboard state
+1. GDT
+2. paging
+3. TSS
+4. IDT
+5. fixed-block kernel heap
+6. global console and keyboard state
+7. `Booting...` through `kputs`
 8. RAMFS unpacking
 9. interrupt enablement after the BIOS load buffer is no longer needed
 10. `/bin/pish.fap` as the first ring-3 process
