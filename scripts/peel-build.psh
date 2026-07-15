@@ -3,7 +3,6 @@ orgasm ../jabara/lib/fap-stack-runtime.asm ../jabara/lib/fap-runtime.asm tmp/ech
 juicer c tmp/echo.raw /bin/echo.fap
 del tmp/echo-generated.asm tmp/echo.raw
 
-echo Welcome to FruityOS 0.04!
 echo Source tree unpacked and Jabara compiler assembled.
 echo [ Building FruityOS natively with Jabara ]
 echo [ Building FruityOS userland with Jabara ]

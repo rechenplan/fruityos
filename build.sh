@@ -12,48 +12,13 @@ mkdir -p "$root/bin"
 
 echo "[ Creating initial RAM filesystem ]"
 rm -rf "$root/initrd"
-mkdir -p "$root/initrd/bin" "$root/initrd/src"
+mkdir -p "$root/initrd/bin" "$root/initrd/src" "$root/initrd/lib"
 cp "$root/pulp/bin/pulp.sys" "$root/initrd/pulp.sys"
-for program in jar juicer orgasm pish; do
+for program in jar juicer orgasm pish fred dir mkdir del echo concat copy inode move rmdir type write fill jc ; do
     cp "$root/peel/bin/$program.fap" "$root/initrd/bin"
 done
 cp "$root/scripts/init.psh" "$root/initrd/init.psh"
-
-echo "[ Packaging FruityOS source tree ]"
-source_tmp=${TMPDIR:-/tmp}/fruityos-source-$$
-source_jar=$source_tmp.jar
-(umask 077 && mkdir "$source_tmp") || exit 1
-trap 'rm -rf "$source_tmp"; rm -f "$source_jar"' 0
-trap 'exit 1' 1 2 3 15
-mkdir -p "$source_tmp/fruityos/peel/bin" "$source_tmp/fruityos/peel/tmp" \
-    "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp" \
-    "$source_tmp/fruityos/jabara/tmp"
-cp "$root/scripts/build.psh" "$source_tmp/fruityos/build.psh"
-cp "$root/scripts/peel-build.psh" "$source_tmp/fruityos/peel/build.psh"
-cp "$root/scripts/pulp-build.psh" "$source_tmp/fruityos/pulp/build.psh"
-cp "$root/scripts/jabara-build.psh" "$source_tmp/fruityos/jabara/build.psh"
-tar -C "$root" -cf - \
-    peel/src \
-    pulp/src \
-    jabara/src/jc/emitter.jabara jabara/src/jc/lexer.jabara \
-    jabara/src/jc/main.jabara jabara/src/jc/model.jabara \
-    jabara/src/jc/parser.jabara jabara/src/jc/runtime.jabara \
-    jabara/src/orgasm/emit.jabara \
-    jabara/src/orgasm/lex.jabara jabara/src/orgasm/main.jabara \
-    jabara/src/orgasm/modern.jabara jabara/src/orgasm/parse.jabara \
-    jabara/lib/jc-fap-config.jabara jabara/lib/pith.jabara \
-    jabara/lib/fap-module-runtime.asm jabara/lib/fap-runtime.asm \
-    jabara/lib/fap-stack-runtime.asm jabara/lib/juicer-runtime.asm | \
-    tar -C "$source_tmp/fruityos" -xf -
-"$root/peel/bin/juicer.elf" c "$root/peel/bin/jc.asm" \
-    "$source_tmp/fruityos/jabara/jc.asm.jz"
-(
-    cd "$source_tmp"
-    "$root/peel/bin/jar.elf" c "$source_jar"
-)
-"$root/peel/bin/juicer.elf" c "$source_jar" \
-    "$root/initrd/src/fruityos.jz"
-
+cp "$root/jabara/lib/"*.asm "$root/initrd/lib/"
 cd "$root/initrd"
 "$root/peel/bin/jar.elf" c initrd.jar
 mv initrd.jar "$root/initrd.jar"
@@ -109,8 +74,6 @@ find . -type f \( -name '*.jabara' -o -name '*.yuzu' -o \
     -exec wc -l {} + > "$root/loc.txt"
 
 rm -f "$root/initrd.jar"
-rm -f "$source_jar"
-rm -rf "$source_tmp"
 trap - 0 1 2 3 15
 
 echo "fruityos: Jabara and NASM build passed"

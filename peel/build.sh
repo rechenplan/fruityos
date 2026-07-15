@@ -73,6 +73,14 @@ if test "$orgasm_size" -gt 8192; then
     exit 1
 fi
 
+"$jc" "$pith" "$fruity"/jabara/src/jc/*.jabara \
+    "$tmp/jc-generated.asm"
+"$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/fap-stack-runtime.asm" \
+    "$fruity/jabara/lib/fap-runtime.asm" "$tmp/jc-generated.asm" \
+    "$tmp/jc.raw"
+"$root/bin/juicer.elf" c "$tmp/jc.raw" "$root/bin/jc.fap"
+jc_size=$(wc -c < "$root/bin/jc.fap")
+
 "$jc" "$pith" "$fruity"/yuzu/src/yc/*.yuzu "$tmp/yc-generated.asm"
 "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/fap-stack-runtime.asm" \
     "$fruity/jabara/lib/fap-runtime.asm" "$tmp/yc-generated.asm" "$tmp/yc.raw"

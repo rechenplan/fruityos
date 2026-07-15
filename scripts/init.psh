@@ -1,8 +1,1 @@
-cd /src
-juicer d fruityos.jz fruityos.jar
-jar x fruityos.jar
-cd fruityos
-juicer d jabara/jc.asm.jz jabara/jc.asm
-orgasm jabara/jc.asm /bin/jc.raw
-juicer c /bin/jc.raw /bin/jc.fap
-build.psh
+echo Welcome to FruityOS 0.05!
