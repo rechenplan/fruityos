@@ -58,9 +58,9 @@ A FruityOS application is linked at virtual origin `0x801000`, assembled as a
 flat image, and compressed with Juicer. The `.fap` suffix identifies the
 compressed form accepted by `exec`.
 
-The FAP runtime reads flattened arguments from the task exchange page, calls
-`main(argc, argv)`, exposes Pith services through interrupt `0x84`, and exits
-when `main` returns.
+The FAP runtime receives flattened arguments from the task exchange page, pushes
+`argc` and `argv` using the Jabara stack ABI, calls `main(argc, argv)`, exposes
+Pith services through interrupt `0x84`, and exits when `main` returns.
 
 ## Jar
 

@@ -2,7 +2,7 @@ sub add(left, right)
   return left + right
 end
 
-sub main()
+sub main(argc, argv)
   local make_counter, counter, add_value
   make_counter = fn ignored do
     local value = 40

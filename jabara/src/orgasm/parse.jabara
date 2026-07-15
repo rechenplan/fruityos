@@ -7,7 +7,7 @@ sub parse_error()
 	lex_puts("error ")
 	lex_puts(parse_error_token)
 	putch(10)
-	exit()
+	exit(1)
 end
 
 sub parse_atoi(str)

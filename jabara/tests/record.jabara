@@ -8,7 +8,7 @@ sub total(pair:Pair)
   return pair.left + pair.right
 end
 
-sub main()
+sub main(argc, argv)
   local pair:Pair = Pair(), box:Box = Box(), nested:Pair = Pair(), get_right
 
   pair.left = 20

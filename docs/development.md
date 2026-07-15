@@ -15,7 +15,7 @@ git diff --check
 
 - C and Jabara compiler behavior;
 - self-compilation;
-- records, closures, arguments, and expected diagnostics;
+- records, closures, stack calls with more than six arguments, startup arguments, and expected diagnostics;
 - ELF and FAP output;
 - Yuzu compiler and assembler integration;
 - Juicer compression round trips when the host utility is available;

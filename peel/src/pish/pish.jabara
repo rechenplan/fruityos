@@ -170,7 +170,7 @@ sub pish_main(fin)
 		pish_parse_line(lineBuf, argvBuf)
 		if ([argvBuf] != 0) & (byte [lineBuf] != byte ["#"]) then
 			recognized = 0
-			if pish_str_equal([argvBuf], "exit") then exit() recognized = 1 end
+			if pish_str_equal([argvBuf], "exit") then exit(0) recognized = 1 end
 			if pish_str_equal([argvBuf], "cd") then pish_chdir(argvBuf) recognized = 1 end
 			if (recognized == 0) then pish_exec(tempBuf, argvBuf) end
 		end

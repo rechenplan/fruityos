@@ -7,10 +7,12 @@ the call number. Arguments use the x86-64 System V register order:
 RDI RSI RDX RCX R8 R9
 ```
 
-The return value is delivered in `RAX`. The interrupt gate is callable from
-ring 3. The assembly handler saves user registers in the task exchange page,
-switches data segments, loads the target from the dispatch table, and returns
-with `iretq`.
+The return value is delivered in `RAX`. This register layout is the interrupt
+boundary, not the Jabara subroutine ABI. Pith wrappers accept callee-clean stack
+arguments and unpack them into these registers before issuing the interrupt.
+The assembly handler saves user registers in the task exchange page, switches
+data segments, pushes the required arguments for the selected Jabara kernel
+service, calls it, and returns to ring 3 with `iretq`.
 
 ## Dispatch table
 

@@ -356,18 +356,12 @@ static void emit_binary(Emitter *emitter, const Expr *expr)
 
 static void emit_direct_call(Emitter *emitter, const Expr *expr)
 {
-    static const char *const registers[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
     size_t i;
-    if (expr->argument_count > sizeof(registers) / sizeof(registers[0]))
-        fatal_at(expr->line, 1, "calls support at most six arguments");
+    if (expr->argument_count > 8191U)
+        fatal_at(expr->line, 1, "calls support at most 8191 arguments");
     for (i = 0U; i < expr->argument_count; ++i) {
         emit_expr(emitter, expr->arguments[i]);
         line(emitter, "\tpush\trax");
-    }
-    i = expr->argument_count;
-    while (i > 0U) {
-        --i;
-        fprintf(emitter->out, "\tpop\t%s\n", registers[i]);
     }
     fprintf(emitter->out, "\tcall\t%s\n", expr->left->text);
 }
@@ -384,17 +378,21 @@ static void emit_closure_call(Emitter *emitter, const Expr *expr)
     }
     if (count == 0U) {
         line(emitter, "\tmov\trax, [rsp]");
-        line(emitter, "\tmov\trdi, [rax + 8]");
-        line(emitter, "\txor\trsi, rsi");
+        line(emitter, "\txor\tedx, edx");
+        line(emitter, "\tmov\trcx, [rax + 8]");
+        line(emitter, "\tpush\trcx");
+        line(emitter, "\tpush\trdx");
         line(emitter, "\tcall\t[rax]");
     } else {
         for (i = 0U; i < count; ++i) {
             if (i == 0U)
                 fprintf(emitter->out, "\tmov\trax, [rsp + %lu]\n",
                         (unsigned long)(count * 8U));
-            line(emitter, "\tmov\trdi, [rax + 8]");
-            fprintf(emitter->out, "\tmov\trsi, [rsp + %lu]\n",
+            fprintf(emitter->out, "\tmov\trdx, [rsp + %lu]\n",
                     (unsigned long)((count - 1U - i) * 8U));
+            line(emitter, "\tmov\trcx, [rax + 8]");
+            line(emitter, "\tpush\trcx");
+            line(emitter, "\tpush\trdx");
             line(emitter, "\tcall\t[rax]");
         }
     }
@@ -427,7 +425,7 @@ static void emit_closure_value(Emitter *emitter, const Expr *expr)
     if (emitter->scope->is_global) line(emitter, "\txor\trax, rax");
     else line(emitter, "\tmov\trax, [rbp - 8]");
     line(emitter, "\tpush\trax");
-    line(emitter, "\tmov\trdi, 16");
+    line(emitter, "\tpush\t16");
     line(emitter, "\tcall\t__jabara_alloc");
     line(emitter, "\tpop\trdx");
     line(emitter, "\tpop\trcx");
@@ -459,7 +457,7 @@ static void emit_record_constructor(Emitter *emitter, const Expr *expr)
     if (expr->argument_count != 0U)
         fatal_at(expr->line, 1, "record constructors take no arguments");
     fields = record_field_count(record);
-    fprintf(emitter->out, "\tmov\trdi, %d\n", (fields == 0 ? 1 : fields) * 8);
+    fprintf(emitter->out, "\tpush\t%d\n", (fields == 0 ? 1 : fields) * 8);
     line(emitter, "\tcall\t__jabara_alloc");
     for (i = 0; i < fields; ++i)
         fprintf(emitter->out, "\tmov\tqword [rax + %d], 0\n", i * 8);
@@ -578,14 +576,26 @@ static void emit_zero_environment(Emitter *emitter, int slots)
         fprintf(emitter->out, "\tmov\tqword [rax + %d], 0\n", i * 8);
 }
 
+static void emit_stack_return(Emitter *emitter, size_t argument_count)
+{
+    line(emitter, "\tdb\t201");
+    if (argument_count == 0U) {
+        line(emitter, "\tret");
+    } else {
+        line(emitter, "\tdb\t194");
+        fprintf(emitter->out, "\tdw\t%lu\n",
+                (unsigned long)(argument_count * 8U));
+    }
+}
+
 static void emit_function(Emitter *emitter, const Function *function)
 {
-    static const char *const registers[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
     Scope *scope;
     const Name *parameter;
     int parameter_count = 0;
     int i;
     int environment_size;
+    int frame_size;
     unsigned long saved_return = emitter->return_label;
     scope = (Scope *)xmalloc(sizeof(*scope));
     memset(scope, 0, sizeof(*scope));
@@ -598,31 +608,30 @@ static void emit_function(Emitter *emitter, const Function *function)
         ++parameter_count;
         parameter = parameter->next;
     }
-    if (parameter_count > 6) fatal_at(function->line, 1, "sub supports at most six parameters");
+    if (parameter_count > 8191)
+        fatal_at(function->line, 1, "sub supports at most 8191 parameters");
     collect_locals(emitter, scope, function->body);
     emitter->scope = scope;
     emitter->return_label = new_label(emitter);
     environment_size = ((scope->slot_count + 1) * 8 + 15) & -16;
+    frame_size = 16 + environment_size;
     fprintf(emitter->out, "\nglobal %s\n%s:\n", function->name, function->name);
     line(emitter, "\tpush\trbp");
     line(emitter, "\tmov\trbp, rsp");
-    fprintf(emitter->out, "\tsub\trsp, %d\n", 64 + environment_size);
-    for (i = 0; i < parameter_count; ++i)
-        fprintf(emitter->out, "\tmov\t[rbp - %d], %s\n", 16 + i * 8, registers[i]);
-    fprintf(emitter->out, "\tlea\trax, [rbp - %d]\n", 64 + environment_size);
+    fprintf(emitter->out, "\tsub\trsp, %d\n", frame_size);
+    fprintf(emitter->out, "\tlea\trax, [rbp - %d]\n", frame_size);
     line(emitter, "\tmov\t[rbp - 8], rax");
     emit_zero_environment(emitter, scope->slot_count);
     for (i = 0; i < parameter_count; ++i) {
-        fprintf(emitter->out, "\tmov\trdx, [rbp - %d]\n", 16 + i * 8);
+        fprintf(emitter->out, "\tmov\trdx, [rbp + %d]\n",
+                (parameter_count - i + 1) * 8);
         fprintf(emitter->out, "\tmov\t[rax + %d], rdx\n", (i + 1) * 8);
     }
     if (strcmp(function->name, "main") == 0) emit_statements(emitter, emitter->program->statements);
     emit_statements(emitter, function->body);
     line(emitter, "\txor\trax, rax");
     fprintf(emitter->out, "__jabara_return_%lu:\n", emitter->return_label);
-    line(emitter, "\tmov\trsp, rbp");
-    line(emitter, "\tpop\trbp");
-    line(emitter, "\tret");
+    emit_stack_return(emitter, (size_t)parameter_count);
     emitter->return_label = saved_return;
     emitter->scope = &emitter->global_scope;
 }
@@ -631,31 +640,24 @@ static void emit_closure_function(Emitter *emitter, ClosureInfo *info)
 {
     Scope *saved_scope = emitter->scope;
     unsigned long saved_return = emitter->return_label;
-    int i;
     emitter->scope = info->scope;
     emitter->return_label = new_label(emitter);
     fprintf(emitter->out, "\n__jabara_closure_%d:\n", info->label);
     line(emitter, "\tpush\trbp");
     line(emitter, "\tmov\trbp, rsp");
-    line(emitter, "\tsub\trsp, 32");
-    line(emitter, "\tmov\t[rbp - 16], rdi");
-    line(emitter, "\tmov\t[rbp - 24], rsi");
-    fprintf(emitter->out, "\tmov\trdi, %d\n", (info->scope->slot_count + 1) * 8);
+    line(emitter, "\tsub\trsp, 16");
+    fprintf(emitter->out, "\tpush\t%d\n", (info->scope->slot_count + 1) * 8);
     line(emitter, "\tcall\t__jabara_alloc");
     line(emitter, "\tmov\t[rbp - 8], rax");
     emit_zero_environment(emitter, info->scope->slot_count);
-    line(emitter, "\tmov\trdx, [rbp - 16]");
+    line(emitter, "\tmov\trdx, [rbp + 24]");
     line(emitter, "\tmov\t[rax], rdx");
-    line(emitter, "\tmov\trdx, [rbp - 24]");
+    line(emitter, "\tmov\trdx, [rbp + 16]");
     line(emitter, "\tmov\t[rax + 8], rdx");
-    for (i = 2; i <= info->scope->slot_count; ++i)
-        fprintf(emitter->out, "\tmov\tqword [rax + %d], 0\n", i * 8);
     emit_statements(emitter, info->expr->body);
     line(emitter, "\txor\trax, rax");
     fprintf(emitter->out, "__jabara_return_%lu:\n", emitter->return_label);
-    line(emitter, "\tmov\trsp, rbp");
-    line(emitter, "\tpop\trbp");
-    line(emitter, "\tret");
+    emit_stack_return(emitter, 2U);
     emitter->return_label = saved_return;
     emitter->scope = saved_scope;
 }

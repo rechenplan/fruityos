@@ -12,6 +12,6 @@ sub kmain(initrd)
 	kcls()
 	kputs("Booting...")
 	kputch(10)
-	sys_exec("/bin/pish.fap", 0, 0)
+	sys_exec("/bin/pish.fap", 0)
 	user_jmp()
 end

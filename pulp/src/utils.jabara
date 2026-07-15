@@ -98,7 +98,7 @@ sub kunpack(jarBuffer)
                 if byte [fileName + kstrlen(fileName) - 1] == byte ["/"] then
                         sys_mkdir(fileName)
                 else
-                        fout = sys_creat(fileName, 0)
+                        fout = sys_creat(fileName)
                         sys_write(fout, filePtr, fileSize)
                         sys_close(fout)
                 end

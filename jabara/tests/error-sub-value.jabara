@@ -2,7 +2,7 @@ sub helper(value)
   return value
 end
 
-sub main()
+sub main(argc, argv)
   local callable = helper
   return callable(0)
 end

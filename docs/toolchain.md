@@ -72,6 +72,11 @@ lexical locals, globals, records with compile-time field tags, captured
 functions, byte and word memory access, control flow, arithmetic, bitwise
 operations, and external subroutine declarations.
 
+Jabara calls use a callee-clean stack ABI. Arguments are evaluated and pushed
+left to right, so the final argument is nearest the return address. Generated
+functions read parameters at positive frame offsets and remove their argument
+words when returning. External assembly routines use the same convention.
+
 Binary operators have equal precedence and associate left to right. The
 compiler emits direct, inspectable assembly and performs no optimization.
 

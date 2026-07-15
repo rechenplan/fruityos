@@ -37,7 +37,7 @@ for test in error-sub-value error-undeclared-extern; do
     expect_failure "$root/tests/$test.jabara"
 done
 
-for test in closure record; do
+for test in closure record stack-abi; do
     "$root/bin/jbc" "$root/tests/$test.jabara" "$tmp/$test.asm"
     assemble_elf "$tmp/$test.asm" "$tmp/$test"
     "$tmp/$test"
@@ -74,7 +74,7 @@ cat "$pith" "$tmp/zest.jabara" > "$tmp/zest-with-pith.jabara"
 "$root/bin/jbc" "$tmp/zest-with-pith.jabara" "$tmp/zest.asm"
 assemble_elf "$tmp/zest.asm" "$tmp/zest"
 
-for test in closure record; do
+for test in closure record stack-abi; do
     "$root/bin/jc" "$root/tests/$test.jabara" "$tmp/jc-$test.asm"
     assemble_elf "$tmp/jc-$test.asm" "$tmp/jc-$test"
     "$tmp/jc-$test"

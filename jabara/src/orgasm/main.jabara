@@ -14,7 +14,7 @@ sub main_assemble(files, count, fout, symtab)
 			lex_puts("error opening ")
 			lex_puts(files)
 			putch(10)
-			exit()
+			exit(1)
 		end
 		pos = pos + parse_file(fout, fin, symtab, pos)
 		close(fin)
@@ -30,7 +30,7 @@ sub main(argc, args)
 	if argc < 3 then
 		lex_puts("usage: orgasm input.asm [input.asm ...] output")
 		putch(10)
-		exit()
+		exit(1)
 	end
 
 	symtab = brk(-1)
@@ -53,7 +53,7 @@ sub main(argc, args)
 	if fout <= 0 then
 		lex_puts("error creating output")
 		putch(10)
-		exit()
+		exit(1)
 	end
 
 	size = main_assemble(files, argc - 2, -1, symtab)

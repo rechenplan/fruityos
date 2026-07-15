@@ -132,7 +132,7 @@ sub list_getNext(nodeAddr)
         return [nodeAddr + (0 << 3)]
 end
 
-sub list_getPrev(nodeAddr, nextNodeAddr)
+sub list_getPrev(nodeAddr)
         return [nodeAddr + (1 << 3)]
 end
 

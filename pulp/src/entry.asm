@@ -40,10 +40,20 @@ entry:
 	mov rdi, rsi ; pointer to initrd
 	mov rsp, 0x40000 ; keep the kernel stack below the remapped task window
 	xor rbp, rbp
+	push rdi
 	call kmain
 	jmp die
 
+sys_arity:
+	db 2, 1, 1, 3, 3, 1, 2, 2
+	db 0, 1, 2, 3, 2, 1, 1, 1
+	db 1, 2, 0, 1, 0, 1, 0, 1
+	db 0, 0, 0, 0, 0, 0, 0, 1
+
 debug_putch:
+	pop r10
+	pop rdi
+	push r10
 	mov al, dil
 	out 0xe9, al
 	ret
@@ -143,6 +153,9 @@ TSS_LEN equ tss_start - tss_end
 TSS_SEG equ tss - gdt
 
 flush_tlb:
+	pop r10
+	pop rdi
+	push r10
 	mov cr3, rdi
 	ret
 
@@ -192,13 +205,34 @@ sys_handler:
 
 	mov rax, [0x800000 + (0 << 3)] ; restore rax
 
+	mov rbx, rax
 	shl rax, 3
+	mov r10, sys
+	add r10, rax
+	mov rax, [r10]
+	mov r10, sys_arity
+	add r10, rbx
+	xor ebx, ebx
+	mov bl, [r10]
+	test ebx, ebx
+	jz .call
 	push rdi
-	mov rdi, sys
-	add rdi, rax
-	mov rax, [rdi]
-	pop rdi
-
+	cmp ebx, 1
+	je .call
+	push rsi
+	cmp ebx, 2
+	je .call
+	push rdx
+	cmp ebx, 3
+	je .call
+	push rcx
+	cmp ebx, 4
+	je .call
+	push r8
+	cmp ebx, 5
+	je .call
+	push r9
+.call:
 	call rax
 
 	mov [0x800000 + (0 << 3)], rax ; store rax
@@ -253,7 +287,7 @@ kb_poll:
 	cmp byte [last_scancode], al
 	je kb_bail
 	mov byte [last_scancode], al
-        mov rdi, rax
+	push rax
 	call sys_keyboard
 kb_bail:
 	pop rdi

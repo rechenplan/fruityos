@@ -36,14 +36,14 @@ sub main(argc, argv)
 	if fin <= 0 then
 		puts("Failed to open ")
 		puts(file)
-		putch()
+		putch(10)
 		return 0
 	end
 	fout = creat(newfile)
 	if fin <= 0 then
 		puts("Failed to open ")
 		puts(newfile)
-		putch()
+		putch(10)
 		return 0
 	end
 	while (n = read(fin, buf, 8192)) > 0 do

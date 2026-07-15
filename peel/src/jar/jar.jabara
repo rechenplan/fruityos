@@ -54,7 +54,7 @@ sub jar_unpack(fin, fileBuf, fileSize)
 		if byte [fileName + strlen(fileName) - 1] == byte ["/"] then
 			mkdir(fileName)
 		else
-			fout = creat(fileName, 0)
+			fout = creat(fileName)
 			read(fin, fileBuf, [fileSize])
 			write(fout, fileBuf, [fileSize])
 			close(fout)

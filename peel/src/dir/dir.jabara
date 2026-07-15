@@ -76,7 +76,7 @@ sub dir_mod(n, d)
         return r
 end    
 
-sub main()
+sub main(argc, argv)
 	local buf, fd, pos, bread, ent, type
 
 	buf = brk(-1)

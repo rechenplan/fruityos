@@ -6,11 +6,11 @@ record Stmt kind, line, names:Name, expr:Expr, body:Stmt, else_body:Stmt, next:S
 record Function name, parameters:Name, body:Stmt, line, is_extern, reachable, next:Function
 record Record name, fields:Name, line, next:Record
 record Program records:Record, functions:Function, statements:Stmt
-record Binding name, tag, slot, initialized, next:Binding
-record Scope parent:Scope, bindings:Binding, slot_count, is_global, next_owned:Scope
+record Binding name, tag, slot, initialized, parameter, next:Binding
+record Scope parent:Scope, bindings:Binding, slot_count, parameter_count, is_global, next_owned:Scope
 record ClosureInfo expr:Expr, scope:Scope, label, next:ClosureInfo
 record Lookup binding:Binding, owner:Scope, depth
-record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, closures:ClosureInfo, closure_tail:ClosureInfo, label, return_label, direct_frames
+record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, closures:ClosureInfo, closure_tail:ClosureInfo, label, return_label, return_bytes, direct_frames
 
 sub EX_NUMBER() return 0 end
 sub EX_STRING() return 1 end

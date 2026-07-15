@@ -20,8 +20,10 @@ __elf_program_header:
 	dq 4096
 
 _start:
-	pop rdi
-	pop rsi
+	mov rax, [rsp]
+	mov rdx, [rsp + 8]
+	push rax
+	push rdx
 	call main
-	mov rdi, rax
+	push rax
 	call exit

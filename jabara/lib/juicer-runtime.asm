@@ -39,10 +39,15 @@ juicer_decode16:
 %endif
 
 bits 64
-; RSI = input, RDI = output.
-; Returns the decoded size in RAX.
+; Freestanding callers pass RSI = input and RDI = output.
+; Jabara callers push output followed by input.
+; Returns the decoded size in RAX outside freestanding builds.
 juicer_decode64:
 	%ifndef JUICER_FREESTANDING
+	pop r10
+	pop rsi
+	pop rdi
+	push r10
 	push rdi
 	push rbx
 	%endif

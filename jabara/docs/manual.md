@@ -31,7 +31,7 @@ compression are separate build inputs.
 ## First program
 
 ```jabara
-sub main()
+sub main(argc, argv)
   return 0
 end
 ```
@@ -73,7 +73,7 @@ Records and closures require `__jabara_alloc`, supplied by the selected runtime.
 A semicolon starts a comment:
 
 ```jabara
-sub main()
+sub main(argc, argv)
   ; whole-line comment
   return 0 ; end-of-line comment
 end
@@ -87,7 +87,7 @@ Indentation is optional.
 Every value is one 64-bit word. A word may be used as an integer or address.
 
 ```jabara
-sub main()
+sub main(argc, argv)
   local width = 6, height = 7, area
   area = width * height
   return area
@@ -152,7 +152,7 @@ Jabara has no `for`, `break`, or `continue` statements.
 
 ## Subroutines
 
-A direct subroutine may take up to six parameters:
+A subroutine may take up to 8191 parameters:
 
 ```jabara
 sub add(left, right)
@@ -160,8 +160,11 @@ sub add(left, right)
 end
 ```
 
-Arguments follow the x86-64 System V register convention. Reaching the end of a
-subroutine returns zero.
+Arguments are evaluated and pushed from left to right. The last argument is
+nearest the return address, and the callee removes its arguments before
+returning. The same stack convention applies to declared `extern` subroutines.
+Reaching the end of a subroutine returns zero. Executable programs define
+`main(argc, argv)`; the platform startup code supplies both arguments.
 
 A named subroutine is not a first-class value. Wrap a call in `fn` when a
 callable value is required.
@@ -212,7 +215,7 @@ Calling the record name allocates a zero-initialized object. A compile-time tag
 selects the field layout:
 
 ```jabara
-sub main()
+sub main(argc, argv)
   local point:Point = Point()
   point.x = 20
   point.y = 22
@@ -240,7 +243,7 @@ Tags do not add runtime checks. Records are heap allocated and are not reclaimed
 A closure combines an anonymous function with captured locations:
 
 ```jabara
-sub main()
+sub main(argc, argv)
   local add_five
   add_five = fn value do
     return value + 5
@@ -253,7 +256,7 @@ Each `fn` declares one parameter. Calls with several arguments apply a chain of
 one-argument closures.
 
 ```jabara
-sub main()
+sub main(argc, argv)
   local make_adder, add_five
   make_adder = fn amount do
     return fn value do
