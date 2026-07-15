@@ -1,7 +1,6 @@
 # FruityOS documentation
 
-This directory is the canonical integrated-system documentation for FruityOS
-0.03.
+This directory is the canonical integrated-system documentation for FruityOS.
 The component READMEs provide short introductions; the documents here describe
 how the bootloaders, kernel, toolchain, initrd, and userland work together.
 

@@ -76,40 +76,64 @@ Notes:
 	a locally signed fruityos.efi. VGA-compatible text output and PS/2 keyboard
 	input are still required after firmware handoff.
 
-Unreleased
+0.04
 
-The native build now rebuilds Pulp from its Jabara sources inside FruityOS.
+FruityOS 0.04 completes the source-built native toolchain, reduces the binary
+bootstrap, and makes every boot image consume the same initrd layout.
 
 Changes:
 
-	1. The self-hosted Jabara compiler has a part output format for separately
-	   compiled, headerless module fragments with namespaced private labels.
-	2. Pulp declares its cross-module interface explicitly and compiles each
-	   implementation file independently during the native build.
-	3. Native concat combines the generated parts, handwritten entry and IDT
-	   assembly, and one shared global block before Orgasm assembles pulp.bin.
-	4. Native Juicer compresses the rebuilt kernel to pulp.sys.
-	5. Orgasm and Juicer FAPs use stack-based Jabara environments for their
-	   allocation-heavy parser and compression loops.
-	6. Native Peel and Pulp builds delete intermediate files as soon as they are
-	   no longer needed, returning their RAMFS blocks to the kernel.
-	7. The host now adds compressed generated Jabara compiler assembly to
-	   fruityos.jz instead of packaging jc.fap; FruityOS extracts, decompresses,
-	   assembles, and compresses jc during startup, reducing the binary bootstrap
-	   set from ten FAPs to nine.
+	1. FruityOS now rebuilds the Jabara compiler, Orgasm, all Peel applications,
+	   and Pulp from the packaged source tree before presenting the shell prompt.
+	   Every FAP left in /bin has therefore been compiled from source during boot.
+	2. Jabara has one implicit, headerless module output and accepts multiple
+	   source inputs. ELF and FAP origins, headers, entry points, allocators, and
+	   runtimes are selected explicitly during assembly.
+	3. Orgasm has no output modes and accepts multiple assembly inputs with one
+	   shared symbol table. ELF files use an explicit org directive and a manual
+	   assembly header; Orgasm's special ELF writer has been removed.
+	4. The host bootstrap uses NASM only to assemble the initial Orgasm executable
+	   and the Seed bootloaders. Orgasm assembles jc, compatibility tools,
+	   userland applications, and Pulp.
+	5. Native Pulp is compiled from one multifile Jabara module, assembled from
+	   the generated module plus handwritten entry and IDT assembly, and
+	   compressed to pulp.sys with Juicer.
+	6. The initrd binary bootstrap has been reduced to four FAPs: jar, juicer,
+	   orgasm, and pish. FruityOS assembles the initial jc and builds del from its
+	   Jabara source before removing temporary archives and intermediates.
+	7. fruityos.jz contains an explicit minimal rebuild manifest rather than a
+	   repository snapshot. Documentation, host shell scripts, tests,
+	   compatibility sources, bootloader sources, and unrelated files are
+	   excluded.
+	8. All Seed variants locate /pulp.sys as an ordinary initrd Jar entry instead
+	   of relying on a separate kernel stream or deterministic archive ordering.
+	9. Native .psh sources are centralized under scripts/ and copied to their
+	   expected component paths only while fruityos.jz is staged.
+	10. Final BIOS, floppy, UEFI disk, and standalone EFI artifacts are written
+	    below bin/. One run.sh command selects uefi, hdd, or fd and always boots a
+	    temporary image copy.
+	11. Pulp prints "Booting..." once its global console is available, before
+	    startup extracts and builds the packaged checkout.
 
 Bugfixes:
 
-	1. Separately compiled Jabara modules no longer collide on compiler-private
-	   control-flow and string labels.
-	2. Large native kernel assembly no longer exhausts the application heap.
-	3. Native kernel intermediates no longer exhaust the fixed-block RAMFS pool.
-	4. Orgasm now uses hashed symbol lookup and native integer multiplication,
-	   allowing it to assemble the generated Jabara compiler during startup.
-	5. Juicer's working buffer now accommodates the source checkout with the
-	   generated compiler assembly included.
+	1. Nested Pish invocations no longer fault while running component build
+	   scripts.
+	2. UEFI reserves the kernel, paging, heap, and stable initrd regions before
+	   ExitBootServices, preventing firmware allocations from corrupting Pulp.
+	3. PIC initialization now belongs to Pulp, so BIOS, floppy, and UEFI Seed
+	   variants enter the kernel with consistent interrupt routing.
+	4. BIOS, floppy, and UEFI loaders scan Jar records for pulp.sys instead of
+	   assuming it is the first entry. The floppy load window was expanded to
+	   accommodate the source-complete initrd while staying below firmware data.
+	5. Large native compiler and assembler inputs no longer require concat or
+	   per-part compiler modes, and Orgasm releases each input buffer between
+	   files.
+	6. Native build intermediates are removed as soon as source-built del becomes
+	   available, keeping peak RAMFS use within the fixed-block heap.
 
 Notes:
 
 	The rebuilt Pulp artifacts remain in RAMFS and do not replace the kernel
-	that is currently running.
+	that is currently running. Secure Boot and the VGA/PS2 hardware requirements
+	remain unchanged from 0.03.

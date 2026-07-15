@@ -487,7 +487,7 @@ make_identity_map:
     mov cr3, rax
     ret
 
-; OVMF commonly leaves VGA hardware in a graphics mode.  FruityOS 0.03 writes
+; OVMF commonly leaves VGA hardware in a graphics mode.  FruityOS writes
 ; its console to 0xb8000, so restore the standard 80x25 color-text registers.
 set_vga_text_mode:
     ; Turn off the Bochs/QEMU VBE extension before touching VGA registers.

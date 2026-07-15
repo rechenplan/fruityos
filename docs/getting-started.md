@@ -57,7 +57,6 @@ the minimal native source tree, performs the native userland and kernel builds,
 installs the new FAP files in `/bin`, and returns to an interactive prompt:
 
 ```text
-Welcome to FruityOS 0.03!
 [ Building FruityOS natively with Jabara ]
 [ Building FruityOS userland with Jabara ]
 Userland Jabara build complete.

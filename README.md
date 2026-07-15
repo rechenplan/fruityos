@@ -1,6 +1,6 @@
 # FruityOS
 
-FruityOS 0.03 is a small, monotasking 64-bit operating system for x86 PCs. It boots
+FruityOS is a small, monotasking 64-bit operating system for x86 PCs. It boots
 through legacy BIOS or x86-64 UEFI, initializes a Jabara-written kernel and
 RAM filesystem, and starts the Pish shell in ring 3.
 
