@@ -6,7 +6,7 @@ interrupts before handoff, and places the initrd Jar pointer in `RSI`.
 
 ## BIOS hard-disk image
 
-`bin/fruityos_hdd.img` has no conventional filesystem.
+`out/fruityos_hdd.img` has no conventional filesystem.
 
 | Image offset | Contents |
 | --- | --- |
@@ -33,17 +33,19 @@ entry is `kernel + 0x100`.
 
 ## BIOS floppy image
 
-`bin/fruityos_floppy.img` is a 1.44 MiB image containing `fdseed`, the same
+`out/fruityos_floppy.img` is a 1.44 MiB image containing `fdseed`, the same
 initrd Jar, and zero padding. The loader reads the first 19 cylinders, scans the
 archive for `/pulp.sys`, decompresses it, and hands the archive to Pulp. The
 host build limits the boot payload to 350,208 bytes.
 
 ## Standalone EFI application
 
-`seed/src/uefiseed/uefiseed.asm` emits a dependency-free x86-64 PE32+ EFI
-application. It defines its DOS header, AMD64 COFF header, PE32+ optional header,
-`.text`, `.data`, and `.reloc` sections, and a DIR64 base relocation. Code and
-data use separate section permissions.
+`seed/src/uefiseed/uefiseed.asm` defines the dependency-free x86-64 PE32+ EFI
+application. The Pish build assembles the checked-in Orgasm byte source
+`uefiseed-prefix.bytes.asm`, then the Peel `uefi` command inserts the current
+initrd and writes the final section sizes, offsets, and relocation block. The
+image contains DOS, AMD64 COFF, PE32+ optional, `.text`, `.data`, and `.reloc`
+headers with separate code and data permissions.
 
 The application embeds the initrd Jar. `/pulp.sys` remains an ordinary archive
 entry. The EFI entry uses the Microsoft x64 calling convention: `RCX` contains
@@ -65,14 +67,14 @@ Progress characters are also written to I/O port `0xE9`.
 
 ## UEFI disk image
 
-`bin/fruityos_uefi.img` contains:
+`out/fruityos_uefi.img` contains:
 
 - an MBR partition entry of type `0xEF` beginning at LBA 2048;
 - a 16 MiB FAT16 EFI system partition;
 - two FAT copies and a fixed root directory;
 - `EFI/BOOT/BOOTX64.EFI`.
 
-The same application is written separately as `bin/fruityos.efi`.
+The same application is written separately as `out/fruityos.efi`.
 
 ## Debug console
 
@@ -83,7 +85,7 @@ OVMF=/path/to/OVMF.fd
 qemu-system-x86_64 \
   -m 512 \
   -bios "$OVMF" \
-  -drive format=raw,file=bin/fruityos_uefi.img \
+  -drive format=raw,file=out/fruityos_uefi.img \
   -display none \
   -serial none \
   -debugcon stdio \

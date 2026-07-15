@@ -1,0 +1,11 @@
+echo [ Building Yuzu compatibility tools ]
+mkdir out
+mkdir tmp
+cd src/byc
+build.psh
+cd ../yc
+build.psh
+cd ../zest
+build.psh
+cd ../..
+echo Yuzu build complete.

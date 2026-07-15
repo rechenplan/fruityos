@@ -1,0 +1,73 @@
+sub pad_puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub pad_next(args)
+	while byte [args] do args = args + 1 end
+	return args + 1
+end
+
+sub pad_atoi(str)
+	local n, c
+	c = byte [str]
+	while (c >= 48) & (c <= 57) do
+		n = (n * 10) + c - 48
+		str = str + 1
+		c = byte [str]
+	end
+	return n
+end
+
+sub pad_write_zeros(fd, count, buf)
+	local n
+	while count > 0 do
+		n = count
+		if n > 8192 then n = 8192 end
+		write(fd, buf, n)
+		count = count - n
+	end
+end
+
+sub main(argc, args)
+	local path, target, limit, fd, size, buf
+	if argc != 4 then
+		pad_puts("usage: pad file target-size payload-limit")
+		putch(10)
+		return 1
+	end
+	path = pad_next(args)
+	target = pad_atoi(pad_next(path))
+	limit = pad_atoi(pad_next(pad_next(path)))
+	fd = open(path, 2)
+	if fd < 0 then
+		pad_puts("pad: cannot open ")
+		pad_puts(path)
+		putch(10)
+		return 1
+	end
+	size = seek(fd, 0, 2)
+	if size > limit then
+		pad_puts("pad: payload exceeds limit")
+		putch(10)
+		close(fd)
+		return 1
+	end
+	if target == 0 then
+		close(fd)
+		return 0
+	end
+	if size > target then
+		pad_puts("pad: target is smaller than file")
+		putch(10)
+		close(fd)
+		return 1
+	end
+	buf = brk(-1)
+	brk(buf + 8192)
+	pad_write_zeros(fd, target - size, buf)
+	close(fd)
+	return 0
+end

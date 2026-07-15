@@ -14,11 +14,11 @@ __jabara_alloc:
 	and rdi, -8
 	mov rbx, rdi
 	mov rdi, -1
-	push rdi
-	call brk
+	mov rax, 21
+	int 132
 	lea rdi, [rax + rbx]
-	push rdi
-	call brk
+	mov rax, 21
+	int 132
 	sub rax, rbx
 	pop rbx
 	ret

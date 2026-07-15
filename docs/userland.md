@@ -9,21 +9,29 @@ Pish is a small command interpreter rather than a POSIX shell. At boot it runs
 `/init.psh` and then reads commands interactively. Starting `pish` from an
 existing shell creates a nested interactive shell; `exit` returns to its parent.
 
+Pish saves its startup directory as its root. The prompt displays paths relative
+to that directory, so the startup directory appears as `/>`. Absolute `cd` paths
+are interpreted beneath the saved root, and `cd` refuses to leave it.
+
 Command lookup checks these forms in order:
 
 1. an explicitly named `.fap` in the working directory;
-2. the same `.fap` under `/bin`;
+2. the same `.fap` under the saved root's `bin` directory;
 3. an explicitly named `.psh` in the working directory;
-4. the same `.psh` under `/bin`;
-5. the command name plus `.fap`, in the working directory and then `/bin`;
-6. the command name plus `.psh`, in the working directory and then `/bin`.
+4. the same `.psh` under the saved root's `bin` directory;
+5. the command name plus `.fap`, in the working directory and then the saved
+   root's `bin` directory;
+6. the command name plus `.psh`, in the working directory and then the saved
+   root's `bin` directory.
 
 `cd` and `exit` are built in. Script lines beginning with `#` are ignored.
-Arguments are separated by spaces.
+Arguments are separated by spaces. Scripts receive Bash-style positional
+parameters: `$0` is the invoked script name, `$1` through `$9` are arguments,
+and `$#` is the number of arguments after `$0`. Pish does not implement `$@`.
 
-Pish does not implement quoting, escaping, environment variables, wildcard
-expansion, pipelines, redirection, command substitution, background jobs, or
-shell conditionals.
+Pish does not implement quoting, escaping, general environment variables,
+wildcard expansion, pipelines, redirection, command substitution, background
+jobs, or shell conditionals.
 
 ## Installed applications
 
@@ -49,7 +57,7 @@ shell conditionals.
 | `write` | Interactively write lines to a file. |
 
 The root build copies every program in this table directly into the initrd.
-`peel/build.sh` also produces `yc.fap` and `zest.fap` in `peel/bin/`; the root
+`peel/build.psh` also produces `yc.fap` and `zest.fap` in `peel/out/`; the root
 initrd manifest does not install them.
 
 ## FAP applications

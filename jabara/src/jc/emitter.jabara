@@ -468,8 +468,25 @@ sub em_call_is_constructor(emitter:Emitter, callee:Expr)
   return em_find_record(emitter, callee.text) != 0
 end
 
+sub em_emit_pith_define(emitter:Emitter, name)
+  local function:Function = em_find_function_body(emitter, name)
+  if (function != 0) & function.is_extern & (function.pith_defined == 0) then
+    em_text("%define PITH_") em_line(name)
+    function.pith_defined = 1
+  end
+end
+
+sub em_emit_alloc_call(emitter:Emitter)
+  if emitter.alloc_defined == 0 then
+    em_line("%define JABARA_ALLOC")
+    emitter.alloc_defined = 1
+  end
+  em_instruction("call\t__jabara_alloc")
+end
+
 sub em_emit_direct_call(emitter:Emitter, expr:Expr)
   local argument:Expr = expr.arguments
+  em_emit_pith_define(emitter, expr.left.text)
   if expr.argument_count > 8191 then jc_error_at(expr.line, 1, "calls support at most 8191 arguments") end
   while argument != 0 do
     if argument.kind == EX_NUMBER() then
@@ -540,7 +557,7 @@ sub em_emit_closure_value(emitter:Emitter, expr:Expr)
   else em_instruction("mov\trax, [rbp - 8]") end
   em_instruction("push\trax")
   em_instruction("push\t16")
-  em_instruction("call\t__jabara_alloc")
+  em_emit_alloc_call(emitter)
   em_instruction("pop\trdx")
   em_instruction("pop\trcx")
   em_instruction("mov\t[rax], rcx")
@@ -568,7 +585,7 @@ sub em_emit_record_constructor(emitter:Emitter, expr:Expr)
   if expr.argument_count != 0 then jc_error_at(expr.line, 1, "record constructors take no arguments") end
   if count == 0 then em_instruction("push\t8")
   else em_text("\tpush\t") em_number(count * 8) em_newline() end
-  em_instruction("call\t__jabara_alloc")
+  em_emit_alloc_call(emitter)
   while index < count do
     em_text("\tmov\tqword [rax + ") em_number(index * 8) em_line("], 0")
     index = index + 1
@@ -871,7 +888,7 @@ sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
   em_newline() em_private_label(emitter, "closure", info.label) em_line(":")
   em_emit_enter(16)
   em_text("\tpush\t") em_number((info.scope.slot_count + 1) * 8) em_newline()
-  em_instruction("call\t__jabara_alloc")
+  em_emit_alloc_call(emitter)
   em_instruction("mov\t[rbp - 8], rax")
   em_zero_environment(info.scope.slot_count)
   em_instruction("mov\trdx, [rbp + 24]")

@@ -6,26 +6,25 @@ compiler emits NASM-compatible module assembly and is itself written in Jabara.
 
 ## Build the toolchain
 
-From `jabara/`:
+From the repository root:
 
-```sh
-./build.sh
+```text
+bin/pish build.psh
 ```
 
-The build creates:
+The checked-in bootstrap tools rebuild the Jabara toolchain into:
 
-- `bin/jbc`, the C compiler implementation;
-- `bin/jc`, the Jabara compiler implementation;
-- `bin/jc-self`, `jc` compiled by `jc`;
-- `bin/orgasm`, the assembler used by the repository.
+- `jabara/out/orgasm`;
+- `jabara/out/jc`;
+- `jabara/out/jc-self`.
 
-Both compilers accept:
+The compiler accepts:
 
 ```text
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-They emit only assembly. Executable headers, origins, platform services, and
+It emits only assembly. Executable headers, origins, platform services, and
 compression are separate build inputs.
 
 ## First program
@@ -36,30 +35,19 @@ sub main(argc, argv)
 end
 ```
 
-Generate assembly:
+Generate assembly and a Linux executable from the repository root:
 
-```sh
-bin/jc first.jabara first.asm
-```
-
-Build a Linux executable:
-
-```sh
-bin/orgasm lib/elf-header.asm first.asm lib/elf-runtime.asm first
-chmod +x first
-./first
+```text
+jabara/out/jc first.jabara first.asm
+jabara/out/orgasm jabara/lib/elf-header.asm first.asm jabara/lib/elf-runtime.asm first
 ```
 
 Build a FruityOS FAP:
 
-```sh
-bin/jc first.jabara first-fap.asm
-bin/orgasm \
-  lib/fap-stack-runtime.asm \
-  lib/fap-runtime.asm \
-  first-fap.asm \
-  first.raw
-../peel/bin/juicer.elf c first.raw first.fap
+```text
+jabara/out/jc jabara/lib/pith.jabara first.jabara first-fap.asm
+jabara/out/orgasm jabara/lib/fap-stack-runtime.asm jabara/lib/fap-runtime.asm first-fap.asm first.raw
+peel/out/juicer.elf c first.raw first.fap
 ```
 
 A source set may omit `main` when surrounding assembly calls its subroutines.
@@ -317,18 +305,8 @@ Assignable expressions are variables, record members, `[address]`, and
 Jabara has no managed strings, arrays, floating-point values, exceptions, or
 garbage collector.
 
-## Tests
+## Regression inputs
 
-From `jabara/`:
-
-```sh
-./test.sh
-./src/orgasm/test.sh
-```
-
-The suites check compiler agreement, self-compilation, records, closures,
-arguments, expected diagnostics, ELF and FAP generation, Yuzu integration,
-Juicer round trips, Orgasm, Pulp assembly, and every Peel program.
-
-Small examples are under `tests/`. The compiler under `src/jc/` demonstrates
-lexing, parsing, records, closures, and x86-64 assembly generation in Jabara.
+Small compiler regression programs are stored under `jabara/tests/`. The full
+repository build exercises the self-hosting compiler, Orgasm, all Peel targets,
+Seed, Pulp, Juicer compression, and image construction.

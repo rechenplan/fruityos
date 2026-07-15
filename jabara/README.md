@@ -1,21 +1,22 @@
 # Jabara
 
 Jabara is FruityOS's compact, self-hosted 64-bit systems language. The compiler
-translates one or more source files into headerless NASM-compatible module
-assembly. Assembly headers and runtimes select the executable environment.
+translates one or more source files into headerless module assembly. Orgasm
+combines that output with the selected header and runtime.
 
 ## Build
 
-```sh
-./build.sh
+From the repository root, run the complete build with:
+
+```text
+bin/pish build.psh
 ```
 
-This creates:
+The Jabara stage uses the checked-in bootstrap `jc` and `orgasm`, then writes:
 
-- `bin/jbc`, the C bootstrap compiler;
-- `bin/jc`, the compiler written in Jabara;
-- `bin/jc-self`, the self-compiled consistency build;
-- `bin/orgasm`, the Jabara-written assembler.
+- `jabara/out/orgasm`, the rebuilt assembler;
+- `jabara/out/jc`, the rebuilt Jabara compiler;
+- `jabara/out/jc-self`, the self-compiled consistency build.
 
 The compiler interface is:
 
@@ -23,14 +24,14 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-Compiler output must be combined with an appropriate runtime and assembled.
-The compiler does not invoke Orgasm, NASM, or Juicer.
+The build does not invoke the C bootstrap compiler, GCC, NASM, or shell file
+utilities.
 
 ## Layout
 
 ```text
 jabara/
-├── src/jbc/             C compiler
+├── src/jbc/             C compiler source retained as an implementation
 ├── src/jc/              Jabara compiler
 ├── src/orgasm/          assembler
 ├── lib/pith.jabara      platform service declarations
@@ -41,16 +42,5 @@ jabara/
 └── docs/manual.md       language tutorial and reference
 ```
 
-## Test
-
-```sh
-./test.sh
-./src/orgasm/test.sh
-```
-
-The suites cover compilation, self-compilation, diagnostics, records, closures,
-ELF and FAP output, Orgasm, Juicer round trips, Yuzu integration, and every Peel
-application.
-
-See the [language manual](docs/manual.md) for Jabara syntax and the integrated
-[toolchain guide](../docs/toolchain.md) for runtimes and executable targets.
+See the [language manual](docs/manual.md) and the integrated
+[toolchain guide](../docs/toolchain.md).

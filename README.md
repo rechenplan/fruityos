@@ -10,60 +10,47 @@ format.
 
 ## Build
 
-On Debian or Ubuntu, install the required packages with:
+The build is driven entirely by Pish scripts and Peel executables. The checked-in
+`bin/` directory contains the bootstrap tool set; it is not a build-output
+directory.
 
-```sh
-sudo ./debian-init.sh
+Build every component and generate all boot images from the repository root:
+
+```text
+bin/pish build.psh
 ```
 
-Build every component and generate all boot images:
+The build does not invoke Bash, a POSIX shell, an ANSI C compiler, NASM, or
+ordinary host file utilities. It uses only Pish, Peel commands, Jabara, and
+Orgasm. Generated files are written under component `out/` directories and the
+top-level `out/` directory.
 
-```sh
-./build.sh
+Clean generated files with:
+
+```text
+bin/pish clean.psh
 ```
-
-The build requires a ANSI C compiler (cc) and NASM for bootstrapping the
-Jabara compiler, Orgasm assembler, and bootloaders. After that it is
-entirely self-hosting :). Standard POSIX shell utilities are required
-by build scripts. QEMU and OVMF are required only for the supplied run
-script.
-
-## Run
-
-```sh
-./run.sh hdd
-./run.sh fd
-./run.sh uefi
-```
-
-Each command starts QEMU with 512 MiB of RAM and a temporary copy of the chosen
-image. Set `OVMF` to an x86-64 UEFI firmware image when it is not installed in
-one of the paths checked by `run.sh`.
-
-FruityOS prints its welcome message, then presents an interactive Pish prompt.
-The initrd already contains the kernel support files, shell, compiler,
-assembler, archive tools, editor, and filesystem utilities.
 
 ## Build outputs
 
 | Path | Description |
 | --- | --- |
-| `bin/fruityos_hdd.img` | 1 MiB BIOS hard-disk image. |
-| `bin/fruityos_floppy.img` | 1.44 MiB BIOS floppy image. |
-| `bin/fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
-| `bin/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
-| `pulp/bin/pulp.bin` | Flat uncompressed Pulp kernel. |
-| `pulp/bin/pulp.sys` | Juicer-compressed Pulp kernel. |
-| `peel/bin/*.fap` | Compressed FruityOS applications. |
-| `peel/bin/jar.elf` | Linux Jar packaging utility. |
-| `peel/bin/juicer.elf` | Linux Juicer packaging utility. |
+| `out/fruityos_hdd.img` | 1 MiB BIOS hard-disk image. |
+| `out/fruityos_floppy.img` | 1.44 MiB BIOS floppy image. |
+| `out/fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
+| `out/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
+| `pulp/out/pulp.bin` | Flat uncompressed Pulp kernel. |
+| `pulp/out/pulp.sys` | Juicer-compressed Pulp kernel. |
+| `peel/out/*.fap` | Compressed FruityOS applications. |
+| `peel/out/*.elf` | Linux-hosted Peel tools and applications. |
 | `initrd/` | Staging tree archived into the boot RAM filesystem. |
 
 ## Components
 
+- `bin/` — checked-in Pish, Jabara, Orgasm, and file-operation bootstrap tools.
 - `jabara/` — Jabara compilers, Orgasm, platform runtimes, tests, and language
   manual.
-- `yuzu/` — Yuzu compiler and Zest assembler sources and build scripts.
+- `yuzu/` — Yuzu compiler and Zest assembler sources.
 - `seed/` — BIOS and x86-64 UEFI bootloaders.
 - `pulp/` — the FruityOS kernel.
 - `peel/` — Pish and the FruityOS userland.

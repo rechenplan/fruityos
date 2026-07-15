@@ -1,0 +1,10 @@
+echo [ Building FruityOS boot seeds with Orgasm ]
+mkdir out
+cd src/fdseed
+build.psh
+cd ../hdseed
+build.psh
+cd ../uefiseed
+build.psh
+cd ../..
+echo Seed build complete.

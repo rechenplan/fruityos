@@ -1,0 +1,4 @@
+del out/jc out/jc-self out/orgasm
+del tmp/jc-generated.asm tmp/jc-self-generated.asm tmp/orgasm-generated.asm tmp/jc-new tmp/orgasm-new
+rmdir tmp
+rmdir out

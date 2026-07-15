@@ -1,0 +1,62 @@
+echo [ Building FruityOS with Pish and Peel ]
+mkdir out
+cd jabara
+build.psh
+cd ..
+cd yuzu
+build.psh
+cd ..
+cd peel
+build.psh
+cd ..
+cd seed
+build.psh
+cd ..
+cd pulp
+build.psh
+cd ..
+
+clean-initrd.psh
+mkdir initrd
+mkdir initrd/bin
+mkdir initrd/lib
+mkdir initrd/src
+copy pulp/out/pulp.sys initrd/pulp.sys
+copy scripts/init.psh initrd/init.psh
+copy peel/out/jar.fap initrd/bin/jar.fap
+copy peel/out/juicer.fap initrd/bin/juicer.fap
+copy peel/out/orgasm.fap initrd/bin/orgasm.fap
+copy peel/out/pish.fap initrd/bin/pish.fap
+copy peel/out/fred.fap initrd/bin/fred.fap
+copy peel/out/dir.fap initrd/bin/dir.fap
+copy peel/out/mkdir.fap initrd/bin/mkdir.fap
+copy peel/out/del.fap initrd/bin/del.fap
+copy peel/out/echo.fap initrd/bin/echo.fap
+copy peel/out/concat.fap initrd/bin/concat.fap
+copy peel/out/copy.fap initrd/bin/copy.fap
+copy peel/out/inode.fap initrd/bin/inode.fap
+copy peel/out/move.fap initrd/bin/move.fap
+copy peel/out/rmdir.fap initrd/bin/rmdir.fap
+copy peel/out/type.fap initrd/bin/type.fap
+copy peel/out/write.fap initrd/bin/write.fap
+copy peel/out/fill.fap initrd/bin/fill.fap
+copy peel/out/jc.fap initrd/bin/jc.fap
+copy jabara/lib/elf-header.asm initrd/lib/elf-header.asm
+copy jabara/lib/elf-runtime.asm initrd/lib/elf-runtime.asm
+copy jabara/lib/fap-module-runtime.asm initrd/lib/fap-module-runtime.asm
+copy jabara/lib/fap-runtime.asm initrd/lib/fap-runtime.asm
+copy jabara/lib/fap-stack-runtime.asm initrd/lib/fap-stack-runtime.asm
+copy jabara/lib/juicer-runtime.asm initrd/lib/juicer-runtime.asm
+cd initrd
+../peel/out/jar.elf c initrd.jar
+move initrd.jar ../initrd.jar
+cd ..
+
+peel/out/concat.elf out/fruityos_hdd.img seed/out/hdseed.bin initrd.jar
+peel/out/pad.elf out/fruityos_hdd.img 1048576 1048576
+peel/out/concat.elf out/fruityos_floppy.img seed/out/fdseed.bin initrd.jar
+peel/out/pad.elf out/fruityos_floppy.img 1474560 350208
+peel/out/uefi.elf seed/out/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
+
+del initrd.jar
+echo FruityOS Pish build complete.

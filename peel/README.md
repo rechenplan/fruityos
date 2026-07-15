@@ -1,31 +1,20 @@
 # Peel
 
-Peel is FruityOS's Jabara-written userland. It provides the Pish shell, RAMFS
-utilities, Fred editor, Jar archiver, Juicer compressor, Jabara compiler, and
-Orgasm assembler.
+Peel is FruityOS's Jabara-written userland. It provides Pish, RAMFS utilities,
+Fred, Jar, Juicer, the Jabara compiler, and Orgasm.
 
 ## Build
 
-```sh
-./build.sh
-```
+The root Pish build runs `peel/build.psh` after rebuilding Jabara and Yuzu.
+Peel writes all generated files to `peel/out/`:
 
-The script recreates `peel/bin/` and produces:
-
-- `jar.elf` and `juicer.elf` for host packaging;
-- one compressed FAP for every program under `src/`;
+- Linux-hosted `.elf` executables;
+- one compressed FAP for each userland program;
 - `orgasm.fap`, `jc.fap`, `yc.fap`, and `zest.fap`;
-- `jc.asm`, a Jabara compiler module combined with FAP runtimes.
+- `jc.asm`, the FAP Jabara compiler module.
 
-Each FAP is compiled with `jabara/bin/jc`, assembled with
-`jabara/bin/orgasm`, and compressed with `juicer.elf`.
+Each target is compiled with `jabara/out/jc`, assembled with
+`jabara/out/orgasm`, and compressed with the newly built `peel/out/juicer.elf`.
+The root build installs the selected FAP programs into initrd `/bin`.
 
-The root build copies these applications into initrd `/bin`:
-
-```text
-jar juicer orgasm pish fred dir mkdir del echo concat copy inode
-move rmdir type write fill jc
-```
-
-See [Shell and userland](../docs/userland.md) for command behavior and file
-formats.
+See [Shell and userland](../docs/userland.md).

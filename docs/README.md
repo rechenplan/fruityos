@@ -1,14 +1,12 @@
 # FruityOS documentation
 
-These documents describe the repository as built by the root `build.sh` and
-run by `run.sh`.
+These documents describe the repository as built by `bin/pish build.psh`.
 
 ## Guides
 
-1. [Getting started](getting-started.md) covers host dependencies, building,
-   running each image, generated artifacts, and cleanup.
-2. [Build system](build-system.md) follows the complete host pipeline and lists
-   the files placed in each output directory.
+1. [Getting started](getting-started.md) covers bootstrapping, building,
+   generated artifacts, and cleanup.
+2. [Build system](build-system.md) follows the complete Pish/Peel pipeline.
 3. [Boot and firmware](boot-and-firmware.md) documents the BIOS images, PE32+
    application, FAT16 UEFI image, and kernel handoff.
 4. [Kernel architecture](kernel.md) describes initialization, paging,
@@ -19,10 +17,8 @@ run by `run.sh`.
    archive format, installed programs, and startup sequence.
 7. [Shell and userland](userland.md) documents Pish, FAP applications, Jar,
    Juicer, and the installed utilities.
-8. [Toolchains](toolchain.md) covers Jabara, platform runtimes, Orgasm, Yuzu,
-   and the compiler-to-image path.
-9. [Development](development.md) covers tests, boot diagnostics, repository
-   invariants, and implementation limits.
+8. [Toolchains](toolchain.md) covers Jabara, Orgasm, Yuzu, and executable targets.
+9. [Development](development.md) covers repository invariants and limits.
 
 ## Component references
 

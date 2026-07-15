@@ -1,0 +1,3 @@
+del out/pulp.bin out/pulp.sys tmp/pulp-generated.asm
+rmdir tmp
+rmdir out

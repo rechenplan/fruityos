@@ -18,27 +18,27 @@
     53 ./pulp/src/heap.jabara
      1 ./pulp/src/x86.jabara
    147 ./pulp/src/inode.jabara
-   220 ./initrd/lib/elf-runtime.asm
-   188 ./initrd/lib/fap-runtime.asm
-    29 ./initrd/lib/elf-header.asm
+   334 ./initrd/lib/elf-runtime.asm
+   260 ./initrd/lib/fap-runtime.asm
+    30 ./initrd/lib/elf-header.asm
     89 ./initrd/lib/juicer-runtime.asm
     24 ./initrd/lib/fap-stack-runtime.asm
      8 ./initrd/lib/fap-module-runtime.asm
     67 ./jabara/src/orgasm/main.jabara
     77 ./jabara/src/orgasm/emit.jabara
-   696 ./jabara/src/orgasm/parse.jabara
+   707 ./jabara/src/orgasm/parse.jabara
    123 ./jabara/src/orgasm/lex.jabara
    216 ./jabara/src/orgasm/modern.jabara
     23 ./jabara/src/jc/main.jabara
     77 ./jabara/src/jc/model.jabara
    302 ./jabara/src/jc/parser.jabara
    183 ./jabara/src/jc/lexer.jabara
-   920 ./jabara/src/jc/emitter.jabara
+   937 ./jabara/src/jc/emitter.jabara
    138 ./jabara/src/jc/runtime.jabara
    417 ./jabara/src/jbc/parser.c
    195 ./jabara/src/jbc/lexer.c
     84 ./jabara/src/jbc/jbc.c
-   717 ./jabara/src/jbc/emitter.c
+   751 ./jabara/src/jbc/emitter.c
     25 ./jabara/tests/arguments.jabara
     23 ./jabara/tests/closure.jabara
      3 ./jabara/tests/error-undeclared-extern.jabara
@@ -49,10 +49,10 @@
      6 ./jabara/tests/part-a.jabara
      6 ./jabara/tests/part-b.jabara
     30 ./jabara/tests/record.jabara
-   220 ./jabara/lib/elf-runtime.asm
+   334 ./jabara/lib/elf-runtime.asm
      1 ./jabara/lib/jc-fap-config.jabara
-   188 ./jabara/lib/fap-runtime.asm
-    29 ./jabara/lib/elf-header.asm
+   260 ./jabara/lib/fap-runtime.asm
+    30 ./jabara/lib/elf-header.asm
     89 ./jabara/lib/juicer-runtime.asm
     24 ./jabara/lib/fap-stack-runtime.asm
      8 ./jabara/lib/fap-module-runtime.asm
@@ -68,7 +68,7 @@
     55 ./peel/src/copy/copy.jabara
     73 ./peel/src/fill/fill.jabara
    174 ./peel/src/inode/inode.jabara
-   194 ./peel/src/pish/pish.jabara
+   276 ./peel/src/pish/pish.jabara
    324 ./peel/src/fred/fred.jabara
    101 ./peel/src/write/write.jabara
     54 ./peel/src/concat/concat.jabara
@@ -76,7 +76,7 @@
     32 ./peel/src/rmdir/rmdir.jabara
     31 ./peel/src/mkdir/mkdir.jabara
     54 ./peel/src/type/type.jabara
- 10334 ./peel/bin/jc.asm
+ 10499 ./peel/bin/jc.asm
     10 ./peel/lib/_start.asm
    183 ./peel/lib/libpith.asm
     37 ./yuzu/doc/manual.yuzu
@@ -96,4 +96,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 25158 total
+ 25841 total

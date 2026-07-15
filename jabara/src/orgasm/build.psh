@@ -1,0 +1,4 @@
+jc ../../lib/pith.jabara main.jabara lex.jabara modern.jabara parse.jabara emit.jabara ../../tmp/orgasm-generated.asm
+orgasm ../../lib/elf-header.asm ../../tmp/orgasm-generated.asm ../../lib/elf-runtime.asm ../../tmp/orgasm-new
+move ../../tmp/orgasm-new ../../out/orgasm
+del ../../tmp/orgasm-generated.asm

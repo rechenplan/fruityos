@@ -1,3 +1,4 @@
+%define PITH_exit
 bits 64
 org 0x400000
 

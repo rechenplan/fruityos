@@ -1,0 +1,4 @@
+del out/byc out/yc out/zest
+del tmp/byc-generated.asm tmp/yc-generated.asm tmp/zest-generated.asm
+rmdir tmp
+rmdir out

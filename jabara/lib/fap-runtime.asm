@@ -1,3 +1,4 @@
+%define PITH_exit
 __jabara_fap_start:
 	push rdi
 	push rsi
@@ -5,6 +6,7 @@ __jabara_fap_start:
 	push rax
 	call exit
 
+%ifdef PITH_open
 open:
 	pop r10
 	pop rsi
@@ -13,6 +15,9 @@ open:
 	mov rax, 0
 	int 132
 	ret
+%endif
+
+%ifdef PITH_creat
 creat:
 	pop r10
 	pop rdi
@@ -20,6 +25,9 @@ creat:
 	mov rax, 1
 	int 132
 	ret
+%endif
+
+%ifdef PITH_close
 close:
 	pop r10
 	pop rdi
@@ -27,6 +35,9 @@ close:
 	mov rax, 2
 	int 132
 	ret
+%endif
+
+%ifdef PITH_read
 read:
 	pop r10
 	pop rdx
@@ -36,6 +47,9 @@ read:
 	mov rax, 3
 	int 132
 	ret
+%endif
+
+%ifdef PITH_write
 write:
 	pop r10
 	pop rdx
@@ -45,6 +59,9 @@ write:
 	mov rax, 4
 	int 132
 	ret
+%endif
+
+%ifdef PITH_fgetch
 fgetch:
 	pop r10
 	pop rdi
@@ -52,6 +69,9 @@ fgetch:
 	mov rax, 5
 	int 132
 	ret
+%endif
+
+%ifdef PITH_fputch
 fputch:
 	pop r10
 	pop rsi
@@ -60,6 +80,9 @@ fputch:
 	mov rax, 6
 	int 132
 	ret
+%endif
+
+%ifdef PITH_seek
 seek:
 	pop r10
 	pop rdx
@@ -69,10 +92,16 @@ seek:
 	mov rax, 7
 	int 132
 	ret
+%endif
+
+%ifdef PITH_getch
 getch:
 	mov rax, 8
 	int 132
 	ret
+%endif
+
+%ifdef PITH_putch
 putch:
 	pop r10
 	pop rdi
@@ -80,6 +109,9 @@ putch:
 	mov rax, 9
 	int 132
 	ret
+%endif
+
+%ifdef PITH_getcwd
 getcwd:
 	pop r10
 	pop rsi
@@ -88,6 +120,9 @@ getcwd:
 	mov rax, 10
 	int 132
 	ret
+%endif
+
+%ifdef PITH_getdents64
 getdents64:
 	pop r10
 	pop rdx
@@ -97,6 +132,9 @@ getdents64:
 	mov rax, 11
 	int 132
 	ret
+%endif
+
+%ifdef PITH_rename
 rename:
 	pop r10
 	pop rsi
@@ -105,6 +143,9 @@ rename:
 	mov rax, 12
 	int 132
 	ret
+%endif
+
+%ifdef PITH_mkdir
 mkdir:
 	pop r10
 	pop rdi
@@ -112,6 +153,9 @@ mkdir:
 	mov rax, 13
 	int 132
 	ret
+%endif
+
+%ifdef PITH_rmdir
 rmdir:
 	pop r10
 	pop rdi
@@ -119,6 +163,9 @@ rmdir:
 	mov rax, 14
 	int 132
 	ret
+%endif
+
+%ifdef PITH_chdir
 chdir:
 	pop r10
 	pop rdi
@@ -126,6 +173,9 @@ chdir:
 	mov rax, 15
 	int 132
 	ret
+%endif
+
+%ifdef PITH_unlink
 unlink:
 	pop r10
 	pop rdi
@@ -133,6 +183,9 @@ unlink:
 	mov rax, 16
 	int 132
 	ret
+%endif
+
+%ifdef PITH_exec
 exec:
 	pop r10
 	pop rsi
@@ -141,10 +194,16 @@ exec:
 	mov rax, 17
 	int 132
 	ret
+%endif
+
+%ifdef PITH_fork
 fork:
 	mov rax, 18
 	int 132
 	ret
+%endif
+
+%ifdef PITH_waitpid
 waitpid:
 	pop r10
 	pop rdi
@@ -152,6 +211,9 @@ waitpid:
 	mov rax, 19
 	int 132
 	ret
+%endif
+
+%ifdef PITH_dup2
 dup2:
 	pop r10
 	pop rsi
@@ -160,6 +222,9 @@ dup2:
 	mov rax, 20
 	int 132
 	ret
+%endif
+
+%ifdef PITH_brk
 brk:
 	pop r10
 	pop rdi
@@ -167,6 +232,9 @@ brk:
 	mov rax, 21
 	int 132
 	ret
+%endif
+
+%ifdef PITH_mmap
 mmap:
 	pop r10
 	pop r9
@@ -179,6 +247,9 @@ mmap:
 	mov rax, 22
 	int 132
 	ret
+%endif
+
+%ifdef PITH_exit
 exit:
 	pop r10
 	pop rdi
@@ -186,3 +257,4 @@ exit:
 	mov rax, 23
 	int 132
 	hlt
+%endif

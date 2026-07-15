@@ -1,92 +1,59 @@
-# Development, testing, and limitations
+# Development and limitations
 
-## Test suites
+## Build validation
 
-Build the repository before running the integrated tests:
+Run the complete repository build from its root:
 
-```sh
-./build.sh
-./jabara/test.sh
-./jabara/src/orgasm/test.sh
-git diff --check
+```text
+bin/pish build.psh
 ```
 
-`jabara/test.sh` checks:
+The build itself validates the current integration points:
 
-- C and Jabara compiler behavior;
-- self-compilation;
-- records, closures, stack calls with more than six arguments, startup arguments, and expected diagnostics;
-- ELF and FAP output;
-- Yuzu compiler and assembler integration;
-- Juicer compression round trips when the host utility is available;
-- compilation of every Peel program.
+- Jabara rebuilds Orgasm and then rebuilds itself;
+- Orgasm assembles every host executable, boot seed, FAP, and Pulp;
+- Juicer compresses every FAP and the kernel;
+- `orgasm.fap` and `pulp.sys` are each checked against 8 KiB;
+- `pad.elf` checks the BIOS HDD and floppy load limits;
+- `uefi.elf` constructs both the PE32+ application and FAT16 disk image.
 
-`jabara/src/orgasm/test.sh` checks:
-
-- FAP assembly against NASM output;
-- a self-assembled Orgasm executable;
-- expressions, addressing, descriptors, and output directives;
-- assembly of the complete Pulp input.
-
-## Boot verification
-
-Exercise all image paths with:
-
-```sh
-./run.sh hdd
-./run.sh fd
-./run.sh uefi
-```
-
-A complete boot reaches the welcome banner and an interactive Pish prompt. The
-three paths share the same kernel and initrd but use independent Seed loaders.
-
-For display-free UEFI diagnostics, expose I/O port `0xE9`:
-
-```sh
-OVMF=/path/to/OVMF.fd
-qemu-system-x86_64 \
-  -m 512 \
-  -bios "$OVMF" \
-  -drive format=raw,file=bin/fruityos_uefi.img \
-  -display none \
-  -serial none \
-  -debugcon stdio \
-  -no-reboot
-```
-
-UEFI Seed emits progress markers, and the Pulp console mirrors characters to
-the same port.
+Compiler regression inputs remain under `jabara/tests/` and can be compiled with
+the rebuilt `jabara/out/jc` and `jabara/out/orgasm` tools.
 
 ## Repository invariants
 
-- Jabara source files use `.jabara`; Yuzu component sources use `.yuzu`.
+- All build orchestration is Pish source with the `.psh` suffix.
+- Build scripts invoke only Pish builtins and Peel/Jabara executables.
+- The checked-in root `bin/` directory contains only bootstrap tools.
+- Generated artifacts are written to `out/` and `tmp/` directories.
 - Compiler output remains separate from executable headers and platform
   runtimes.
-- Host scripts create generated intermediates in private temporary directories.
 - The system-call table occupies Pulp offset zero; executable entry is offset
   `0x100`.
-- The root `build.sh` list is the initrd application manifest.
-- `pulp.sys` and `orgasm.fap` each remain within their 8 KiB checks.
+- The root `build.psh` application list is the initrd manifest.
+- `pulp.sys` and `orgasm.fap` remain within their 8 KiB limits.
 - The BIOS hard-disk payload remains within 1 MiB.
 - The BIOS floppy payload remains within 350,208 bytes.
 - RAMFS inode layout changes are reflected in both Pulp and the `inode` utility.
 
+## Boot verification
+
+A complete boot reaches the welcome banner and an interactive Pish prompt. The
+BIOS HDD, BIOS floppy, and UEFI paths share the same kernel and initrd but use
+independent Seed loaders. The images are:
+
+```text
+out/fruityos_hdd.img
+out/fruityos_floppy.img
+out/fruityos_uefi.img
+```
+
+UEFI Seed and the Pulp console also emit characters to diagnostic port `0xE9`.
+
 ## Implementation limits
 
-FruityOS provides:
-
-- one active user program and no preemptive scheduler;
-- a volatile RAMFS and no disk access after boot;
-- VGA text output and PS/2 keyboard input;
-- fixed physical memory reservations;
-- a fixed 128 MiB application window;
-- fixed-block kernel allocation with a 1024-byte maximum request;
-- no separate user heap/stack collision guard;
-- stub implementations of `fork`, `waitpid`, `dup2`, and `mmap`;
-- a shell without pipes, redirection, quoting, wildcard expansion, or an
-  environment.
-
-It does not provide networking, USB, audio, a graphics API, SMP startup, ACPI
-discovery, general device enumeration, Secure Boot integration, or persistent
-storage.
+FruityOS provides one active user program, a volatile RAMFS, VGA text output,
+PS/2 keyboard input, fixed physical memory reservations, a fixed application
+window, and fixed-block kernel allocation. It has no networking, USB, audio,
+graphics API, SMP startup, ACPI discovery, general device enumeration, Secure
+Boot integration, or persistent storage.

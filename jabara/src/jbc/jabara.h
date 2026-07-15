@@ -84,6 +84,7 @@ struct Function {
     Stmt *body;
     int line;
     int is_extern;
+    int pith_defined;
     Function *next;
 };
 

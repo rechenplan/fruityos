@@ -1,0 +1,19 @@
+cd yuzu
+clean.psh
+cd ..
+cd jabara
+clean.psh
+cd ..
+cd peel
+clean.psh
+cd ..
+cd seed
+clean.psh
+cd ..
+cd pulp
+clean.psh
+cd ..
+clean-initrd.psh
+del initrd.jar log.txt loc.txt
+del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
+rmdir out

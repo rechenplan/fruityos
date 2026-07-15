@@ -110,7 +110,7 @@ Changes:
 	9. Native .psh sources are centralized under scripts/ and copied to their
 	   expected component paths only while fruityos.jz is staged.
 	10. Final BIOS, floppy, UEFI disk, and standalone EFI artifacts are written
-	    below bin/. One run.sh command selects uefi, hdd, or fd and always boots a
+	    below bin/. One launcher selects uefi, hdd, or fd and always boots a
 	    temporary image copy.
 	11. Pulp prints "Booting..." once its global console is available, before
 	    startup extracts and builds the packaged checkout.

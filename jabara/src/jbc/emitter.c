@@ -37,6 +37,7 @@ typedef struct Emitter {
     unsigned long label;
     unsigned long return_label;
     int failed;
+    int alloc_defined;
 } Emitter;
 
 static void emit_expr(Emitter *emitter, const Expr *expr);
@@ -50,6 +51,20 @@ static const Function *find_function(const Emitter *emitter, const char *name)
         function = function->next;
     }
     return NULL;
+}
+
+static Function *find_function_body(const Emitter *emitter, const char *name)
+{
+    Function *function = emitter->program->functions;
+    Function *external = NULL;
+    while (function != NULL) {
+        if (strcmp(function->name, name) == 0) {
+            if (!function->is_extern) return function;
+            external = function;
+        }
+        function = function->next;
+    }
+    return external;
 }
 
 static const Record *find_record(const Emitter *emitter, const char *name)
@@ -354,9 +369,28 @@ static void emit_binary(Emitter *emitter, const Expr *expr)
     }
 }
 
+static void emit_pith_define(Emitter *emitter, const char *name)
+{
+    Function *function = find_function_body(emitter, name);
+    if (function != NULL && function->is_extern && !function->pith_defined) {
+        fprintf(emitter->out, "%%define PITH_%s\n", name);
+        function->pith_defined = 1;
+    }
+}
+
+static void emit_alloc_call(Emitter *emitter)
+{
+    if (!emitter->alloc_defined) {
+        line(emitter, "%define JABARA_ALLOC");
+        emitter->alloc_defined = 1;
+    }
+    line(emitter, "\tcall\t__jabara_alloc");
+}
+
 static void emit_direct_call(Emitter *emitter, const Expr *expr)
 {
     size_t i;
+    emit_pith_define(emitter, expr->left->text);
     if (expr->argument_count > 8191U)
         fatal_at(expr->line, 1, "calls support at most 8191 arguments");
     for (i = 0U; i < expr->argument_count; ++i) {
@@ -426,7 +460,7 @@ static void emit_closure_value(Emitter *emitter, const Expr *expr)
     else line(emitter, "\tmov\trax, [rbp - 8]");
     line(emitter, "\tpush\trax");
     line(emitter, "\tpush\t16");
-    line(emitter, "\tcall\t__jabara_alloc");
+    emit_alloc_call(emitter);
     line(emitter, "\tpop\trdx");
     line(emitter, "\tpop\trcx");
     line(emitter, "\tmov\t[rax], rcx");
@@ -458,7 +492,7 @@ static void emit_record_constructor(Emitter *emitter, const Expr *expr)
         fatal_at(expr->line, 1, "record constructors take no arguments");
     fields = record_field_count(record);
     fprintf(emitter->out, "\tpush\t%d\n", (fields == 0 ? 1 : fields) * 8);
-    line(emitter, "\tcall\t__jabara_alloc");
+    emit_alloc_call(emitter);
     for (i = 0; i < fields; ++i)
         fprintf(emitter->out, "\tmov\tqword [rax + %d], 0\n", i * 8);
 }
@@ -647,7 +681,7 @@ static void emit_closure_function(Emitter *emitter, ClosureInfo *info)
     line(emitter, "\tmov\trbp, rsp");
     line(emitter, "\tsub\trsp, 16");
     fprintf(emitter->out, "\tpush\t%d\n", (info->scope->slot_count + 1) * 8);
-    line(emitter, "\tcall\t__jabara_alloc");
+    emit_alloc_call(emitter);
     line(emitter, "\tmov\t[rbp - 8], rax");
     emit_zero_environment(emitter, info->scope->slot_count);
     line(emitter, "\tmov\trdx, [rbp + 24]");

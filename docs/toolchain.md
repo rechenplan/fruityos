@@ -1,116 +1,80 @@
 # Jabara, Orgasm, and Yuzu toolchains
 
 FruityOS builds its kernel and userland with Jabara and assembles generated
-modules with Orgasm. Yuzu supplies the `byc`, `yc`, and `zest` command-line
-tools built by `yuzu/build.sh`.
+modules with Orgasm. Yuzu supplies the `byc`, `yc`, and `zest` tools.
 
-## Jabara compilers
+## Bootstrap and self-hosting
 
-| Program | Implementation | Role |
-| --- | --- | --- |
-| `jbc` | C | Bootstrap compiler. |
-| `jc` | Jabara | Self-hosted compiler. |
-| `jc-self` | Output of `jc` compiling its compiler sources | Consistency build. |
+The top-level `bin/` directory contains checked-in `jc` and `orgasm` bootstrap
+executables. `jabara/build.psh` uses them to rebuild Orgasm, then builds the
+Jabara compiler and its self-compiled consistency image:
 
-`jbc` and `jc` accept:
+```text
+jabara/out/orgasm
+jabara/out/jc
+jabara/out/jc-self
+```
+
+The build does not invoke the C compiler implementation.
+
+`jc` accepts:
 
 ```text
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-Inputs are parsed in command-line order. The output is headerless,
-origin-independent NASM-compatible module assembly. The compiler does not add a
-runtime or invoke an assembler.
+Inputs are parsed in command-line order. The output is headerless module
+assembly; the compiler does not add a runtime or invoke an assembler.
 
 ## Platform assembly
 
-A Linux executable can be built with:
+After the repository build, a Linux executable can be produced with:
 
-```sh
-jabara/bin/jc program.jabara program-generated.asm
-jabara/bin/orgasm \
-  jabara/lib/elf-header.asm \
-  program-generated.asm \
-  jabara/lib/elf-runtime.asm \
-  program
-chmod +x program
+```text
+jabara/out/jc program.jabara program-generated.asm
+jabara/out/orgasm jabara/lib/elf-header.asm program-generated.asm jabara/lib/elf-runtime.asm program
 ```
 
-A FruityOS FAP can be built with:
+A FruityOS FAP can be produced with:
 
-```sh
-jabara/bin/jc \
-  jabara/lib/pith.jabara \
-  program.jabara \
-  program-generated.asm
-jabara/bin/orgasm \
-  jabara/lib/fap-stack-runtime.asm \
-  jabara/lib/fap-runtime.asm \
-  program-generated.asm \
-  program.raw
-peel/bin/juicer.elf c program.raw program.fap
+```text
+jabara/out/jc jabara/lib/pith.jabara program.jabara program-generated.asm
+jabara/out/orgasm jabara/lib/fap-stack-runtime.asm jabara/lib/fap-runtime.asm program-generated.asm program.raw
+peel/out/juicer.elf c program.raw program.fap
 ```
 
-The platform files provide:
+The platform files provide ELF and FAP startup, Pith services, allocation,
+Juicer decoding, and the FAP module wrapper. The root build copies the runtime
+assembly required on FruityOS into initrd `/lib`.
 
-- `elf-header.asm`: ELF64 header, origin, and entry point;
-- `elf-runtime.asm`: Linux Pith services and allocator;
-- `fap-stack-runtime.asm`: FruityOS origin, entry, stack environment, and
-  allocator;
-- `fap-runtime.asm`: FruityOS startup, arguments, system-call wrappers, and
-  exit path;
-- `pith.jabara`: external service declarations;
-- `juicer-runtime.asm`: Juicer decoder used by kernel and applications;
-- `fap-module-runtime.asm`: module wrapper used by the generated `jc.asm`.
+## Calling convention
 
-The root build copies every `jabara/lib/*.asm` file into initrd `/lib`.
-
-## Jabara language model
-
-Every ordinary value occupies one 64-bit word. Jabara provides subroutines,
-lexical locals, globals, records with compile-time field tags, captured
-functions, byte and word memory access, control flow, arithmetic, bitwise
-operations, and external subroutine declarations.
-
-Jabara calls use a callee-clean stack ABI. Arguments are evaluated and pushed
-left to right, so the final argument is nearest the return address. Generated
+Jabara uses a callee-clean stack ABI. Arguments are evaluated and pushed left
+to right, so the final argument is nearest the return address. Generated
 functions read parameters at positive frame offsets and remove their argument
 words when returning. External assembly routines use the same convention.
 
-Binary operators have equal precedence and associate left to right. The
-compiler emits direct, inspectable assembly and performs no optimization.
+## Pith stub pruning
 
-See the [Jabara language manual](../jabara/docs/manual.md).
+The compiler emits one `%define PITH_name` for each referenced external Pith
+call. The ELF and FAP runtimes guard their stubs with the corresponding
+`%ifdef`, so unreferenced service wrappers do not appear in the program.
+Allocation reachability is tracked independently with `JABARA_ALLOC`.
 
 ## Orgasm
 
-Orgasm is written in Jabara and accepts one or more input files followed by an
-output path:
+Orgasm accepts one or more input files followed by an output path:
 
 ```text
 orgasm input.asm [input.asm ...] output
 ```
 
-All inputs share one symbol table and are assembled in command-line order. Only
-an explicit `org` directive selects an origin. Executable headers are ordinary
-assembly inputs.
-
-Orgasm implements the directives, register forms, address expressions,
-descriptor data, and x86-64 instructions emitted by Jabara and used by Pulp.
-NASM is used to bootstrap the host tool and to assemble Seed.
+All inputs share one symbol table and are assembled in command-line order.
+Orgasm handles the directives, expressions, data forms, and x86-64 instructions
+used throughout the repository, including the flat `%define` and `%ifdef`
+processing required by Pith stub pruning.
 
 ## Yuzu
 
-`yuzu/build.sh` creates a fresh `yuzu/bin/` and invokes:
-
-```text
-yuzu/src/byc/build.sh
-yuzu/src/yc/build.sh
-yuzu/src/zest/build.sh
-```
-
-The output includes the Yuzu compiler tools and Zest assembler. The sources use
-`.yuzu`; the Jabara compiler accepts them through the shared language surface
-used by this repository. Peel also emits `yc.fap` and `zest.fap` for FruityOS.
-
-See [Yuzu](../yuzu/README.md) for component paths.
+`yuzu/build.psh` uses the rebuilt Jabara tools and writes `byc`, `yc`, and
+`zest` to `yuzu/out/`. Peel also emits `yc.fap` and `zest.fap` for FruityOS.

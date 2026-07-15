@@ -1,0 +1,280 @@
+sub uefi_puts(str)
+	while byte [str] do
+		putch(byte [str])
+		str = str + 1
+	end
+end
+
+sub uefi_next(args)
+	while byte [args] do args = args + 1 end
+	return args + 1
+end
+
+sub uefi_align(value, boundary)
+	return (value + boundary - 1) & (0 - boundary)
+end
+
+sub uefi_zero(buf, count)
+	while count > 0 do
+		byte [buf] = 0
+		buf = buf + 1
+		count = count - 1
+	end
+end
+
+sub uefi_put16(buf, off, value)
+	byte [buf + off] = value & 255
+	byte [buf + off + 1] = (value >> 8) & 255
+end
+
+sub uefi_put32(buf, off, value)
+	uefi_put16(buf, off, value & 65535)
+	uefi_put16(buf, off + 2, (value >> 16) & 65535)
+end
+
+sub uefi_text(buf, off, str, count)
+	local i
+	while i < count do
+		byte [buf + off + i] = byte [str + i]
+		i = i + 1
+	end
+end
+
+sub uefi_write_zeros(fd, count, zero)
+	local n
+	while count > 0 do
+		n = count
+		if n > 8192 then n = 8192 end
+		write(fd, zero, n)
+		count = count - n
+	end
+end
+
+sub uefi_copy(fin, fout, buf)
+	local n, total
+	while (n = read(fin, buf, 8192)) > 0 do
+		write(fout, buf, n)
+		total = total + n
+	end
+	return total
+end
+
+sub uefi_copy_path(path, fout, buf)
+	local fin, n
+	fin = open(path, 0)
+	if fin < 0 then return -1 end
+	n = uefi_copy(fin, fout, buf)
+	close(fin)
+	return n
+end
+
+sub uefi_patch_prefix(prefix, initrd_size, data_virtual_size, data_raw_size,
+		reloc_rva, reloc_raw_offset, image_size, memory_map_rva)
+	uefi_put32(prefix, 160, data_raw_size + 512)
+	uefi_put32(prefix, 208, image_size)
+	uefi_put32(prefix, 304, reloc_rva)
+	uefi_put32(prefix, 440, data_virtual_size)
+	uefi_put32(prefix, 448, data_raw_size)
+	uefi_put32(prefix, 484, reloc_rva)
+	uefi_put32(prefix, 492, reloc_raw_offset)
+	uefi_put32(prefix, 684, uefi_align(initrd_size, 4096) / 4096)
+	uefi_put32(prefix, 719, initrd_size)
+	uefi_put32(prefix, 805, memory_map_rva - 4393)
+end
+
+sub uefi_make_efi(prefix_path, initrd_path, efi_path, buf, zero)
+	local fin, fout, prefix, initrd_size, memory_map_offset,
+		data_virtual_size, data_raw_size, reloc_rva, reloc_raw_offset,
+		image_size, memory_map_rva, pos
+	fin = open(initrd_path, 0)
+	if fin < 0 then return -1 end
+	initrd_size = seek(fin, 0, 2)
+	close(fin)
+	if (initrd_size < 0) | (initrd_size > 524288) then return -1 end
+
+	memory_map_offset = 4576 + uefi_align(initrd_size, 16)
+	data_virtual_size = memory_map_offset + 65536
+	data_raw_size = uefi_align(data_virtual_size, 512)
+	reloc_rva = 8192 + uefi_align(data_virtual_size, 4096)
+	reloc_raw_offset = reloc_rva - 3584
+	image_size = reloc_rva + 4096
+	memory_map_rva = 8192 + memory_map_offset
+
+	prefix = brk(-1)
+	brk(prefix + 9184)
+	fin = open(prefix_path, 0)
+	if fin < 0 then return -1 end
+	if read(fin, prefix, 9184) != 9184 then close(fin) return -1 end
+	close(fin)
+	uefi_patch_prefix(prefix, initrd_size, data_virtual_size, data_raw_size,
+		reloc_rva, reloc_raw_offset, image_size, memory_map_rva)
+
+	fout = creat(efi_path)
+	if fout < 0 then return -1 end
+	write(fout, prefix, 9184)
+	if uefi_copy_path(initrd_path, fout, buf) != initrd_size then
+		close(fout)
+		return -1
+	end
+	pos = seek(fout, 0, 1)
+	uefi_write_zeros(fout, memory_map_offset - (pos - 4608), zero)
+	uefi_write_zeros(fout, 65536, zero)
+	pos = seek(fout, 0, 1)
+	uefi_write_zeros(fout, reloc_raw_offset - pos, zero)
+	uefi_zero(buf, 512)
+	uefi_put32(buf, 0, 12288)
+	uefi_put32(buf, 4, 12)
+	uefi_put16(buf, 8, 41072)
+	uefi_put16(buf, 10, 0)
+	write(fout, buf, 512)
+	close(fout)
+	return reloc_raw_offset + 512
+end
+
+sub uefi_make_fat(image_path, efi_path, efi_size, buf, zero)
+	local fd, efi, partition, fat, root, data, clusters, i
+	fd = creat(image_path)
+	if fd < 0 then return -1 end
+	uefi_write_zeros(fd, 17825792, zero)
+
+	uefi_zero(buf, 8192)
+	byte [buf + 446] = 0
+	byte [buf + 447] = 254
+	byte [buf + 448] = 255
+	byte [buf + 449] = 255
+	byte [buf + 450] = 239
+	byte [buf + 451] = 254
+	byte [buf + 452] = 255
+	byte [buf + 453] = 255
+	uefi_put32(buf, 454, 2048)
+	uefi_put32(buf, 458, 32768)
+	uefi_put16(buf, 510, 43605)
+	seek(fd, 0, 0)
+	write(fd, buf, 512)
+
+	partition = 2048 * 512
+	uefi_zero(buf, 512)
+	byte [buf] = 235
+	byte [buf + 1] = 60
+	byte [buf + 2] = 144
+	uefi_text(buf, 3, "FRUITYOS", 8)
+	uefi_put16(buf, 11, 512)
+	byte [buf + 13] = 1
+	uefi_put16(buf, 14, 1)
+	byte [buf + 16] = 2
+	uefi_put16(buf, 17, 512)
+	uefi_put16(buf, 19, 32768)
+	byte [buf + 21] = 248
+	uefi_put16(buf, 22, 128)
+	uefi_put16(buf, 24, 32)
+	uefi_put16(buf, 26, 64)
+	uefi_put32(buf, 28, 2048)
+	byte [buf + 36] = 128
+	byte [buf + 38] = 41
+	uefi_put32(buf, 39, 50339878)
+	uefi_text(buf, 43, "FRUITYOS   ", 11)
+	uefi_text(buf, 54, "FAT16   ", 8)
+	byte [buf + 62] = 250
+	byte [buf + 63] = 244
+	byte [buf + 64] = 235
+	byte [buf + 65] = 253
+	uefi_put16(buf, 510, 43605)
+	seek(fd, partition, 0)
+	write(fd, buf, 512)
+
+	clusters = (efi_size + 511) / 512
+	uefi_zero(buf, 65536)
+	uefi_put16(buf, 0, 65528)
+	uefi_put16(buf, 2, 65535)
+	uefi_put16(buf, 4, 65535)
+	uefi_put16(buf, 6, 65535)
+	i = 0
+	while i < clusters do
+		if i + 1 == clusters then
+			uefi_put16(buf, (4 + i) * 2, 65535)
+		else
+			uefi_put16(buf, (4 + i) * 2, 5 + i)
+		end
+		i = i + 1
+	end
+	fat = partition + 512
+	seek(fd, fat, 0)
+	write(fd, buf, 65536)
+	seek(fd, fat + 65536, 0)
+	write(fd, buf, 65536)
+
+	root = partition + (257 * 512)
+	uefi_zero(buf, 512)
+	uefi_text(buf, 0, "FRUITYOS   ", 11)
+	byte [buf + 11] = 8
+	uefi_text(buf, 32, "EFI        ", 11)
+	byte [buf + 43] = 16
+	uefi_put16(buf, 58, 2)
+	seek(fd, root, 0)
+	write(fd, buf, 512)
+
+	data = partition + (289 * 512)
+	uefi_zero(buf, 512)
+	uefi_text(buf, 0, ".          ", 11)
+	byte [buf + 11] = 16
+	uefi_put16(buf, 26, 2)
+	uefi_text(buf, 32, "..         ", 11)
+	byte [buf + 43] = 16
+	uefi_put16(buf, 58, 0)
+	uefi_text(buf, 64, "BOOT       ", 11)
+	byte [buf + 75] = 16
+	uefi_put16(buf, 90, 3)
+	seek(fd, data, 0)
+	write(fd, buf, 512)
+
+	uefi_zero(buf, 512)
+	uefi_text(buf, 0, ".          ", 11)
+	byte [buf + 11] = 16
+	uefi_put16(buf, 26, 3)
+	uefi_text(buf, 32, "..         ", 11)
+	byte [buf + 43] = 16
+	uefi_put16(buf, 58, 2)
+	uefi_text(buf, 64, "BOOTX64 EFI", 11)
+	byte [buf + 75] = 32
+	uefi_put16(buf, 90, 4)
+	uefi_put32(buf, 92, efi_size)
+	seek(fd, data + 512, 0)
+	write(fd, buf, 512)
+
+	efi = open(efi_path, 0)
+	if efi < 0 then close(fd) return -1 end
+	seek(fd, data + 1024, 0)
+	uefi_copy(efi, fd, buf)
+	close(efi)
+	close(fd)
+	return 0
+end
+
+sub main(argc, args)
+	local prefix, initrd, efi, image, buf, zero, efi_size
+	if argc != 5 then
+		uefi_puts("usage: uefi prefix initrd efi image")
+		putch(10)
+		return 1
+	end
+	prefix = uefi_next(args)
+	initrd = uefi_next(prefix)
+	efi = uefi_next(initrd)
+	image = uefi_next(efi)
+	buf = brk(-1)
+	zero = buf + 65536
+	brk(zero + 8192)
+	uefi_zero(zero, 8192)
+	efi_size = uefi_make_efi(prefix, initrd, efi, buf, zero)
+	if efi_size < 0 then
+		uefi_puts("uefi: failed to build EFI application")
+		putch(10)
+		return 1
+	end
+	if uefi_make_fat(image, efi, efi_size, buf, zero) < 0 then
+		uefi_puts("uefi: failed to build disk image")
+		putch(10)
+		return 1
+	end
+	return 0
+end

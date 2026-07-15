@@ -1,88 +1,86 @@
 # Build system
 
-FruityOS uses shell scripts rather than Make. The root `build.sh` is the complete
-host build entry point, and every component also provides its own `build.sh`.
-All scripts stop on the first failed command.
+FruityOS uses Pish scripts rather than Bash, Make, or a POSIX shell. The root
+`build.psh` is the complete build entry point. Every component has matching
+`build.psh` and `clean.psh` scripts.
+
+Start the build from the repository root:
+
+```text
+bin/pish build.psh
+```
+
+Pish saves that directory as its root and resolves bare command names through
+the checked-in root `bin/` directory. Generated executables are never placed in
+that directory.
 
 ## Root pipeline
 
-The root build runs these stages in order:
+The root build enters and runs these stages in order:
 
-1. `jabara/build.sh`
-2. `yuzu/build.sh`
-3. `peel/build.sh`
-4. `seed/build.sh`
-5. `pulp/build.sh`
+1. `jabara/build.psh`
+2. `yuzu/build.psh`
+3. `peel/build.psh`
+4. `seed/build.psh`
+5. `pulp/build.psh`
 6. initrd and image assembly
 
-### Jabara
+Every operation is performed by Pish itself or by a Peel/Jabara executable.
+There are no calls to host shell commands.
 
-`jabara/build.sh` creates `jabara/bin/` and invokes the bootstrap compiler,
-Orgasm, and self-hosted compiler builds. The resulting host tools include:
+## Bootstrap tools
 
-- `jbc`, the C implementation of the Jabara compiler;
-- `jc`, the Jabara implementation;
-- `jc-self`, the self-compiled consistency build;
-- `orgasm`, the Jabara-written assembler.
-
-Both compilers accept one or more source files followed by one assembly output:
+The checked-in `bin/` directory contains only the tools required before the
+repository can rebuild itself:
 
 ```text
-jc input.jabara [input.jabara ...] output.asm
+pish jc orgasm echo mkdir del rmdir copy move
 ```
 
-Compiler output is headerless NASM-compatible module assembly. Headers,
-runtimes, origins, and executable formats are supplied at the assembly stage.
+`jc` and `orgasm` bootstrap the self-hosted toolchain. The remaining commands
+provide the small file-operation surface used by the Pish scripts. `clean.psh`
+does not remove these files.
 
-### Yuzu
+## Component outputs
 
-`yuzu/build.sh` creates `yuzu/bin/` and builds the `byc`, `yc`, and `zest`
-programs. The Yuzu source files are compiled through the Jabara build path.
+Each component writes generated files to its own `out/` directory:
 
-### Peel
+- `jabara/out/` — rebuilt `jc`, `jc-self`, and `orgasm`;
+- `yuzu/out/` — `byc`, `yc`, and `zest`;
+- `peel/out/` — Linux executables, compressed FAPs, and `jc.asm`;
+- `seed/out/` — BIOS loaders and the UEFI prefix;
+- `pulp/out/` — flat and compressed kernels.
 
-`peel/build.sh` creates:
+Temporary compiler and assembler inputs are written to component `tmp/`
+directories and removed as each target completes.
 
-- Linux `jar.elf` and `juicer.elf` utilities for host packaging;
-- one compressed FAP for each program under `peel/src/`;
-- `orgasm.fap` and `jc.fap`;
-- `yc.fap` and `zest.fap`;
-- `jc.asm`, a Jabara compiler module combined with FAP runtimes.
+## Jabara
 
-For each ordinary application, the script compiles Pith declarations and the
-program source with `jc`, assembles the flat image with Orgasm, and compresses
-the result with Juicer. `orgasm.fap` must not exceed 8 KiB.
+The checked-in compiler and assembler first rebuild Orgasm. The rebuilt Orgasm
+then assembles a new Jabara compiler, and that compiler produces `jc-self` as a
+self-hosting consistency build. The build does not compile or invoke the C
+bootstrap compiler.
 
-### Seed
+## Yuzu
 
-`seed/build.sh` assembles the BIOS loaders:
+The rebuilt Jabara compiler and Orgasm build `byc`, `yc`, and `zest` into
+`yuzu/out/`.
 
-- `seed/bin/hdseed.bin`
-- `seed/bin/fdseed.bin`
+## Peel
 
-The UEFI application and UEFI disk image are produced during top-level image
-assembly because they embed the completed initrd Jar.
+Peel builds Linux and FAP forms of the userland programs. Its newly built
+`juicer.elf` compresses every FAP. The compressed `orgasm.fap` is checked against
+its 8 KiB limit. Peel also produces the FAP Jabara compiler module.
 
-### Pulp
+## Seed and Pulp
 
-`pulp/build.sh` sends every `pulp/src/*.jabara` file to one `jc` invocation. It
-then assembles:
+Orgasm assembles the Seed byte-source files into `seed/out/`. Pulp is compiled
+as one Jabara module, assembled into `pulp/out/pulp.bin`, compressed to
+`pulp/out/pulp.sys`, and checked against its 8 KiB limit.
 
-```text
-pulp/src/entry.asm
-pulp/src/idt.asm
-jabara/lib/juicer-runtime.asm
-generated Pulp assembly
-```
+## Initrd
 
-Orgasm writes `pulp/bin/pulp.bin`; host Juicer writes
-`pulp/bin/pulp.sys`. The compressed kernel must not exceed 8 KiB. The first
-256 bytes of the flat kernel are the 32-entry dispatch table, and executable
-code begins at offset `0x100`.
-
-## Initrd assembly
-
-The root script recreates this staging tree:
+The root script creates the required runtime tree:
 
 ```text
 initrd/
@@ -93,62 +91,26 @@ initrd/
 └── pulp.sys
 ```
 
-It copies these FAP applications into `initrd/bin/`:
+The `initrd/bin/` directory contains the selected Peel FAP applications.
+Jabara runtime assembly is copied to `initrd/lib/`. The rebuilt Jar program
+archives the tree as `initrd.jar`.
+
+## Images
+
+The rebuilt Peel commands construct every final image:
+
+- `concat.elf` combines a BIOS seed and the initrd;
+- `pad.elf` enforces the BIOS load limits and pads the HDD and floppy images;
+- `uefi.elf` combines the UEFI seed prefix and initrd, writes the PE32+
+  application, and creates the FAT16 UEFI disk image.
+
+Final images are written to the top-level `out/` directory.
+
+## Clean
 
 ```text
-jar juicer orgasm pish fred dir mkdir del echo concat copy inode
-move rmdir type write fill jc
+bin/pish clean.psh
 ```
 
-Every `jabara/lib/*.asm` file is copied to `initrd/lib/`. `scripts/init.psh` is
-copied to the initrd root, and `pulp/bin/pulp.sys` becomes `/pulp.sys`.
-`peel/bin/jar.elf` archives the staging tree as an uncompressed Jar.
-
-See [Initial RAM filesystem](initrd.md) for the runtime layout.
-
-## Image assembly
-
-### UEFI
-
-`seed/src/uefiseed/build.sh` receives the completed initrd Jar and writes:
-
-- `bin/fruityos.efi`, a standalone x86-64 PE32+ EFI application;
-- `bin/fruityos_uefi.img`, a disk image with the application at
-  `EFI/BOOT/BOOTX64.EFI` in a FAT16 EFI system partition.
-
-### BIOS hard disk
-
-The hard-disk image is assembled as:
-
-```text
-seed/bin/hdseed.bin + initrd Jar + zero padding
-```
-
-The unpadded payload must fit in 1 MiB. The output is padded to exactly
-1,048,576 bytes.
-
-### BIOS floppy
-
-The floppy image is assembled as:
-
-```text
-seed/bin/fdseed.bin + initrd Jar + zero padding
-```
-
-The boot payload must fit in 350,208 bytes, the loader's 342 KiB read window.
-The output is padded to exactly 1,474,560 bytes.
-
-## Temporary files and cleanup
-
-Component scripts create private directories below `${TMPDIR:-/tmp}` and remove
-them with shell traps. `cleanup.sh` invokes every component cleanup script and
-removes the generated OS images and top-level temporary build files.
-
-The root build also writes `loc.txt` by counting C, assembly, Jabara, and Yuzu
-source lines.
-
-## Reproducibility
-
-Jar and Juicer do not add timestamps. The EFI builder writes a zero PE
-timestamp and constructs its FAT16 layout directly. Generated bytes can still
-depend on the installed C compiler, NASM, shell, and host utilities.
+The root cleaner mirrors the build hierarchy, invokes each component cleaner,
+removes the initrd staging tree, and removes the top-level `out/` directory.

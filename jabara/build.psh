@@ -1,0 +1,9 @@
+echo [ Building Jabara ]
+mkdir out
+mkdir tmp
+cd src/orgasm
+build.psh
+cd ../jc
+build.psh
+cd ../..
+echo Jabara build complete.

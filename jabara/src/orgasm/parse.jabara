@@ -591,7 +591,7 @@ end
 ; if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass
 sub parse_file(fout, fin, symtab, org)
 
-	local buffer, ptr, token, c, k, pos, bytes
+	local buffer, ptr, token, c, k, pos, bytes, active = 1
 
 	buffer = brk(-1)
 	token = brk(buffer + 65536)
@@ -609,11 +609,20 @@ sub parse_file(fout, fin, symtab, org)
 		[ptr] = 0
 		ptr = buffer
 
-		ptr = lex_get_next_token(ptr, token)
+		if byte [ptr] == 37 then
+			k = byte [ptr + 1]
+			if k == 100 then
+				ptr = ptr + 8
+				parse_insert_table(0, ptr, symtab)
+			else if k == 105 then active = parse_lookup_table(ptr + 7, symtab) >= 0
+			else active = 1 end end
+		else
+			if active then
+				ptr = lex_get_next_token(ptr, token)
 
-		if ptr then
+				if ptr then
 
-			k = lex_keyword_lookup(token)
+					k = lex_keyword_lookup(token)
 
 			; ret, syscall
 			if (k >= 0) & (k <= 1) then pos = pos + parse_no_args(k, fout, ptr, token) end
@@ -688,6 +697,8 @@ sub parse_file(fout, fin, symtab, org)
 			end
 			if (k >= 79) & (k <= 80) then pos = pos + parse_port_io(fout, ptr, token, 80 - k) end
 
+				end
+			end
 		end
 	end
 	bytes = pos - org
