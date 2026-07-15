@@ -58,7 +58,7 @@ del tmp/jar-generated.asm tmp/jar.raw
 
 echo Building juicer...
 jc ../jabara/lib/pith.jabara src/juicer/juicer.jabara tmp/juicer-generated.asm
-orgasm ../jabara/lib/fap-stack-runtime.asm ../jabara/lib/fap-runtime.asm tmp/juicer-generated.asm tmp/juicer.raw
+orgasm ../jabara/lib/fap-stack-runtime.asm ../jabara/lib/fap-runtime.asm tmp/juicer-generated.asm ../jabara/lib/juicer-runtime.asm tmp/juicer.raw
 juicer c tmp/juicer.raw /bin/juicer.fap
 del tmp/juicer-generated.asm tmp/juicer.raw
 

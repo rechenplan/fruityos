@@ -6,6 +6,8 @@ sub malloc(size)
 	return ptr
 end
 
+extern sub juicer_decode64(output, input)
+
 sub puts(strPtr)
 	local c
 	while c = byte [strPtr] do
@@ -24,13 +26,12 @@ sub nextarg(strPtr)
 end
 
 sub compress(fin, fout)
-	local bytePtr, c, e, windowPtr, windowSize, i, j, filePtr, fileSize, encoderPos,
-		distance, length, remainder, done, bestLength, bestDistance
+	local bytePtr, c, e, i, filePtr, fileSize, encoderPos, groupSize, flags,
+		distance, length, done, bestLength, bestDistance, token, matchPtr,
+		costPtr, phase, nextPhase, bestCost, candidate
 
-	bytePtr = malloc(3)
+	bytePtr = malloc(17)
 	filePtr = malloc(2 << 20)
-	windowPtr = malloc(1024)
-	windowSize = 0
 
 	fileSize = 0
 	while read(fin, bytePtr, 1) > 0 do
@@ -38,105 +39,121 @@ sub compress(fin, fout)
 		fileSize = fileSize + 1
 	end
 
+	matchPtr = malloc((fileSize + 1) << 3)
+	costPtr = malloc((fileSize + 1) << 6)
 	encoderPos = 0
-	while (encoderPos < fileSize) do
-
-		distance = 0
+	while encoderPos < fileSize do
+		distance = 1
 		bestLength = 0
-		bestDistance = 0
-		while distance < windowSize do
+		while (distance <= encoderPos) & (distance <= 4095) do
 			length = 0
 			done = 0
-			while (encoderPos + length < fileSize) & (done == 0) & (length < 63) do
+			while (encoderPos + length < fileSize) & (done == 0) & (length < 18) do
 				c = byte [filePtr + encoderPos + length]
-				remainder = length
-				while remainder > distance do
-					remainder = remainder - distance - 1
-				end
-				e = byte [windowPtr + distance - remainder]
-				if c == e then
-					length = length + 1
-				else
-					done = 1
-				end
+				e = byte [filePtr + encoderPos + length - distance]
+				if c == e then length = length + 1 else done = 1 end
 			end
-			if length > bestLength then
-				bestLength = length
-				bestDistance = distance
-			end
+			if length > bestLength then bestLength = length end
 			distance = distance + 1
 		end
-
-		if bestLength > 3 then
-			byte [bytePtr + 0] = 255
-			byte [bytePtr + 1] = ((bestDistance & 1023) << 6) | (bestLength & 63)
-			byte [bytePtr + 2] = ((bestDistance & 1023) >> 2)
-			write(fout, bytePtr, 3)
-		else
-			bestLength = 1;
-			byte [bytePtr] = byte[filePtr + encoderPos]
-			if byte [bytePtr] == 255 then
-				byte [bytePtr + 1] = 0
-				byte [bytePtr + 2] = 0
-				write(fout, bytePtr, 3)
-			else
-				write(fout, bytePtr, 1)
-			end
-		end
-
-		j = 0
-		while j < bestLength do
-			c = byte [filePtr + encoderPos + j]
-			if windowSize < 1024 then
-				windowSize = windowSize + 1
-			end
-			i = windowSize - 1
-			while i > 0 do
-				byte [windowPtr + i] = byte [windowPtr + i - 1]
-				i = i - 1
-			end
-			byte [windowPtr] = c
-			j = j + 1
-		end
-		encoderPos = encoderPos + bestLength
+		[matchPtr + (encoderPos << 3)] = bestLength
+		encoderPos = encoderPos + 1
 	end
-	byte [bytePtr + 0] = 255
-	byte [bytePtr + 1] = 1
+
+	phase = 0
+	while phase < 8 do
+		bestCost = 2
+		if phase == 0 then bestCost = 3 end
+		[costPtr + (fileSize << 6) + (phase << 3)] = bestCost
+		phase = phase + 1
+	end
+	encoderPos = fileSize - 1
+	while encoderPos >= 0 do
+		phase = 0
+		bestLength = [matchPtr + (encoderPos << 3)]
+		while phase < 8 do
+			nextPhase = (phase + 1) & 7
+			bestCost = 1 + [costPtr + ((encoderPos + 1) << 6) + (nextPhase << 3)]
+			length = 3
+			while length <= bestLength do
+				candidate = 2 + [costPtr + ((encoderPos + length) << 6) + (nextPhase << 3)]
+				if candidate < bestCost then bestCost = candidate end
+				length = length + 1
+			end
+			if phase == 0 then bestCost = bestCost + 1 end
+			[costPtr + (encoderPos << 6) + (phase << 3)] = bestCost
+			phase = phase + 1
+		end
+		encoderPos = encoderPos - 1
+	end
+
+	encoderPos = 0
+	while (encoderPos < fileSize) do
+		flags = 0
+		groupSize = 1
+		i = 0
+		while (i < 8) & (encoderPos < fileSize) do
+			bestLength = 0
+			nextPhase = (i + 1) & 7
+			bestCost = 1 + [costPtr + ((encoderPos + 1) << 6) + (nextPhase << 3)]
+			length = 3
+			while length <= [matchPtr + (encoderPos << 3)] do
+				candidate = 2 + [costPtr + ((encoderPos + length) << 6) + (nextPhase << 3)]
+				if candidate < bestCost then
+					bestCost = candidate
+					bestLength = length
+				end
+				length = length + 1
+			end
+			if bestLength >= 3 then
+				distance = 1
+				bestDistance = 0
+				while (bestDistance == 0) & (distance <= encoderPos) & (distance <= 4095) do
+					length = 0
+					while (length < bestLength) & (byte [filePtr + encoderPos + length] == byte [filePtr + encoderPos + length - distance]) do
+						length = length + 1
+					end
+					if length == bestLength then bestDistance = distance end
+					distance = distance + 1
+				end
+				token = (bestDistance << 4) | (bestLength - 3)
+				byte [bytePtr + groupSize] = token & 255
+				byte [bytePtr + groupSize + 1] = token >> 8
+				groupSize = groupSize + 2
+			else
+				bestLength = 1
+				flags = flags | (1 << i)
+				byte [bytePtr + groupSize] = byte [filePtr + encoderPos]
+				groupSize = groupSize + 1
+			end
+			encoderPos = encoderPos + bestLength
+			i = i + 1
+		end
+		if (encoderPos >= fileSize) & (i < 8) then
+			byte [bytePtr + groupSize] = 0
+			byte [bytePtr + groupSize + 1] = 0
+			groupSize = groupSize + 2
+			byte [bytePtr] = flags
+			write(fout, bytePtr, groupSize)
+			return 0
+		end
+		byte [bytePtr] = flags
+		write(fout, bytePtr, groupSize)
+	end
+	byte [bytePtr] = 0
+	byte [bytePtr + 1] = 0
 	byte [bytePtr + 2] = 0
 	write(fout, bytePtr, 3)
 end
 
 sub decompress(fin, fout)
-	local filePtr, fileSize, bytePtr, length, distance, i
+	local filePtr, fileSize, inputPtr, inputSize, count
 	filePtr = malloc(2 << 20)
-	bytePtr = malloc(2)
-
-	while read(fin, bytePtr, 1) > 0 do
-		if byte [bytePtr] == 255 then
-			read(fin, bytePtr, 2)
-			length = [bytePtr] & 63
-			distance = ([bytePtr] >> 6) & 1023
-			if (length == 0) then
-				byte [filePtr + fileSize] = 255
-				fileSize = fileSize + 1
-			else
-				if (length == 1) then
-					write(fout, filePtr, fileSize)
-					return 0
-				else
-					i = 0
-					while i < length do
-						byte [filePtr + fileSize + i] = byte [filePtr + fileSize + i - distance - 1]
-						i = i + 1
-					end
-					fileSize = fileSize + length
-				end
-			end
-		else
-			byte [filePtr + fileSize] = byte [bytePtr]
-			fileSize = fileSize + 1
-		end
+	inputPtr = malloc(2 << 20)
+	while (count = read(fin, inputPtr + inputSize, (2 << 20) - inputSize)) > 0 do
+		inputSize = inputSize + count
 	end
+	fileSize = juicer_decode64(filePtr, inputPtr)
 	write(fout, filePtr, fileSize)
 	return 0
 end

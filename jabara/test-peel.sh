@@ -16,9 +16,14 @@ for source in "$peel"/src/*/*.jabara; do
     program=$(basename "$(dirname "$source")")
     cat "$root/lib/pith.jabara" "$source" > "$tmp/$program.jabara"
     "$root/bin/jc" "$tmp/$program.jabara" "$tmp/$program-generated.asm"
-    cat "$root/lib/elf-header.asm" "$tmp/$program-generated.asm" \
-        "$root/lib/elf-runtime.asm" \
-        > "$tmp/$program.asm"
+    if test "$program" = juicer; then
+        cat "$root/lib/elf-header.asm" "$tmp/$program-generated.asm" \
+            "$root/lib/juicer-runtime.asm" "$root/lib/elf-runtime.asm" \
+            > "$tmp/$program.asm"
+    else
+        cat "$root/lib/elf-header.asm" "$tmp/$program-generated.asm" \
+            "$root/lib/elf-runtime.asm" > "$tmp/$program.asm"
+    fi
     nasm -f bin "$tmp/$program.asm" -o "$output/$program"
     chmod +x "$output/$program"
 done

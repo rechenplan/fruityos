@@ -67,15 +67,16 @@ grep -q "usage: orgasm" "$tmp/orgasm-self.out"
 fruity=$(CDPATH= cd "$jabara/.." && pwd)
 "$jabara/bin/jc" "$fruity"/pulp/src/*.jabara "$tmp/pulp-generated.asm"
 cat "$fruity/pulp/src/entry.asm" "$fruity/pulp/src/idt.asm" \
-    "$tmp/pulp-generated.asm" > "$tmp/pulp.asm"
+    "$jabara/lib/juicer-runtime.asm" "$tmp/pulp-generated.asm" \
+    > "$tmp/pulp.asm"
 "$jabara/bin/orgasm" "$fruity/pulp/src/entry.asm" \
-    "$fruity/pulp/src/idt.asm" "$tmp/pulp-generated.asm" "$tmp/pulp.bin"
+    "$fruity/pulp/src/idt.asm" "$jabara/lib/juicer-runtime.asm" \
+    "$tmp/pulp-generated.asm" "$tmp/pulp.bin"
 nasm -f bin "$tmp/pulp.asm" -o "$tmp/pulp-nasm.bin"
 test -s "$tmp/pulp.bin"
 
 orgasm_size=$(wc -c < "$tmp/pulp.bin")
 nasm_size=$(wc -c < "$tmp/pulp-nasm.bin")
-test "$orgasm_size" -ge "$nasm_size"
 test "$orgasm_size" -le $((nasm_size * 2))
 
 echo "orgasm: Jabara FAP, self-host, and Pulp assembly passed"

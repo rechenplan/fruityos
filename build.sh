@@ -43,7 +43,7 @@ tar -C "$root" -cf - \
     jabara/src/orgasm/modern.jabara jabara/src/orgasm/parse.jabara \
     jabara/lib/jc-fap-config.jabara jabara/lib/pith.jabara \
     jabara/lib/fap-module-runtime.asm jabara/lib/fap-runtime.asm \
-    jabara/lib/fap-stack-runtime.asm | \
+    jabara/lib/fap-stack-runtime.asm jabara/lib/juicer-runtime.asm | \
     tar -C "$source_tmp/fruityos" -xf -
 "$root/peel/bin/juicer.elf" c "$root/peel/bin/jc.asm" \
     "$source_tmp/fruityos/jabara/jc.asm.jz"

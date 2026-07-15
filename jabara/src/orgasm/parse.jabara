@@ -3,12 +3,8 @@
 
 local parse_symbol_entry, parse_error_token
 
-sub parse_is_digit(c)
-	return (c >= byte ["0"]) & (c <= byte ["9"])
-end
-
-sub parse_error(message)
-	lex_puts(message)
+sub parse_error()
+	lex_puts("error ")
 	lex_puts(parse_error_token)
 	putch(10)
 	exit()
@@ -20,9 +16,9 @@ sub parse_atoi(str)
 	if (finish > str) & (byte [finish - 1] == byte ["b"]) then base = 2 end
 	c = byte [str]
 	if (c == byte ["0"]) & ((byte [str + 1] == byte ["x"]) | (byte [str + 1] == byte ["X"])) then base = 16 str = str + 2 c = byte [str] end
-	while parse_is_digit(c) | ((c >= byte ["a"]) & (c <= byte ["f"])) | ((c >= byte ["A"]) & (c <= byte ["F"])) do
+	while lex_is_numeric(c) | ((c >= byte ["a"]) & (c <= byte ["f"])) | ((c >= byte ["A"]) & (c <= byte ["F"])) do
 		if (base == 2) & (c == byte ["b"]) & (byte [str + 1] == 0) then return value end
-		if parse_is_digit(c) then digit = c - byte ["0"]
+		if lex_is_numeric(c) then digit = c - byte ["0"]
 		else
 			if c >= byte ["a"] then digit = c - byte ["a"] + 10 else digit = c - byte ["A"] + 10 end
 		end
@@ -90,7 +86,7 @@ sub parse_insert_table(value, symbol, tab)
 		index = (index + 1) & 8191
 		i = i + 1
 	end
-	parse_error("symbol table full")
+	parse_error()
 end
 
 sub parse_update_table(value, symbol, tab)
@@ -100,7 +96,7 @@ end
 sub parse_expect_register(token)
 	local reg = oa_register(token)
 	if reg < 0 then
-		parse_error("register ")
+		parse_error()
 	end
 	return reg
 end
@@ -109,7 +105,7 @@ sub parse_expect_newline(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
 	if (ptr != 0) then
 		if (byte [token] != 10) then
-			parse_error("newline ")
+			parse_error()
 		end
 	end
 	return ptr
@@ -119,7 +115,7 @@ sub parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
 	if (ptr != 0) then
 		if lex_keyword_lookup(token) != 49 then
-			parse_error("comma ")
+			parse_error()
 		end
 	end
 	return ptr
@@ -142,7 +138,7 @@ end
 sub parse_one_reg(op, fout, ptr, token)
 	local reg, value, bytes
 	ptr = lex_get_next_token(ptr, token)
-	if (op == 2) & parse_is_digit(byte [token]) then
+	if (op == 2) & lex_is_numeric(byte [token]) then
 		value = parse_atoi(token)
 		if value <= 127 then
 			bytes = oa_emit8(fout, 106)
@@ -166,7 +162,7 @@ sub parse_two_reg(op, fout, ptr, token, symtab)
 		if keyword == 69 then width = 4 end
 		if keyword == 35 then width = 8 end
 		ptr = lex_get_next_token(ptr, token)
-		if lex_keyword_lookup(token) != 50 then parse_error("memory ") end
+		if lex_keyword_lookup(token) != 50 then parse_error() end
 		parse_memory(ptr, token, symtab)
 		ptr = parse_expect_comma(oa_mem_pointer, token)
 		ptr = lex_get_next_token(ptr, token)
@@ -180,7 +176,7 @@ sub parse_two_reg(op, fout, ptr, token, symtab)
 	width = oa_register_size(token)
 	ptr = parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if (byte [token] == byte ["-"]) | parse_is_digit(byte [token]) then
+	if (byte [token] == byte ["-"]) | lex_is_numeric(byte [token]) then
 		if byte [token] == byte ["-"] then
 			ptr = lex_get_next_token(ptr, token)
 			value = 0 - parse_atoi(token)
@@ -215,7 +211,7 @@ sub parse_shift(op, fout, ptr, token)
 	width = oa_register_size(token)
 	ptr = parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if parse_is_digit(byte [token]) then
+	if lex_is_numeric(byte [token]) then
 		value = parse_atoi(token)
 		if op == 15 then extension = 4 else extension = 5 end
 		bytes = oa_rex(fout, width, 0, dstReg, 0)
@@ -224,7 +220,7 @@ sub parse_shift(op, fout, ptr, token)
 		return bytes + oa_emit8(fout, value)
 	end
 	if lex_keyword_lookup(token) != 47 then
-		parse_error("cl ")
+		parse_error()
 	end
 	ptr = parse_expect_newline(ptr, token)
 	return emit_shift(op, fout, dstReg)
@@ -258,16 +254,17 @@ sub parse_branch(op, fout, ptr, token, pos, symtab)
 
 	ptr = lex_get_next_token(ptr, token)
 	if lex_keyword_lookup(token) != -1 then
-		parse_error("symbol keyword ")
+		parse_error()
 	end
 	value = parse_lookup_table(token, symtab)
 	if (value == -1) & (fout != -1) then
-		parse_error("symbol ")
+		parse_error()
 	end
 	if (value == -2) then
-		parse_error("extern branch ")
+		parse_error()
 	end
 	if op == 28 then return oa_emit_relative(fout, 233, value, pos) end
+	if op >= 82 then return oa_emit_jcc(fout, byte ["=?><" + op - 82] - byte ["0"], value, pos) end
 	if op < 57 then return oa_emit_jcc(fout, 34 - op, value, pos) end
 	if op >= 60 then return oa_emit_jcc(fout, 2, value, pos) end
 	return oa_emit_jcc(fout, byte ["564" + op - 57] - byte ["0"], value, pos)
@@ -309,20 +306,23 @@ sub parse_label(fout, pos, ptr, token, symtab)
 	label_length = k
 	if fout == -1 then
 		if parse_lookup_table(token, symtab) != -1 then
-			parse_error("duplicate label ")
+			parse_error()
 		end
 		parse_insert_table(pos, token, symtab)
+	else if fout == -2 then
+		parse_update_table(pos, token, symtab)
+	end
 	end
 	ptr = lex_get_next_token(ptr, token)
 	if ptr == 0 then return 0 end
 	k = lex_keyword_lookup(token)
 	if (k != 81) & ((label_length == 0) | (byte [label + label_length - 1] != 58)) then
 		parse_error_token = label
-		parse_error("unknown ")
+		parse_error()
 	end
 	if k == 81 then
 		value = parse_expression_until(ptr, token, symtab, 10, 0, 0)
-		if fout == -1 then parse_update_table(value, label, symtab) end
+		if (fout == -1) | (fout == -2) then parse_update_table(value, label, symtab) end
 		return 0
 	end
 	if k == 31 then return parse_data(fout, 1, ptr, token, symtab) end
@@ -434,7 +434,7 @@ end
 sub parse_system_memory(fout, ptr, token, symtab, pos, extension)
 	local bytes
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) != 50 then parse_error("[") end
+	if lex_keyword_lookup(token) != 50 then parse_error() end
 	parse_memory(ptr, token, symtab)
 	if oa_mem_base >= 0 then bytes = oa_rex(fout, 4, 0, oa_mem_base, 0) end
 	bytes = bytes + oa_emit8(fout, 15)
@@ -474,7 +474,7 @@ sub parse_memory(ptr, token, symtab)
 					oa_mem_displacement = oa_mem_displacement + (sign * value)
 					ptr = lex_get_next_token(oa_expr_pointer, token)
 				else
-				if parse_is_digit(byte [token]) then
+				if lex_is_numeric(byte [token]) then
 					oa_mem_displacement = oa_mem_displacement + (sign * parse_expression_until(ptr, token, symtab, byte ["]"], parse_atoi(token), 1))
 				else oa_mem_displacement = oa_mem_displacement + (sign * parse_expression_until(ptr, token, symtab, byte ["]"], 0, 0)) end
 				ptr = oa_expr_pointer
@@ -482,7 +482,7 @@ sub parse_memory(ptr, token, symtab)
 			else ptr = lex_get_next_token(ptr, token) end
 		end
 	end
-	if byte [token] != byte ["]"] then parse_error("]") end
+	if byte [token] != byte ["]"] then parse_error() end
 	oa_mem_pointer = ptr
 end
 
@@ -563,7 +563,7 @@ sub parse_mov(fout, ptr, token, symtab, pos)
 				value = 0 - parse_atoi(token)
 				value = parse_expression_until(ptr, token, symtab, 10, value, 1)
 			else
-				if parse_is_digit(byte [token]) then compact = 1 end
+				if lex_is_numeric(byte [token]) then compact = 1 end
 				value = parse_lookup_table(token, symtab)
 				if value < 0 then value = parse_atoi(token) end
 				if byte [token] == byte ["("] then
@@ -582,7 +582,7 @@ sub parse_lea(fout, ptr, token, symtab, pos)
 	width = oa_register_size(token)
 	ptr = parse_expect_comma(ptr, token)
 	ptr = lex_get_next_token(ptr, token)
-	if lex_keyword_lookup(token) != 50 then parse_error("lea memory ") end
+	if lex_keyword_lookup(token) != 50 then parse_error() end
 	parse_memory(ptr, token, symtab)
 	if oa_mem_relative then return oa_emit_rip_memory(fout, 141, width, destination, oa_mem_displacement, pos) end
 	return oa_emit_op_memory(fout, 141, width, destination, oa_mem_base, oa_mem_displacement)
@@ -645,6 +645,7 @@ sub parse_file(fout, fin, symtab, org)
 			; jmp, jnz, jz
 			if (k >= 28) & (k <= 30) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
 			if (k >= 57) & (k <= 61) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
+			if (k >= 82) & (k <= 85) then pos = pos + parse_branch(k, fout, ptr, token, pos, symtab) end
 
 			; label:
 			if k == -1 then pos = pos + parse_label(fout, pos, ptr, token, symtab) end
@@ -652,7 +653,7 @@ sub parse_file(fout, fin, symtab, org)
 			; extern
 			if k == 32 then
 				ptr = lex_get_next_token(ptr, token)
-				if lex_keyword_lookup(token) != -1 then parse_error("symbol keyword ") end
+				if lex_keyword_lookup(token) != -1 then parse_error() end
 			end
 
 			; mov

@@ -21,10 +21,11 @@ sub main_assemble(files, count, fout, symtab)
 		files = main_next_arg(files)
 		i = i + 1
 	end
+	return pos
 end
 
 sub main(argc, args)
-	local symtab, i, files, outfile, fout
+	local symtab, i, files, outfile, fout, size, relaxed
 
 	if argc < 3 then
 		lex_puts("usage: orgasm input.asm [input.asm ...] output")
@@ -55,7 +56,12 @@ sub main(argc, args)
 		exit()
 	end
 
-	main_assemble(files, argc - 2, -1, symtab)
+	size = main_assemble(files, argc - 2, -1, symtab)
+	relaxed = main_assemble(files, argc - 2, -2, symtab)
+	while relaxed < size do
+		size = relaxed
+		relaxed = main_assemble(files, argc - 2, -2, symtab)
+	end
 	main_assemble(files, argc - 2, fout, symtab)
 	close(fout)
 end

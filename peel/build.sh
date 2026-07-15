@@ -19,26 +19,45 @@ compile() {
     target=$1
     source=$2
     output=$3
+    extra=${4-}
     name=$(basename "$output")
     "$jc" "$pith" "$source" "$tmp/$name-generated.asm"
     if test "$target" = elf; then
-        "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/elf-header.asm" \
-            "$tmp/$name-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
-            "$output"
+        if test -n "$extra"; then
+            "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/elf-header.asm" \
+                "$tmp/$name-generated.asm" "$extra" \
+                "$fruity/jabara/lib/elf-runtime.asm" "$output"
+        else
+            "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/elf-header.asm" \
+                "$tmp/$name-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
+                "$output"
+        fi
     else
-        "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/fap-stack-runtime.asm" \
-            "$fruity/jabara/lib/fap-runtime.asm" \
-            "$tmp/$name-generated.asm" "$output"
+        if test -n "$extra"; then
+            "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/fap-stack-runtime.asm" \
+                "$fruity/jabara/lib/fap-runtime.asm" \
+                "$tmp/$name-generated.asm" "$extra" "$output"
+        else
+            "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/fap-stack-runtime.asm" \
+                "$fruity/jabara/lib/fap-runtime.asm" \
+                "$tmp/$name-generated.asm" "$output"
+        fi
     fi
 }
 
 compile elf "$root/src/jar/jar.jabara" "$root/bin/jar.elf"
-compile elf "$root/src/juicer/juicer.jabara" "$root/bin/juicer.elf"
+compile elf "$root/src/juicer/juicer.jabara" "$root/bin/juicer.elf" \
+    "$fruity/jabara/lib/juicer-runtime.asm"
 chmod +x "$root/bin/jar.elf" "$root/bin/juicer.elf"
 
 for source in "$root"/src/*/*.jabara; do
     program=$(basename "$(dirname "$source")")
-    compile fap "$source" "$tmp/$program.raw"
+    if test "$program" = juicer; then
+        compile fap "$source" "$tmp/$program.raw" \
+            "$fruity/jabara/lib/juicer-runtime.asm"
+    else
+        compile fap "$source" "$tmp/$program.raw"
+    fi
     "$root/bin/juicer.elf" c "$tmp/$program.raw" "$root/bin/$program.fap"
 done
 
@@ -49,8 +68,8 @@ done
     "$tmp/orgasm.raw"
 "$root/bin/juicer.elf" c "$tmp/orgasm.raw" "$root/bin/orgasm.fap"
 orgasm_size=$(wc -c < "$root/bin/orgasm.fap")
-if test "$orgasm_size" -gt 16384; then
-    echo "orgasm.fap exceeds 16 KiB: $orgasm_size bytes" >&2
+if test "$orgasm_size" -gt 8192; then
+    echo "orgasm.fap exceeds 8 KiB: $orgasm_size bytes" >&2
     exit 1
 fi
 

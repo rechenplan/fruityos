@@ -172,9 +172,15 @@ sub oa_emit_absolute_memory(fd, opcode, width, field, address)
 end
 
 sub oa_emit_relative(fd, opcode, target, position)
-  oa_emit8(fd, opcode)
-  oa_emit_value(fd, target - position - 5, 4)
-  return 5
+	local displacement = target - position - 2
+	if (opcode == 233) & (target >= 0) & (displacement >= -128) & (displacement <= 127) then
+		oa_emit8(fd, 235)
+		oa_emit8(fd, displacement)
+		return 2
+	end
+	oa_emit8(fd, opcode)
+	oa_emit_value(fd, target - position - 5, 4)
+	return 5
 end
 
 sub oa_emit_rip_memory(fd, opcode, width, field, target, position)
@@ -188,7 +194,13 @@ sub oa_emit_rip_memory(fd, opcode, width, field, target, position)
 end
 
 sub oa_emit_jcc(fd, condition, target, position)
-  oa_emit8(fd, 15)
+	local displacement = target - position - 2
+	if (target >= 0) & (displacement >= -128) & (displacement <= 127) then
+		oa_emit8(fd, 112 + condition)
+		oa_emit8(fd, displacement)
+		return 2
+	end
+	oa_emit8(fd, 15)
   oa_emit8(fd, 128 + condition)
   oa_emit_value(fd, target - position - 6, 4)
   return 6

@@ -15,11 +15,12 @@ echo "[ Building FruityOS kernel with Jabara ]"
 
 "$fruity/jabara/bin/jc" "$root"/src/*.jabara "$tmp/pulp-generated.asm"
 "$fruity/jabara/bin/orgasm" "$root/src/entry.asm" "$root/src/idt.asm" \
-    "$tmp/pulp-generated.asm" "$root/bin/pulp.bin"
+    "$fruity/jabara/lib/juicer-runtime.asm" "$tmp/pulp-generated.asm" \
+    "$root/bin/pulp.bin"
 "$fruity/peel/bin/juicer.elf" c "$root/bin/pulp.bin" "$root/bin/pulp.sys"
 pulp_size=$(wc -c < "$root/bin/pulp.sys")
-if test "$pulp_size" -gt 16384; then
-    echo "pulp: pulp.sys exceeds 16 KiB ($pulp_size bytes)" >&2
+if test "$pulp_size" -gt 8192; then
+    echo "pulp: pulp.sys exceeds 8 KiB ($pulp_size bytes)" >&2
     exit 1
 fi
 

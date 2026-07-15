@@ -3,14 +3,14 @@ record Lexer source, position, line, column, token:Token
 record Name name, tag, initializer:Expr, next:Name
 record Expr kind, line, text, tag, number, op, left:Expr, right:Expr, arguments:Expr, argument_count, body:Stmt, next:Expr
 record Stmt kind, line, names:Name, expr:Expr, body:Stmt, else_body:Stmt, next:Stmt
-record Function name, parameters:Name, body:Stmt, line, is_extern, next:Function
+record Function name, parameters:Name, body:Stmt, line, is_extern, reachable, next:Function
 record Record name, fields:Name, line, next:Record
 record Program records:Record, functions:Function, statements:Stmt
-record Binding name, tag, slot, next:Binding
+record Binding name, tag, slot, initialized, next:Binding
 record Scope parent:Scope, bindings:Binding, slot_count, is_global, next_owned:Scope
 record ClosureInfo expr:Expr, scope:Scope, label, next:ClosureInfo
 record Lookup binding:Binding, owner:Scope, depth
-record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, closures:ClosureInfo, closure_tail:ClosureInfo, label, return_label
+record Emitter program:Program, global_scope:Scope, function_scopes:Scope, scope:Scope, closures:ClosureInfo, closure_tail:ClosureInfo, label, return_label, direct_frames
 
 sub EX_NUMBER() return 0 end
 sub EX_STRING() return 1 end

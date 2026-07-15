@@ -121,37 +121,15 @@ skip_name:
 	mov rax, [rsi]
 	lea rsi, [rsi + rax + 8]
 	jmp find_pulp
-pulp_found:
+	pulp_found:
 	add rsi, 19
 
 	; Unpack kernel
 	mov rdi, KERNEL_ADDR
-unpack: lodsb
-	cmp al, 255
-	jnz lit
-	lodsw
-	xor rcx, rcx
-	xor rdx, rdx
-	mov cx, ax
-	mov dx, ax
-	shr dx, 6
-	and cx, 63
-	jz zero
-	dec cx
-	jz boot
-	inc cx
-	push rsi
-	mov rsi, rdi
-	sub rsi, rdx
-	dec rsi
-	rep movsb
-	pop rsi
-	jmp unpack
-zero:	mov al, 255
-	stosb
-	jmp unpack
-lit:	stosb
-	jmp unpack
+	call juicer_decode64
+	jmp boot
+
+%include "juicer-runtime.asm"
 
 boot:	mov rsi, rbx
 	jmp KERNEL_ADDR + 0x100

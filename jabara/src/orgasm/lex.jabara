@@ -1,7 +1,7 @@
 ; zest lexer
 
 sub lex_get_keyword_str()
-	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$r10$cl$dl$,$[$]$-$+$org$al$int$jne$jbe$je$jb$jc$align$dq$dd$dw$imul$movzx$byte$dword$word$hlt$cli$sti$iretq$retfq$lgdt$lidt$ltr$in$out$equ$"
+	return "ret$syscall$push$pop$mul$div$neg$not$add$sub$and$xor$or$test$cmp$shl$shr$sete$setne$setz$setnz$setg$setl$setge$setle$mov$lea$call$jmp$jnz$jz$db$extern$global$bits$qword$rax$rcx$rdx$rbx$rsp$rbp$rsi$rdi$r8$r9$r10$cl$dl$,$[$]$-$+$org$al$int$jne$jbe$je$jb$jc$align$dq$dd$dw$imul$movzx$byte$dword$word$hlt$cli$sti$iretq$retfq$lgdt$lidt$ltr$in$out$equ$jge$jg$jle$jl$"
 end
 
 sub lex_is_numeric(c)
@@ -45,6 +45,7 @@ sub lex_get_next_token(buffer, out)
 	local c, len
 	byte [out] = 0
 	while c = byte [buffer] do
+		if c == byte ["%"] then return 0 end
 
 		if c == byte [";"] then
 			len = 0

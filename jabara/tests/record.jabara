@@ -1,4 +1,8 @@
-record Pair left, right record Box value:Pair, left
+record Pair
+  left, right
+
+record Box
+  value:Pair, left
 
 sub total(pair:Pair)
   return pair.left + pair.right

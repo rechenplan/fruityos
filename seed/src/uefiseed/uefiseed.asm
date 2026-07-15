@@ -358,33 +358,9 @@ efi_main:
 .pulp_found:
     add rsi, 8
 
-    ; Expand the Juicer-compressed kernel directly to its linked address.
-    mov edi, 0x10000
-.unpack:
-    lodsb
-    cmp al, 255
-    jne .literal
-    lodsw
-    movzx ecx, ax
-    movzx edx, ax
-    shr edx, 6
-    and ecx, 63
-    jz .escaped_ff
-    dec ecx
-    jz .kernel_ready
-    inc ecx
-    push rsi
-    mov rsi, rdi
-    sub rsi, rdx
-    dec rsi
-    rep movsb
-    pop rsi
-    jmp .unpack
-.escaped_ff:
-    mov al, 255
-.literal:
-    stosb
-    jmp .unpack
+	; Expand the Juicer-compressed kernel directly to its linked address.
+	mov edi, 0x10000
+	call juicer_decode64
 
 .kernel_ready:
     ; ExitBootServices requires the key from the immediately preceding memory
@@ -633,6 +609,8 @@ load_vga_font:
     out dx, ax
     pop rbx
     ret
+
+%include "juicer-runtime.asm"
 
 text_end:
 text_virtual_size equ text_end - text_start

@@ -14,11 +14,13 @@ image=$2
 efi=$(dirname "$image")/fruityos.efi
 
 mkdir -p "$seed/bin"
-nasm -f bin "-DINITRD_JAR=\"$initrd\"" \
+nasm -f bin -DJUICER_LONG_ONLY -DJUICER_FREESTANDING -I "$seed/../jabara/lib/" \
+    "-DINITRD_JAR=\"$initrd\"" \
     "$root/uefiseed.asm" -o "$efi"
 
 efi_size=$(wc -c < "$efi")
-nasm -f bin -DUEFI_IMAGE "-DEFI_APP=\"$efi\"" "-DEFI_SIZE=$efi_size" \
+nasm -f bin -DJUICER_LONG_ONLY -DJUICER_FREESTANDING -I "$seed/../jabara/lib/" -DUEFI_IMAGE \
+    "-DEFI_APP=\"$efi\"" "-DEFI_SIZE=$efi_size" \
     "$root/uefiseed.asm" -o "$image"
 
 echo "uefiseed: built $efi and $image with embedded kernel and initrd"
