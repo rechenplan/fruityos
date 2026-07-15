@@ -48,6 +48,11 @@ done
     "$fruity/jabara/lib/fap-runtime.asm" "$tmp/orgasm-generated.asm" \
     "$tmp/orgasm.raw"
 "$root/bin/juicer.elf" c "$tmp/orgasm.raw" "$root/bin/orgasm.fap"
+orgasm_size=$(wc -c < "$root/bin/orgasm.fap")
+if test "$orgasm_size" -gt 16384; then
+    echo "orgasm.fap exceeds 16 KiB: $orgasm_size bytes" >&2
+    exit 1
+fi
 
 "$jc" "$pith" "$fruity"/yuzu/src/yc/*.yuzu "$tmp/yc-generated.asm"
 "$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/fap-stack-runtime.asm" \

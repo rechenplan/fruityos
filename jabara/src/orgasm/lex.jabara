@@ -14,41 +14,31 @@ sub lex_is_alpha(c)
 		(c == byte ["_"]) | (c == byte ["."])
 end
 
-sub lex_get_next_keyword(keywordStr)
-	while byte [keywordStr] != byte ["$"] do
-		keywordStr = keywordStr + 1
+sub lex_is_punctuation(c)
+	local p = ",[]-+*&|()"
+	while byte [p] do
+		if c == byte [p] then return 1 end
+		p = p + 1
 	end
-	return keywordStr + 1
-end
-
-sub lex_print_keyword(keywordStr)
-	while byte [keywordStr] != byte ["$"] do
-		putch(byte [keywordStr])
-		keywordStr = keywordStr + 1
-	end
-end
-
-sub lex_keyword_compare(str, k)
-	local i
-	while (byte [str] == byte [k]) & (byte [k] != 0) & (byte [str] != 0) do
-		str = str + 1
-		k = k + 1
-	end
-	return (byte [k] == byte ["$"]) & (byte [str] == 0)
+	return 0
 end
 
 sub lex_keyword_lookup(str)
-	local k, i, ret
-	ret = -1
+	local k, i, s, entry
 	k = lex_get_keyword_str()
 	while byte [k] do
-		if lex_keyword_compare(str, k) then
-			ret = i
+		s = str
+		entry = k
+		while (byte [s] == byte [entry]) & (byte [s] != 0) do
+			s = s + 1
+			entry = entry + 1
 		end
-		k = lex_get_next_keyword(k)
+		if (byte [s] == 0) & (byte [entry] == byte ["$"]) then return i end
+		while byte [k] != byte ["$"] do k = k + 1 end
+		k = k + 1
 		i = i + 1
 	end
-	return ret
+	return -1
 end
 
 sub lex_get_next_token(buffer, out)
@@ -105,18 +95,7 @@ sub lex_get_next_token(buffer, out)
 			return buffer
 		end
 
-		if (c == byte [","]) |
-		   (c == byte ["["]) |
-	           (c == byte ["]"]) |
-		   (c == byte ["-"]) |
-		   (c == byte ["+"]) |
-		   (c == byte ["*"]) |
-		   (c == byte ["&"]) |
-		   (c == byte ["|"]) |
-		   (c == byte ["("]) |
-		   (c == byte [")"]) |
-		   (c == 10)
-		then
+		if lex_is_punctuation(c) | (c == 10) then
 			[out] = c
 			[out + 1] = 0
 			return buffer + 1

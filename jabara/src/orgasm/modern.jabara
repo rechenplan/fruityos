@@ -2,8 +2,6 @@
 ; available for its historical e/f interface; this front end accepts the NASM
 ; subset emitted by Jabara and used by FruityOS's kernel startup files.
 
-record OAOperand kind, size, reg, base, displacement, value, relative, next
-
 local oa_mem_base, oa_mem_index, oa_mem_displacement, oa_mem_relative, oa_mem_pointer, oa_expr_pointer
 
 sub oa_streq(a, b)
@@ -15,47 +13,45 @@ sub oa_streq(a, b)
   return 0
 end
 
+sub oa_register_match(name, entry)
+  while (byte [name] == byte [entry]) & (byte [name] != 0) do
+    name = name + 1
+    entry = entry + 1
+  end
+  return (byte [name] == 0) & (byte [entry] == byte ["$"])
+end
+
 sub oa_register(name)
-  if oa_streq(name, "rax") | oa_streq(name, "eax") | oa_streq(name, "ax") | oa_streq(name, "al") then return 0 end
-  if oa_streq(name, "rcx") | oa_streq(name, "ecx") | oa_streq(name, "cx") | oa_streq(name, "cl") then return 1 end
-  if oa_streq(name, "rdx") | oa_streq(name, "edx") | oa_streq(name, "dx") | oa_streq(name, "dl") then return 2 end
-  if oa_streq(name, "rbx") | oa_streq(name, "ebx") | oa_streq(name, "bx") | oa_streq(name, "bl") then return 3 end
-  if oa_streq(name, "rsp") | oa_streq(name, "esp") | oa_streq(name, "sp") | oa_streq(name, "spl") then return 4 end
-  if oa_streq(name, "rbp") | oa_streq(name, "ebp") | oa_streq(name, "bp") | oa_streq(name, "bpl") then return 5 end
-  if oa_streq(name, "rsi") | oa_streq(name, "esi") | oa_streq(name, "si") | oa_streq(name, "sil") then return 6 end
-  if oa_streq(name, "rdi") | oa_streq(name, "edi") | oa_streq(name, "di") | oa_streq(name, "dil") then return 7 end
-  if oa_streq(name, "r8") | oa_streq(name, "r8d") | oa_streq(name, "r8w") | oa_streq(name, "r8b") then return 8 end
-  if oa_streq(name, "r9") | oa_streq(name, "r9d") | oa_streq(name, "r9w") | oa_streq(name, "r9b") then return 9 end
-  if oa_streq(name, "r10") | oa_streq(name, "r10d") | oa_streq(name, "r10w") | oa_streq(name, "r10b") then return 10 end
-  if oa_streq(name, "r11") | oa_streq(name, "r11d") | oa_streq(name, "r11w") | oa_streq(name, "r11b") then return 11 end
-  if oa_streq(name, "r12") | oa_streq(name, "r12d") | oa_streq(name, "r12w") | oa_streq(name, "r12b") then return 12 end
-  if oa_streq(name, "r13") | oa_streq(name, "r13d") | oa_streq(name, "r13w") | oa_streq(name, "r13b") then return 13 end
-  if oa_streq(name, "r14") | oa_streq(name, "r14d") | oa_streq(name, "r14w") | oa_streq(name, "r14b") then return 14 end
-  if oa_streq(name, "r15") | oa_streq(name, "r15d") | oa_streq(name, "r15w") | oa_streq(name, "r15b") then return 15 end
+  local entry, index
+  entry = "rax$eax$ax$al$rcx$ecx$cx$cl$rdx$edx$dx$dl$rbx$ebx$bx$bl$rsp$esp$sp$spl$rbp$ebp$bp$bpl$rsi$esi$si$sil$rdi$edi$di$dil$r8$r8d$r8w$r8b$r9$r9d$r9w$r9b$r10$r10d$r10w$r10b$r11$r11d$r11w$r11b$r12$r12d$r12w$r12b$r13$r13d$r13w$r13b$r14$r14d$r14w$r14b$r15$r15d$r15w$r15b$"
+  while byte [entry] do
+    if oa_register_match(name, entry) then return index >> 2 end
+    while byte [entry] != byte ["$"] do entry = entry + 1 end
+    entry = entry + 1
+    index = index + 1
+  end
   return -1
 end
 
 sub oa_register_size(name)
-  if oa_streq(name, "al") | oa_streq(name, "cl") | oa_streq(name, "dl") | oa_streq(name, "bl") | oa_streq(name, "spl") | oa_streq(name, "bpl") | oa_streq(name, "sil") | oa_streq(name, "dil") then return 1 end
-  if oa_streq(name, "ax") | oa_streq(name, "cx") | oa_streq(name, "dx") | oa_streq(name, "bx") | oa_streq(name, "sp") | oa_streq(name, "bp") | oa_streq(name, "si") | oa_streq(name, "di") then return 2 end
+  local last = name
+  while byte [last + 1] do last = last + 1 end
+  if byte [last] == byte ["b"] then return 1 end
+  if byte [last] == byte ["w"] then return 2 end
+  if byte [last] == byte ["d"] then return 4 end
   if byte [name] == byte ["e"] then return 4 end
-  if (byte [name] == byte ["r"]) & (byte [name + 2] != 0) then
-    if byte [name + 2] == byte ["d"] then return 4 end
-    if byte [name + 2] == byte ["w"] then return 2 end
-    if byte [name + 2] == byte ["b"] then return 1 end
-    if byte [name + 3] == byte ["d"] then return 4 end
-    if byte [name + 3] == byte ["w"] then return 2 end
-    if byte [name + 3] == byte ["b"] then return 1 end
-  end
+  if (last == (name + 1)) & (byte [last] == byte ["l"]) then return 1 end
+  if (last == (name + 1)) & ((byte [last] == byte ["x"]) | (byte [last] == byte ["p"]) | (byte [last] == byte ["i"])) then return 2 end
   return 8
 end
 
 sub oa_segment(name)
-  if oa_streq(name, "es") then return 0 end
-  if oa_streq(name, "ss") then return 2 end
-  if oa_streq(name, "ds") then return 3 end
-  if oa_streq(name, "fs") then return 4 end
-  if oa_streq(name, "gs") then return 5 end
+  if (byte [name + 1] != byte ["s"]) | (byte [name + 2] != 0) then return -1 end
+  if byte [name] == byte ["e"] then return 0 end
+  if byte [name] == byte ["s"] then return 2 end
+  if byte [name] == byte ["d"] then return 3 end
+  if byte [name] == byte ["f"] then return 4 end
+  if byte [name] == byte ["g"] then return 5 end
   return -1
 end
 
@@ -64,22 +60,14 @@ sub oa_emit8(fd, value)
   return 1
 end
 
-sub oa_emit16(fd, value)
-  oa_emit8(fd, value)
-  oa_emit8(fd, value >> 8)
-  return 2
-end
-
-sub oa_emit32(fd, value)
-  oa_emit16(fd, value)
-  oa_emit16(fd, value >> 16)
-  return 4
-end
-
-sub oa_emit64(fd, value)
-  oa_emit32(fd, value)
-  oa_emit32(fd, value >> 32)
-  return 8
+sub oa_emit_value(fd, value, width)
+  local i
+  while i < width do
+    oa_emit8(fd, value)
+    value = value >> 8
+    i = i + 1
+  end
+  return width
 end
 
 sub oa_rex(fd, width, reg, base, force)
@@ -100,58 +88,55 @@ sub oa_emit_reg_reg(fd, opcode, width, source, destination)
   return bytes
 end
 
-sub oa_emit_push(fd, reg)
-  local bytes
-  if reg >= 8 then bytes = bytes + oa_emit8(fd, 65) end
-  bytes = bytes + oa_emit8(fd, 80 + (reg & 7))
-  return bytes
-end
-
-sub oa_emit_pop(fd, reg)
-  local bytes
-  if reg >= 8 then bytes = bytes + oa_emit8(fd, 65) end
-  bytes = bytes + oa_emit8(fd, 88 + (reg & 7))
-  return bytes
-end
-
-sub oa_emit_reg_imm(fd, operation, width, destination, value)
+sub oa_emit_reg_imm(fd, operation, width, destination, value, compact)
   local bytes, extension
   if operation == 0 then
+    if (width == 8) & compact & (value >= -2147483648) & (value <= 2147483647) then
+      if (value >= -128) & (value <= 127) then
+        bytes = oa_emit8(fd, 106)
+        bytes = bytes + oa_emit8(fd, value)
+      else
+        bytes = oa_emit8(fd, 104)
+        bytes = bytes + oa_emit_value(fd, value, 4)
+      end
+      if destination >= 8 then bytes = bytes + oa_emit8(fd, 65) end
+      return bytes + oa_emit8(fd, 88 + (destination & 7))
+    end
     if width == 2 then bytes = bytes + oa_emit8(fd, 102) end
     bytes = bytes + oa_rex(fd, width, 0, destination, (width == 1) & (destination >= 4))
     if width == 1 then bytes = bytes + oa_emit8(fd, 176 + (destination & 7))
     else bytes = bytes + oa_emit8(fd, 184 + (destination & 7)) end
     if width == 1 then return bytes + oa_emit8(fd, value) end
-    if width == 2 then return bytes + oa_emit16(fd, value) end
-    if width == 4 then return bytes + oa_emit32(fd, value) end
-    return bytes + oa_emit64(fd, value)
+    return bytes + oa_emit_value(fd, value, width)
   end
-  if operation == 1 then extension = 0 end ; add
-  if operation == 2 then extension = 5 end ; sub
-  if operation == 3 then extension = 4 end ; and
-  if operation == 4 then extension = 1 end ; or
-  if operation == 5 then extension = 6 end ; xor
-  if operation == 6 then extension = 7 end ; cmp
+  extension = byte ["0054167" + operation] - byte ["0"]
   if width == 2 then bytes = bytes + oa_emit8(fd, 102) end
   bytes = bytes + oa_rex(fd, width, 0, destination, 0)
-  bytes = bytes + oa_emit8(fd, 129)
+  if (value >= -128) & (value <= 127) then bytes = bytes + oa_emit8(fd, 131)
+  else bytes = bytes + oa_emit8(fd, 129) end
   bytes = bytes + oa_emit8(fd, 192 | (extension << 3) | (destination & 7))
-  if width == 2 then return bytes + oa_emit16(fd, value) end
-  return bytes + oa_emit32(fd, value)
+  if (value >= -128) & (value <= 127) then return bytes + oa_emit8(fd, value) end
+  if width == 2 then return bytes + oa_emit_value(fd, value, 2) end
+  return bytes + oa_emit_value(fd, value, 4)
 end
 
-; All memory operands use a stable disp32 encoding so pass-one instruction
-; sizes never depend on a forward symbol's eventual value.
+sub oa_displacement_mode(base, displacement)
+  if (displacement == 0) & ((base & 7) != 5) then return 0 end
+  if (displacement >= -128) & (displacement <= 127) then return 1 end
+  return 2
+end
+
 sub oa_emit_memory_tail(fd, field, base, displacement)
-  local bytes, low = base & 7
-  bytes = bytes + oa_emit8(fd, 128 | ((field & 7) << 3) | low)
+  local bytes, low = base & 7, mode = oa_displacement_mode(base, displacement)
+  bytes = bytes + oa_emit8(fd, (mode << 6) | ((field & 7) << 3) | low)
   if low == 4 then bytes = bytes + oa_emit8(fd, 36) end
-  bytes = bytes + oa_emit32(fd, displacement)
+  if mode == 1 then bytes = bytes + oa_emit8(fd, displacement) end
+  if mode == 2 then bytes = bytes + oa_emit_value(fd, displacement, 4) end
   return bytes
 end
 
 sub oa_emit_index_memory(fd, opcode, width, field, base, displacement)
-  local bytes, rex = 64
+  local bytes, rex = 64, mode = oa_displacement_mode(base, displacement)
   if width == 2 then bytes = bytes + oa_emit8(fd, 102) end
   if width == 8 then rex = rex | 8 end
   if field >= 8 then rex = rex | 4 end
@@ -159,28 +144,11 @@ sub oa_emit_index_memory(fd, opcode, width, field, base, displacement)
   if base >= 8 then rex = rex | 1 end
   if (rex != 64) | ((width == 1) & ((field >= 4) | (base >= 4) | (oa_mem_index >= 4))) then bytes = bytes + oa_emit8(fd, rex) end
   bytes = bytes + oa_emit8(fd, opcode)
-  bytes = bytes + oa_emit8(fd, 132 | ((field & 7) << 3))
+  bytes = bytes + oa_emit8(fd, (mode << 6) | 4 | ((field & 7) << 3))
   bytes = bytes + oa_emit8(fd, ((oa_mem_index & 7) << 3) | (base & 7))
-  bytes = bytes + oa_emit32(fd, displacement)
+  if mode == 1 then bytes = bytes + oa_emit8(fd, displacement) end
+  if mode == 2 then bytes = bytes + oa_emit_value(fd, displacement, 4) end
   return bytes
-end
-
-sub oa_emit_load_memory(fd, width, destination, base, displacement)
-  local bytes
-  if width == 2 then bytes = bytes + oa_emit8(fd, 102) end
-  bytes = bytes + oa_rex(fd, width, destination, base, (width == 1) & ((destination >= 4) | (base >= 4)))
-  if width == 1 then bytes = bytes + oa_emit8(fd, 138)
-  else bytes = bytes + oa_emit8(fd, 139) end
-  return bytes + oa_emit_memory_tail(fd, destination, base, displacement)
-end
-
-sub oa_emit_store_memory(fd, width, source, base, displacement)
-  local bytes
-  if width == 2 then bytes = bytes + oa_emit8(fd, 102) end
-  bytes = bytes + oa_rex(fd, width, source, base, (width == 1) & ((source >= 4) | (base >= 4)))
-  if width == 1 then bytes = bytes + oa_emit8(fd, 136)
-  else bytes = bytes + oa_emit8(fd, 137) end
-  return bytes + oa_emit_memory_tail(fd, source, base, displacement)
 end
 
 sub oa_emit_op_memory(fd, opcode, width, source, base, displacement)
@@ -200,18 +168,12 @@ sub oa_emit_absolute_memory(fd, opcode, width, field, address)
   bytes = bytes + oa_emit8(fd, opcode)
   bytes = bytes + oa_emit8(fd, 4 | ((field & 7) << 3))
   bytes = bytes + oa_emit8(fd, 37)
-  return bytes + oa_emit32(fd, address)
-end
-
-sub oa_emit_lea_memory(fd, destination, base, displacement)
-  local bytes = oa_rex(fd, 8, destination, base, 0)
-  bytes = bytes + oa_emit8(fd, 141)
-  return bytes + oa_emit_memory_tail(fd, destination, base, displacement)
+  return bytes + oa_emit_value(fd, address, 4)
 end
 
 sub oa_emit_relative(fd, opcode, target, position)
   oa_emit8(fd, opcode)
-  oa_emit32(fd, target - position - 5)
+  oa_emit_value(fd, target - position - 5, 4)
   return 5
 end
 
@@ -221,14 +183,14 @@ sub oa_emit_rip_memory(fd, opcode, width, field, target, position)
   bytes = bytes + oa_rex(fd, width, field, 0, (width == 1) & (field >= 4))
   bytes = bytes + oa_emit8(fd, opcode)
   bytes = bytes + oa_emit8(fd, ((field & 7) << 3) | 5)
-  bytes = bytes + oa_emit32(fd, target - position - bytes - 4)
+  bytes = bytes + oa_emit_value(fd, target - position - bytes - 4, 4)
   return bytes
 end
 
 sub oa_emit_jcc(fd, condition, target, position)
   oa_emit8(fd, 15)
   oa_emit8(fd, 128 + condition)
-  oa_emit32(fd, target - position - 6)
+  oa_emit_value(fd, target - position - 6, 4)
   return 6
 end
 
