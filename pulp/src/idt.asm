@@ -12,6 +12,58 @@ idt_cli:
 	cli
 	ret
 
+idt_populate:
+	push rbx
+	mov rbx, rdi
+	xor rcx, rcx
+.default:
+	mov rsi, isr
+	call .set
+	add rcx, 1
+	cmp rcx, 256
+	jb .default
+	xor rcx, rcx
+.specific:
+	mov rax, rcx
+	shl rax, 3
+	mov rdx, idt_handlers
+	add rax, rdx
+	mov rsi, [rax]
+	call .set
+	add rcx, 1
+	cmp rcx, 48
+	jb .specific
+	mov rcx, 132
+	mov rsi, sys_handler
+	call .set
+	mov ax, 0xee00
+	mov [rdx + 4], ax
+	pop rbx
+	ret
+.set:
+	mov rdx, rcx
+	shl rdx, 4
+	add rdx, rbx
+	mov rax, rsi
+	mov [rdx], ax
+	shr rax, 16
+	mov [rdx + 6], ax
+	shr rax, 16
+	mov [rdx + 8], eax
+	mov eax, 0x8e010008
+	mov [rdx + 2], eax
+	xor eax, eax
+	mov [rdx + 12], eax
+	ret
+
+idt_handlers:
+	dq de, db, isr, bp1, of, br, ud, nm
+	dq df, isr, ts, np, ss1, gp, pf, isr
+	dq mf, ac, mc, xm, ve, cp, isr, isr
+	dq isr, isr, isr, isr, hv, vc, sx, isr
+	dq irq0, irq1, irq, irq, irq, irq, irq, irq
+	dq irq, irq, irq, irq, irq, irq, irq, irq
+
 pic_init:
 	mov al, 0x11
 	out 0x20, al
@@ -28,6 +80,368 @@ pic_init:
 	out 0x21, al
 	mov al, 0x01
 	out 0xa1, al
+	ret
+
+kb_s2c:
+	mov rax, [rdi + 24]
+	cmp rsi, 42
+	je .left_down
+	cmp rsi, 170
+	je .left_up
+	cmp rsi, 54
+	je .right_down
+	cmp rsi, 182
+	je .right_up
+	cmp rsi, 58
+	jb .valid
+	jmp .none
+.valid:
+	mov rdx, rax
+	and rdx, 3
+	cmp rdx, 0
+	jne .shifted
+	mov rax, kb_unshifted
+	jmp .lookup
+.shifted:
+	mov rax, kb_shifted
+.lookup:
+	add rax, rsi
+	xor rdx, rdx
+	mov dl, [rax]
+	mov rax, rdx
+	ret
+.left_down:
+	or rax, 1
+	jmp .state
+.left_up:
+	and rax, -2
+	jmp .state
+.right_down:
+	or rax, 2
+	jmp .state
+.right_up:
+	and rax, -3
+.state:
+	mov [rdi + 24], rax
+.none:
+	xor rax, rax
+	ret
+
+kb_unshifted:
+	db 0, 27, "1234567890-=", 8, 9, "qwertyuiop[]", 10, 0
+	db "asdfghjkl;'`", 0, 92, "zxcvbnm,./", 0, 0, 0, 32
+kb_shifted:
+	db 0, 27, "!@#$%^&*()_+", 8, 9, "QWERTYUIOP{}", 10, 0
+	db "ASDFGHJKL:", 34, 126, 0, 124, "ZXCVBNM<>?", 0, 0, 0, 32
+
+x86_mul:
+	mov rax, rdi
+	mul rsi
+	ret
+
+x86_div:
+	mov rax, rdi
+	xor rdx, rdx
+	div rsi
+	ret
+
+x86_mod:
+	mov rax, rdi
+	xor rdx, rdx
+	div rsi
+	mov rax, rdx
+	ret
+
+task_init:
+	mov r8, rdi
+	add r8, 1
+	shl r8, 27
+	mov r9, rsi
+	mov r10, rdx
+	mov rax, r8
+	mov rcx, 20
+	xor rdx, rdx
+.zero:
+	mov [rax], rdx
+	add rax, 8
+	sub rcx, 1
+	jnz .zero
+	mov rax, 0x801000
+	mov [r8 + 8], rax
+	mov rax, 27
+	mov [r8 + 16], rax
+	mov rax, 0x8800000
+	mov [r8 + 32], rax
+	mov rax, 35
+	mov [r8 + 40], rax
+	mov [r8 + 48], r9
+	mov [r8 + 56], r10
+	mov rax, 0x900000
+	mov [r8 + 248], rax
+	ret
+
+task_switch:
+	add rdi, 1
+	shl rdi, 18
+	add rdi, 0x103000
+	or rdi, 7
+	mov rax, 0x102020
+	mov rcx, 64
+.map:
+	mov [rax], rdi
+	add rax, 8
+	add rdi, 4096
+	sub rcx, 1
+	jnz .map
+	mov rdi, 0x100000
+	call flush_tlb
+	ret
+
+task_getBrk:
+	add rdi, 1
+	shl rdi, 27
+	mov rax, [rdi + 248]
+	ret
+
+task_setBrk:
+	add rdi, 1
+	shl rdi, 27
+	mov [rdi + 248], rsi
+	ret
+
+list_init:
+	xor rax, rax
+	mov [rdi], rax
+	mov [rdi + 8], rax
+	ret
+
+list_getNodeHdrSize:
+list_getHdrSize:
+	mov rax, 16
+	ret
+
+list_setHead:
+list_setNext:
+	mov [rdi], rsi
+	ret
+
+list_setTail:
+list_setPrev:
+	mov [rdi + 8], rsi
+	ret
+
+list_getHead:
+list_getNext:
+	mov rax, [rdi]
+	ret
+
+list_getTail:
+list_getPrev:
+	mov rax, [rdi + 8]
+	ret
+
+list_pop:
+	mov rax, [rdi]
+	test rax, rax
+	jz .pop_done
+	mov rdx, [rax]
+	xor rcx, rcx
+	mov [rdx + 8], rcx
+	mov [rdi], rdx
+.pop_done:
+	ret
+
+list_dequeue:
+	mov rax, [rdi + 8]
+	test rax, rax
+	jz .dequeue_done
+	mov rdx, [rax + 8]
+	xor rcx, rcx
+	mov [rdx], rcx
+	mov [rdi + 8], rdx
+.dequeue_done:
+	ret
+
+list_push:
+	mov rax, [rdi]
+	test rax, rax
+	jnz .nonempty
+	mov [rdi], rsi
+	mov [rdi + 8], rsi
+	xor rax, rax
+	mov [rsi], rax
+	mov [rsi + 8], rax
+	ret
+.nonempty:
+	xor rdx, rdx
+	mov [rsi + 8], rdx
+	mov [rsi], rax
+	mov [rax + 8], rsi
+	mov [rdi], rsi
+	ret
+
+fba_getHdrSize:
+	mov rax, 24
+	ret
+
+fba_getAvailableBlocks:
+	mov rax, [rdi + 16]
+	ret
+
+fba_setAvailableBlocks:
+	mov [rdi + 16], rsi
+	ret
+
+fba_getPool:
+	mov rax, rdi
+	add rax, 24
+	ret
+
+fba_getNext:
+	mov rax, [rdi - 16]
+	add rax, 16
+	ret
+
+fba_getPrev:
+	mov rax, [rdi - 8]
+	add rax, 16
+	ret
+
+fba_setNext:
+	sub rdi, 16
+	sub rsi, 16
+	mov [rdi], rsi
+	ret
+
+fba_setPrev:
+	sub rdi, 16
+	sub rsi, 16
+	mov [rdi + 8], rsi
+	ret
+
+heap_getBaseAddr:
+heap_addr32:
+	mov rax, 0x400000
+	ret
+
+heap_size32:
+	mov rax, 0x10000
+	ret
+
+heap_size256:
+	mov rax, 0x40000
+	ret
+
+heap_size1024:
+	mov rax, 0x380000
+	ret
+
+heap_addr256:
+	mov rax, 0x410000
+	ret
+
+heap_addr1024:
+	mov rax, 0x450000
+	ret
+
+global_getScr:
+	mov rax, [__jabara_global__scr]
+	ret
+
+global_getKb:
+	mov rax, [__jabara_global__kb]
+	ret
+
+global_getRamfs:
+	mov rax, [__jabara_global__ramfs]
+	ret
+
+global_getCurrentPid:
+	mov rax, [__jabara_global__pid]
+	ret
+
+global_setCurrentPid:
+	mov [__jabara_global__pid], rdi
+	ret
+
+scr_getAddress:
+	mov rax, 0xb8000
+	ret
+
+scr_getSize:
+	mov rax, 32
+	ret
+
+scr_setCursorColumn:
+	mov [rdi], rsi
+	ret
+
+scr_getCursorColumn:
+	mov rax, [rdi]
+	ret
+
+scr_setCursorRow:
+	mov [rdi + 8], rsi
+	ret
+
+scr_getCursorRow:
+	mov rax, [rdi + 8]
+	ret
+
+scr_setRowCnt:
+	mov [rdi + 16], rsi
+	ret
+
+scr_getRowCnt:
+	mov rax, [rdi + 16]
+	ret
+
+scr_setColumnCnt:
+	mov [rdi + 24], rsi
+	ret
+
+scr_getColumnCnt:
+	mov rax, [rdi + 24]
+	ret
+
+kb_getSize:
+	mov rax, 32
+	ret
+
+kb_getBufferSize:
+	mov rax, 256
+	ret
+
+kb_getHead:
+	mov rax, [rdi]
+	ret
+
+kb_getTail:
+	mov rax, [rdi + 8]
+	ret
+
+kb_getBuffer:
+	mov rax, [rdi + 16]
+	ret
+
+kb_getState:
+	mov rax, [rdi + 24]
+	ret
+
+kb_setHead:
+	mov [rdi], rsi
+	ret
+
+kb_setTail:
+	mov [rdi + 8], rsi
+	ret
+
+kb_setBuffer:
+	mov [rdi + 16], rsi
+	ret
+
+kb_setState:
+	mov [rdi + 24], rsi
 	ret
 
 	; division error

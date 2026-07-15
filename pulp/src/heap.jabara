@@ -16,34 +16,6 @@ sub heap_printStats()
 	kputch(10)
 end
 
-sub heap_getBaseAddr()
-	return 4 << 20
-end
-
-sub heap_size32()
-	return 64 << 10
-end
-
-sub heap_size256()
-	return 256 << 10
-end
-
-sub heap_size1024()
-	return 7 << 19
-end
-
-sub heap_addr32()
-	return heap_getBaseAddr()
-end
-
-sub heap_addr256()
-	return heap_addr32() + heap_size32()
-end
-
-sub heap_addr1024()
-	return heap_addr256() + heap_size256()
-end
-
 sub heap_init()
 	fba_init(heap_addr32(), heap_size32(), 32)
 	fba_init(heap_addr256(), heap_size256(), 256)

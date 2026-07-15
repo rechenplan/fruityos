@@ -1,7 +1,3 @@
-sub global_getDebug()
-	return 0
-end
-
 sub global_init()
 	global_initScr()
 	global_initKb()
@@ -12,18 +8,6 @@ sub global_free()
 	global_freeScr()
 	global_freeKb()
 	global_freeRamfs()
-end
-
-sub global_getScr()
-	return _scr
-end
-
-sub global_getKb()
-	return _kb
-end
-
-sub global_getRamfs()
-	return _ramfs
 end
 
 sub global_initScr()
@@ -57,12 +41,4 @@ sub global_freeRamfs()
 	ramfs_cleanup(_ramfs)
 	heap_free(_ramfs, ramfs_getSize())
 	_ramfs = 0
-end
-
-sub global_getCurrentPid()
-	return _pid
-end
-
-sub global_setCurrentPid(pid)
-	_pid = pid
 end
