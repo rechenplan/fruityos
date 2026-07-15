@@ -1,2 +1,2 @@
-del out/fdseed.bin out/hdseed.bin out/uefiseed-prefix.bin
-rmdir out
+../peel/src/del/del-bootstrap out/fdseed.bin out/hdseed.bin out/uefiseed-prefix.bin
+../peel/src/rmdir/rmdir-bootstrap out

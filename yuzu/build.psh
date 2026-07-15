@@ -1,6 +1,6 @@
 echo [ Building Yuzu compatibility tools ]
-mkdir out
-mkdir tmp
+../peel/src/mkdir/mkdir-bootstrap out
+../peel/src/mkdir/mkdir-bootstrap tmp
 cd src/byc
 build.psh
 cd ../yc

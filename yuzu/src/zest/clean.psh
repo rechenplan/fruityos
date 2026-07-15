@@ -1,1 +1,1 @@
-del ../../out/zest ../../tmp/zest-generated.asm
+../../../peel/src/del/del-bootstrap ../../out/zest ../../tmp/zest-generated.asm

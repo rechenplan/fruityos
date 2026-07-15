@@ -1,1 +1,1 @@
-del ../../out/jc-self ../../tmp/jc-generated.asm ../../tmp/jc-self-generated.asm ../../tmp/jc-new
+../../../peel/src/del/del-bootstrap ../../out/jc-self ../../tmp/jc-generated.asm ../../tmp/jc-self-generated.asm ../../tmp/jc-new

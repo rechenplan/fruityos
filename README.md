@@ -11,7 +11,7 @@ format.
 ## Build
 
 The build is driven entirely by Pish scripts and Peel executables. The checked-in
-`bin/` directory contains the bootstrap tool set; it is not a build-output
+`bin/` directory contains only Pish and Orgasm; it is not a build-output
 directory.
 
 Build every component and generate all boot images from the repository root:
@@ -47,7 +47,7 @@ bin/pish clean.psh
 
 ## Components
 
-- `bin/` — checked-in Pish, Jabara, Orgasm, and file-operation bootstrap tools.
+- `bin/` — the checked-in Pish shell and Orgasm assembler used to start the build.
 - `jabara/` — Jabara compilers, Orgasm, platform runtimes, tests, and language
   manual.
 - `yuzu/` — Yuzu compiler and Zest assembler sources.

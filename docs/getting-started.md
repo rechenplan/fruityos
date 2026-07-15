@@ -2,12 +2,11 @@
 
 ## Host requirements
 
-The repository includes the x86-64 Linux executables needed to bootstrap the
-build. The build itself invokes only Pish and Peel programs checked into or
-built by the repository. It does not invoke Bash, GCC, NASM, or standard host
-file utilities.
+The repository checks in only two x86-64 Linux executables: `bin/pish` and
+`bin/orgasm`. Orgasm assembles the generated Jabara bootstrap module, and that
+compiler builds the few Peel file utilities needed by the scripts. The build
+does not invoke Bash, GCC, NASM, or standard host file utilities.
 
-The checked-in bootstrap programs are stored in the top-level `bin/` directory.
 Pish treats the directory from which it starts as its root and searches that
 root's `bin` directory for commands, so start builds from the repository root.
 
@@ -57,6 +56,6 @@ VGA-compatible text output and a PS/2-compatible keyboard controller.
 bin/pish clean.psh
 ```
 
-Cleaning removes all component and top-level `out/` directories and the initrd
-staging tree. It never removes or modifies the checked-in bootstrap programs in
-`bin/`.
+Cleaning removes all component and top-level `out/` directories, the initrd
+staging tree, and transient bootstrap executables. It never removes or modifies
+`bin/pish` or `bin/orgasm`.

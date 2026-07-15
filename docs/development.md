@@ -24,7 +24,7 @@ the rebuilt `jabara/out/jc` and `jabara/out/orgasm` tools.
 
 - All build orchestration is Pish source with the `.psh` suffix.
 - Build scripts invoke only Pish builtins and Peel/Jabara executables.
-- The checked-in root `bin/` directory contains only bootstrap tools.
+- The checked-in root `bin/` directory contains exactly `pish` and `orgasm`.
 - Generated artifacts are written to `out/` and `tmp/` directories.
 - Compiler output remains separate from executable headers and platform
   runtimes.

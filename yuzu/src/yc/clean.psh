@@ -1,1 +1,1 @@
-del ../../out/yc ../../tmp/yc-generated.asm
+../../../peel/src/del/del-bootstrap ../../out/yc ../../tmp/yc-generated.asm

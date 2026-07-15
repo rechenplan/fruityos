@@ -14,6 +14,9 @@ cd pulp
 clean.psh
 cd ..
 clean-initrd.psh
-del initrd.jar log.txt loc.txt
-del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
-rmdir out
+peel/src/del/del-bootstrap initrd.jar log.txt loc.txt
+peel/src/del/del-bootstrap out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
+peel/src/rmdir/rmdir-bootstrap out
+peel/src/del/del-bootstrap jabara/src/jbc/jbc bin/echo
+peel/src/del/del-bootstrap peel/src/mkdir/mkdir-bootstrap peel/src/rmdir/rmdir-bootstrap
+peel/src/del/del-bootstrap peel/src/del/del-bootstrap

@@ -1,5 +1,22 @@
+orgasm jabara/lib/elf-header.asm jabara/src/jbc/jbc.asm jabara/lib/elf-runtime.asm jabara/src/jbc/jbc
+
+jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/echo/echo.jabara peel/src/echo/echo-bootstrap.asm
+orgasm jabara/lib/elf-header.asm peel/src/echo/echo-bootstrap.asm jabara/lib/elf-runtime.asm bin/echo
+
 echo [ Building FruityOS with Pish and Peel ]
-mkdir out
+
+jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/mkdir/mkdir.jabara peel/src/mkdir/mkdir-bootstrap.asm
+orgasm jabara/lib/elf-header.asm peel/src/mkdir/mkdir-bootstrap.asm jabara/lib/elf-runtime.asm peel/src/mkdir/mkdir-bootstrap
+
+jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/del/del.jabara peel/src/del/del-bootstrap.asm
+orgasm jabara/lib/elf-header.asm peel/src/del/del-bootstrap.asm jabara/lib/elf-runtime.asm peel/src/del/del-bootstrap
+
+jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/rmdir/rmdir.jabara peel/src/rmdir/rmdir-bootstrap.asm
+orgasm jabara/lib/elf-header.asm peel/src/rmdir/rmdir-bootstrap.asm jabara/lib/elf-runtime.asm peel/src/rmdir/rmdir-bootstrap
+
+peel/src/del/del-bootstrap peel/src/echo/echo-bootstrap.asm peel/src/mkdir/mkdir-bootstrap.asm peel/src/del/del-bootstrap.asm peel/src/rmdir/rmdir-bootstrap.asm
+
+peel/src/mkdir/mkdir-bootstrap out
 cd jabara
 build.psh
 cd ..
@@ -17,39 +34,39 @@ build.psh
 cd ..
 
 clean-initrd.psh
-mkdir initrd
-mkdir initrd/bin
-mkdir initrd/lib
-mkdir initrd/src
-copy pulp/out/pulp.sys initrd/pulp.sys
-copy scripts/init.psh initrd/init.psh
-copy peel/out/jar.fap initrd/bin/jar.fap
-copy peel/out/juicer.fap initrd/bin/juicer.fap
-copy peel/out/orgasm.fap initrd/bin/orgasm.fap
-copy peel/out/pish.fap initrd/bin/pish.fap
-copy peel/out/fred.fap initrd/bin/fred.fap
-copy peel/out/dir.fap initrd/bin/dir.fap
-copy peel/out/mkdir.fap initrd/bin/mkdir.fap
-copy peel/out/del.fap initrd/bin/del.fap
-copy peel/out/echo.fap initrd/bin/echo.fap
-copy peel/out/concat.fap initrd/bin/concat.fap
-copy peel/out/copy.fap initrd/bin/copy.fap
-copy peel/out/inode.fap initrd/bin/inode.fap
-copy peel/out/move.fap initrd/bin/move.fap
-copy peel/out/rmdir.fap initrd/bin/rmdir.fap
-copy peel/out/type.fap initrd/bin/type.fap
-copy peel/out/write.fap initrd/bin/write.fap
-copy peel/out/fill.fap initrd/bin/fill.fap
-copy peel/out/jc.fap initrd/bin/jc.fap
-copy jabara/lib/elf-header.asm initrd/lib/elf-header.asm
-copy jabara/lib/elf-runtime.asm initrd/lib/elf-runtime.asm
-copy jabara/lib/fap-module-runtime.asm initrd/lib/fap-module-runtime.asm
-copy jabara/lib/fap-runtime.asm initrd/lib/fap-runtime.asm
-copy jabara/lib/fap-stack-runtime.asm initrd/lib/fap-stack-runtime.asm
-copy jabara/lib/juicer-runtime.asm initrd/lib/juicer-runtime.asm
+peel/src/mkdir/mkdir-bootstrap initrd
+peel/src/mkdir/mkdir-bootstrap initrd/bin
+peel/src/mkdir/mkdir-bootstrap initrd/lib
+peel/src/mkdir/mkdir-bootstrap initrd/src
+peel/out/copy.elf pulp/out/pulp.sys initrd/pulp.sys
+peel/out/copy.elf scripts/init.psh initrd/init.psh
+peel/out/copy.elf peel/out/jar.fap initrd/bin/jar.fap
+peel/out/copy.elf peel/out/juicer.fap initrd/bin/juicer.fap
+peel/out/copy.elf peel/out/orgasm.fap initrd/bin/orgasm.fap
+peel/out/copy.elf peel/out/pish.fap initrd/bin/pish.fap
+peel/out/copy.elf peel/out/fred.fap initrd/bin/fred.fap
+peel/out/copy.elf peel/out/dir.fap initrd/bin/dir.fap
+peel/out/copy.elf peel/out/mkdir.fap initrd/bin/mkdir.fap
+peel/out/copy.elf peel/out/del.fap initrd/bin/del.fap
+peel/out/copy.elf peel/out/echo.fap initrd/bin/echo.fap
+peel/out/copy.elf peel/out/concat.fap initrd/bin/concat.fap
+peel/out/copy.elf peel/out/copy.fap initrd/bin/copy.fap
+peel/out/copy.elf peel/out/inode.fap initrd/bin/inode.fap
+peel/out/copy.elf peel/out/move.fap initrd/bin/move.fap
+peel/out/copy.elf peel/out/rmdir.fap initrd/bin/rmdir.fap
+peel/out/copy.elf peel/out/type.fap initrd/bin/type.fap
+peel/out/copy.elf peel/out/write.fap initrd/bin/write.fap
+peel/out/copy.elf peel/out/fill.fap initrd/bin/fill.fap
+peel/out/copy.elf peel/out/jc.fap initrd/bin/jc.fap
+peel/out/copy.elf jabara/lib/elf-header.asm initrd/lib/elf-header.asm
+peel/out/copy.elf jabara/lib/elf-runtime.asm initrd/lib/elf-runtime.asm
+peel/out/copy.elf jabara/lib/fap-module-runtime.asm initrd/lib/fap-module-runtime.asm
+peel/out/copy.elf jabara/lib/fap-runtime.asm initrd/lib/fap-runtime.asm
+peel/out/copy.elf jabara/lib/fap-stack-runtime.asm initrd/lib/fap-stack-runtime.asm
+peel/out/copy.elf jabara/lib/juicer-runtime.asm initrd/lib/juicer-runtime.asm
 cd initrd
 ../peel/out/jar.elf c initrd.jar
-move initrd.jar ../initrd.jar
+../peel/out/move.elf initrd.jar ../initrd.jar
 cd ..
 
 peel/out/concat.elf out/fruityos_hdd.img seed/out/hdseed.bin initrd.jar
@@ -58,5 +75,6 @@ peel/out/concat.elf out/fruityos_floppy.img seed/out/fdseed.bin initrd.jar
 peel/out/pad.elf out/fruityos_floppy.img 1474560 350208
 peel/out/uefi.elf seed/out/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
 
-del initrd.jar
-echo FruityOS Pish build complete.
+peel/out/del.elf initrd.jar
+bin/echo FruityOS Pish build complete.
+peel/src/del/del-bootstrap jabara/src/jbc/jbc bin/echo

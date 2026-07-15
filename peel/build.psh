@@ -1,160 +1,160 @@
 echo [ Building FruityOS userland with Jabara ]
-mkdir out
-mkdir tmp
+src/mkdir/mkdir-bootstrap out
+src/mkdir/mkdir-bootstrap tmp
 
 echo Building juicer...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/juicer/juicer.jabara tmp/juicer-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/juicer-generated.asm ../jabara/lib/juicer-runtime.asm ../jabara/lib/elf-runtime.asm out/juicer.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/juicer-generated.asm ../jabara/lib/juicer-runtime.asm ../jabara/lib/fap-runtime.asm tmp/juicer.raw
 out/juicer.elf c tmp/juicer.raw out/juicer.fap
-del tmp/juicer-generated.asm tmp/juicer.raw
+src/del/del-bootstrap tmp/juicer-generated.asm tmp/juicer.raw
 
 echo Building concat...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/concat/concat.jabara tmp/concat-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/concat-generated.asm ../jabara/lib/elf-runtime.asm out/concat.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/concat-generated.asm ../jabara/lib/fap-runtime.asm tmp/concat.raw
 out/juicer.elf c tmp/concat.raw out/concat.fap
-del tmp/concat-generated.asm tmp/concat.raw
+src/del/del-bootstrap tmp/concat-generated.asm tmp/concat.raw
 
 echo Building copy...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/copy/copy.jabara tmp/copy-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/copy-generated.asm ../jabara/lib/elf-runtime.asm out/copy.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/copy-generated.asm ../jabara/lib/fap-runtime.asm tmp/copy.raw
 out/juicer.elf c tmp/copy.raw out/copy.fap
-del tmp/copy-generated.asm tmp/copy.raw
+src/del/del-bootstrap tmp/copy-generated.asm tmp/copy.raw
 
 echo Building del...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/del/del.jabara tmp/del-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/del-generated.asm ../jabara/lib/elf-runtime.asm out/del.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/del-generated.asm ../jabara/lib/fap-runtime.asm tmp/del.raw
 out/juicer.elf c tmp/del.raw out/del.fap
-del tmp/del-generated.asm tmp/del.raw
+src/del/del-bootstrap tmp/del-generated.asm tmp/del.raw
 
 echo Building dir...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/dir/dir.jabara tmp/dir-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/dir-generated.asm ../jabara/lib/elf-runtime.asm out/dir.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/dir-generated.asm ../jabara/lib/fap-runtime.asm tmp/dir.raw
 out/juicer.elf c tmp/dir.raw out/dir.fap
-del tmp/dir-generated.asm tmp/dir.raw
+src/del/del-bootstrap tmp/dir-generated.asm tmp/dir.raw
 
 echo Building echo...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/echo/echo.jabara tmp/echo-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/echo-generated.asm ../jabara/lib/elf-runtime.asm out/echo.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/echo-generated.asm ../jabara/lib/fap-runtime.asm tmp/echo.raw
 out/juicer.elf c tmp/echo.raw out/echo.fap
-del tmp/echo-generated.asm tmp/echo.raw
+src/del/del-bootstrap tmp/echo-generated.asm tmp/echo.raw
 
 echo Building fill...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/fill/fill.jabara tmp/fill-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/fill-generated.asm ../jabara/lib/elf-runtime.asm out/fill.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/fill-generated.asm ../jabara/lib/fap-runtime.asm tmp/fill.raw
 out/juicer.elf c tmp/fill.raw out/fill.fap
-del tmp/fill-generated.asm tmp/fill.raw
+src/del/del-bootstrap tmp/fill-generated.asm tmp/fill.raw
 
 echo Building fred...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/fred/fred.jabara tmp/fred-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/fred-generated.asm ../jabara/lib/elf-runtime.asm out/fred.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/fred-generated.asm ../jabara/lib/fap-runtime.asm tmp/fred.raw
 out/juicer.elf c tmp/fred.raw out/fred.fap
-del tmp/fred-generated.asm tmp/fred.raw
+src/del/del-bootstrap tmp/fred-generated.asm tmp/fred.raw
 
 echo Building inode...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/inode/inode.jabara tmp/inode-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/inode-generated.asm ../jabara/lib/elf-runtime.asm out/inode.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/inode-generated.asm ../jabara/lib/fap-runtime.asm tmp/inode.raw
 out/juicer.elf c tmp/inode.raw out/inode.fap
-del tmp/inode-generated.asm tmp/inode.raw
+src/del/del-bootstrap tmp/inode-generated.asm tmp/inode.raw
 
 echo Building jar...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/jar/jar.jabara tmp/jar-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/jar-generated.asm ../jabara/lib/elf-runtime.asm out/jar.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/jar-generated.asm ../jabara/lib/fap-runtime.asm tmp/jar.raw
 out/juicer.elf c tmp/jar.raw out/jar.fap
-del tmp/jar-generated.asm tmp/jar.raw
+src/del/del-bootstrap tmp/jar-generated.asm tmp/jar.raw
 
 echo Building mkdir...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/mkdir/mkdir.jabara tmp/mkdir-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/mkdir-generated.asm ../jabara/lib/elf-runtime.asm out/mkdir.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/mkdir-generated.asm ../jabara/lib/fap-runtime.asm tmp/mkdir.raw
 out/juicer.elf c tmp/mkdir.raw out/mkdir.fap
-del tmp/mkdir-generated.asm tmp/mkdir.raw
+src/del/del-bootstrap tmp/mkdir-generated.asm tmp/mkdir.raw
 
 echo Building move...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/move/move.jabara tmp/move-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/move-generated.asm ../jabara/lib/elf-runtime.asm out/move.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/move-generated.asm ../jabara/lib/fap-runtime.asm tmp/move.raw
 out/juicer.elf c tmp/move.raw out/move.fap
-del tmp/move-generated.asm tmp/move.raw
+src/del/del-bootstrap tmp/move-generated.asm tmp/move.raw
 
 echo Building pad...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/pad/pad.jabara tmp/pad-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/pad-generated.asm ../jabara/lib/elf-runtime.asm out/pad.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/pad-generated.asm ../jabara/lib/fap-runtime.asm tmp/pad.raw
 out/juicer.elf c tmp/pad.raw out/pad.fap
-del tmp/pad-generated.asm tmp/pad.raw
+src/del/del-bootstrap tmp/pad-generated.asm tmp/pad.raw
 
 echo Building pish...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/pish/pish.jabara tmp/pish-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/pish-generated.asm ../jabara/lib/elf-runtime.asm out/pish.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/pish-generated.asm ../jabara/lib/fap-runtime.asm tmp/pish.raw
 out/juicer.elf c tmp/pish.raw out/pish.fap
-del tmp/pish-generated.asm tmp/pish.raw
+src/del/del-bootstrap tmp/pish-generated.asm tmp/pish.raw
 
 echo Building rmdir...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/rmdir/rmdir.jabara tmp/rmdir-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/rmdir-generated.asm ../jabara/lib/elf-runtime.asm out/rmdir.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/rmdir-generated.asm ../jabara/lib/fap-runtime.asm tmp/rmdir.raw
 out/juicer.elf c tmp/rmdir.raw out/rmdir.fap
-del tmp/rmdir-generated.asm tmp/rmdir.raw
+src/del/del-bootstrap tmp/rmdir-generated.asm tmp/rmdir.raw
 
 echo Building type...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/type/type.jabara tmp/type-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/type-generated.asm ../jabara/lib/elf-runtime.asm out/type.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/type-generated.asm ../jabara/lib/fap-runtime.asm tmp/type.raw
 out/juicer.elf c tmp/type.raw out/type.fap
-del tmp/type-generated.asm tmp/type.raw
+src/del/del-bootstrap tmp/type-generated.asm tmp/type.raw
 
 echo Building uefi...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/uefi/uefi.jabara tmp/uefi-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/uefi-generated.asm ../jabara/lib/elf-runtime.asm out/uefi.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/uefi-generated.asm ../jabara/lib/fap-runtime.asm tmp/uefi.raw
 out/juicer.elf c tmp/uefi.raw out/uefi.fap
-del tmp/uefi-generated.asm tmp/uefi.raw
+src/del/del-bootstrap tmp/uefi-generated.asm tmp/uefi.raw
 
 echo Building write...
 ../jabara/out/jc ../jabara/lib/pith.jabara src/write/write.jabara tmp/write-generated.asm
 ../jabara/out/orgasm ../jabara/lib/elf-header.asm tmp/write-generated.asm ../jabara/lib/elf-runtime.asm out/write.elf
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/write-generated.asm ../jabara/lib/fap-runtime.asm tmp/write.raw
 out/juicer.elf c tmp/write.raw out/write.fap
-del tmp/write-generated.asm tmp/write.raw
+src/del/del-bootstrap tmp/write-generated.asm tmp/write.raw
 
 echo Building orgasm...
 ../jabara/out/jc ../jabara/lib/pith.jabara ../jabara/src/orgasm/emit.jabara ../jabara/src/orgasm/lex.jabara ../jabara/src/orgasm/main.jabara ../jabara/src/orgasm/modern.jabara ../jabara/src/orgasm/parse.jabara tmp/orgasm-generated.asm
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/orgasm-generated.asm ../jabara/lib/fap-runtime.asm tmp/orgasm.raw
 out/juicer.elf c tmp/orgasm.raw out/orgasm.fap
 out/pad.elf out/orgasm.fap 0 8192
-del tmp/orgasm-generated.asm tmp/orgasm.raw
+src/del/del-bootstrap tmp/orgasm-generated.asm tmp/orgasm.raw
 
 echo Building jc...
 ../jabara/out/jc ../jabara/lib/pith.jabara ../jabara/src/jc/emitter.jabara ../jabara/src/jc/lexer.jabara ../jabara/src/jc/main.jabara ../jabara/src/jc/model.jabara ../jabara/src/jc/parser.jabara ../jabara/src/jc/runtime.jabara tmp/jc-generated.asm
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/jc-generated.asm ../jabara/lib/fap-runtime.asm tmp/jc.raw
 out/juicer.elf c tmp/jc.raw out/jc.fap
-del tmp/jc-generated.asm tmp/jc.raw
+src/del/del-bootstrap tmp/jc-generated.asm tmp/jc.raw
 
 echo Building yc...
 ../jabara/out/jc ../jabara/lib/pith.jabara ../yuzu/src/yc/emitter.yuzu ../yuzu/src/yc/lexer.yuzu ../yuzu/src/yc/parser.yuzu ../yuzu/src/yc/yc.yuzu tmp/yc-generated.asm
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/yc-generated.asm ../jabara/lib/fap-runtime.asm tmp/yc.raw
 out/juicer.elf c tmp/yc.raw out/yc.fap
-del tmp/yc-generated.asm tmp/yc.raw
+src/del/del-bootstrap tmp/yc-generated.asm tmp/yc.raw
 
 echo Building zest...
 ../jabara/out/jc ../jabara/lib/pith.jabara ../yuzu/src/zest/main.yuzu ../yuzu/src/zest/lex.yuzu ../yuzu/src/zest/parse.yuzu ../yuzu/src/zest/emit.yuzu ../yuzu/src/zest/elf.yuzu tmp/zest-generated.asm
 ../jabara/out/orgasm ../jabara/lib/fap-stack-runtime.asm tmp/zest-generated.asm ../jabara/lib/fap-runtime.asm tmp/zest.raw
 out/juicer.elf c tmp/zest.raw out/zest.fap
-del tmp/zest-generated.asm tmp/zest.raw
+src/del/del-bootstrap tmp/zest-generated.asm tmp/zest.raw
 
 echo Building jc module...
 ../jabara/out/jc ../jabara/src/jc/emitter.jabara ../jabara/src/jc/lexer.jabara ../jabara/src/jc/main.jabara ../jabara/src/jc/model.jabara ../jabara/src/jc/parser.jabara ../jabara/src/jc/runtime.jabara ../jabara/lib/jc-fap-config.jabara tmp/jc-module.asm
 out/concat.elf out/jc.asm ../jabara/lib/fap-module-runtime.asm tmp/jc-module.asm ../jabara/lib/fap-runtime.asm
-del tmp/jc-module.asm
+src/del/del-bootstrap tmp/jc-module.asm
 echo Peel build complete.

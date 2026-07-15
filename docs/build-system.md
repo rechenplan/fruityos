@@ -11,35 +11,42 @@ bin/pish build.psh
 ```
 
 Pish saves that directory as its root and resolves bare command names through
-the checked-in root `bin/` directory. Generated executables are never placed in
-that directory.
+the root `bin/` directory.
+
+## Checked-in bootstrap
+
+Only two executables are checked in:
+
+```text
+bin/pish
+bin/orgasm
+```
+
+The generated assembly module `jabara/src/jbc/jbc.asm` is the Jabara compiler
+compiled from the Jabara sources by `jc`. The opening section of `build.psh`
+assembles that module with Orgasm to obtain a temporary compiler.
+
+The temporary compiler first builds Peel `echo`, placing it temporarily in
+`bin/` before the build prints any status messages. It then compiles the Peel
+`mkdir`, `del`, and `rmdir` programs from their Jabara sources. Orgasm turns
+those generated modules into temporary Linux executables. No separate bootstrap
+script, generic filesystem helper, or additional bootstrap assembly is used.
 
 ## Root pipeline
 
-The root build enters and runs these stages in order:
+The root build runs these stages in order:
 
-1. `jabara/build.psh`
-2. `yuzu/build.psh`
-3. `peel/build.psh`
-4. `seed/build.psh`
-5. `pulp/build.psh`
-6. initrd and image assembly
+1. `build.psh` assembles the Jabara bootstrap, builds `echo` before its first
+   use, and compiles the required Peel file utilities;
+2. `jabara/build.psh` rebuilds Orgasm and self-hosts `jc`;
+3. `yuzu/build.psh` builds the Yuzu compatibility tools;
+4. `peel/build.psh` builds the complete userland and host utilities;
+5. `seed/build.psh` builds the BIOS and UEFI loaders;
+6. `pulp/build.psh` builds the kernel;
+7. the root script assembles the initrd and boot images.
 
 Every operation is performed by Pish itself or by a Peel/Jabara executable.
 There are no calls to host shell commands.
-
-## Bootstrap tools
-
-The checked-in `bin/` directory contains only the tools required before the
-repository can rebuild itself:
-
-```text
-pish jc orgasm echo mkdir del rmdir copy move
-```
-
-`jc` and `orgasm` bootstrap the self-hosted toolchain. The remaining commands
-provide the small file-operation surface used by the Pish scripts. `clean.psh`
-does not remove these files.
 
 ## Component outputs
 
@@ -56,10 +63,10 @@ directories and removed as each target completes.
 
 ## Jabara
 
-The checked-in compiler and assembler first rebuild Orgasm. The rebuilt Orgasm
-then assembles a new Jabara compiler, and that compiler produces `jc-self` as a
-self-hosting consistency build. The build does not compile or invoke the C
-bootstrap compiler.
+The assembled `jbc` compiler first builds a new Orgasm and then a new `jc`.
+That rebuilt compiler produces `jc-self` as the self-hosting consistency build.
+The temporary `jbc` executable is removed after the repository toolchain is
+available. No C bootstrap compiler is present or invoked.
 
 ## Yuzu
 
@@ -112,5 +119,6 @@ Final images are written to the top-level `out/` directory.
 bin/pish clean.psh
 ```
 
-The root cleaner mirrors the build hierarchy, invokes each component cleaner,
-removes the initrd staging tree, and removes the top-level `out/` directory.
+The root cleaner uses the transient cleanup tools produced at the beginning of
+the build, mirrors the build hierarchy, removes the initrd staging tree and
+generated outputs, and finally removes the transient bootstrap executables.

@@ -1,1 +1,1 @@
-del ../../tmp/orgasm-generated.asm ../../tmp/orgasm-new
+../../../peel/src/del/del-bootstrap ../../tmp/orgasm-generated.asm ../../tmp/orgasm-new

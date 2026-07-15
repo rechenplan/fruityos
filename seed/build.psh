@@ -1,5 +1,5 @@
 echo [ Building FruityOS boot seeds with Orgasm ]
-mkdir out
+../peel/src/mkdir/mkdir-bootstrap out
 cd src/fdseed
 build.psh
 cd ../hdseed

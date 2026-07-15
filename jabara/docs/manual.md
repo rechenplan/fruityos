@@ -12,7 +12,7 @@ From the repository root:
 bin/pish build.psh
 ```
 
-The checked-in bootstrap tools rebuild the Jabara toolchain into:
+Orgasm assembles the checked-in generated `src/jbc/jbc.asm` module, and the resulting temporary compiler rebuilds the Jabara toolchain into:
 
 - `jabara/out/orgasm`;
 - `jabara/out/jc`;

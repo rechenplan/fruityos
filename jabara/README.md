@@ -12,7 +12,9 @@ From the repository root, run the complete build with:
 bin/pish build.psh
 ```
 
-The Jabara stage uses the checked-in bootstrap `jc` and `orgasm`, then writes:
+The repository checks in Orgasm and the generated compiler module
+`src/jbc/jbc.asm`, but no Jabara compiler executable. Orgasm assembles the
+module into a temporary bootstrap compiler, which writes:
 
 - `jabara/out/orgasm`, the rebuilt assembler;
 - `jabara/out/jc`, the rebuilt Jabara compiler;
@@ -24,16 +26,16 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-The build does not invoke the C bootstrap compiler, GCC, NASM, or shell file
+The build does not invoke a C bootstrap compiler, GCC, NASM, or shell file
 utilities.
 
 ## Layout
 
 ```text
 jabara/
-├── src/jbc/             C compiler source retained as an implementation
-├── src/jc/              Jabara compiler
-├── src/orgasm/          assembler
+├── src/jbc/jbc.asm      generated bootstrap compiler module
+├── src/jc/              Jabara compiler sources
+├── src/orgasm/          assembler sources
 ├── lib/pith.jabara      platform service declarations
 ├── lib/elf-header.asm   ELF64 header and startup
 ├── lib/elf-runtime.asm  Linux services and allocator

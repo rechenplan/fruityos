@@ -1,17 +1,17 @@
-del out/juicer.elf out/juicer.fap tmp/juicer-generated.asm tmp/juicer.raw out/concat.elf out/concat.fap
-del tmp/concat-generated.asm tmp/concat.raw out/copy.elf out/copy.fap tmp/copy-generated.asm tmp/copy.raw
-del out/del.elf out/del.fap tmp/del-generated.asm tmp/del.raw out/dir.elf out/dir.fap
-del tmp/dir-generated.asm tmp/dir.raw out/echo.elf out/echo.fap tmp/echo-generated.asm tmp/echo.raw
-del out/fill.elf out/fill.fap tmp/fill-generated.asm tmp/fill.raw out/fred.elf out/fred.fap
-del tmp/fred-generated.asm tmp/fred.raw out/inode.elf out/inode.fap tmp/inode-generated.asm tmp/inode.raw
-del out/jar.elf out/jar.fap tmp/jar-generated.asm tmp/jar.raw out/mkdir.elf out/mkdir.fap
-del tmp/mkdir-generated.asm tmp/mkdir.raw out/move.elf out/move.fap tmp/move-generated.asm tmp/move.raw
-del out/pad.elf out/pad.fap tmp/pad-generated.asm tmp/pad.raw out/pish.elf out/pish.fap
-del tmp/pish-generated.asm tmp/pish.raw out/rmdir.elf out/rmdir.fap tmp/rmdir-generated.asm tmp/rmdir.raw
-del out/type.elf out/type.fap tmp/type-generated.asm tmp/type.raw out/uefi.elf out/uefi.fap
-del tmp/uefi-generated.asm tmp/uefi.raw out/write.elf out/write.fap tmp/write-generated.asm tmp/write.raw
-del out/orgasm.fap out/jc.fap out/yc.fap out/zest.fap out/jc.asm tmp/orgasm-generated.asm
-del tmp/orgasm.raw tmp/jc-generated.asm tmp/jc.raw tmp/yc-generated.asm tmp/yc.raw tmp/zest-generated.asm
-del tmp/zest.raw tmp/jc-module.asm
-rmdir tmp
-rmdir out
+src/del/del-bootstrap out/juicer.elf out/juicer.fap tmp/juicer-generated.asm tmp/juicer.raw out/concat.elf out/concat.fap
+src/del/del-bootstrap tmp/concat-generated.asm tmp/concat.raw out/copy.elf out/copy.fap tmp/copy-generated.asm tmp/copy.raw
+src/del/del-bootstrap out/del.elf out/del.fap tmp/del-generated.asm tmp/del.raw out/dir.elf out/dir.fap
+src/del/del-bootstrap tmp/dir-generated.asm tmp/dir.raw out/echo.elf out/echo.fap tmp/echo-generated.asm tmp/echo.raw
+src/del/del-bootstrap out/fill.elf out/fill.fap tmp/fill-generated.asm tmp/fill.raw out/fred.elf out/fred.fap
+src/del/del-bootstrap tmp/fred-generated.asm tmp/fred.raw out/inode.elf out/inode.fap tmp/inode-generated.asm tmp/inode.raw
+src/del/del-bootstrap out/jar.elf out/jar.fap tmp/jar-generated.asm tmp/jar.raw out/mkdir.elf out/mkdir.fap
+src/del/del-bootstrap tmp/mkdir-generated.asm tmp/mkdir.raw out/move.elf out/move.fap tmp/move-generated.asm tmp/move.raw
+src/del/del-bootstrap out/pad.elf out/pad.fap tmp/pad-generated.asm tmp/pad.raw out/pish.elf out/pish.fap
+src/del/del-bootstrap tmp/pish-generated.asm tmp/pish.raw out/rmdir.elf out/rmdir.fap tmp/rmdir-generated.asm tmp/rmdir.raw
+src/del/del-bootstrap out/type.elf out/type.fap tmp/type-generated.asm tmp/type.raw out/uefi.elf out/uefi.fap
+src/del/del-bootstrap tmp/uefi-generated.asm tmp/uefi.raw out/write.elf out/write.fap tmp/write-generated.asm tmp/write.raw
+src/del/del-bootstrap out/orgasm.fap out/jc.fap out/yc.fap out/zest.fap out/jc.asm tmp/orgasm-generated.asm
+src/del/del-bootstrap tmp/orgasm.raw tmp/jc-generated.asm tmp/jc.raw tmp/yc-generated.asm tmp/yc.raw tmp/zest-generated.asm
+src/del/del-bootstrap tmp/zest.raw tmp/jc-module.asm
+src/rmdir/rmdir-bootstrap tmp
+src/rmdir/rmdir-bootstrap out
