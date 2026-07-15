@@ -22,8 +22,9 @@ Build every component and generate all boot images:
 ./build.sh
 ```
 
-The build requires GCC, NASM, and standard POSIX shell utilities. QEMU and OVMF
-are required only for the supplied run script.
+The build requires GCC and NASM for bootstrapping the Jabara compiler and
+Orgasm assembler. Standard POSIX shell utilities are required by build
+scripts. QEMU and OVMF are required only for the supplied run script.
 
 ## Run
 
