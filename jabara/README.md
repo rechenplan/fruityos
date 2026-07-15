@@ -2,7 +2,7 @@
 
 Jabara is FruityOS's compact, self-hosted 64-bit systems language. The compiler
 translates one or more source files into headerless NASM-compatible module
-assembly. Assembly headers and runtimes select the target format.
+assembly. Assembly headers and runtimes select the executable environment.
 
 ## Build
 
@@ -10,12 +10,12 @@ assembly. Assembly headers and runtimes select the target format.
 ./build.sh
 ```
 
-This produces:
+This creates:
 
 - `bin/jbc`, the C bootstrap compiler;
 - `bin/jc`, the compiler written in Jabara;
 - `bin/jc-self`, the self-compiled consistency build;
-- `bin/orgasm`, the Jabara-written, Zest-compatible assembler.
+- `bin/orgasm`, the Jabara-written assembler.
 
 The compiler interface is:
 
@@ -23,18 +23,18 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-Compiler output must be combined with the appropriate runtime and assembled.
-The compiler does not invoke NASM, Orgasm, or Juicer itself.
+Compiler output must be combined with an appropriate runtime and assembled.
+The compiler does not invoke Orgasm, NASM, or Juicer.
 
 ## Layout
 
 ```text
 jabara/
-├── src/jbc/             C bootstrap compiler
-├── src/jc/              self-hosted compiler
-├── src/orgasm/          FruityOS-focused assembler
+├── src/jbc/             C compiler
+├── src/jc/              Jabara compiler
+├── src/orgasm/          assembler
 ├── lib/pith.jabara      platform service declarations
-├── lib/elf-header.asm   manual flat ELF64 header and startup
+├── lib/elf-header.asm   ELF64 header and startup
 ├── lib/elf-runtime.asm  Linux services and allocator
 ├── lib/fap-runtime.asm  FruityOS startup and services
 ├── tests/               compiler regression inputs
@@ -48,9 +48,9 @@ jabara/
 ./src/orgasm/test.sh
 ```
 
-The suites cover bootstrapping, self-hosting, diagnostics, selected runtimes,
-Orgasm, Juicer round trips, compatibility tools, and every Peel application.
+The suites cover compilation, self-compilation, diagnostics, records, closures,
+ELF and FAP output, Orgasm, Juicer round trips, Yuzu integration, and every Peel
+application.
 
 See the [language manual](docs/manual.md) for Jabara syntax and the integrated
-[toolchain guide](../docs/toolchain.md) for targets, runtimes, Orgasm, and the
-FruityOS build path.
+[toolchain guide](../docs/toolchain.md) for runtimes and executable targets.

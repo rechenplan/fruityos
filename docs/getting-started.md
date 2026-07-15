@@ -2,36 +2,41 @@
 
 ## Host requirements
 
-The supplied setup script targets Debian and Ubuntu:
+On Debian or Ubuntu, install the build and emulator dependencies with:
 
 ```sh
 sudo ./debian-init.sh
 ```
 
-The host scripts use POSIX shell and standard Unix utilities. The build also
-requires a 64-bit x86 Unix host, a C compiler, and NASM. NASM bootstraps Orgasm
-and assembles the Seed binaries; Orgasm assembles every other generated binary.
-QEMU and OVMF are used by the run script.
+The script installs:
+
+```text
+nasm gcc qemu-system-x86 ovmf
+```
+
+The build scripts also use a POSIX shell and ordinary Unix file utilities. The
+compiler and generated binaries target x86-64.
 
 ## Build
 
-From the repository root, run:
+From the repository root:
 
 ```sh
 ./build.sh
 ```
 
-The root script rebuilds Jabara, the compatibility tools, userland,
-bootloaders, and kernel before creating the initrd and boot images. A successful
-build ends with:
+The root script builds Jabara, Yuzu, Peel, Seed, and Pulp, creates the initrd,
+and then produces the BIOS, floppy, and UEFI images. Success ends with:
 
 ```text
 fruityos: Jabara and NASM build passed
 ```
 
-The complete pipeline is described in [Build system](build-system.md).
+See [Build system](build-system.md) for the complete pipeline and size checks.
 
 ## Run
+
+Select one boot path:
 
 ```sh
 ./run.sh hdd
@@ -39,50 +44,57 @@ The complete pipeline is described in [Build system](build-system.md).
 ./run.sh uefi
 ```
 
-The required argument selects the legacy hard-disk image, legacy floppy image,
-or OVMF UEFI image. The script starts QEMU with 512 MiB of RAM and a temporary
-copy of the selected artifact, so emulator processes cannot modify or lock the
-host build output. The UEFI image contains a FAT16 EFI system partition and the
-removable-media loader at `EFI/BOOT/BOOTX64.EFI`.
+`run.sh` starts QEMU with 512 MiB of RAM. It copies the selected image to a
+private temporary file before starting QEMU, leaving the build output unlocked
+and unchanged.
 
-`run.sh uefi` checks common OVMF installation paths. On other systems, set the
-`OVMF` environment variable to the firmware image path.
-
-The application is unsigned. Secure Boot must be disabled on physical machines
-unless `bin/fruityos.efi` is signed with a key trusted by that firmware. FruityOS
-also currently requires VGA-compatible text output and a PS/2-compatible
-keyboard controller after leaving firmware services.
-
-## Expected startup
-
-Both boot paths unpack the initrd and launch Pish. The boot script then extracts
-the minimal native source tree, performs the native userland and kernel builds,
-installs the new FAP files in `/bin`, and returns to an interactive prompt:
+For UEFI, the script checks these firmware locations and then the `OVMF`
+environment variable:
 
 ```text
-[ Building FruityOS natively with Jabara ]
-[ Building FruityOS userland with Jabara ]
-Userland Jabara build complete.
-Pulp native Jabara build complete.
-/src/fruityos>
+/usr/share/qemu/OVMF.fd
+/usr/share/ovmf/OVMF.fd
+/usr/local/share/qemu/edk2-x86_64-code.fd
+/opt/homebrew/share/qemu/edk2-x86_64-code.fd
 ```
 
-The native build is intentionally part of startup, so the first prompt takes
-longer than a minimal shell-only boot.
+Set an explicit path when necessary:
+
+```sh
+OVMF=/path/to/OVMF.fd ./run.sh uefi
+```
+
+## Startup
+
+Every boot path produces the same kernel handoff. Pulp initializes the kernel,
+unpacks the initrd into RAMFS, starts `/bin/pish.fap`, and Pish executes
+`/init.psh`. The supplied script prints the welcome banner and returns to the
+interactive shell.
+
+All installed applications are already present in `/bin`; boot does not compile
+or install additional programs.
 
 ## Generated artifacts
 
 | Path | Description |
 | --- | --- |
-| `bin/fruityos_hdd.img` | Padded 1 MiB legacy BIOS hard-disk image. |
-| `bin/fruityos_floppy.img` | Padded 1.44 MiB legacy BIOS floppy image. |
-| `bin/fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
-| `bin/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
-| `pulp/bin/pulp.bin` | Uncompressed flat Pulp kernel. |
-| `pulp/bin/pulp.sys` | Juicer-compressed Pulp kernel. |
-| `peel/bin/*.fap` | Host-built FruityOS applications. |
-| `initrd/` | Staging tree used to create the boot RAM filesystem. |
-| `bin/` | OS images, the EFI application, and Linux Peel test executables. |
+| `bin/fruityos_hdd.img` | BIOS hard-disk image padded to 1 MiB. |
+| `bin/fruityos_floppy.img` | BIOS floppy image padded to 1.44 MiB. |
+| `bin/fruityos_uefi.img` | UEFI disk image containing a FAT16 EFI system partition. |
+| `bin/fruityos.efi` | Standalone x86-64 EFI application. |
+| `pulp/bin/pulp.bin` | Flat Pulp kernel. |
+| `pulp/bin/pulp.sys` | Compressed Pulp kernel embedded in the initrd. |
+| `peel/bin/*.fap` | Compressed FruityOS applications. |
+| `peel/bin/jar.elf` | Host Jar utility. |
+| `peel/bin/juicer.elf` | Host Juicer utility. |
+| `initrd/` | Files archived into the boot RAM filesystem. |
+| `loc.txt` | Line counts for C, assembly, Jabara, and Yuzu sources. |
+
+## Physical UEFI systems
+
+`bin/fruityos.efi` is unsigned. Disable Secure Boot or sign the application with
+a key trusted by the firmware. After exiting firmware services, FruityOS uses
+VGA-compatible text output and a PS/2-compatible keyboard controller.
 
 ## Clean
 
@@ -90,5 +102,5 @@ longer than a minimal shell-only boot.
 ./cleanup.sh
 ```
 
-Component cleanup scripts remove their generated outputs. Source files and
-user-owned changes are not removed.
+The cleanup scripts remove component build outputs, generated images, and
+temporary top-level build files. They do not remove source files.

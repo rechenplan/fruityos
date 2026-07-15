@@ -1,104 +1,101 @@
 # Boot and firmware
 
-FruityOS has independent legacy BIOS and x86-64 UEFI entry paths. Both paths
-produce the same handoff to Pulp: the kernel is decompressed at physical
-`0x10000`, execution begins at `0x10100`, and `RSI` points to the initrd Jar.
+FruityOS has BIOS hard-disk, BIOS floppy, and x86-64 UEFI entry paths. Every
+path decompresses Pulp at physical `0x10000`, enters it at `0x10100`, disables
+interrupts before handoff, and places the initrd Jar pointer in `RSI`.
 
-## BIOS image layout
+## BIOS hard-disk image
 
 `bin/fruityos_hdd.img` has no conventional filesystem.
 
 | Image offset | Contents |
 | --- | --- |
-| `0x00000` | 512-byte `hdseed` sector with boot signature. |
-| `0x00200` | Uncompressed Jar archive containing the initrd and `/pulp.sys`. |
-| through `0xfffff` | Zero padding to the fixed 1 MiB image size. |
+| `0x00000` | 512-byte `hdseed` sector with the boot signature. |
+| `0x00200` | Initrd Jar containing `/pulp.sys`. |
+| through `0xfffff` | Zero padding to 1 MiB. |
 
-The padding is functional: `hdseed` reads 2047 payload sectors through the
-primary ATA controller. The host build reports the unpadded size, rejects a
-payload larger than 1 MiB, and pads valid images to exactly 1 MiB.
+`hdseed` reads the padded payload through the primary ATA controller. The host
+build rejects an unpadded image larger than 1 MiB.
 
-## BIOS startup
+Firmware loads sector zero at `0x7c00`. The loader then:
 
-Firmware loads sector zero at `0x7c00`. `hdseed` then:
-
-1. copies the boot sector to physical `0x40000` using an extended disk-address
-   packet so its temporary GDT remains available;
+1. relocates the boot sector to physical `0x40000`;
 2. enables A20;
 3. creates temporary four-level page tables beginning at `0x1000`;
-4. loads a temporary GDT, enables PAE and long mode, and performs a far jump to
-   64-bit code;
-5. reads the complete padded disk payload to physical `0x300000` with LBA28
-   PIO through the primary ATA controller;
-6. walks the Jar records until it finds `./pulp.sys`;
-7. expands that Juicer stream at `0x10000`;
+4. loads a temporary GDT and enters 64-bit mode;
+5. reads the disk payload to physical `0x300000` with LBA28 PIO;
+6. scans the Jar entries for `./pulp.sys`;
+7. expands the Juicer stream at `0x10000`;
 8. restores `RSI` to the Jar start and jumps to `0x10100`.
 
-The kernel's first 256 bytes are the system-call function-pointer table. That is
-why the executable entry is exactly `kernel + 0x100` rather than the beginning
-of the decompressed image.
+The first 256 kernel bytes are the system-call dispatch table, so executable
+entry is `kernel + 0x100`.
+
+## BIOS floppy image
+
+`bin/fruityos_floppy.img` is a 1.44 MiB image containing `fdseed`, the same
+initrd Jar, and zero padding. The loader reads the first 19 cylinders, scans the
+archive for `/pulp.sys`, decompresses it, and hands the archive to Pulp. The
+host build limits the boot payload to 350,208 bytes.
 
 ## Standalone EFI application
 
-`seed/src/uefiseed/uefiseed.asm` emits a dependency-free PE32+ EFI application.
-The source defines its DOS header, PE signature, AMD64 COFF header, PE32+
-optional header, `.text`, `.data`, and `.reloc` sections, and a real DIR64 base
-relocation. Code and data use separate permissions, and the image declares the
-EFI application subsystem.
+`seed/src/uefiseed/uefiseed.asm` emits a dependency-free x86-64 PE32+ EFI
+application. It defines its DOS header, AMD64 COFF header, PE32+ optional header,
+`.text`, `.data`, and `.reloc` sections, and a DIR64 base relocation. Code and
+data use separate section permissions.
 
-The application embeds only `initrd.jar`; `/pulp.sys` is an ordinary entry in
-that archive. Its EFI entry follows
-the Microsoft x64 calling convention used by x86-64 UEFI: `RCX` contains the
-image handle and `RDX` the system table. Calls reserve shadow space and preserve
-the required nonvolatile registers.
+The application embeds the initrd Jar. `/pulp.sys` remains an ordinary archive
+entry. The EFI entry uses the Microsoft x64 calling convention: `RCX` contains
+the image handle and `RDX` contains the system table.
 
-Before leaving firmware services, UEFI Seed:
+Before entering Pulp, UEFI Seed:
 
 1. prints a loading message through `EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL`;
-2. reserves FruityOS's fixed kernel, paging, heap, and initrd regions with
+2. reserves the fixed kernel, paging, heap, and initrd ranges with
    `AllocatePages(AllocateAddress, EfiLoaderData, ...)`;
-3. copies the initrd to `0x2000000`, locates `/pulp.sys` in its Jar records, and
-   decompresses Pulp to `0x10000`;
-4. obtains a current memory-map key and calls `ExitBootServices`, retrying when
-   the key changes;
-5. creates a temporary identity mapping for the first 4 GiB;
-6. restores VGA text registers, font, and palette;
-7. sets `RSP` to `0x40000`, `RSI` to `0x2000000`, and jumps to `0x10100`.
+3. copies the initrd to `0x2000000`;
+4. locates `/pulp.sys` and decompresses it to `0x10000`;
+5. obtains a memory-map key and calls `ExitBootServices`, retrying when needed;
+6. creates a temporary identity mapping for the first 4 GiB;
+7. restores VGA text registers, font, and palette;
+8. sets `RSP` to `0x40000`, sets `RSI` to `0x2000000`, and jumps to `0x10100`.
 
-Progress characters are also written to debug port `0xE9`. QEMU can expose
-those characters with `-debugcon stdio`, which distinguishes firmware loading,
-allocation, boot-service exit, and kernel entry even when VGA is unavailable.
+Progress characters are also written to I/O port `0xE9`.
 
 ## UEFI disk image
 
-The same assembly source has a packaging mode that emits
-`bin/fruityos_uefi.img`. It contains:
+`bin/fruityos_uefi.img` contains:
 
 - an MBR partition entry of type `0xEF` beginning at LBA 2048;
 - a 16 MiB FAT16 EFI system partition;
 - two FAT copies and a fixed root directory;
-- `EFI/BOOT/BOOTX64.EFI`, containing the standalone application.
+- `EFI/BOOT/BOOTX64.EFI`.
 
-The path is the standard x86-64 removable-media fallback. The application can
-also be copied to an existing EFI system partition and registered with the
-machine's boot manager.
+The same application is written separately as `bin/fruityos.efi`.
 
-## Floppy image
+## Debug console
 
-`bin/fruityos_floppy.img` is a 1.44 MiB floppy image containing `fdseed` followed by the
-same initrd Jar. The loader reads the first 19 cylinders, scans the Jar for
-`/pulp.sys`, decompresses it, and passes the Jar start to Pulp. The host build
-rejects an unpadded floppy payload larger than its 342 KiB load window.
+QEMU can expose UEFI and kernel progress output from port `0xE9`:
 
-## Physical-machine requirements
+```sh
+OVMF=/path/to/OVMF.fd
+qemu-system-x86_64 \
+  -m 512 \
+  -bios "$OVMF" \
+  -drive format=raw,file=bin/fruityos_uefi.img \
+  -display none \
+  -serial none \
+  -debugcon stdio \
+  -no-reboot
+```
 
-The generated application is not signed. Disable Secure Boot or sign it with a
-trusted key. Once boot services have exited, FruityOS does not use GOP or UEFI
-input protocols: it assumes VGA-compatible text hardware and a PS/2-compatible
-keyboard controller. Many virtual machines emulate both; some modern physical
-systems do not.
+## Hardware requirements
 
-The loader requests fixed low physical ranges because Pulp is linked around
-those addresses. Firmware that marks a required range unavailable will receive
-the visible `fixed memory is unavailable` diagnostic rather than allowing the
-kernel to overwrite firmware-owned memory.
+The EFI application is unsigned. Disable Secure Boot or sign it with a trusted
+key. After firmware services end, FruityOS assumes VGA-compatible text output
+and a PS/2-compatible keyboard controller.
+
+The UEFI loader requests fixed physical ranges because Pulp is linked around
+those addresses. It prints `fixed memory is unavailable` when firmware cannot
+reserve a required range.

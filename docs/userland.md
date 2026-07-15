@@ -1,31 +1,29 @@
 # Shell and userland
 
-Peel is FruityOS's Jabara-written userland. It contains the Pish shell, file and
-directory utilities, the Fred editor, and the Jar and Juicer build tools.
+Peel is FruityOS's Jabara-written userland. It contains the Pish shell, RAMFS
+utilities, Fred editor, Jar archiver, Juicer compressor, and development tools.
 
 ## Pish
 
-Pish is a small command interpreter, not a POSIX shell. At initial startup it
-runs `/init.psh` and then reads commands interactively. Invoking `pish` from an
-existing shell starts a nested interactive shell without rerunning the boot
-script; `exit` returns to the parent shell.
+Pish is a small command interpreter rather than a POSIX shell. At boot it runs
+`/init.psh` and then reads commands interactively. Starting `pish` from an
+existing shell creates a nested interactive shell; `exit` returns to its parent.
 
-Search order for a command is:
+Command lookup checks these forms in order:
 
-1. an explicitly named `.fap` in the current directory;
-2. the same `.fap` below `/bin`;
-3. an explicitly named `.psh` in the current directory;
-4. the same `.psh` below `/bin`;
-5. the command name with `.fap` appended, current directory then `/bin`;
-6. the command name with `.psh` appended, current directory then `/bin`.
+1. an explicitly named `.fap` in the working directory;
+2. the same `.fap` under `/bin`;
+3. an explicitly named `.psh` in the working directory;
+4. the same `.psh` under `/bin`;
+5. the command name plus `.fap`, in the working directory and then `/bin`;
+6. the command name plus `.psh`, in the working directory and then `/bin`.
 
-`cd` and `exit` are built into Pish. Lines beginning with `#` are ignored in
-scripts. Arguments are separated by spaces.
+`cd` and `exit` are built in. Script lines beginning with `#` are ignored.
+Arguments are separated by spaces.
 
 Pish does not implement quoting, escaping, environment variables, wildcard
 expansion, pipelines, redirection, command substitution, background jobs, or
-shell conditionals. Build scripts therefore consist of simple commands and
-directory changes.
+shell conditionals.
 
 ## Installed applications
 
@@ -37,47 +35,36 @@ directory changes.
 | `dir` | List directory contents. |
 | `echo` | Print arguments. |
 | `fill` | Fill a file with a requested number of zero bytes. |
-| `fred` | Interactive FruityOS line editor. |
+| `fred` | Interactive line editor. |
 | `inode` | Display RAMFS inode information. |
 | `jar` | Create or extract Jar archives. |
+| `jc` | Compile Jabara to NASM-compatible assembly. |
 | `juicer` | Compress or decompress Juicer streams. |
 | `mkdir` | Create a directory. |
 | `move` | Rename or move a file. |
+| `orgasm` | Assemble FruityOS and Jabara assembly inputs. |
 | `pish` | Run scripts and interactive commands. |
 | `rmdir` | Remove a directory. |
 | `type` | Print a file. |
 | `write` | Interactively write lines to a file. |
-| `jc` | Compile Jabara to NASM-compatible assembly. |
-| `orgasm` | Assemble the subset used by Jabara and FruityOS. |
 
-The initial initrd does not contain this entire table. It begins with the four
-bootstrap FAPs documented in [Initrd and native rebuild](initrd-native-build.md)
-and compressed Jabara compiler assembly, then installs the sixteen newly built
-ordinary applications into `/bin`. FruityOS assembles `jc` before starting the
-native build; both `jc` and `orgasm` are then rebuilt from their packaged
-Jabara sources before the rest of userland and Pulp.
-Host builds also produce `yc.fap` and `zest.fap` compatibility artifacts under
-`peel/bin`, but they are not required for the native OS build and are therefore
-not placed in the initrd.
+The root build copies every program in this table directly into the initrd.
+`peel/build.sh` also produces `yc.fap` and `zest.fap` in `peel/bin/`; the root
+initrd manifest does not install them.
 
 ## FAP applications
 
-A FruityOS application is compiled at virtual origin `0x801000`, combined with
-`jabara/lib/fap-runtime.asm`, assembled as a flat binary, and normally compressed
-with Juicer. The `.fap` suffix denotes the compressed form consumed by `exec`.
+A FruityOS application is linked at virtual origin `0x801000`, assembled as a
+flat image, and compressed with Juicer. The `.fap` suffix identifies the
+compressed form accepted by `exec`.
 
-The runtime receives flattened arguments from the task exchange page, calls the
-program's `main(argc, argv)`, exposes Pith calls through interrupt `0x84`, and
-exits when `main` returns.
+The FAP runtime reads flattened arguments from the task exchange page, calls
+`main(argc, argv)`, exposes Pith services through interrupt `0x84`, and exits
+when `main` returns.
 
 ## Jar
 
-Jar is intentionally simpler than tar or ZIP. It stores enough information to
-recreate a directory tree in RAMFS without metadata that FruityOS does not use.
-Creation walks the requested tree; extraction creates directories and files in
-archive order.
-
-Entry representation:
+Jar stores a directory tree without metadata unused by RAMFS. Each entry has:
 
 ```text
 NUL-terminated path
@@ -85,25 +72,18 @@ unsigned 64-bit content length
 content bytes
 ```
 
-A directory has a trailing slash and no regular-file payload. An empty path
-marks end of archive.
+Directory paths end in `/`. An empty path terminates the archive.
 
 ## Juicer
 
-Juicer represents literals directly and repeated byte sequences as backward
-references within a 1024-byte window. The format reserves byte `0xFF` as its
-control marker and includes an explicit end marker. It favors a very small
-decoder over high compression ratios.
+Juicer writes literal bytes directly and represents repeated sequences as
+backward references within a 1024-byte window. Byte `0xFF` is the control
+marker, and the stream includes an explicit end marker.
 
-The same stream format is decoded by:
-
-- BIOS Seed while loading Pulp;
-- UEFI Seed while loading Pulp;
-- Pulp while executing a FAP;
-- `/bin/juicer.fap` while extracting the source snapshot.
+The same format is decoded by BIOS Seed, UEFI Seed, Pulp's FAP loader, and the
+`juicer` userland program.
 
 ## Persistence
 
 All userland files live in RAMFS. FruityOS does not read or write the boot disk
-after startup. Created files, edited sources, and the native `/bin` replacement
-are volatile.
+after startup. Files created or edited in the shell disappear at reset.

@@ -1,30 +1,28 @@
 # FruityOS documentation
 
-This directory is the canonical integrated-system documentation for FruityOS.
-The component READMEs provide short introductions; the documents here describe
-how the bootloaders, kernel, toolchain, initrd, and userland work together.
+These documents describe the repository as built by the root `build.sh` and
+run by `run.sh`.
 
 ## Guides
 
-1. [Getting started](getting-started.md) covers dependencies, building,
+1. [Getting started](getting-started.md) covers host dependencies, building,
    running each image, generated artifacts, and cleanup.
-2. [Build system](build-system.md) follows the complete host build pipeline and
-   explains compiler targets and generated files.
-3. [Boot and firmware](boot-and-firmware.md) documents the BIOS disk layout,
-   PE32+ loader, FAT16 UEFI image, and kernel handoff.
+2. [Build system](build-system.md) follows the complete host pipeline and lists
+   the files placed in each output directory.
+3. [Boot and firmware](boot-and-firmware.md) documents the BIOS images, PE32+
+   application, FAT16 UEFI image, and kernel handoff.
 4. [Kernel architecture](kernel.md) describes initialization, paging,
-   privilege transitions, task execution, RAMFS, devices, and memory maps.
+   privilege transitions, execution, RAMFS, devices, and memory maps.
 5. [System-call ABI](system-calls.md) specifies interrupt `0x84`, registers,
-   dispatch-table layout, and every current call.
-6. [Initrd and native rebuild](initrd-native-build.md) describes source
-   packaging, the minimal bootstrap userland, native compilation, and `/bin`
-   installation.
-7. [Shell and userland](userland.md) documents Pish, scripts, FAP programs,
-   Jar, Juicer, and the installed utilities.
-8. [Toolchain](toolchain.md) covers Jabara bootstrapping, output formats,
-   runtimes, Orgasm, and retained Yuzu compatibility.
-9. [Development](development.md) covers tests, debugging, diagnostics,
-   repository conventions, and current limitations.
+   dispatch-table layout, and every implemented call slot.
+6. [Initial RAM filesystem](initrd.md) describes the initrd staging tree,
+   archive format, installed programs, and startup sequence.
+7. [Shell and userland](userland.md) documents Pish, FAP applications, Jar,
+   Juicer, and the installed utilities.
+8. [Toolchains](toolchain.md) covers Jabara, platform runtimes, Orgasm, Yuzu,
+   and the compiler-to-image path.
+9. [Development](development.md) covers tests, boot diagnostics, repository
+   invariants, and implementation limits.
 
 ## Component references
 
@@ -33,4 +31,4 @@ how the bootloaders, kernel, toolchain, initrd, and userland work together.
 - [Peel userland](../peel/README.md)
 - [Pulp kernel](../pulp/README.md)
 - [Seed bootloaders](../seed/README.md)
-- [Yuzu compatibility layer](../yuzu/README.md)
+- [Yuzu toolchain](../yuzu/README.md)
