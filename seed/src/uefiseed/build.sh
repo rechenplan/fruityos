@@ -1,8 +1,8 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-seed=$(CDPATH= cd -- "$root/../.." && pwd)
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+seed=$(CDPATH= cd "$root/../.." && pwd)
 
 if test "$#" -ne 2; then
     echo "usage: $0 initrd.jar fruityos_uefi.img" >&2
@@ -11,13 +11,13 @@ fi
 
 initrd=$1
 image=$2
-efi=$(dirname -- "$image")/fruityos.efi
+efi=$(dirname "$image")/fruityos.efi
 
 mkdir -p "$seed/bin"
 nasm -f bin "-DINITRD_JAR=\"$initrd\"" \
     "$root/uefiseed.asm" -o "$efi"
 
-efi_size=$(stat -c %s "$efi")
+efi_size=$(wc -c < "$efi")
 nasm -f bin -DUEFI_IMAGE "-DEFI_APP=\"$efi\"" "-DEFI_SIZE=$efi_size" \
     "$root/uefiseed.asm" -o "$image"
 

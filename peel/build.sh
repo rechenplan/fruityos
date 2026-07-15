@@ -1,12 +1,14 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-fruity=$(CDPATH= cd -- "$root/.." && pwd)
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+fruity=$(CDPATH= cd "$root/.." && pwd)
 jc="$fruity/jabara/bin/jc"
 pith="$fruity/jabara/lib/pith.jabara"
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/peel-build-XXXXXX")
-trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+tmp=${TMPDIR:-/tmp}/peel-build-$$
+(umask 077 && mkdir "$tmp") || exit 1
+trap 'rm -rf "$tmp"' 0
+trap 'exit 1' 1 2 3 15
 
 rm -rf "$root/bin"
 mkdir -p "$root/bin"
@@ -35,7 +37,7 @@ compile elf "$root/src/juicer/juicer.jabara" "$root/bin/juicer.elf"
 chmod +x "$root/bin/jar.elf" "$root/bin/juicer.elf"
 
 for source in "$root"/src/*/*.jabara; do
-    program=$(basename "$(dirname -- "$source")")
+    program=$(basename "$(dirname "$source")")
     compile fap "$source" "$tmp/$program.raw"
     "$root/bin/juicer.elf" c "$tmp/$program.raw" "$root/bin/$program.fap"
 done

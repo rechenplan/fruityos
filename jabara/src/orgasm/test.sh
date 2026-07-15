@@ -1,14 +1,16 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-jabara=$(CDPATH= cd -- "$root/../.." && pwd)
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/orgasm-test-XXXXXX")
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+jabara=$(CDPATH= cd "$root/../.." && pwd)
+tmp=${TMPDIR:-/tmp}/orgasm-test-$$
+(umask 077 && mkdir "$tmp") || exit 1
 if test -z "${KEEP_TMP:-}"; then
-    trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+    trap 'rm -rf "$tmp"' 0
 else
     echo "orgasm test files: $tmp"
 fi
+trap 'exit 1' 1 2 3 15
 
 "$jabara/bin/jc" "$jabara/lib/pith.jabara" \
     "$jabara/tests/closure.jabara" "$tmp/closure-generated.asm"
@@ -62,7 +64,7 @@ chmod +x "$tmp/orgasm-self"
 if "$tmp/orgasm-self" > "$tmp/orgasm-self.out"; then :; fi
 grep -q "usage: orgasm" "$tmp/orgasm-self.out"
 
-fruity=$(CDPATH= cd -- "$jabara/.." && pwd)
+fruity=$(CDPATH= cd "$jabara/.." && pwd)
 "$jabara/bin/jc" "$fruity"/pulp/src/*.jabara "$tmp/pulp-generated.asm"
 cat "$fruity/pulp/src/entry.asm" "$fruity/pulp/src/idt.asm" \
     "$tmp/pulp-generated.asm" > "$tmp/pulp.asm"
@@ -71,8 +73,8 @@ cat "$fruity/pulp/src/entry.asm" "$fruity/pulp/src/idt.asm" \
 nasm -f bin "$tmp/pulp.asm" -o "$tmp/pulp-nasm.bin"
 test -s "$tmp/pulp.bin"
 
-orgasm_size=$(stat -c %s "$tmp/pulp.bin")
-nasm_size=$(stat -c %s "$tmp/pulp-nasm.bin")
+orgasm_size=$(wc -c < "$tmp/pulp.bin")
+nasm_size=$(wc -c < "$tmp/pulp-nasm.bin")
 test "$orgasm_size" -ge "$nasm_size"
 test "$orgasm_size" -le $((nasm_size * 2))
 

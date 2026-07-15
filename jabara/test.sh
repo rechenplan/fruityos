@@ -1,9 +1,11 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/jabara-test-XXXXXX")
-trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+tmp=${TMPDIR:-/tmp}/jabara-test-$$
+(umask 077 && mkdir "$tmp") || exit 1
+trap 'rm -rf "$tmp"' 0
+trap 'exit 1' 1 2 3 15
 
 fruity="$root/../yuzu"
 juicer="$root/../peel/bin/juicer.elf"

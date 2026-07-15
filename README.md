@@ -15,7 +15,7 @@ and Orgasm, and installs the new applications in `/bin`.
 On Debian or Ubuntu, install the development dependencies with:
 
 ```sh
-./init.sh
+sudo ./debian-init.sh
 ```
 
 Build everything and boot the BIOS image:

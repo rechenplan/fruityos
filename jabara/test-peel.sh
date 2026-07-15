@@ -1,17 +1,19 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-fruity=$(CDPATH= cd -- "$root/.." && pwd)
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+fruity=$(CDPATH= cd "$root/.." && pwd)
 peel="$fruity/peel"
 output="$fruity/bin"
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/jabara-peel-test-XXXXXX")
-trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+tmp=${TMPDIR:-/tmp}/jabara-peel-test-$$
+(umask 077 && mkdir "$tmp") || exit 1
+trap 'rm -rf "$tmp"' 0
+trap 'exit 1' 1 2 3 15
 
 mkdir -p "$output"
 
 for source in "$peel"/src/*/*.jabara; do
-    program=$(basename "$(dirname -- "$source")")
+    program=$(basename "$(dirname "$source")")
     cat "$root/lib/pith.jabara" "$source" > "$tmp/$program.jabara"
     "$root/bin/jc" "$tmp/$program.jabara" "$tmp/$program-generated.asm"
     cat "$root/lib/elf-header.asm" "$tmp/$program-generated.asm" \

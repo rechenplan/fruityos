@@ -5,13 +5,13 @@
 The supplied setup script targets Debian and Ubuntu:
 
 ```sh
-./init.sh
+sudo ./debian-init.sh
 ```
 
-The build requires a 64-bit Linux host, a C compiler, NASM, and ordinary POSIX
-shell tools. NASM bootstraps Orgasm and assembles the Seed binaries; Orgasm
-assembles every other generated binary. QEMU and OVMF are used by the run
-scripts. GDB is used by the debugging workflow.
+The host scripts use POSIX shell and standard Unix utilities. The build also
+requires a 64-bit x86 Unix host, a C compiler, and NASM. NASM bootstraps Orgasm
+and assembles the Seed binaries; Orgasm assembles every other generated binary.
+QEMU and OVMF are used by the run script.
 
 ## Build
 
@@ -44,6 +44,9 @@ or OVMF UEFI image. The script starts QEMU with 512 MiB of RAM and a temporary
 copy of the selected artifact, so emulator processes cannot modify or lock the
 host build output. The UEFI image contains a FAT16 EFI system partition and the
 removable-media loader at `EFI/BOOT/BOOTX64.EFI`.
+
+`run.sh uefi` checks common OVMF installation paths. On other systems, set the
+`OVMF` environment variable to the firmware image path.
 
 The application is unsigned. Secure Boot must be disabled on physical machines
 unless `bin/fruityos.efi` is signed with a key trusted by that firmware. FruityOS

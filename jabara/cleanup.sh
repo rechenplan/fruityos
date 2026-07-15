@@ -1,12 +1,9 @@
 #!/bin/sh
 set -eu
 
-cd src
-cd jbc
-./clean.sh
-cd ../jc
-./clean.sh
-cd ../orgasm
-./clean.sh
-cd ../../
-rm -rf bin
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+
+"$root/src/jbc/clean.sh"
+"$root/src/jc/clean.sh"
+"$root/src/orgasm/clean.sh"
+rm -rf "$root/bin"

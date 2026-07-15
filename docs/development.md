@@ -11,7 +11,7 @@ cd jabara
 
 It checks the C bootstrap compiler, self-hosted compiler, language features,
 expected diagnostics, ELF and FAP generation, Juicer round trips, retained Yuzu
-compatibility, and compilation of every Peel program. Linux Peel executables
+compatibility, and compilation of every Peel program. Host Peel executables
 are left in the repository's top-level `bin/` directory.
 
 Run the assembler-specific suite with:
@@ -42,9 +42,10 @@ does not verify source extraction, target compilation, or `/bin` installation.
 For headless UEFI diagnostics, QEMU can expose debug port `0xE9`:
 
 ```sh
+OVMF=/path/to/OVMF.fd
 qemu-system-x86_64 \
   -m 512 \
-  -bios /usr/share/qemu/OVMF.fd \
+  -bios "$OVMF" \
   -drive format=raw,file=bin/fruityos_uefi.img \
   -display none -serial none -debugcon stdio -no-reboot
 ```
@@ -52,29 +53,6 @@ qemu-system-x86_64 \
 UEFI Seed emits compact progress markers before Pulp starts. Kernel console
 characters are then mirrored to the same port, making the entire init and native
 build log visible without VGA.
-
-## Machine debugging
-
-From the repository root:
-
-```sh
-./debug.sh
-```
-
-This starts GDB with `debug.gdb`. GDB launches QEMU paused and enables interrupt
-and CPU-reset logging in `log.txt`. Useful fixed addresses include:
-
-| Address | Meaning |
-| ---: | --- |
-| `0x7c00` | BIOS boot-sector entry. |
-| `0x10000` | Kernel dispatch table. |
-| `0x10100` | Pulp executable entry. |
-| `0xf000` | Permanent IDT. |
-| `0x801000` | Current FAP entry in ring 3. |
-
-Because most generated assembly is flat rather than linked with debugging
-metadata, inspecting `pulp-generated.asm`, Orgasm output, and fixed addresses is
-often more useful than source-level stepping.
 
 ## Repository conventions
 

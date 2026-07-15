@@ -1,10 +1,12 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-jabara=$(CDPATH= cd -- "$root/../.." && pwd)
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/orgasm-build-XXXXXX")
-trap 'rm -rf "$tmp"' EXIT HUP INT TERM
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+jabara=$(CDPATH= cd "$root/../.." && pwd)
+tmp=${TMPDIR:-/tmp}/orgasm-build-$$
+(umask 077 && mkdir "$tmp") || exit 1
+trap 'rm -rf "$tmp"' 0
+trap 'exit 1' 1 2 3 15
 
 mkdir -p "$jabara/bin"
 "$jabara/bin/jbc" "$jabara/lib/pith.jabara" "$root/main.jabara" \

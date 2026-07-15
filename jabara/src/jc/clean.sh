@@ -1,3 +1,5 @@
 #!/bin/sh
 set -eu
-rm -f ./*.o ./*.asm ./_jc.jabara
+
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
+rm -f "$root"/*.o "$root"/*.asm "$root/_jc.jabara"

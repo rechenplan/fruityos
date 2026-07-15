@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+root=$(CDPATH= cd "$(dirname "$0")" && pwd)
 mkdir -p "$root/bin"
 
 "$root/jabara/build.sh"
@@ -20,8 +20,10 @@ done
 cp "$root/scripts/init.psh" "$root/initrd/init.psh"
 
 echo "[ Packaging FruityOS source tree ]"
-source_tmp=$(mktemp -d "${TMPDIR:-/tmp}/fruityos-source-XXXXXX")
-trap 'rm -rf "$source_tmp"' EXIT HUP INT TERM
+source_tmp=${TMPDIR:-/tmp}/fruityos-source-$$
+(umask 077 && mkdir "$source_tmp") || exit 1
+trap 'rm -rf "$source_tmp"' 0
+trap 'exit 1' 1 2 3 15
 mkdir -p "$source_tmp/fruityos/peel/bin" "$source_tmp/fruityos/peel/tmp" \
     "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp" \
     "$source_tmp/fruityos/jabara/tmp"
@@ -61,27 +63,52 @@ cd "$root"
 
 cat "$root/seed/bin/hdseed.bin" "$root/initrd.jar" \
     > "$root/bin/fruityos_hdd.img"
-image_size=$(stat --printf="%s" "$root/bin/fruityos_hdd.img")
+image_size=$(wc -c < "$root/bin/fruityos_hdd.img")
 echo "FruityOS size is $image_size bytes."
 if test "$image_size" -gt 1048576; then
     echo "build.sh: BIOS image exceeds its 1 MiB load window" >&2
     exit 1
 fi
-truncate -s 1M "$root/bin/fruityos_hdd.img"
+padding=$((1048576 - image_size))
+if test "$padding" -gt 0; then
+    blocks=$((padding / 1024))
+    remainder=$((padding % 1024))
+    if test "$blocks" -gt 0; then
+        dd if=/dev/zero bs=1024 count="$blocks" \
+            >> "$root/bin/fruityos_hdd.img" 2>/dev/null
+    fi
+    if test "$remainder" -gt 0; then
+        dd if=/dev/zero bs=1 count="$remainder" \
+            >> "$root/bin/fruityos_hdd.img" 2>/dev/null
+    fi
+fi
 
 cat "$root/seed/bin/fdseed.bin" "$root/initrd.jar" \
     > "$root/bin/fruityos_floppy.img"
-floppy_size=$(stat --printf="%s" "$root/bin/fruityos_floppy.img")
+floppy_size=$(wc -c < "$root/bin/fruityos_floppy.img")
 if test "$floppy_size" -gt 350208; then
     echo "build.sh: floppy image exceeds its 342 KiB load window" >&2
     exit 1
 fi
-truncate -s 1440K "$root/bin/fruityos_floppy.img"
-find . -regex '.*\.\(jabara\|yuzu\|asm\|s\|c\)' -print | \
-    xargs wc -l > "$root/loc.txt"
+padding=$((1474560 - floppy_size))
+if test "$padding" -gt 0; then
+    blocks=$((padding / 1024))
+    remainder=$((padding % 1024))
+    if test "$blocks" -gt 0; then
+        dd if=/dev/zero bs=1024 count="$blocks" \
+            >> "$root/bin/fruityos_floppy.img" 2>/dev/null
+    fi
+    if test "$remainder" -gt 0; then
+        dd if=/dev/zero bs=1 count="$remainder" \
+            >> "$root/bin/fruityos_floppy.img" 2>/dev/null
+    fi
+fi
+find . -type f \( -name '*.jabara' -o -name '*.yuzu' -o \
+    -name '*.asm' -o -name '*.s' -o -name '*.c' \) \
+    -exec wc -l {} + > "$root/loc.txt"
 
 rm -f "$root/initrd.jar"
 rm -rf "$source_tmp"
-trap - EXIT HUP INT TERM
+trap - 0 1 2 3 15
 
 echo "fruityos: Jabara and NASM build passed"
