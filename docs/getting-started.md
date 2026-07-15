@@ -31,37 +31,22 @@ fruityos: Jabara and NASM build passed
 
 The complete pipeline is described in [Build system](build-system.md).
 
-## Run with BIOS
+## Run
 
 ```sh
-./run.sh
+./run.sh hdd
+./run.sh fd
+./run.sh uefi
 ```
 
-This starts QEMU with 512 MiB of RAM. The script copies `fruityos_hdd.img` to a
-temporary raw IDE disk before starting QEMU, so concurrent or stale emulator
-processes cannot lock or modify the generated artifact. Seed loads the
-fixed-size copy, enters long mode, and transfers control to Pulp.
-
-## Run with UEFI
-
-```sh
-./run-uefi.sh
-```
-
-This starts QEMU with OVMF and a temporary copy of `fruityos_uefi.img`. The
-image contains a FAT16 EFI system partition and the removable-media loader at
-`EFI/BOOT/BOOTX64.EFI`. Temporary BIOS and UEFI copies are deleted when QEMU
-exits.
-
-To place the standalone PE application in a temporary virtual EFI system
-partition and boot it directly, run:
-
-```sh
-./run-pe.sh
-```
+The required argument selects the legacy hard-disk image, legacy floppy image,
+or OVMF UEFI image. The script starts QEMU with 512 MiB of RAM and a temporary
+copy of the selected artifact, so emulator processes cannot modify or lock the
+host build output. The UEFI image contains a FAT16 EFI system partition and the
+removable-media loader at `EFI/BOOT/BOOTX64.EFI`.
 
 The application is unsigned. Secure Boot must be disabled on physical machines
-unless `fruityos.efi` is signed with a key trusted by that firmware. FruityOS
+unless `bin/fruityos.efi` is signed with a key trusted by that firmware. FruityOS
 also currently requires VGA-compatible text output and a PS/2-compatible
 keyboard controller after leaving firmware services.
 
@@ -87,15 +72,15 @@ longer than a minimal shell-only boot.
 
 | Path | Description |
 | --- | --- |
-| `fruityos_hdd.img` | Padded 1 MiB legacy BIOS hard-disk image. |
-| `fruityos_floppy.img` | Padded 1.44 MiB legacy BIOS floppy image. |
-| `fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
-| `fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
+| `bin/fruityos_hdd.img` | Padded 1 MiB legacy BIOS hard-disk image. |
+| `bin/fruityos_floppy.img` | Padded 1.44 MiB legacy BIOS floppy image. |
+| `bin/fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
+| `bin/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
 | `pulp/bin/pulp.bin` | Uncompressed flat Pulp kernel. |
 | `pulp/bin/pulp.sys` | Juicer-compressed Pulp kernel. |
 | `peel/bin/*.fap` | Host-built FruityOS applications. |
 | `initrd/` | Staging tree used to create the boot RAM filesystem. |
-| `bin/` | Linux Peel executables produced by the test workflow. |
+| `bin/` | OS images, the EFI application, and Linux Peel test executables. |
 
 ## Clean
 

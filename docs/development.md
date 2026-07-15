@@ -34,8 +34,8 @@ git diff --check
 
 ## Boot verification
 
-`run.sh` exercises the legacy BIOS path and `run-uefi.sh` the OVMF path. A full
-verification waits for the native build to finish and the
+`run.sh hdd`, `run.sh fd`, and `run.sh uefi` exercise the legacy hard-disk,
+floppy, and OVMF paths. A full verification waits for the native build to finish and the
 `/src/fruityos>` prompt to appear; seeing only the firmware or welcome message
 does not verify source extraction, target compilation, or `/bin` installation.
 
@@ -45,7 +45,7 @@ For headless UEFI diagnostics, QEMU can expose debug port `0xE9`:
 qemu-system-x86_64 \
   -m 512 \
   -bios /usr/share/qemu/OVMF.fd \
-  -drive format=raw,file=fruityos_uefi.img \
+  -drive format=raw,file=bin/fruityos_uefi.img \
   -display none -serial none -debugcon stdio -no-reboot
 ```
 

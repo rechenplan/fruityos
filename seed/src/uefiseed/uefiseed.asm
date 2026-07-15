@@ -10,7 +10,7 @@
 ;
 ; FAT image:
 ;   nasm -f bin -DUEFI_IMAGE -DEFI_APP='"BOOTX64.EFI"' \
-;       -DEFI_SIZE=123456 uefiseed.asm -o fruityos_uefi.img
+;       -DEFI_SIZE=123456 uefiseed.asm -o bin/fruityos_uefi.img
 
 %ifdef UEFI_IMAGE
 

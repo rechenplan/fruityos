@@ -22,18 +22,19 @@ Build everything and boot the BIOS image:
 
 ```sh
 ./build.sh
-./run.sh
+./run.sh hdd
 ```
 
-Boot through UEFI with OVMF:
+Boot through UEFI or from the floppy image:
 
 ```sh
-./run-uefi.sh
+./run.sh uefi
+./run.sh fd
 ```
 
-The build produces `fruityos_hdd.img`, `fruityos_uefi.img`, and the standalone
-`fruityos.efi` application. Physical UEFI systems must disable Secure Boot or
-sign the EFI application with a trusted key.
+The build places all OS images and the standalone EFI application under
+`bin/`. Physical UEFI systems must disable Secure Boot or sign the EFI
+application with a trusted key.
 
 ## Components
 

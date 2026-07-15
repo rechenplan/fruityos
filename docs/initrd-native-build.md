@@ -11,7 +11,6 @@ The generated staging tree is:
 ```text
 initrd/
 ├── bin/
-│   ├── del.fap
 │   ├── jar.fap
 │   ├── juicer.fap
 │   ├── orgasm.fap
@@ -26,21 +25,21 @@ All Seed variants locate the compressed kernel through the `/pulp.sys` Jar
 entry. Pulp receives the Jar start and installs that entry in RAMFS along with
 the rest of the initrd.
 
-These five FAPs form the binary bootstrap set:
+These four FAPs form the binary bootstrap set:
 
 | Program | Why it must be host-built in the initrd |
 | --- | --- |
 | `pish` | Runs `/init.psh`, nested build scripts, and external commands. |
-| `del` | Removes the temporary decompressed source Jar. |
 | `jar` | Extracts the source checkout. |
 | `juicer` | Decompresses the checkout and creates native FAP streams. |
 | `orgasm` | Assembles generated FAP assembly inside FruityOS. |
 
 Multifile `jc` and Orgasm eliminate the need for `concat` during bootstrap. The
-source archive contains the empty native output directories. The Peel build
-creates `echo.fap` directly in `/bin` before reporting progress, then writes all
-remaining applications there as they are built. This removes `mkdir`, `echo`,
-and `copy` from the host-built bootstrap set.
+root native script first builds `/bin/del.fap` from its packaged Jabara source,
+then uses it to remove the retained source archives and compiler intermediates.
+The Peel build creates `echo.fap` directly in `/bin` before reporting progress,
+then writes all remaining applications there as they are built. This removes
+`del`, `mkdir`, `echo`, and `copy` from the host-built bootstrap set.
 
 The host uses `jc` to generate the complete compiler assembly, including its FAP
 entry and runtime, then compresses it into the source checkout as
@@ -100,21 +99,19 @@ Pulp launches `/bin/pish.fap`. With no explicit script argument, Pish opens
 ```text
 cd /src
 juicer d fruityos.jz fruityos.jar
-del fruityos.jz
 jar x fruityos.jar
-del fruityos.jar
 cd fruityos
 juicer d jabara/jc.asm.jz jabara/jc.asm
 orgasm jabara/jc.asm /bin/jc.raw
 juicer c /bin/jc.raw /bin/jc.fap
-del /bin/jc.raw jabara/jc.asm jabara/jc.asm.jz
 build.psh
 ```
 
 The archive is rooted at `fruityos/`, so extraction under `/src` recreates the
-checkout directory. Deleting each outer archive as soon as it is no longer
-needed bounds peak RAMFS use. When `build.psh` returns, Pish remains in
-`/src/fruityos` and displays the interactive prompt.
+checkout directory. The root build creates `del.fap` first and immediately
+removes the no-longer-needed outer archives, compiler assembly, and raw binary.
+When `build.psh` returns, Pish remains in `/src/fruityos` and displays the
+interactive prompt.
 
 ## Native build sequence
 

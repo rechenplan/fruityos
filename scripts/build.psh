@@ -1,3 +1,10 @@
+cd peel
+jc ../jabara/lib/pith.jabara src/del/del.jabara tmp/del-generated.asm
+orgasm ../jabara/lib/fap-stack-runtime.asm ../jabara/lib/fap-runtime.asm tmp/del-generated.asm tmp/del.raw
+juicer c tmp/del.raw /bin/del.fap
+cd ..
+del /src/fruityos.jz /src/fruityos.jar /bin/jc.raw jabara/jc.asm jabara/jc.asm.jz peel/tmp/del-generated.asm peel/tmp/del.raw
+
 cd jabara
 build.psh
 cd ..

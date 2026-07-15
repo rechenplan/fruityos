@@ -6,7 +6,7 @@ produce the same handoff to Pulp: the kernel is decompressed at physical
 
 ## BIOS image layout
 
-`fruityos_hdd.img` has no conventional filesystem.
+`bin/fruityos_hdd.img` has no conventional filesystem.
 
 | Image offset | Contents |
 | --- | --- |
@@ -72,7 +72,7 @@ allocation, boot-service exit, and kernel entry even when VGA is unavailable.
 ## UEFI disk image
 
 The same assembly source has a packaging mode that emits
-`fruityos_uefi.img`. It contains:
+`bin/fruityos_uefi.img`. It contains:
 
 - an MBR partition entry of type `0xEF` beginning at LBA 2048;
 - a 16 MiB FAT16 EFI system partition;
@@ -85,7 +85,7 @@ machine's boot manager.
 
 ## Floppy image
 
-`fruityos_floppy.img` is a 1.44 MiB floppy image containing `fdseed` followed by the
+`bin/fruityos_floppy.img` is a 1.44 MiB floppy image containing `fdseed` followed by the
 same initrd Jar. The loader reads the first 19 cylinders, scans the Jar for
 `/pulp.sys`, decompresses it, and passes the Jar start to Pulp. The host build
 rejects an unpadded floppy payload larger than its 342 KiB load window.

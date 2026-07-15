@@ -109,8 +109,9 @@ The floppy image similarly combines `fdseed.bin` and `initrd.jar`, then pads to
 1.44 MiB. Every seed scans the Jar records for `/pulp.sys`; no image depends on
 its archive position.
 
-The UEFI build embeds `initrd.jar` in `fruityos.efi`, then places that
-application at the standard removable-media path inside `fruityos_uefi.img`.
+The UEFI build embeds `initrd.jar` in `bin/fruityos.efi`, then places that
+application at the standard removable-media path inside
+`bin/fruityos_uefi.img`. All final OS images are written below top-level `bin/`.
 
 ## Reproducibility boundaries
 

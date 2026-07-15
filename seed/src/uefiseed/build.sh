@@ -3,7 +3,6 @@ set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 seed=$(CDPATH= cd -- "$root/../.." && pwd)
-fruity=$(CDPATH= cd -- "$seed/.." && pwd)
 
 if test "$#" -ne 2; then
     echo "usage: $0 initrd.jar fruityos_uefi.img" >&2
@@ -12,7 +11,7 @@ fi
 
 initrd=$1
 image=$2
-efi="$fruity/fruityos.efi"
+efi=$(dirname -- "$image")/fruityos.efi
 
 mkdir -p "$seed/bin"
 nasm -f bin "-DINITRD_JAR=\"$initrd\"" \
