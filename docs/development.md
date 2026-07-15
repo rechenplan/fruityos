@@ -26,7 +26,7 @@ descriptor directives, and the complete Pulp input.
 A release-quality change should normally pass:
 
 ```sh
-FRUITY_ASSEMBLER=orgasm ./build.sh
+./build.sh
 ./jabara/test.sh
 ./jabara/src/orgasm/test.sh
 git diff --check

@@ -24,11 +24,13 @@ trap 'rm -rf "$source_tmp"' EXIT HUP INT TERM
 mkdir -p "$source_tmp/fruityos/peel/bin" "$source_tmp/fruityos/peel/tmp" \
     "$source_tmp/fruityos/pulp/bin" "$source_tmp/fruityos/pulp/tmp" \
     "$source_tmp/fruityos/jabara/tmp"
+cp "$root/scripts/build.psh" "$source_tmp/fruityos/build.psh"
+cp "$root/scripts/peel-build.psh" "$source_tmp/fruityos/peel/build.psh"
+cp "$root/scripts/pulp-build.psh" "$source_tmp/fruityos/pulp/build.psh"
+cp "$root/scripts/jabara-build.psh" "$source_tmp/fruityos/jabara/build.psh"
 tar -C "$root" -cf - \
-    build.psh \
-    peel/build.psh peel/src \
-    pulp/build.psh pulp/src \
-    jabara/build.psh \
+    peel/src \
+    pulp/src \
     jabara/src/jc/emitter.jabara jabara/src/jc/lexer.jabara \
     jabara/src/jc/main.jabara jabara/src/jc/model.jabara \
     jabara/src/jc/parser.jabara jabara/src/jc/runtime.jabara \

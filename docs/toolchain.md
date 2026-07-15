@@ -90,8 +90,8 @@ the directives, registers, address expressions, descriptor data, and x86-64
 instructions emitted by `jc` and used by Pulp.
 
 Orgasm is intentionally scoped to FruityOS rather than being a general NASM
-replacement. NASM remains necessary for bootstrap and the 16-bit/firmware
-sources.
+replacement. NASM remains necessary only to bootstrap Orgasm and assemble the
+Seed bootloader and firmware sources.
 
 ## Yuzu compatibility
 

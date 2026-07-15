@@ -1,6 +1,7 @@
 sub kmain(initrd)
 	local fd
 
+	kputs("Booting...")
 	gdt_init()
 	page_init()
 	tss_init()

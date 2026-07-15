@@ -69,7 +69,8 @@ Juicer installed in `/bin`.
 ## Source archive
 
 During every host build, the root script stages only the inputs used by the
-native rebuild:
+native rebuild. All `.psh` sources live under host `scripts/`; the four native
+build scripts are copied to the following extracted-tree paths:
 
 - the root, Peel, Jabara, and Pulp `.psh` build files;
 - all Peel Jabara application sources;

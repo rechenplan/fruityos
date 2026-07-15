@@ -7,7 +7,7 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/orgasm-build-XXXXXX")
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 
 mkdir -p "$jabara/bin"
-"$jabara/bin/jc" "$jabara/lib/pith.jabara" "$root/main.jabara" \
+"$jabara/bin/jbc" "$jabara/lib/pith.jabara" "$root/main.jabara" \
     "$root/lex.jabara" "$root/modern.jabara" "$root/parse.jabara" \
     "$root/emit.jabara" "$tmp/orgasm-generated.asm"
 cat "$jabara/lib/elf-header.asm" "$tmp/orgasm-generated.asm" \

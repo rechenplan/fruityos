@@ -9,8 +9,7 @@ trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 mkdir -p "$root/bin"
 "$fruity/jabara/bin/jc" "$fruity/jabara/lib/pith.jabara" \
     "$root"/src/yc/*.yuzu "$tmp/yc-generated.asm"
-cat "$fruity/jabara/lib/elf-header.asm" "$tmp/yc-generated.asm" \
-    "$fruity/jabara/lib/elf-runtime.asm" \
-    > "$tmp/yc.asm"
-nasm -f bin "$tmp/yc.asm" -o "$root/bin/yc"
+"$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/elf-header.asm" \
+    "$tmp/yc-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
+    "$root/bin/yc"
 chmod +x "$root/bin/yc"

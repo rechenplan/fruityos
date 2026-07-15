@@ -11,8 +11,7 @@ mkdir -p "$root/bin"
     "$root/src/zest/main.yuzu" "$root/src/zest/lex.yuzu" \
     "$root/src/zest/parse.yuzu" "$root/src/zest/emit.yuzu" \
     "$root/src/zest/elf.yuzu" "$tmp/zest-generated.asm"
-cat "$fruity/jabara/lib/elf-header.asm" "$tmp/zest-generated.asm" \
-    "$fruity/jabara/lib/elf-runtime.asm" \
-    > "$tmp/zest.asm"
-nasm -f bin "$tmp/zest.asm" -o "$root/bin/zest"
+"$fruity/jabara/bin/orgasm" "$fruity/jabara/lib/elf-header.asm" \
+    "$tmp/zest-generated.asm" "$fruity/jabara/lib/elf-runtime.asm" \
+    "$root/bin/zest"
 chmod +x "$root/bin/zest"

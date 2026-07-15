@@ -9,8 +9,9 @@ The supplied setup script targets Debian and Ubuntu:
 ```
 
 The build requires a 64-bit Linux host, a C compiler, NASM, and ordinary POSIX
-shell tools. QEMU and OVMF are used by the run scripts. GDB is used by the
-debugging workflow.
+shell tools. NASM bootstraps Orgasm and assembles the Seed binaries; Orgasm
+assembles every other generated binary. QEMU and OVMF are used by the run
+scripts. GDB is used by the debugging workflow.
 
 ## Build
 
@@ -26,13 +27,6 @@ build ends with:
 
 ```text
 fruityos: Jabara and NASM build passed
-```
-
-Set `FRUITY_ASSEMBLER=orgasm` to use the Jabara-written assembler for the Pulp
-kernel instead of NASM:
-
-```sh
-FRUITY_ASSEMBLER=orgasm ./build.sh
 ```
 
 The complete pipeline is described in [Build system](build-system.md).

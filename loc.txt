@@ -12,7 +12,7 @@
    118 ./pulp/src/platform.jabara
     88 ./pulp/src/fba.jabara
    154 ./pulp/src/task.jabara
-    22 ./pulp/src/kmain.jabara
+    23 ./pulp/src/kmain.jabara
    348 ./pulp/src/ramfs.jabara
     81 ./pulp/src/heap.jabara
     30 ./pulp/src/x86.jabara
@@ -88,4 +88,4 @@
    219 ./yuzu/src/yc/lexer.yuzu
     14 ./yuzu/lib/_start.asm
    169 ./yuzu/lib/libpith.asm
- 30161 total
+ 30162 total

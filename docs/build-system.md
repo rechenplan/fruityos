@@ -28,15 +28,17 @@ are created below `${TMPDIR:-/tmp}` and removed by traps.
 Jabara has two implementations of the same compiler interface:
 
 - `jbc`, written in C, establishes the bootstrap compiler;
-- `jc`, written in Jabara, is compiled first by `jbc` and then by itself.
+- `jc`, written in Jabara, is generated first by `jbc` and then by itself.
 
 The resulting compiler emits NASM-compatible assembly. It does not invoke an
 assembler or silently add a runtime. See [Toolchain](toolchain.md) and the
 [language manual](../jabara/docs/manual.md).
 
-Orgasm is a Zest-compatible assembler written in Jabara. Its host executable is
-built after `jc`. The Pulp build selects it when `FRUITY_ASSEMBLER=orgasm`; NASM
-remains the default and is still required by bootstrap and bootloader stages.
+Orgasm is a Zest-compatible assembler written in Jabara. `jbc` generates its
+assembly and NASM creates the initial host executable. That executable assembles
+`jc`, the self-compiled `jc`, compatibility tools, Peel, and Pulp. Production
+NASM use is therefore limited to bootstrapping Orgasm and assembling the Seed
+bootloader and firmware sources.
 
 ## Userland build
 
@@ -76,10 +78,12 @@ before both userland and kernel builds.
 ## Native source archive
 
 The root build copies an explicit native-source manifest to a temporary
-`fruityos/` tree: the root and three component `.psh` build files, Peel and Pulp sources, the
-Jabara-written compiler and Orgasm sources, and the Jabara library/runtime
-files those programs reference. It adds the generated `jabara/jc.asm.jz`,
-creates a Jar archive, and compresses it to `initrd/src/fruityos.jz`.
+`fruityos/` tree. Native scripts are stored together under host `scripts/` and
+copied into their expected root and component `build.psh` paths in the staged
+tree. Peel and Pulp sources, the Jabara-written compiler and Orgasm sources,
+and their Jabara library/runtime files are added alongside them. The build adds
+the generated `jabara/jc.asm.jz`, creates a Jar archive, and compresses it to
+`initrd/src/fruityos.jz`.
 
 Documentation, host shell scripts, tests, Yuzu compatibility sources,
 bootloader sources, and unrelated repository files are excluded. The
