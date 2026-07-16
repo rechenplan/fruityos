@@ -57,7 +57,7 @@ jobs, or shell conditionals.
 | `write` | Interactively write lines to a file. |
 
 The root build copies every program in this table directly into the initrd.
-`peel/build.psh` also produces `yc.fap` and `zest.fap` in `peel/out/`; the root
+`peel/build.psh` also produces `yc.fap` and `zest.fap` in `peel/out/fruityos-x86_64/`; the root
 initrd manifest does not install them.
 
 ## FAP applications

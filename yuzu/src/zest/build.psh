@@ -1,3 +1,1 @@
-../../../jabara/out/jc ../../../jabara/lib/pith.jabara main.yuzu lex.yuzu parse.yuzu emit.yuzu elf.yuzu ../../tmp/zest-generated.asm
-../../../jabara/out/orgasm ../../../jabara/lib/elf-header.asm ../../tmp/zest-generated.asm ../../../jabara/lib/elf-runtime.asm ../../out/zest
-../../../peel/src/del/del-bootstrap ../../tmp/zest-generated.asm
+$root/bin/jc.psh $1 ../../out/$1/zest main.yuzu lex.yuzu parse.yuzu emit.yuzu elf.yuzu

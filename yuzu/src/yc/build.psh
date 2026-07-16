@@ -1,3 +1,1 @@
-../../../jabara/out/jc ../../../jabara/lib/pith.jabara emitter.yuzu lexer.yuzu parser.yuzu yc.yuzu ../../tmp/yc-generated.asm
-../../../jabara/out/orgasm ../../../jabara/lib/elf-header.asm ../../tmp/yc-generated.asm ../../../jabara/lib/elf-runtime.asm ../../out/yc
-../../../peel/src/del/del-bootstrap ../../tmp/yc-generated.asm
+$root/bin/jc.psh $1 ../../out/$1/yc emitter.yuzu lexer.yuzu parser.yuzu yc.yuzu

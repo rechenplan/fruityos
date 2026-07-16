@@ -16,9 +16,9 @@ The repository checks in Orgasm and the generated compiler module
 `src/jbc/jbc.asm`, but no Jabara compiler executable. Orgasm assembles the
 module into a temporary bootstrap compiler, which writes:
 
-- `jabara/out/orgasm`, the rebuilt assembler;
-- `jabara/out/jc`, the rebuilt Jabara compiler;
-- `jabara/out/jc-self`, the self-compiled consistency build.
+- `jabara/out/$platform/orgasm`, the rebuilt assembler;
+- `jabara/out/$platform/jc`, the rebuilt Jabara compiler;
+- `jabara/out/$platform/jc-self`, the self-compiled consistency build.
 
 The compiler interface is:
 
@@ -26,8 +26,8 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-The build does not invoke a C bootstrap compiler, GCC, NASM, or shell file
-utilities.
+The build does not invoke a C bootstrap compiler, GCC, NASM, or Make. The
+repository-level Peel bootstrap uses a POSIX shell.
 
 ## Layout
 

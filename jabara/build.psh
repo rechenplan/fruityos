@@ -1,9 +1,9 @@
-echo [ Building Jabara ]
-../peel/src/mkdir/mkdir-bootstrap out
-../peel/src/mkdir/mkdir-bootstrap tmp
+echo [ Building Jabara for $1 ]
+mkdir out
+mkdir out/$1
 cd src/orgasm
-build.psh
+build.psh $1
 cd ../jc
-build.psh
+build.psh $1
 cd ../..
 echo Jabara build complete.

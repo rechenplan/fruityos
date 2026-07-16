@@ -4,8 +4,8 @@
 
 The repository checks in only two x86-64 Linux executables: `bin/pish` and
 `bin/orgasm`. Orgasm assembles the generated Jabara bootstrap module, and that
-compiler builds the few Peel file utilities needed by the scripts. The build
-does not invoke Bash, GCC, NASM, or standard host file utilities.
+compiler builds the few Peel file utilities needed by the scripts. The build uses a POSIX shell for `peel/build.sh`, but does not require GCC,
+NASM, or Make.
 
 Pish treats the directory from which it starts as its root and searches that
 root's `bin` directory for commands, so start builds from the repository root.
@@ -38,10 +38,10 @@ or install additional programs.
 | `out/fruityos_floppy.img` | BIOS floppy image padded to 1.44 MiB. |
 | `out/fruityos_uefi.img` | UEFI disk image containing a FAT16 EFI system partition. |
 | `out/fruityos.efi` | Standalone x86-64 EFI application. |
-| `pulp/out/pulp.bin` | Flat Pulp kernel. |
-| `pulp/out/pulp.sys` | Compressed Pulp kernel embedded in the initrd. |
-| `peel/out/*.fap` | Compressed FruityOS applications. |
-| `peel/out/*.elf` | Linux-hosted Peel executables. |
+| `pulp/out/fruityos-x86_64/pulp.bin` | Flat Pulp kernel. |
+| `pulp/out/fruityos-x86_64/pulp.sys` | Compressed Pulp kernel embedded in the initrd. |
+| `peel/out/fruityos-x86_64/*.fap` | Compressed FruityOS applications. |
+| `peel/out/$platform/<name>` | Native Peel executables for `$platform`. |
 | `initrd/` | Files archived into the boot RAM filesystem. |
 
 ## Physical UEFI systems

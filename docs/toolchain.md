@@ -14,9 +14,9 @@ with the ELF header and runtime to produce the temporary `jbc` executable.
 Orgasm and the Jabara compiler. The resulting toolchain is:
 
 ```text
-jabara/out/orgasm
-jabara/out/jc
-jabara/out/jc-self
+jabara/out/$platform/orgasm
+jabara/out/$platform/jc
+jabara/out/$platform/jc-self
 ```
 
 No checked-in Jabara compiler binary and no C bootstrap compiler are used.
@@ -30,26 +30,23 @@ jc input.jabara [input.jabara ...] output.asm
 Inputs are parsed in command-line order. The output is headerless module
 assembly; the compiler does not add a runtime or invoke an assembler.
 
-## Platform assembly
+## Platform application drivers
 
-After the repository build, a Linux executable can be produced with:
-
-```text
-jabara/out/jc program.jabara program-generated.asm
-jabara/out/orgasm jabara/lib/elf-header.asm program-generated.asm jabara/lib/elf-runtime.asm program
-```
-
-A FruityOS FAP can be produced with:
+Use the generic driver for a native application:
 
 ```text
-jabara/out/jc jabara/lib/pith.jabara program.jabara program-generated.asm
-jabara/out/orgasm jabara/lib/fap-stack-runtime.asm jabara/lib/fap-runtime.asm program-generated.asm program.raw
-peel/out/juicer.elf c program.raw program.fap
+bin/jc.psh $platform output source.jabara
 ```
 
-The platform files provide ELF and FAP startup, Pith services, allocation,
-Juicer decoding, and the FAP module wrapper. The root build copies the runtime
-assembly required on FruityOS into initrd `/lib`.
+Use the explicit FruityOS front end for a FruityOS application:
+
+```text
+bin/jc-fruityos-x86_64.psh output.fap source.jabara
+```
+
+The public Linux front end is `jc-linux-x86_64.psh`. Both front ends call the
+common `jc.psh` driver, which selects `lib/<platform>/pith.jabara`, startup
+assembly, and runtime assembly.
 
 ## Calling convention
 
@@ -81,4 +78,4 @@ processing required by Pith stub pruning.
 ## Yuzu
 
 `yuzu/build.psh` uses the rebuilt Jabara tools and writes `byc`, `yc`, and
-`zest` to `yuzu/out/`. Peel also emits `yc.fap` and `zest.fap` for FruityOS.
+`zest` to `yuzu/out/$platform/`. Peel also emits `yc.fap` and `zest.fap` for FruityOS.

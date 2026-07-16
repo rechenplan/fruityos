@@ -5,16 +5,21 @@ Fred, Jar, Juicer, the Jabara compiler, and Orgasm.
 
 ## Build
 
-The root Pish build runs `peel/build.psh` after rebuilding Jabara and Yuzu.
-Peel writes all generated files to `peel/out/`:
+The root build first runs:
 
-- Linux-hosted `.elf` executables;
-- one compressed FAP for each userland program;
-- `orgasm.fap`, `jc.fap`, `yc.fap`, and `zest.fap`;
-- `jc.asm`, the FAP Jabara compiler module.
+```text
+peel/build.sh $platform
+```
 
-Each target is compiled with `jabara/out/jc`, assembled with
-`jabara/out/orgasm`, and compressed with the newly built `peel/out/juicer.elf`.
+This host bootstrap writes the bootstrap `jc` and all native Peel tools to
+`peel/out/$platform/`. It writes nothing to root `bin/`; top-level `build.psh`
+performs that installation after the shell script returns.
+
+Later, the root build runs `peel/build.psh fruityos-x86_64`. That target build
+writes compressed applications and compiler artifacts to
+`peel/out/fruityos-x86_64/`, including `orgasm.fap`, `jc.fap`, `yc.fap`,
+`zest.fap`, and `jc.asm`.
+
 The root build installs the selected FAP programs into initrd `/bin`.
 
 See [Shell and userland](../docs/userland.md).

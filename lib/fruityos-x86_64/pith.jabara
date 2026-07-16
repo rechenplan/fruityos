@@ -1,3 +1,5 @@
+local platform
+
 extern sub brk(address)
 extern sub close(fd)
 extern sub creat(path)

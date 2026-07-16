@@ -1,1 +1,1 @@
-../../../jabara/out/orgasm hdseed.bytes.asm ../../out/hdseed.bin
+orgasm hdseed.bytes.asm ../../out/$1/hdseed.bin

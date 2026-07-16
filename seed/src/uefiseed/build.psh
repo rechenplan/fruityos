@@ -1,1 +1,1 @@
-../../../jabara/out/orgasm uefiseed-prefix.bytes.asm ../../out/uefiseed-prefix.bin
+orgasm uefiseed-prefix.bytes.asm ../../out/$1/uefiseed-prefix.bin

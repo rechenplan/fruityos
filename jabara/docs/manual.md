@@ -35,20 +35,21 @@ sub main(argc, argv)
 end
 ```
 
-Generate assembly and a Linux executable from the repository root:
+Build a native application from the repository root:
 
 ```text
-jabara/out/jc first.jabara first.asm
-jabara/out/orgasm jabara/lib/elf-header.asm first.asm jabara/lib/elf-runtime.asm first
+bin/jc.psh $platform first first.jabara
 ```
 
-Build a FruityOS FAP:
+Build a FruityOS FAP explicitly:
 
 ```text
-jabara/out/jc jabara/lib/pith.jabara first.jabara first-fap.asm
-jabara/out/orgasm jabara/lib/fap-stack-runtime.asm jabara/lib/fap-runtime.asm first-fap.asm first.raw
-peel/out/juicer.elf c first.raw first.fap
+bin/jc-fruityos-x86_64.psh first.fap first.jabara
 ```
+
+The public Linux front end is `jc-linux-x86_64.psh`. Both front ends call the
+common driver, which selects `lib/<platform>/pith.jabara`, `start.asm`, and
+`runtime.asm`.
 
 A source set may omit `main` when surrounding assembly calls its subroutines.
 ELF and FAP startup runtimes call `main`, so programs linked with those runtimes

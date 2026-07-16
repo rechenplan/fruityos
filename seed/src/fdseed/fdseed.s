@@ -129,7 +129,7 @@ skip_name:
 	call juicer_decode64
 	jmp boot
 
-%include "juicer-runtime.asm"
+%include "../../../lib/fruityos-x86_64/juicer.asm"
 
 boot:	mov rsi, r12
 	jmp KERNEL_ADDR + 0x100

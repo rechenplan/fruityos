@@ -1,9 +1,11 @@
-echo [ Building FruityOS kernel with Jabara ]
-../peel/src/mkdir/mkdir-bootstrap out
-../peel/src/mkdir/mkdir-bootstrap tmp
-../jabara/out/jc src/fba.jabara src/fd.jabara src/global.jabara src/heap.jabara src/idt.jabara src/inode.jabara src/kb.jabara src/kmain.jabara src/list.jabara src/page.jabara src/platform.jabara src/ramfs.jabara src/roots.jabara src/scr.jabara src/sys.jabara src/task.jabara src/utils.jabara src/x86.jabara tmp/pulp-generated.asm
-../jabara/out/orgasm src/entry.asm src/idt.asm ../jabara/lib/juicer-runtime.asm tmp/pulp-generated.asm out/pulp.bin
-../peel/out/juicer.elf c out/pulp.bin out/pulp.sys
-../peel/out/pad.elf out/pulp.sys 0 8192
-../peel/src/del/del-bootstrap tmp/pulp-generated.asm
+echo [ Building FruityOS kernel for $1 ]
+mkdir out
+mkdir out/$1
+mkdir tmp
+mkdir tmp/$1
+jc src/fba.jabara src/fd.jabara src/global.jabara src/heap.jabara src/idt.jabara src/inode.jabara src/kb.jabara src/kmain.jabara src/list.jabara src/page.jabara src/platform.jabara src/ramfs.jabara src/roots.jabara src/scr.jabara src/sys.jabara src/task.jabara src/utils.jabara src/x86.jabara tmp/$1/pulp-generated.asm
+orgasm src/entry.asm src/idt.asm ../lib/$1/juicer-runtime.asm tmp/$1/pulp-generated.asm out/$1/pulp.bin
+juicer c out/$1/pulp.bin out/$1/pulp.sys
+pad out/$1/pulp.sys 0 8192
+del tmp/$1/pulp-generated.asm
 echo Pulp build complete.

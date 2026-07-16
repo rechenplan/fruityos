@@ -1,5 +1,3 @@
-../../src/jbc/jbc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara ../../tmp/jc-generated.asm
-../../out/orgasm ../../lib/elf-header.asm ../../tmp/jc-generated.asm ../../lib/elf-runtime.asm ../../out/jc
-../../out/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara ../../tmp/jc-self-generated.asm
-../../out/orgasm ../../lib/elf-header.asm ../../tmp/jc-self-generated.asm ../../lib/elf-runtime.asm ../../out/jc-self
-../../../peel/src/del/del-bootstrap ../../tmp/jc-generated.asm ../../tmp/jc-self-generated.asm
+$root/bin/jc.psh $1 ../../out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+copy ../../out/$1/jc ../../../bin/jc
+$root/bin/jc.psh $1 ../../out/$1/jc-self emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara

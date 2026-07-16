@@ -1,0 +1,2 @@
+$root/bin/orgasm $1/start.asm $3 $1/runtime.asm $root/.jc-raw
+$root/bin/juicer c $root/.jc-raw $2

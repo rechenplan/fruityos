@@ -1,22 +1,21 @@
 cd yuzu
-clean.psh
+clean.psh $platform
 cd ..
 cd jabara
-clean.psh
+clean.psh $platform
 cd ..
 cd peel
-clean.psh
+clean.psh $platform
+clean.psh fruityos-x86_64
 cd ..
 cd seed
-clean.psh
+clean.psh fruityos-x86_64
 cd ..
 cd pulp
-clean.psh
+clean.psh fruityos-x86_64
 cd ..
 clean-initrd.psh
-peel/src/del/del-bootstrap initrd.jar log.txt loc.txt
-peel/src/del/del-bootstrap out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
-peel/src/rmdir/rmdir-bootstrap out
-peel/src/del/del-bootstrap jabara/src/jbc/jbc bin/echo
-peel/src/del/del-bootstrap peel/src/mkdir/mkdir-bootstrap peel/src/rmdir/rmdir-bootstrap
-peel/src/del/del-bootstrap peel/src/del/del-bootstrap
+del initrd.jar log.txt loc.txt .jc-generated.asm .jc-raw
+del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
+rmdir out
+del bin/concat bin/copy bin/dir bin/echo bin/fill bin/fred bin/inode bin/jar bin/jc bin/juicer bin/mkdir bin/move bin/pad bin/rmdir bin/type bin/uefi bin/write bin/pish-new bin/del

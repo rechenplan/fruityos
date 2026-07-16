@@ -1,11 +1,11 @@
-echo [ Building Yuzu compatibility tools ]
-../peel/src/mkdir/mkdir-bootstrap out
-../peel/src/mkdir/mkdir-bootstrap tmp
+echo [ Building Yuzu compatibility tools for $1 ]
+mkdir out
+mkdir out/$1
 cd src/byc
-build.psh
+build.psh $1
 cd ../yc
-build.psh
+build.psh $1
 cd ../zest
-build.psh
+build.psh $1
 cd ../..
 echo Yuzu build complete.

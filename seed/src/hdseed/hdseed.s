@@ -164,7 +164,7 @@ pulp_found:
 	call juicer_decode64
 	jmp boot
 
-%include "juicer-runtime.asm"
+%include "../../../lib/fruityos-x86_64/juicer.asm"
 
 	; Pass the Jar start, not the kernel entry, to Pulp.
 boot:	mov rsi, r12

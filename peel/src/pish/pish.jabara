@@ -62,6 +62,7 @@ end
 
 sub pish_path(buf, dir, file, ext)
 	local c
+	if byte [file] == 47 then dir = "" end
 	while c = byte [dir] do
 		byte [buf] = c
 		buf = buf + 1
@@ -86,8 +87,40 @@ sub pish_number(buf, n)
 	return buf + 1
 end
 
+sub pish_copy(out, text)
+	local c
+	while c = byte [text] do
+		byte [out] = c
+		out = out + 1
+		text = text + 1
+	end
+	return out
+end
+
+sub pish_argument(out, argc, args, n)
+	if n < argc then
+		while n > 0 do
+			args = nextArg(args)
+			n = n - 1
+		end
+		out = pish_copy(out, args)
+	end
+	return out
+end
+
+sub pish_prefix(text, word)
+	local n
+	while byte [word] do
+		if byte [text] != byte [word] then return 0 end
+		text = text + 1
+		word = word + 1
+		n = n + 1
+	end
+	return n
+end
+
 sub pish_expand(out, line, argc, args)
-	local c, n, arg
+	local c, n, digit
 	while c = byte [line] do
 		if c == 36 then
 			c = byte [line + 1]
@@ -96,26 +129,39 @@ sub pish_expand(out, line, argc, args)
 				if n < 0 then n = 0 end
 				out = pish_number(out, n)
 				line = line + 2
-			else if (c >= 48) & (c <= 57) then
-				n = c - 48
-				if n < argc then
-					arg = args
-					while n > 0 do
-						arg = nextArg(arg)
-						n = n - 1
-					end
-					while c = byte [arg] do
-						byte [out] = c
-						out = out + 1
-						arg = arg + 1
-					end
-				end
+			else if c == 126 then
+				out = pish_copy(out, pish_root)
 				line = line + 2
+			else if pish_prefix(line + 1, "root") then
+				out = pish_copy(out, pish_root)
+				line = line + 5
+			else if pish_prefix(line + 1, "platform") then
+				out = pish_copy(out, platform)
+				line = line + 9
+			else if (c >= 48) & (c <= 57) then
+				out = pish_argument(out, argc, args, c - 48)
+				line = line + 2
+			else if c == 123 then
+				n = 0
+				digit = byte [line + 2]
+				while (digit >= 48) & (digit <= 57) do
+					n = (n * 10) + digit - 48
+					line = line + 1
+					digit = byte [line + 2]
+				end
+				if digit == 125 then
+					out = pish_argument(out, argc, args, n)
+					line = line + 3
+				else
+					byte [out] = 36
+					out = out + 1
+					line = line + 1
+				end
 			else
 				byte [out] = 36
 				out = out + 1
 				line = line + 1
-			end end
+			end end end end end end
 		else
 			byte [out] = c
 			out = out + 1
@@ -152,6 +198,10 @@ sub pish_exec(buf, argc, argv)
 	pish_path(buf, "./", [argv], "")
 	if exec(buf, argv) then return 0 end
 	pish_path(buf, pish_bin, [argv], "")
+	if exec(buf, argv) then return 0 end
+	pish_path(buf, "./", [argv], ".elf")
+	if exec(buf, argv) then return 0 end
+	pish_path(buf, pish_bin, [argv], ".elf")
 	if exec(buf, argv) then return 0 end
 	pish_path(buf, "./", [argv], ".fap")
 	if exec(buf, argv) then return 0 end
@@ -257,7 +307,9 @@ sub main(argc, args)
 	pish_bin = pish_root + 1024
 	brk(pish_bin + 1024)
 	getcwd(pish_root, 1024)
-	pish_path(pish_bin, pish_root, "/bin/", "")
+	script = pish_copy(pish_bin, pish_root)
+	script = pish_copy(script, "/bin/")
+	[script] = 0
 
 	fin = 0
 	if argc >= 2 then

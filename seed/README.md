@@ -15,12 +15,12 @@ All boot paths locate `/pulp.sys` in the initrd Jar, decompress Pulp at physical
 `seed/build.psh` writes:
 
 ```text
-seed/out/hdseed.bin
-seed/out/fdseed.bin
-seed/out/uefiseed-prefix.bin
+seed/out/fruityos-x86_64/hdseed.bin
+seed/out/fruityos-x86_64/fdseed.bin
+seed/out/fruityos-x86_64/uefiseed-prefix.bin
 ```
 
-The root build then uses `peel/out/uefi.elf` to write:
+The root build then uses the native `bin/uefi` tool to write:
 
 ```text
 out/fruityos.efi

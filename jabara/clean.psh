@@ -1,4 +1,3 @@
-../peel/src/del/del-bootstrap out/jc out/jc-self out/orgasm
-../peel/src/del/del-bootstrap tmp/jc-generated.asm tmp/jc-self-generated.asm tmp/orgasm-generated.asm tmp/jc-new tmp/orgasm-new
-../peel/src/rmdir/rmdir-bootstrap tmp
-../peel/src/rmdir/rmdir-bootstrap out
+del out/$1/jc out/$1/jc-self out/$1/orgasm
+rmdir out/$1
+rmdir out

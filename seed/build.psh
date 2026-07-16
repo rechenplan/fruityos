@@ -1,10 +1,11 @@
-echo [ Building FruityOS boot seeds with Orgasm ]
-../peel/src/mkdir/mkdir-bootstrap out
+echo [ Building FruityOS boot seeds for $1 ]
+mkdir out
+mkdir out/$1
 cd src/fdseed
-build.psh
+build.psh $1
 cd ../hdseed
-build.psh
+build.psh $1
 cd ../uefiseed
-build.psh
+build.psh $1
 cd ../..
 echo Seed build complete.

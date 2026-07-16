@@ -6,11 +6,12 @@ descriptor loading, and privilege transitions.
 
 ## Build
 
-The root Pish build runs `pulp/build.psh`. It compiles the kernel as one Jabara
-module, assembles it with the entry and interrupt assembly, and writes:
+The root Pish build runs `pulp/build.psh fruityos-x86_64`. It compiles the
+kernel as one Jabara module, assembles it with the entry and interrupt assembly,
+and writes:
 
-- `pulp/out/pulp.bin`, the flat kernel image;
-- `pulp/out/pulp.sys`, the Juicer-compressed image loaded by Seed.
+- `pulp/out/fruityos-x86_64/pulp.bin`, the flat kernel image;
+- `pulp/out/fruityos-x86_64/pulp.sys`, the Juicer-compressed image loaded by Seed.
 
 `pulp.sys` must fit within 8 KiB. Seed loads the flat kernel at physical
 `0x10000`; execution begins at `0x10100`.

@@ -10,9 +10,9 @@ format.
 
 ## Build
 
-The build is driven entirely by Pish scripts and Peel executables. The checked-in
-`bin/` directory contains only Pish and Orgasm; it is not a build-output
-directory.
+The build is driven by Pish scripts and Peel executables. A small POSIX
+`peel/build.sh` bootstrap builds the native Peel environment for the host
+platform; the top-level Pish script installs those tools into `bin/`.
 
 Build every component and generate all boot images from the repository root:
 
@@ -20,10 +20,10 @@ Build every component and generate all boot images from the repository root:
 bin/pish build.psh
 ```
 
-The build does not invoke Bash, a POSIX shell, an ANSI C compiler, NASM, or
-ordinary host file utilities. It uses only Pish, Peel commands, Jabara, and
-Orgasm. Generated files are written under component `out/` directories and the
-top-level `out/` directory.
+The build invokes a POSIX shell only for `peel/build.sh`; it does not require an
+ANSI C compiler, NASM, or Make. After that bootstrap, orchestration uses Pish,
+Peel commands, Jabara, and Orgasm. Component artifacts are separated under
+`out/<platform>/`; final images remain under the top-level `out/` directory.
 
 Clean generated files with:
 
@@ -39,10 +39,10 @@ bin/pish clean.psh
 | `out/fruityos_floppy.img` | 1.44 MiB BIOS floppy image. |
 | `out/fruityos_uefi.img` | UEFI disk image with a FAT16 EFI system partition. |
 | `out/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
-| `pulp/out/pulp.bin` | Flat uncompressed Pulp kernel. |
-| `pulp/out/pulp.sys` | Juicer-compressed Pulp kernel. |
-| `peel/out/*.fap` | Compressed FruityOS applications. |
-| `peel/out/*.elf` | Linux-hosted Peel tools and applications. |
+| `pulp/out/fruityos-x86_64/pulp.bin` | Flat uncompressed Pulp kernel. |
+| `pulp/out/fruityos-x86_64/pulp.sys` | Juicer-compressed Pulp kernel. |
+| `peel/out/fruityos-x86_64/*.fap` | Compressed FruityOS applications. |
+| `peel/out/$platform/<name>` | Native Peel tools used by the host build. |
 | `initrd/` | Staging tree archived into the boot RAM filesystem. |
 
 ## Components
@@ -73,3 +73,11 @@ Start with the [documentation index](docs/README.md), or open a topic directly:
 
 FruityOS is an experimental operating-system and language laboratory rather
 than a Unix-compatible general-purpose system.
+
+## Compiler drivers
+
+Applications are compiled through `bin/jc.psh PLATFORM OUTPUT SOURCES...`.
+`bin/jc-linux-x86_64.psh` and `bin/jc-fruityos-x86_64.psh` are thin public
+front ends. Runtime assembly and Pith declarations live under
+`lib/linux-x86_64/` and `lib/fruityos-x86_64/`. Pish exposes the runtime-owned
+platform string as `$platform` and the build root as `$root`.

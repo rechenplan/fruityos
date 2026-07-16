@@ -1,11 +1,14 @@
 peel/src/del/del-bootstrap initrd/pulp.sys initrd/init.psh
-peel/src/del/del-bootstrap initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/orgasm.fap initrd/bin/pish.fap
-peel/src/del/del-bootstrap initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap
-peel/src/del/del-bootstrap initrd/bin/echo.fap initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap
-peel/src/del/del-bootstrap initrd/bin/move.fap initrd/bin/rmdir.fap initrd/bin/type.fap initrd/bin/write.fap
-peel/src/del/del-bootstrap initrd/bin/fill.fap initrd/bin/jc.fap
-peel/src/del/del-bootstrap initrd/lib/elf-header.asm initrd/lib/elf-runtime.asm initrd/lib/fap-module-runtime.asm
-peel/src/del/del-bootstrap initrd/lib/fap-runtime.asm initrd/lib/fap-stack-runtime.asm initrd/lib/juicer-runtime.asm
+peel/src/del/del-bootstrap initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
+peel/src/del/del-bootstrap initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
+peel/src/del/del-bootstrap initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
+peel/src/del/del-bootstrap initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jc.fap
+peel/src/del/del-bootstrap initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh
+peel/src/del/del-bootstrap initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/link.psh
+peel/src/del/del-bootstrap initrd/lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/link.psh
+peel/src/del/del-bootstrap initrd/lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
+peel/src/rmdir/rmdir-bootstrap initrd/lib/linux-x86_64
+peel/src/rmdir/rmdir-bootstrap initrd/lib/fruityos-x86_64
 peel/src/rmdir/rmdir-bootstrap initrd/bin
 peel/src/rmdir/rmdir-bootstrap initrd/lib
 peel/src/rmdir/rmdir-bootstrap initrd/src

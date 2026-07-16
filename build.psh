@@ -1,80 +1,96 @@
-orgasm jabara/lib/elf-header.asm jabara/src/jbc/jbc.asm jabara/lib/elf-runtime.asm jabara/src/jbc/jbc
+peel/build.sh $platform
 
-jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/echo/echo.jabara peel/src/echo/echo-bootstrap.asm
-orgasm jabara/lib/elf-header.asm peel/src/echo/echo-bootstrap.asm jabara/lib/elf-runtime.asm bin/echo
+peel/out/$platform/copy peel/out/$platform/copy bin/copy
+copy peel/out/$platform/concat bin/concat
+copy peel/out/$platform/del bin/del
+copy peel/out/$platform/dir bin/dir
+copy peel/out/$platform/echo bin/echo
+copy peel/out/$platform/fill bin/fill
+copy peel/out/$platform/fred bin/fred
+copy peel/out/$platform/inode bin/inode
+copy peel/out/$platform/jar bin/jar
+copy peel/out/$platform/juicer bin/juicer
+copy peel/out/$platform/jc bin/jc
+copy peel/out/$platform/mkdir bin/mkdir
+copy peel/out/$platform/move bin/move
+copy peel/out/$platform/pad bin/pad
+copy peel/out/$platform/rmdir bin/rmdir
+copy peel/out/$platform/type bin/type
+copy peel/out/$platform/uefi bin/uefi
+copy peel/out/$platform/write bin/write
+copy peel/out/$platform/pish bin/pish-new
+move bin/pish-new bin/pish
 
 echo [ Building FruityOS with Pish and Peel ]
 
-jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/mkdir/mkdir.jabara peel/src/mkdir/mkdir-bootstrap.asm
-orgasm jabara/lib/elf-header.asm peel/src/mkdir/mkdir-bootstrap.asm jabara/lib/elf-runtime.asm peel/src/mkdir/mkdir-bootstrap
-
-jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/del/del.jabara peel/src/del/del-bootstrap.asm
-orgasm jabara/lib/elf-header.asm peel/src/del/del-bootstrap.asm jabara/lib/elf-runtime.asm peel/src/del/del-bootstrap
-
-jabara/src/jbc/jbc jabara/lib/pith.jabara peel/src/rmdir/rmdir.jabara peel/src/rmdir/rmdir-bootstrap.asm
-orgasm jabara/lib/elf-header.asm peel/src/rmdir/rmdir-bootstrap.asm jabara/lib/elf-runtime.asm peel/src/rmdir/rmdir-bootstrap
-
-peel/src/del/del-bootstrap peel/src/echo/echo-bootstrap.asm peel/src/mkdir/mkdir-bootstrap.asm peel/src/del/del-bootstrap.asm peel/src/rmdir/rmdir-bootstrap.asm
-
-peel/src/mkdir/mkdir-bootstrap out
+mkdir out
 cd jabara
-build.psh
+build.psh $platform
 cd ..
 cd yuzu
-build.psh
+build.psh $platform
 cd ..
 cd peel
-build.psh
+build.psh fruityos-x86_64
 cd ..
 cd seed
-build.psh
+build.psh fruityos-x86_64
 cd ..
 cd pulp
-build.psh
+build.psh fruityos-x86_64
 cd ..
 
 clean-initrd.psh
-peel/src/mkdir/mkdir-bootstrap initrd
-peel/src/mkdir/mkdir-bootstrap initrd/bin
-peel/src/mkdir/mkdir-bootstrap initrd/lib
-peel/src/mkdir/mkdir-bootstrap initrd/src
-peel/out/copy.elf pulp/out/pulp.sys initrd/pulp.sys
-peel/out/copy.elf scripts/init.psh initrd/init.psh
-peel/out/copy.elf peel/out/jar.fap initrd/bin/jar.fap
-peel/out/copy.elf peel/out/juicer.fap initrd/bin/juicer.fap
-peel/out/copy.elf peel/out/orgasm.fap initrd/bin/orgasm.fap
-peel/out/copy.elf peel/out/pish.fap initrd/bin/pish.fap
-peel/out/copy.elf peel/out/fred.fap initrd/bin/fred.fap
-peel/out/copy.elf peel/out/dir.fap initrd/bin/dir.fap
-peel/out/copy.elf peel/out/mkdir.fap initrd/bin/mkdir.fap
-peel/out/copy.elf peel/out/del.fap initrd/bin/del.fap
-peel/out/copy.elf peel/out/echo.fap initrd/bin/echo.fap
-peel/out/copy.elf peel/out/concat.fap initrd/bin/concat.fap
-peel/out/copy.elf peel/out/copy.fap initrd/bin/copy.fap
-peel/out/copy.elf peel/out/inode.fap initrd/bin/inode.fap
-peel/out/copy.elf peel/out/move.fap initrd/bin/move.fap
-peel/out/copy.elf peel/out/rmdir.fap initrd/bin/rmdir.fap
-peel/out/copy.elf peel/out/type.fap initrd/bin/type.fap
-peel/out/copy.elf peel/out/write.fap initrd/bin/write.fap
-peel/out/copy.elf peel/out/fill.fap initrd/bin/fill.fap
-peel/out/copy.elf peel/out/jc.fap initrd/bin/jc.fap
-peel/out/copy.elf jabara/lib/elf-header.asm initrd/lib/elf-header.asm
-peel/out/copy.elf jabara/lib/elf-runtime.asm initrd/lib/elf-runtime.asm
-peel/out/copy.elf jabara/lib/fap-module-runtime.asm initrd/lib/fap-module-runtime.asm
-peel/out/copy.elf jabara/lib/fap-runtime.asm initrd/lib/fap-runtime.asm
-peel/out/copy.elf jabara/lib/fap-stack-runtime.asm initrd/lib/fap-stack-runtime.asm
-peel/out/copy.elf jabara/lib/juicer-runtime.asm initrd/lib/juicer-runtime.asm
+mkdir initrd
+mkdir initrd/bin
+mkdir initrd/lib
+mkdir initrd/src
+mkdir initrd/lib/linux-x86_64
+mkdir initrd/lib/fruityos-x86_64
+copy pulp/out/fruityos-x86_64/pulp.sys initrd/pulp.sys
+copy scripts/init.psh initrd/init.psh
+copy peel/out/fruityos-x86_64/jar.fap initrd/bin/jar.fap
+copy peel/out/fruityos-x86_64/juicer.fap initrd/bin/juicer.fap
+copy peel/out/fruityos-x86_64/orgasm.fap initrd/bin/orgasm.fap
+copy peel/out/fruityos-x86_64/pish.fap initrd/bin/pish.fap
+copy peel/out/fruityos-x86_64/pad.fap initrd/bin/pad.fap
+copy peel/out/fruityos-x86_64/fred.fap initrd/bin/fred.fap
+copy peel/out/fruityos-x86_64/dir.fap initrd/bin/dir.fap
+copy peel/out/fruityos-x86_64/mkdir.fap initrd/bin/mkdir.fap
+copy peel/out/fruityos-x86_64/del.fap initrd/bin/del.fap
+copy peel/out/fruityos-x86_64/echo.fap initrd/bin/echo.fap
+copy peel/out/fruityos-x86_64/concat.fap initrd/bin/concat.fap
+copy peel/out/fruityos-x86_64/copy.fap initrd/bin/copy.fap
+copy peel/out/fruityos-x86_64/inode.fap initrd/bin/inode.fap
+copy peel/out/fruityos-x86_64/move.fap initrd/bin/move.fap
+copy peel/out/fruityos-x86_64/rmdir.fap initrd/bin/rmdir.fap
+copy peel/out/fruityos-x86_64/type.fap initrd/bin/type.fap
+copy peel/out/fruityos-x86_64/write.fap initrd/bin/write.fap
+copy peel/out/fruityos-x86_64/fill.fap initrd/bin/fill.fap
+copy peel/out/fruityos-x86_64/jc.fap initrd/bin/jc.fap
+copy bin/jc.psh initrd/bin/jc.psh
+copy bin/jc-linux-x86_64.psh initrd/bin/jc-linux-x86_64.psh
+copy bin/jc-fruityos-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh
+copy lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/pith.jabara
+copy lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/start.asm
+copy lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/runtime.asm
+copy lib/linux-x86_64/link.psh initrd/lib/linux-x86_64/link.psh
+copy lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/pith.jabara
+copy lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/start.asm
+copy lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/runtime.asm
+copy lib/fruityos-x86_64/link.psh initrd/lib/fruityos-x86_64/link.psh
+copy lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/juicer-runtime.asm
+copy lib/fruityos-x86_64/fap-module-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
 cd initrd
-../peel/out/jar.elf c initrd.jar
-../peel/out/move.elf initrd.jar ../initrd.jar
+../bin/jar c initrd.jar
+../bin/move initrd.jar ../initrd.jar
 cd ..
 
-peel/out/concat.elf out/fruityos_hdd.img seed/out/hdseed.bin initrd.jar
-peel/out/pad.elf out/fruityos_hdd.img 1048576 1048576
-peel/out/concat.elf out/fruityos_floppy.img seed/out/fdseed.bin initrd.jar
-peel/out/pad.elf out/fruityos_floppy.img 1474560 350208
-peel/out/uefi.elf seed/out/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
+concat out/fruityos_hdd.img seed/out/fruityos-x86_64/hdseed.bin initrd.jar
+pad out/fruityos_hdd.img 1048576 1048576
+concat out/fruityos_floppy.img seed/out/fruityos-x86_64/fdseed.bin initrd.jar
+pad out/fruityos_floppy.img 1474560 350208
+uefi seed/out/fruityos-x86_64/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
 
-peel/out/del.elf initrd.jar
+del initrd.jar .jc-generated.asm .jc-raw
 bin/echo FruityOS Pish build complete.
-peel/src/del/del-bootstrap jabara/src/jbc/jbc bin/echo

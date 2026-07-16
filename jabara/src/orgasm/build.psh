@@ -1,3 +1,2 @@
-../../src/jbc/jbc ../../lib/pith.jabara main.jabara lex.jabara modern.jabara parse.jabara emit.jabara ../../tmp/orgasm-generated.asm
-orgasm ../../lib/elf-header.asm ../../tmp/orgasm-generated.asm ../../lib/elf-runtime.asm ../../out/orgasm
-../../../peel/src/del/del-bootstrap ../../tmp/orgasm-generated.asm
+$root/bin/jc.psh $1 ../../out/$1/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
+copy ../../out/$1/orgasm ../../../bin/orgasm

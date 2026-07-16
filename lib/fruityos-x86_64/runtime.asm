@@ -258,3 +258,55 @@ exit:
 	int 132
 	hlt
 %endif
+
+%ifdef PITH_juicer_decode64
+bits 64
+; Freestanding callers pass RSI = input and RDI = output.
+; Jabara callers push output followed by input.
+; Returns the decoded size in RAX outside freestanding builds.
+juicer_decode64:
+	%ifndef JUICER_FREESTANDING
+	pop r10
+	pop rsi
+	pop rdi
+	push r10
+	push rdi
+	push rbx
+	%endif
+.juicer64_flags:
+	db 172 ; lodsb
+	mov ebx, 256
+	mov bl, al
+.juicer64_next:
+	shr ebx, 1
+	jz .juicer64_flags
+	jc .juicer64_literal
+	xor eax, eax
+	db 102, 173 ; lodsw
+	test eax, eax
+	jz .juicer64_done
+	mov ecx, eax
+	and ecx, 15
+	mov edx, eax
+	shr edx, 4
+	add ecx, 3
+	push rsi
+	mov rsi, rdi
+	sub rsi, rdx
+	db 243, 164 ; rep movsb
+	pop rsi
+	jmp .juicer64_advance
+.juicer64_literal:
+	db 172 ; lodsb
+	db 170 ; stosb
+.juicer64_advance:
+	jmp .juicer64_next
+.juicer64_done:
+	%ifndef JUICER_FREESTANDING
+	pop rbx
+	pop rax
+	neg rax
+	add rax, rdi
+	%endif
+	ret
+%endif

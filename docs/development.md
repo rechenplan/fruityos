@@ -14,18 +14,22 @@ The build itself validates the current integration points:
 - Orgasm assembles every host executable, boot seed, FAP, and Pulp;
 - Juicer compresses every FAP and the kernel;
 - `orgasm.fap` and `pulp.sys` are each checked against 8 KiB;
-- `pad.elf` checks the BIOS HDD and floppy load limits;
-- `uefi.elf` constructs both the PE32+ application and FAT16 disk image.
+- `pad` checks the BIOS HDD and floppy load limits;
+- `uefi` constructs both the PE32+ application and FAT16 disk image.
 
 Compiler regression inputs remain under `jabara/tests/` and can be compiled with
-the rebuilt `jabara/out/jc` and `jabara/out/orgasm` tools.
+the rebuilt `jabara/out/$platform/jc` and
+`jabara/out/$platform/orgasm` tools.
 
 ## Repository invariants
 
-- All build orchestration is Pish source with the `.psh` suffix.
-- Build scripts invoke only Pish builtins and Peel/Jabara executables.
-- The checked-in root `bin/` directory contains exactly `pish` and `orgasm`.
-- Generated artifacts are written to `out/` and `tmp/` directories.
+- Component orchestration is Pish source with the `.psh` suffix.
+- `peel/build.sh` is the POSIX host bootstrap; subsequent build stages invoke
+  Pish builtins and Peel/Jabara executables.
+- The checked-in root `bin/` executables are `pish` and `orgasm`; compiler
+  driver scripts are checked in alongside them.
+- Component artifacts are written to platform-specific `out/<platform>/`
+  directories; transient modules use `tmp/<platform>/` where needed.
 - Compiler output remains separate from executable headers and platform
   runtimes.
 - The system-call table occupies Pulp offset zero; executable entry is offset

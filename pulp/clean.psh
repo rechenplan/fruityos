@@ -1,3 +1,5 @@
-../peel/src/del/del-bootstrap out/pulp.bin out/pulp.sys tmp/pulp-generated.asm
-../peel/src/rmdir/rmdir-bootstrap tmp
-../peel/src/rmdir/rmdir-bootstrap out
+del out/$1/pulp.bin out/$1/pulp.sys tmp/$1/pulp-generated.asm
+rmdir tmp/$1
+rmdir out/$1
+rmdir tmp
+rmdir out

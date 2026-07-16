@@ -610,7 +610,7 @@ load_vga_font:
     pop rbx
     ret
 
-%include "juicer-runtime.asm"
+%include "../../../lib/fruityos-x86_64/juicer.asm"
 
 text_end:
 text_virtual_size equ text_end - text_start

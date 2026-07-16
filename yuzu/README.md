@@ -5,8 +5,8 @@ Yuzu provides the `.yuzu` compiler and assembler toolchain built by FruityOS.
 ## Build
 
 The root Pish build runs `yuzu/build.psh` after rebuilding Jabara. The stage
-writes `byc`, `yc`, and `zest` to `yuzu/out/` using `jabara/out/jc` and
-`jabara/out/orgasm`.
+writes `byc`, `yc`, and `zest` to `yuzu/out/$platform/` using the rebuilt
+tools installed in root `bin/`.
 
 The component contains:
 
