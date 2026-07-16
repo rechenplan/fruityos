@@ -6,7 +6,7 @@ sub pish_chdir(buf, argv)
 	name = [argv + 8]
 	if name == 0 then name = "/" end
 	path = name
-	if byte [path] == 47 then
+	if (byte [path] == 47) | (byte [path + 1] == 58) then
 		pish_path(buf, pish_root, path, "")
 		path = buf
 	end
@@ -62,7 +62,7 @@ end
 
 sub pish_path(buf, dir, file, ext)
 	local c
-	if byte [file] == 47 then dir = "" end
+	if (byte [file] == 47) | (byte [file + 1] == 58) then dir = "" end
 	while c = byte [dir] do
 		byte [buf] = c
 		buf = buf + 1
@@ -185,6 +185,7 @@ end
 sub pish_binary_extension()
 	if pish_str_equal(platform, "linux-x86_64") then return ".elf" end
 	if pish_str_equal(platform, "fruityos-x86_64") then return ".fap" end
+	if pish_str_equal(platform, "windows-x86_64") then return ".exe" end
 	return ""
 end
 

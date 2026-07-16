@@ -2,7 +2,7 @@
 
 Jabara is FruityOS's compact, self-hosted 64-bit systems language. The compiler
 translates one or more source files into headerless module assembly. Orgasm
-combines that output with the selected header and runtime.
+combines that output with the selected platform header and runtime.
 
 ## Build
 
@@ -13,23 +13,35 @@ cd jabara
 build.psh $platform fruityos-x86_64
 ```
 
-Jabara owns the complete compiler bootstrap. Bootstrap Orgasm lives under `bin/bootstrap/$platform/`, and the repository checks in `src/jbc/jbc.asm`, but no compiler executable. The compiler source build:
+Jabara owns the complete compiler bootstrap. Bootstrap Orgasm lives under
+`bin/bootstrap/$platform/`, and the repository checks in `src/jbc/jbc.asm`, but
+no compiler executable. The compiler source build:
 
 1. links `src/jbc/jbc.asm` with the ordinary host platform linker;
-2. installs the resulting first compiler as root `bin/jc.elf`;
+2. installs the resulting first compiler as `bin/jc.<host-extension>`;
 3. rebuilds `jc` through the common compiler driver;
 4. rebuilds and installs host Orgasm;
 5. cross-builds `jc`, Orgasm, and `jc.asm` for FruityOS.
 
-Published outputs are written to:
+Host outputs use the active platform suffix:
 
 ```text
 jabara/out/linux-x86_64/jc.elf
 jabara/out/linux-x86_64/jc-self.elf
 jabara/out/linux-x86_64/orgasm.elf
+
+jabara/out/windows-x86_64/jc.exe
+jabara/out/windows-x86_64/jc-self.exe
+jabara/out/windows-x86_64/orgasm.exe
+
 jabara/out/fruityos-x86_64/jc.fap
-jabara/out/fruityos-x86_64/jc.asm
 jabara/out/fruityos-x86_64/orgasm.fap
+```
+
+The FruityOS target build also publishes:
+
+```text
+jabara/out/fruityos-x86_64/jc.asm
 ```
 
 The compiler interface is:
@@ -38,8 +50,8 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-The build does not invoke a C compiler, GCC, NASM, Make, or a separate bootstrap
-script.
+The build does not invoke a C compiler, GCC, NASM, Make, PowerShell, `cmd.exe`,
+or a separate bootstrap script.
 
 ## Layout
 

@@ -5,6 +5,9 @@ clean.psh $1
 cd ../zest
 clean.psh $1
 cd ../..
-del out/$1/byc out/$1/yc out/$1/zest out/$1/byc.elf out/$1/yc.elf out/$1/zest.elf out/$1/byc.fap out/$1/yc.fap out/$1/zest.fap
+del out/$1/byc out/$1/yc out/$1/zest
+del out/$1/byc.elf out/$1/yc.elf out/$1/zest.elf
+del out/$1/byc.fap out/$1/yc.fap out/$1/zest.fap
+del out/$1/byc.exe out/$1/yc.exe out/$1/zest.exe
 rmdir out/$1
 rmdir out

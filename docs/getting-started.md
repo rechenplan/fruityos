@@ -1,63 +1,81 @@
 # Getting started
 
-## Host requirements
+## Supported build hosts
 
-The repository checks in `bin/pish` as the Linux shell entrypoint and
-`bin/pish.fap` as the FruityOS entrypoint, plus platform bootstrap copies of
-Orgasm, Juicer, and Concat
-under `bin/bootstrap/<platform>/`. They build the first Jabara compiler and the
-Peel tools. The build contains no shell scripts and does not require GCC, NASM,
-or Make.
+The repository self-hosts on three x86-64 platforms:
 
-Pish treats the directory from which it starts as its root and searches that
-root's `bin` directory for commands, so start builds from the repository root.
+| Host | Start command | `$platform` |
+| --- | --- | --- |
+| Linux | `bin/pish build.psh` | `linux-x86_64` |
+| Windows | `bin\pish.exe build.psh` | `windows-x86_64` |
+| FruityOS | `bin/pish build.psh` | `fruityos-x86_64` |
 
-## Build
+Run from the repository root. Pish treats its startup directory as `$root` and
+searches `$root/bin` for commands. On Windows the build does not invoke
+PowerShell, `cmd.exe`, MSVC, MinGW, or host file utilities. On Linux it does not
+invoke a POSIX shell, GCC, NASM, or Make. All orchestration is `.psh` source.
+
+## Exact checked-in executable surface
+
+A host needs only Pish, Orgasm, Juicer, and Concat:
 
 ```text
-bin/pish build.psh
+Linux:
+  bin/pish
+  bin/bootstrap/linux-x86_64/orgasm.elf
+  bin/bootstrap/linux-x86_64/juicer.elf
+  bin/bootstrap/linux-x86_64/concat.elf
+
+Windows:
+  bin/pish.exe
+  bin/bootstrap/windows-x86_64/orgasm.exe
+  bin/bootstrap/windows-x86_64/juicer.exe
+  bin/bootstrap/windows-x86_64/concat.exe
+
+FruityOS:
+  bin/pish.fap
+  bin/bootstrap/fruityos-x86_64/orgasm.fap
+  bin/bootstrap/fruityos-x86_64/juicer.fap
+  bin/bootstrap/fruityos-x86_64/concat.fap
 ```
 
-The root script builds Jabara, Yuzu, Peel, Seed, and Pulp, creates the initrd,
-and produces the BIOS, floppy, and UEFI images. See
-[Build system](build-system.md) for the complete pipeline.
+No compiler binary is checked in. The first `jc` is assembled from
+`jabara/src/jbc/jbc.asm`, installed as the host platform executable, and then
+replaced by the self-hosted Jabara compiler.
+
+## Build result
+
+The root script builds host Jabara/Peel/Yuzu tools, cross-builds the FruityOS
+userland, Seed, and Pulp, constructs the initrd, and writes:
+
+```text
+out/fruityos_hdd.img
+out/fruityos_floppy.img
+out/fruityos_uefi.img
+out/fruityos.efi
+```
+
+Host component outputs use their native suffix:
+
+```text
+out/linux-x86_64/*.elf
+out/windows-x86_64/*.exe
+out/fruityos-x86_64/*.fap
+```
+
+Component outputs live under the corresponding component, for example
+`peel/out/windows-x86_64/pish.exe` or
+`jabara/out/fruityos-x86_64/orgasm.fap`.
 
 ## Startup
 
 Every boot path produces the same kernel handoff. Pulp initializes the kernel,
 unpacks the initrd into RAMFS, starts `/bin/pish.fap`, and Pish executes
-`/init.psh`. The supplied script prints the welcome banner and returns to the
-interactive shell.
-
-All installed applications are already present in `/bin`; boot does not compile
-or install additional programs.
-
-## Generated artifacts
-
-| Path | Description |
-| --- | --- |
-| `out/fruityos_hdd.img` | BIOS hard-disk image padded to 1 MiB. |
-| `out/fruityos_floppy.img` | BIOS floppy image padded to 1.44 MiB. |
-| `out/fruityos_uefi.img` | UEFI disk image containing a FAT16 EFI system partition. |
-| `out/fruityos.efi` | Standalone x86-64 EFI application. |
-| `pulp/out/fruityos-x86_64/pulp.bin` | Flat Pulp kernel. |
-| `pulp/out/fruityos-x86_64/pulp.sys` | Compressed Pulp kernel embedded in the initrd. |
-| `peel/out/fruityos-x86_64/<name>.fap` | FruityOS Peel applications. |
-| `jabara/out/fruityos-x86_64/{jc,orgasm}.fap` | FruityOS compiler and assembler applications. |
-| `peel/out/linux-x86_64/<name>.elf` | Native Peel executables for the Linux host. |
-| `initrd/` | Files archived into the boot RAM filesystem. |
-
-## Physical UEFI systems
-
-`out/fruityos.efi` is unsigned. Disable Secure Boot or sign the application with
-a key trusted by the firmware. After exiting firmware services, FruityOS uses
-VGA-compatible text output and a PS/2-compatible keyboard controller.
+`/init.psh` before entering the interactive shell.
 
 ## Clean
 
-```text
-bin/pish clean.psh
-```
-
-Cleaning removes generated component outputs, the initrd staging tree, and
-transient derived executables. It preserves `bin/pish`, `bin/pish.fap`, the platform bootstrap executables, and their launcher scripts.
+Run `clean.psh` through the same host Pish entrypoint. Cleaning removes generated
+component outputs, host replacements in `bin/`, the initrd staging tree, and
+final images. It preserves the four checked-in executables for each host, the
+Pish launchers, and compiler-driver scripts.

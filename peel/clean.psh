@@ -7,5 +7,8 @@ del out/$1/pad.elf out/$1/pish.elf out/$1/rmdir.elf out/$1/type.elf out/$1/uefi.
 del out/$1/juicer.fap out/$1/concat.fap out/$1/copy.fap out/$1/del.fap out/$1/dir.fap out/$1/echo.fap
 del out/$1/fill.fap out/$1/fred.fap out/$1/inode.fap out/$1/jar.fap out/$1/mkdir.fap out/$1/move.fap
 del out/$1/pad.fap out/$1/pish.fap out/$1/rmdir.fap out/$1/type.fap out/$1/uefi.fap out/$1/write.fap
+del out/$1/juicer.exe out/$1/concat.exe out/$1/copy.exe out/$1/del.exe out/$1/dir.exe out/$1/echo.exe
+del out/$1/fill.exe out/$1/fred.exe out/$1/inode.exe out/$1/jar.exe out/$1/mkdir.exe out/$1/move.exe
+del out/$1/pad.exe out/$1/pish.exe out/$1/rmdir.exe out/$1/type.exe out/$1/uefi.exe out/$1/write.exe
 rmdir out/$1
 rmdir out

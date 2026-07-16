@@ -1,3 +1,22 @@
+Windows x86-64 self-hosting platform
+----------------------------------------
+
+- Adds `windows-x86_64` to the common JC platform interface and publishes
+  compressed `.exe` outputs.
+- Adds a compact one-section PE32+ runtime and Juicer launcher with no CRT,
+  import library, platform SDK, or host shell dependency.
+- Adds `bin/pish.exe` and Windows Orgasm, Juicer, and Concat bootstraps under
+  `bin/bootstrap/windows-x86_64/`; no `jc.exe` is checked in.
+- Implements the Pith host surface with conditional `kernel32.dll` imports,
+  including files, directories, process execution, standard I/O, and
+  `VirtualAlloc`-backed memory.
+- Makes Pish resolve `.exe` for `$platform == windows-x86_64` and handle drive
+  absolute paths.
+- Fixes Orgasm conditional preprocessing so nested `%ifdef`, `%ifndef`,
+  `%else`, and `%endif` are side-effect free in inactive branches.
+- Documents the exact four-executable self-hosting surface for Linux, Windows,
+  and FruityOS.
+
 Canonical Linux Pish name and documentation refresh
 ---------------------------------------------------
 

@@ -591,7 +591,7 @@ end
 ; if fout is -1, then we will simply build a symbol table, fout >= 0 indicates second pass
 sub parse_file(fout, fin, symtab, org)
 
-	local buffer, ptr, token, c, k, pos, bytes, active = 1
+	local buffer, ptr, token, c, k, pos, bytes, active = 1, depth, parents, conditions, condition
 
 	buffer = brk(-1)
 	token = brk(buffer + 65536)
@@ -608,14 +608,33 @@ sub parse_file(fout, fin, symtab, org)
 		end
 		[ptr] = 0
 		ptr = buffer
+		while (byte [ptr] == 32) | (byte [ptr] == 9) do ptr = ptr + 1 end
 
 		if byte [ptr] == 37 then
 			k = byte [ptr + 1]
 			if k == 100 then
-				ptr = ptr + 8
-				parse_insert_table(0, ptr, symtab)
-			else if k == 105 then active = parse_lookup_table(ptr + 7, symtab) >= 0
-			else active = 1 end end
+				if active then parse_insert_table(0, ptr + 8, symtab) end
+			else if k == 105 then
+				if depth == 63 then parse_error() end
+				if byte [ptr + 3] == 100 then condition = parse_lookup_table(ptr + 7, symtab) >= 0
+				else condition = parse_lookup_table(ptr + 8, symtab) < 0 end
+				parents = (parents << 1) | active
+				conditions = (conditions << 1) | condition
+				depth = depth + 1
+				active = active & condition
+			else if k == 101 then
+				if depth == 0 then parse_error() end
+				if byte [ptr + 2] == 108 then
+					condition = (conditions & 1) == 0
+					conditions = ((conditions >> 1) << 1) | condition
+					active = (parents & 1) & condition
+				else
+					depth = depth - 1
+					active = parents & 1
+					parents = parents >> 1
+					conditions = conditions >> 1
+				end
+			else if active then parse_error() end end end end
 		else
 			if active then
 				ptr = lex_get_next_token(ptr, token)
@@ -701,6 +720,7 @@ sub parse_file(fout, fin, symtab, org)
 			end
 		end
 	end
+	if depth != 0 then parse_error() end
 	bytes = pos - org
 	brk(buffer)
 	return bytes

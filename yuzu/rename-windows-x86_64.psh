@@ -1,0 +1,3 @@
+move out/windows-x86_64/byc out/windows-x86_64/byc.exe
+move out/windows-x86_64/yc out/windows-x86_64/yc.exe
+move out/windows-x86_64/zest out/windows-x86_64/zest.exe

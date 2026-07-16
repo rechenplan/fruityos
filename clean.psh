@@ -21,13 +21,16 @@ del initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/orgasm.fap initrd/bin/pi
 del initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
 del initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
 del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jc.fap
-del initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh
+del initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh initrd/bin/jc-windows-x86_64.psh
 del initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/link.psh
 del initrd/lib/linux-x86_64/juicer-decode-stub.asm
 del initrd/lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/link.psh
 del initrd/lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
+del initrd/lib/windows-x86_64/pith.jabara initrd/lib/windows-x86_64/start.asm initrd/lib/windows-x86_64/runtime.asm initrd/lib/windows-x86_64/link.psh
+del initrd/lib/windows-x86_64/juicer-decode-stub.asm
 rmdir initrd/lib/linux-x86_64
 rmdir initrd/lib/fruityos-x86_64
+rmdir initrd/lib/windows-x86_64
 rmdir initrd/bin
 rmdir initrd/lib
 rmdir initrd/src
@@ -38,8 +41,11 @@ del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruit
 rmdir out
 del bin/concat.elf bin/copy.elf bin/dir.elf bin/echo.elf bin/fill.elf bin/fred.elf
 del bin/inode.elf bin/jar.elf bin/jc.elf bin/juicer.elf bin/mkdir.elf bin/move.elf bin/orgasm.elf
-del bin/pad.elf bin/rmdir.elf bin/type.elf bin/uefi.elf bin/write.elf
+del bin/pad.elf bin/pish.elf bin/rmdir.elf bin/type.elf bin/uefi.elf bin/write.elf
 del bin/concat.fap bin/copy.fap bin/dir.fap bin/echo.fap bin/fill.fap bin/fred.fap
 del bin/inode.fap bin/jar.fap bin/jc.fap bin/juicer.fap bin/mkdir.fap bin/move.fap bin/orgasm.fap
 del bin/pad.fap bin/rmdir.fap bin/type.fap bin/uefi.fap bin/write.fap
-del bin/del.elf bin/del.fap
+del bin/concat.exe bin/copy.exe bin/dir.exe bin/echo.exe bin/fill.exe bin/fred.exe
+del bin/inode.exe bin/jar.exe bin/jc.exe bin/juicer.exe bin/mkdir.exe bin/move.exe bin/orgasm.exe
+del bin/pad.exe bin/rmdir.exe bin/type.exe bin/uefi.exe bin/write.exe
+del bin/del.elf bin/del.fap bin/del.exe

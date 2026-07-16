@@ -1,78 +1,73 @@
 # Jabara, Orgasm, and Yuzu toolchains
 
-FruityOS builds its kernel and userland with Jabara and assembles generated
-modules with Orgasm. Yuzu supplies the `byc`, `yc`, and `zest` tools.
+## Self-hosting bootstrap
 
-## Bootstrap and self-hosting
+Linux, Windows, and FruityOS each start from four checked-in executables: Pish,
+Orgasm, Juicer, and Concat. They are all contained under `bin/`; no compiler
+binary, C compiler, shell toolchain, assembler package, or platform SDK is
+required.
 
-The top-level `bin/` directory checks in `pish` for Linux and `pish.fap` for
-FruityOS. Packed Orgasm, Juicer, and Concat bootstrap executables live under
-`bin/bootstrap/<platform>/`. No Jabara compiler executable is checked in.
+Jabara owns compiler bootstrap. `jabara/src/jc/build.psh` links
+`jabara/src/jbc/jbc.asm` with `lib/$platform/link.psh`, installs the first host
+`jc`, rebuilds `jc` through the common driver, and then rebuilds Orgasm. Peel
+rebuilds Concat, Juicer, Pish, and the remaining host tools. The root then
+cross-builds FruityOS.
 
-Jabara owns the bootstrap. `jabara/src/jc/build.psh` links
-`jabara/src/jbc/jbc.asm` with the ordinary `lib/$platform/link.psh`, installs
-the first `jc`, and immediately rebuilds the compiler through the common driver.
-`jabara/src/orgasm/build.psh` then rebuilds and installs Orgasm. The component
-publishes host and FruityOS outputs under `jabara/out/<platform>/`.
+## Compiler drivers
 
-No C bootstrap compiler or separate bootstrap script is used.
+```text
+bin/jc.psh PLATFORM OUTPUT SOURCE...
+bin/jc-linux-x86_64.psh OUTPUT SOURCE...
+bin/jc-windows-x86_64.psh OUTPUT SOURCE...
+bin/jc-fruityos-x86_64.psh OUTPUT SOURCE...
+```
 
-`jc` accepts:
+`jc` itself emits headerless x86-64 module assembly:
 
 ```text
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-Inputs are parsed in command-line order. The output is headerless module
-assembly; the compiler does not add a runtime or invoke an assembler.
-
-## Platform application drivers
-
-Use the generic driver for a native application:
-
-```text
-bin/jc.psh $platform output source.jabara
-```
-
-Use the explicit FruityOS front end for a FruityOS application:
-
-```text
-bin/jc-fruityos-x86_64.psh output.fap source.jabara
-```
-
-The public Linux front end is `jc-linux-x86_64.psh`. Both front ends call the
-common `jc.psh` driver, which selects `lib/<platform>/pith.jabara`, startup
-assembly, and runtime assembly.
+The selected platform linker adds headers, startup, Pith wrappers, runtime, and
+compression.
 
 ## Calling convention
 
-Jabara uses a callee-clean stack ABI. Arguments are evaluated and pushed left
-to right, so the final argument is nearest the return address. Generated
-functions read parameters at positive frame offsets and remove their argument
-words when returning. External assembly routines use the same convention.
+Jabara uses a callee-clean stack ABI. Arguments are evaluated and pushed left to
+right, so the final argument is nearest the return address. Platform runtimes
+adapt this ABI to Linux syscalls, the FruityOS syscall table, or Microsoft x64
+`kernel32.dll` calls.
 
-## Pith stub pruning
+## Pith reachability and imports
 
-The compiler emits one `%define PITH_name` for each referenced external Pith
-call. The ELF and FAP runtimes guard their stubs with the corresponding
-`%ifdef`, so unreferenced service wrappers do not appear in the program.
-Allocation reachability is tracked independently with `JABARA_ALLOC`.
+JC emits `%define PITH_name` for referenced external calls. Orgasm's preprocessor
+supports nested `%ifdef`, `%ifndef`, `%else`, and `%endif`; directives in inactive
+branches have no side effects. Platform runtimes use those definitions to omit
+unreferenced wrappers. The Windows runtime also derives a conditional import
+table, so each PE carries only the `kernel32.dll` APIs required by that program.
 
 ## Orgasm
-
-Orgasm accepts one or more input files followed by an output path:
 
 ```text
 orgasm input.asm [input.asm ...] output
 ```
 
-All inputs share one symbol table and are assembled in command-line order.
-Orgasm handles the directives, expressions, data forms, and x86-64 instructions
-used throughout the repository, including the flat `%define` and `%ifdef`
-processing required by Pith stub pruning.
+Inputs share one symbol table. Orgasm implements the compact x86-64 subset used
+by FruityOS. Windows runtime assembly deliberately works within that subset
+rather than expanding Orgasm for isolated instruction forms.
+
+## Windows runtime
+
+Windows programs are native PE32+ console executables, not C or POSIX layers.
+The runtime implements the Pith surface with `kernel32.dll`: file handles,
+standard I/O, current directory, file operations, directory enumeration,
+process creation/waiting, and `VirtualAlloc`-backed memory. Paths are normalized
+to forward slashes for Pish scripts. The Jabara heap reserves 128 MiB of virtual
+memory, sufficient for the self-hosting compiler workload without increasing
+file size.
 
 ## Yuzu
 
-`yuzu/build.psh $1` uses the rebuilt Jabara tools and writes `byc`, `yc`, and
-`zest` to `yuzu/out/$1/`. The root invokes it separately for the host and
-FruityOS platforms; Peel does not build Yuzu artifacts.
+`yuzu/build.psh $1` writes `byc`, `yc`, and `zest` beneath
+`yuzu/out/$1/`, publishing `.elf`, `.exe`, or `.fap` according to `$1`. Peel does
+not own or build Yuzu artifacts.

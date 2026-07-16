@@ -1,0 +1,3 @@
+$root/bin/concat out/windows-x86_64/jc.exe out/windows-x86_64/jc
+$root/bin/concat out/windows-x86_64/jc-self.exe out/windows-x86_64/jc-self
+$root/bin/concat out/windows-x86_64/orgasm.exe out/windows-x86_64/orgasm

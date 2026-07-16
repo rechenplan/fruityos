@@ -1,6 +1,7 @@
 # Yuzu
 
-Yuzu provides the `.yuzu` compiler and assembler toolchain built by FruityOS.
+Yuzu provides the `.yuzu` compiler and Zest assembler toolchain built by
+FruityOS.
 
 ## Build
 
@@ -12,8 +13,9 @@ build.psh $platform
 build.psh fruityos-x86_64
 ```
 
-Yuzu owns and writes `byc`, `yc`, and `zest` beneath `yuzu/out/$1/`. Peel does
-not build or stage Yuzu artifacts.
+Yuzu owns and writes `byc`, `yc`, and `zest` beneath `yuzu/out/$1/`. Published
+executables use `.elf` on Linux, `.exe` on Windows, and `.fap` on FruityOS.
+Peel does not build or stage Yuzu artifacts.
 
 The component contains:
 

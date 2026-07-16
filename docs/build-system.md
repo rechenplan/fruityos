@@ -1,132 +1,97 @@
 # Build system
 
-Run the build from the repository root:
+The build graph is Pish source and is identical on Linux x86-64, Windows x86-64,
+and FruityOS x86-64. Pish exposes the host as `$platform`, the repository root as
+`$root`, and resolves bare executables using the platform suffix `.elf`, `.exe`,
+or `.fap`.
+
+## Host entrypoints
 
 ```text
-bin/pish build.psh
+Linux:    bin/pish build.psh
+Windows:  bin\pish.exe build.psh
+FruityOS: bin/pish build.psh
 ```
 
-Pish saves that directory as `$root`, exposes the runtime-selected host as
-`$platform`, and resolves bare commands through root `bin/`.
+## Complete binary bootstrap surface
 
-## Checked-in toolset
+All executable bootstrap state is under `bin/` and consists of exactly four
+files per host:
 
-The repository checks in the canonical shell entrypoints:
+| Host | Pish | Orgasm | Juicer | Concat |
+| --- | --- | --- | --- | --- |
+| Linux | `bin/pish` | `bin/bootstrap/linux-x86_64/orgasm.elf` | `.../juicer.elf` | `.../concat.elf` |
+| Windows | `bin/pish.exe` | `bin/bootstrap/windows-x86_64/orgasm.exe` | `.../juicer.exe` | `.../concat.exe` |
+| FruityOS | `bin/pish.fap` | `bin/bootstrap/fruityos-x86_64/orgasm.fap` | `.../juicer.fap` | `.../concat.fap` |
 
-```text
-bin/pish
-bin/pish.fap
-```
+`bin/orgasm.psh`, `bin/juicer.psh`, and `bin/concat.psh` dispatch to
+`bin/bootstrap/$platform/<tool>` without spelling an extension. Pish appends the
+host suffix. As soon as a rebuilt `bin/<tool>.<suffix>` exists, normal binary
+lookup selects it before the launcher.
 
-On Linux, `bin/pish` is directly executable as an ELF. On FruityOS, Pish
-resolves the same extensionless path to `bin/pish.fap`. Both hosts therefore use
-the same command:
-
-```text
-bin/pish build.psh
-```
-
-The non-shell bootstrap toolsets live under their platform directories:
-
-```text
-bin/bootstrap/linux-x86_64/{orgasm,juicer,concat}.elf
-bin/bootstrap/fruityos-x86_64/{orgasm,juicer,concat}.fap
-```
-
-The stable Orgasm, Juicer, and Concat launchers in root `bin/` invoke
-`bin/bootstrap/$platform/<tool>` without spelling an extension. Pish supplies
-the extension selected by `$platform`. Bare tool names prefer
-`bin/<tool>.<platform-extension>` and fall back to the launcher only while that
-host counterpart is absent.
-
-No `jc` executable is checked in. Jabara links the first compiler through the
-ordinary `lib/$platform/link.psh`, installs the platform-appropriate `bin/jc`
-counterpart, rebuilds the compiler, and installs host Orgasm immediately. Peel
-builds Concat, Juicer, and Pish first and installs each platform counterpart into
-`bin/` immediately after it links. The checked-in Linux bootstrap `bin/pish` and
-canonical FruityOS `bin/pish.fap` are preserved by cleaning; native builds may
-also publish the derived `bin/pish.elf` used by normal Pish command lookup.
-
-Linux links create a raw ELF, compress it with Juicer, and concatenate it after
-`lib/linux-x86_64/juicer-decode-stub.asm`. The stub mmaps the linked region at
-`0x400000`, decodes the ELF there, reads `e_entry`, and transfers control while
-preserving the original process stack.
+No `jc` executable is checked in. Jabara uses the ordinary host linker to create
+and install the first compiler, then every subsequent native or cross build uses
+`bin/jc.psh PLATFORM OUTPUT SOURCES...`.
 
 ## Root pipeline
 
-The root build runs these stages in order:
+1. `jabara/build.psh $platform fruityos-x86_64` creates host `jc`/Orgasm and
+   cross-builds their FruityOS forms.
+2. `peel/build.psh $platform` builds and immediately installs the host Peel tools.
+3. `yuzu/build.psh $platform` builds host Yuzu; a second call builds FruityOS Yuzu.
+4. `peel/build.psh fruityos-x86_64` builds the target userland.
+5. Seed and Pulp build for `fruityos-x86_64`.
+6. The root script stages the initrd and produces BIOS and UEFI images.
 
-1. `jabara/build.psh $platform fruityos-x86_64` builds host and target `jc` and Orgasm;
-2. `peel/build.psh $platform` builds and immediately installs the native Peel utilities;
-3. `yuzu/build.psh $platform` and `yuzu/build.psh fruityos-x86_64` build Yuzu tools;
-4. `peel/build.psh fruityos-x86_64` builds the FruityOS Peel utilities;
-5. `seed/build.psh fruityos-x86_64` builds BIOS and UEFI loaders;
-6. `pulp/build.psh fruityos-x86_64` builds the kernel;
-7. the root script creates the initrd and final boot images.
+Every subdirectory build receives its output platform as `$1` and writes only
+beneath its own `out/$1`. Rename helpers publish extension-bearing executables:
+`.elf`, `.exe`, or `.fap`.
 
-Every component receives its output platform explicitly as `$1`. Jabara receives
-both the host and FruityOS platforms because it must establish the host compiler
-before cross-building the target tools.
+## Platform linkers
 
-## Source ownership
-
-Each source directory has one `build.psh` and one `clean.psh`. Build products
-remain owned by the component that contains their source:
-
-- `jabara/src/jc/out/<platform>/` — local compiler outputs and the FruityOS compiler module;
-- `jabara/src/orgasm/out/<platform>/` — local Orgasm outputs;
-- `jabara/out/<platform>/` — published `jc`, `jc-self`, `orgasm`, and target `jc.asm`;
-- `peel/out/<platform>/` — Peel userland utilities only;
-- `yuzu/src/{byc,yc,zest}/out/<platform>/` — local Yuzu outputs;
-- `yuzu/out/<platform>/` — published `byc`, `yc`, and `zest`;
-- `seed/src/{fdseed,hdseed,uefiseed}/out/fruityos-x86_64/` — local seed outputs;
-- `seed/out/fruityos-x86_64/` — published BIOS loaders and UEFI prefix;
-- `pulp/out/fruityos-x86_64/` — flat and compressed kernels.
-
-Each Jabara, Peel, and Yuzu build finishes by calling its
-`rename-<platform>.psh` helper. Linux executables are published as `.elf` and
-FruityOS executables as `.fap`. Pish uses `$platform` to search only the matching
-executable extension; it never falls back to the other platform format.
-
-The top-level final images remain under root `out/`.
-
-## Compiler drivers
-
-Native and cross-compiled applications use the common driver with an explicit
-platform:
+Each compiler driver selects:
 
 ```text
-bin/jc.psh $platform output source.jabara
-bin/jc.psh fruityos-x86_64 output source.jabara
+lib/<platform>/pith.jabara
+lib/<platform>/start.asm
+lib/<platform>/runtime.asm
+lib/<platform>/link.psh
 ```
 
-The public convenience front ends are:
+### Linux x86-64
 
-```text
-bin/jc-linux-x86_64.psh
-bin/jc-fruityos-x86_64.psh
-```
+Orgasm creates a raw static ELF. Juicer compresses it. Concat appends the stream
+to a small ELF launcher, which mmaps the decoded image at `0x400000`, reads
+`e_entry`, restores the native process stack, and enters it.
 
-They call the same common driver, which selects Pith declarations, startup
-assembly, runtime assembly, and linking through `lib/<platform>/`.
+### Windows x86-64
 
-## Initrd and images
+Orgasm creates a one-section PE32+ console image with 512-byte file and section
+alignment, no CRT, no import library, and only the `kernel32.dll` APIs selected
+by Pith reachability. Juicer compresses that PE. Concat appends it to a compact
+PE32+ launcher that:
 
-The root script creates the runtime tree under `initrd/`, copies target outputs
-from Jabara and Peel, archives it with Jar, and writes:
+1. opens its own executable;
+2. reads the appended Juicer stream;
+3. decodes the raw PE into temporary memory;
+4. allocates the payload at its preferred image base;
+5. copies the image, resolves its imports with `LoadLibraryA` and
+   `GetProcAddress`, and enters its PE entrypoint.
 
-```text
-out/fruityos_hdd.img
-out/fruityos_floppy.img
-out/fruityos.efi
-out/fruityos_uefi.img
-```
+### FruityOS x86-64
 
-## Clean
+The linker combines the flat FruityOS startup/runtime and Juicer format into a
+`.fap` entered at the image's first byte.
 
-```text
-bin/pish clean.psh
-```
+## No host shell dependency
 
-The root cleaner invokes each component's `clean.psh`, removes the initrd staging
-tree and final images, and deletes derived platform tools while preserving `bin/pish`, `bin/pish.fap`, the checked-in bootstrap executables under `bin/bootstrap/<platform>/`, and the launcher scripts.
+Build scripts invoke only Pish, `jc`, the three bootstrap tools, and utilities
+built from Peel source. They do not invoke Bash, POSIX `cp`/`rm`, PowerShell,
+`cmd.exe`, MSVC, MinGW, or platform SDK tools.
+
+## Initrd and clean
+
+The root build copies the Windows compiler frontend and runtime sources into the
+FruityOS initrd, so FruityOS can cross-build Windows `.exe` files. Cleaning
+removes generated `.elf`, `.exe`, and `.fap` files while preserving the exact
+checked-in bootstrap surface above.

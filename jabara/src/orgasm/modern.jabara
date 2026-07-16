@@ -173,7 +173,7 @@ end
 
 sub oa_emit_relative(fd, opcode, target, position)
 	local displacement = target - position - 2
-	if (opcode == 233) & (target >= 0) & (displacement >= -128) & (displacement <= 127) then
+	if (opcode == 233) & (target >= 0) & (target < position) & (displacement >= -128) & (displacement <= 127) then
 		oa_emit8(fd, 235)
 		oa_emit8(fd, displacement)
 		return 2
@@ -195,7 +195,7 @@ end
 
 sub oa_emit_jcc(fd, condition, target, position)
 	local displacement = target - position - 2
-	if (target >= 0) & (displacement >= -128) & (displacement <= 127) then
+	if (target >= 0) & (target < position) & (displacement >= -128) & (displacement <= 127) then
 		oa_emit8(fd, 112 + condition)
 		oa_emit8(fd, displacement)
 		return 2
