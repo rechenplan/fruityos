@@ -4,7 +4,7 @@ FruityOS started after encountering the stage0 bootstrap project (https://github
 realizing that there were implicit dependencies on the host operating system, which usually have their slew of
 dependencies.
 
-The entire build process of FruityOS is self-contained. It will build on Linux, Windows, and FruityOS on the x86 64bit platform. There is a binary surface under 16 kb in size that each platform depends on, which in turn is minimally dependent on the OS itself.
+The entire build process of FruityOS is self-contained. It will build on Linux, Windows, and FruityOS on the x86 64bit platform. There is a binary surface under 16 kb in size that each platform depends on to build, which in turn is minimally dependent on the OS itself (FruityOS and Linux hosts depend on the kernel, Windows hosts also depend kernel32.dll).
 
 FruityOS is a small, monotasking 64-bit operating system for x86 PCs. It boots
 through BIOS or x86-64 UEFI, starts the Jabara-written Pulp kernel, unpacks a
