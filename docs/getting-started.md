@@ -17,36 +17,24 @@ invoke a POSIX shell, GCC, NASM, or Make. All orchestration is `.psh` source.
 
 ## Bootstrap surface
 
-The only irreducible executable is `stage0/petit.com`. Run the DOS stage-0
-process first when reconstructing the repository from source; see
-[`stage0/PETIT.md`](../stage0/PETIT.md).
+The only irreducible executable is `stage0/petit.com`. Reconstruction starts
+under DOS with `stage0/build.bat`, whose 8.3-safe inputs `orglin.pm` and
+`orgwin.pm` produce the two seed Orgasm images in `stage0/out`.
 
-After stage 0 has populated a host bootstrap tree, that host needs Pish,
-Orgasm, Juicer, and Concat:
+Continue with `stage0/linux.sh` or `stage0/win64.bat`. The seed first assembles
+`stage0/jbc.asm`; JBC compiles current Orgasm; the seed assembles current
+Orgasm once; current Orgasm builds every later output. Either host continuation
+cross-builds this complete uncompressed bootstrap set:
 
 ```text
-Linux:
-  bin/pish
-  bin/bootstrap/linux-x86_64/orgasm.elf
-  bin/bootstrap/linux-x86_64/juicer.elf
-  bin/bootstrap/linux-x86_64/concat.elf
-
-Windows:
-  bin/pish.exe
-  bin/bootstrap/windows-x86_64/orgasm.exe
-  bin/bootstrap/windows-x86_64/juicer.exe
-  bin/bootstrap/windows-x86_64/concat.exe
-
-FruityOS:
-  bin/pish.fap
-  bin/bootstrap/fruityos-x86_64/orgasm.fap
-  bin/bootstrap/fruityos-x86_64/juicer.fap
-  bin/bootstrap/fruityos-x86_64/concat.fap
+stage0/out/orgasm.{elf,exe,fap}
+stage0/out/juicer.{elf,exe,fap}
+stage0/out/concat.{elf,exe,fap}
+stage0/out/pish.{elf,exe,fap}
 ```
 
-No compiler binary is checked in. The first `jc` is assembled from
-`jabara/src/jbc/jbc.asm`, installed as the host platform executable, and then
-replaced by the self-hosted Jabara compiler.
+The host `jbc.elf` or `jbc.exe` remains in `stage0/out` as an intermediate. No
+bootstrap assembly snapshot is checked in except `stage0/jbc.asm`.
 
 ## Build result
 

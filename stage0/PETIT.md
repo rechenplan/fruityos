@@ -225,19 +225,19 @@ reduce the trusted binary surface without weakening later Orgasm stages.
 From `stage0/` under DOS:
 
 ```bat
-rebuild-petit.bat
+repetit.bat
 ```
 
-That script performs:
+The script performs the equivalent of:
 
 ```bat
-petit.com < petit.pm > petit.next.com
-fc /b petit.com petit.next.com
+petit.com < petit.pm > out\petit2.com
+fc /b petit.com out\petit2.com
 ```
 
 The files must compare equal and both must be exactly 254 bytes.
 
-## Building Orgasm bootstraps
+## Building the seed Orgasm executables
 
 From `stage0/` under DOS:
 
@@ -245,33 +245,49 @@ From `stage0/` under DOS:
 build.bat
 ```
 
-The script assembles the two platform-specific, uncompressed Orgasm sources:
+All DOS-visible names obey 8.3. Petit materializes two raw, uncompressed seed
+assemblers:
 
 ```text
-orgasm-linux-x86_64.pm
-    -> ../bin/bootstrap/linux-x86_64/orgasm.elf
-
-orgasm-windows-x86_64.pm
-    -> ../bin/bootstrap/windows-x86_64/orgasm.exe
+orglin.pm -> out/orgseed.elf
+orgwin.pm -> out/orgseed.exe
 ```
 
-Petit remains platform-blind. The batch file selects a source by filename, and
-the source itself contains the complete executable image.
+Petit remains platform-blind. `build.bat` selects each source through standard
+input redirection; the `.pm` source contains the complete executable image.
 
-A FruityOS `.pm` source is intentionally not included yet.
+DOS cannot execute either x86-64 result. Continue from the same `stage0/`
+directory on one host:
+
+```text
+Linux:   ./linux.sh
+Windows: win64.bat
+```
+
+The seed's first action is to assemble `jbc.asm`. JBC then compiles the current
+Orgasm source. The seed assembles that current Orgasm once, and the current
+Orgasm assembles every later bootstrap binary. See [`README.md`](README.md) for
+the complete dependency graph and output list.
+
+A FruityOS seed `.pm` source is intentionally unnecessary: either Linux or
+Windows current Orgasm cross-assembles the FruityOS bootstrap from source.
 
 ## Source readability conventions
 
-The large Orgasm `.pm` files follow conventions intended to keep byte-level
-source review practical:
+The large seed `.pm` files are byte-level sources, but they are no longer
+presented as address dumps:
 
-- executable bytes are grouped by instruction;
-- addresses and disassembly appear in comments;
+- executable bytes are grouped by instruction or data object;
+- comments describe the adjacent instruction, header field, table, or string;
+- generated file offsets and virtual addresses are omitted from comments;
 - recognizable strings use quoted literals;
-- headers and tables are grouped by structure;
+- executable headers and tables are grouped structurally;
 - zero padding uses repetition directives;
-- no compressed executable wrapper is embedded;
-- the Linux and Windows files describe the raw, uncompressed inner binaries.
+- no compressed executable wrapper is embedded.
 
-Petit ignores all comments, so explanatory detail has no cost in the generated
-binary.
+`petit.pm` additionally names each parser and fixup phase in prose. Its
+one-character labels remain short because one-byte symbols are part of Petit's
+254-byte language design, not because the comments must be cryptic.
+
+Petit ignores all comments, so readability changes have no effect on generated
+bytes.

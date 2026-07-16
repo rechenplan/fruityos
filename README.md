@@ -35,10 +35,12 @@ The irreducible binary surface is one file:
 stage0/petit.com   254-byte DOS stage-0 assembler
 ```
 
-[`stage0/petit.pm`](stage0/petit.pm) reproduces it byte-for-byte. Petit then
-materializes the raw Linux and Windows Orgasm bootstraps from human-editable
-`.pm` source. Those generated Orgasm executables assemble the ordinary stage-0
-`.asm` inputs and hand control to the normal Jabara/Pish build.
+[`stage0/petit.pm`](stage0/petit.pm) reproduces it byte-for-byte. Under DOS,
+Petit materializes raw Linux and Windows seed Orgasm executables into
+`stage0/out`. On either x86-64 host, that seed first assembles `stage0/jbc.asm`;
+JBC compiles the current Orgasm source; the seed assembles current Orgasm once;
+and current Orgasm builds every later Linux, Windows, and FruityOS bootstrap
+binary in `stage0/out`.
 
 The platform bootstrap files under `bin/bootstrap/<platform>/` are generated
 host artifacts. A populated build tree uses the following host surface:
@@ -124,22 +126,16 @@ Start with the [documentation index](docs/README.md), especially:
 FruityOS is an experimental operating-system and language laboratory rather
 than a Unix-compatible general-purpose system.
 
-<<<<<<< HEAD
-## DOS stage 0
+## Stage 0 reconstruction
 
-The `stage0/` directory contains the platform-blind 254-byte Petit assembler,
-its self-reproducing `petit.pm` source, readable `.pm` sources for the raw Linux
-and Windows Orgasm bootstraps, and DOS batch files. Running
-`stage0/build.bat` writes the Orgasm outputs directly into
-`bin/bootstrap/<platform>/`.
+The DOS-facing stage0 filenames obey 8.3. From `stage0/`, `build.bat` reads
+`orglin.pm` and `orgwin.pm` and writes `out/orgseed.elf` and
+`out/orgseed.exe`. Continue with `linux.sh` or `win64.bat`; either host produces
+all Pish, Orgasm, Juicer, and Concat bootstrap images for Linux, Windows, and
+FruityOS directly beneath `stage0/out`.
 
-See [`stage0/PETIT.md`](stage0/PETIT.md) for the complete language, memory model,
-forward-reference algorithm, limits, and self-reproduction procedure.
-=======
-FruityOS started after encountering the https://bootstrapable.org and
-realizing that there were implicit dependencies on the host operating system, which usually have their slew of
-dependencies.
-
-The entire build process of FruityOS is self-contained. It will build on Linux, Windows, and FruityOS on the x86 64bit platform. There is a binary surface under 16 kb in size that each platform depends on to build, which in turn is minimally dependent on the OS itself (FruityOS and Linux hosts depend on the kernel, Windows hosts also depend kernel32.dll).
-
->>>>>>> 830e58d2160d2bc9d4381ab5fd673939e28cdc56
+Stage0 stores no generated bootstrap assembly snapshots except `jbc.asm`.
+Generated modules are temporary and are deleted after their binaries have been
+assembled. See [`stage0/README.md`](stage0/README.md) for the exact trust and
+dependency sequence and [`stage0/PETIT.md`](stage0/PETIT.md) for the Petit
+language.

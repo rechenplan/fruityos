@@ -16,18 +16,20 @@ FruityOS: bin/pish build.psh
 ## Stage-0 and host bootstrap surfaces
 
 The sole irreducible executable is `stage0/petit.com`. Its readable source,
-`stage0/petit.pm`, reproduces it exactly. Petit generates raw platform Orgasm
-bootstraps from the `.pm` files in `stage0/`; later bootstrap executables under
-`bin/` are derived artifacts.
+`stage0/petit.pm`, reproduces it exactly. The DOS phase reads the 8.3-safe
+`orglin.pm` and `orgwin.pm` sources and writes the raw seed assemblers beneath
+`stage0/out`.
 
-Once a host bootstrap tree has been populated, it consists of four files per
-host:
+The host continuation first assembles `stage0/jbc.asm`, uses JBC to compile
+current Orgasm, uses the seed to assemble current Orgasm once, and then uses
+current Orgasm for every later assembly. It produces four uncompressed files
+per target directly in `stage0/out`:
 
 | Host | Pish | Orgasm | Juicer | Concat |
 | --- | --- | --- | --- | --- |
-| Linux | `bin/pish` | `bin/bootstrap/linux-x86_64/orgasm.elf` | `.../juicer.elf` | `.../concat.elf` |
-| Windows | `bin/pish.exe` | `bin/bootstrap/windows-x86_64/orgasm.exe` | `.../juicer.exe` | `.../concat.exe` |
-| FruityOS | `bin/pish.fap` | `bin/bootstrap/fruityos-x86_64/orgasm.fap` | `.../juicer.fap` | `.../concat.fap` |
+| Linux | `stage0/out/pish.elf` | `stage0/out/orgasm.elf` | `stage0/out/juicer.elf` | `stage0/out/concat.elf` |
+| Windows | `stage0/out/pish.exe` | `stage0/out/orgasm.exe` | `stage0/out/juicer.exe` | `stage0/out/concat.exe` |
+| FruityOS | `stage0/out/pish.fap` | `stage0/out/orgasm.fap` | `stage0/out/juicer.fap` | `stage0/out/concat.fap` |
 
 `bin/orgasm.psh`, `bin/juicer.psh`, and `bin/concat.psh` dispatch to
 `bin/bootstrap/$platform/<tool>` without spelling an extension. Pish appends the

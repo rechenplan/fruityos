@@ -3,10 +3,11 @@
 ## Self-hosting bootstrap
 
 The bootstrap begins from one irreducible executable: the 254-byte DOS
-`stage0/petit.com`. Petit is reproduced by `stage0/petit.pm` and generates raw
-Orgasm bootstraps from human-editable platform `.pm` source. Full Orgasm then
-assembles the ordinary stage-0 `.asm` sources that populate the host `bin/`
-bootstrap tree.
+`stage0/petit.com`. Petit is reproduced by `stage0/petit.pm` and generates the
+raw Linux and Windows seed Orgasm executables from the 8.3-safe `orglin.pm` and
+`orgwin.pm` sources. The host seed first assembles `stage0/jbc.asm`; JBC compiles
+current Orgasm; the seed assembles current Orgasm once; current Orgasm assembles
+every remaining bootstrap image into `stage0/out`.
 
 A populated Linux, Windows, or FruityOS host uses Pish, Orgasm, Juicer, and
 Concat. No compiler binary, C compiler, shell toolchain, assembler package, or

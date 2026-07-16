@@ -1,3 +1,19 @@
+Completed source-built stage0
+--------------------------------
+
+- Renames the Petit seed inputs to the DOS-compatible `orglin.pm` and
+  `orgwin.pm` names and writes both seed executables beneath `stage0/out`.
+- Makes the seed Orgasm assemble `stage0/jbc.asm` first, uses JBC to compile
+  current Orgasm, and uses the seed exactly once more to assemble that current
+  Orgasm.
+- Uses current Orgasm for every later Linux, Windows, and FruityOS bootstrap
+  image, including Pish, Juicer, and Concat built from their ordinary Jabara
+  sources.
+- Retains no generated bootstrap assembly in stage0 except `jbc.asm`; temporary
+  modules are generated in `stage0/out` and removed.
+- Rewrites Petit sources with structural and instruction comments instead of
+  generated file offsets and virtual addresses.
+
 Windows x86-64 self-hosting platform
 ----------------------------------------
 

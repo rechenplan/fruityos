@@ -1,121 +1,121 @@
-; Petit 254-byte DOS stage-0 assembler
-; Generated from the exact uncompressed binary image (254 bytes).
-; Edit bytes directly; comments are descriptive and are ignored by Petit.
-
-#31C0# ; 00000000  0000000000000100  xor ax, ax
-#BF007E# ; 00000002  0000000000000102  mov di, 0x7e00
-#B90001# ; 00000005  0000000000000105  mov cx, 0x100
-#F3AB# ; 00000008  0000000000000108  rep stosw word ptr es:[di], ax
-#BF0002# ; 0000000A  000000000000010A  mov di, 0x200
-:a ; file offset 000Dh
-#E8#@e ; 0000000D  000000000000010D  call 0x1e7
-#3C21# ; 00000010  0000000000000110  cmp al, 0x21
-#72F9# ; 00000012  0000000000000112  jb 0x10d
-#0F84#@f ; 00000014  0000000000000114  je 0x1ec
-#3C3B# ; 00000018  0000000000000118  cmp al, 0x3b
-#7417# ; 0000001A  000000000000011A  je 0x133
-#3C23# ; 0000001C  000000000000011C  cmp al, 0x23
-#7426# ; 0000001E  000000000000011E  je 0x146
-#3C27# ; 00000020  0000000000000120  cmp al, 0x27
-#7418# ; 00000022  0000000000000122  je 0x13c
-#3C2A# ; 00000024  0000000000000124  cmp al, 0x2a
-#742B# ; 00000026  0000000000000126  je 0x153
-#3C3A# ; 00000028  0000000000000128  cmp al, 0x3a
-#7468# ; 0000002A  000000000000012A  je 0x194
-#3C40# ; 0000002C  000000000000012C  cmp al, 0x40
-#742F# ; 0000002E  000000000000012E  je 0x15f
-#AA# ; 00000030  0000000000000130  stosb byte ptr es:[di], al
-#EBDA# ; 00000031  0000000000000131  jmp 0x10d
-#E8#@e ; 00000033  0000000000000133  call 0x1e7
-#3C0A# ; 00000036  0000000000000136  cmp al, 0xa
-#75F9# ; 00000038  0000000000000138  jne 0x133
-#EBD1# ; 0000003A  000000000000013A  jmp 0x10d
-#E8#@e ; 0000003C  000000000000013C  call 0x1e7
-#3C27# ; 0000003F  000000000000013F  cmp al, 0x27
-#74CA# ; 00000041  0000000000000141  je 0x10d
-#AA# ; 00000043  0000000000000143  stosb byte ptr es:[di], al
-#EBF6# ; 00000044  0000000000000144  jmp 0x13c
-#E8#@e ; 00000046  0000000000000146  call 0x1e7
-#3C23# ; 00000049  0000000000000149  cmp al, 0x23
-#74C0# ; 0000004B  000000000000014B  je 0x10d
-#E8#@c ; 0000004D  000000000000014D  call 0x1cd
-#AA# ; 00000050  0000000000000150  stosb byte ptr es:[di], al
-#EBF3# ; 00000051  0000000000000151  jmp 0x146
-#E8#@b ; 00000053  0000000000000153  call 0x1ca
-#88C1# ; 00000056  0000000000000156  mov cl, al
-#E8#@b ; 00000058  0000000000000158  call 0x1ca
-#F3AA# ; 0000005B  000000000000015B  rep stosb byte ptr es:[di], al
-#EBAE# ; 0000005D  000000000000015D  jmp 0x10d
-#E8#@e ; 0000005F  000000000000015F  call 0x1e7
-#88C1# ; 00000062  0000000000000162  mov cl, al
-#30E4# ; 00000064  0000000000000164  xor ah, ah
-#D1E0# ; 00000066  0000000000000166  shl ax, 1
-#93# ; 00000068  0000000000000168  xchg bx, ax
-#8B87007E# ; 00000069  0000000000000169  mov ax, word ptr [bx + 0x7e00]
-#A90080# ; 0000006D  000000000000016D  test ax, 0x8000
-#750C# ; 00000070  0000000000000170  jne 0x17e
-#AB# ; 00000072  0000000000000172  stosw word ptr es:[di], ax
-#89BF007E# ; 00000073  0000000000000173  mov word ptr [bx + 0x7e00], di
-#83AF007E02# ; 00000077  0000000000000177  sub word ptr [bx + 0x7e00], 2
-#EB8F# ; 0000007C  000000000000017C  jmp 0x10d
-#25FF7F# ; 0000007E  000000000000017E  and ax, 0x7fff
-#F6C120# ; 00000081  0000000000000181  test cl, 0x20
-#7407# ; 00000084  0000000000000184  je 0x18d
-#29F8# ; 00000086  0000000000000186  sub ax, di
-#83E802# ; 00000088  0000000000000188  sub ax, 2
-#EB03# ; 0000008B  000000000000018B  jmp 0x190
-#2D0001# ; 0000008D  000000000000018D  sub ax, 0x100
-#AB# ; 00000090  0000000000000190  stosw word ptr es:[di], ax
-#E9#@a ; 00000091  0000000000000191  jmp 0x10d
-#E8#@e ; 00000094  0000000000000194  call 0x1e7
-#88C1# ; 00000097  0000000000000197  mov cl, al
-#30E4# ; 00000099  0000000000000199  xor ah, ah
-#D1E0# ; 0000009B  000000000000019B  shl ax, 1
-#93# ; 0000009D  000000000000019D  xchg bx, ax
-#8B97007E# ; 0000009E  000000000000019E  mov dx, word ptr [bx + 0x7e00]
-#89F8# ; 000000A2  00000000000001A2  mov ax, di
-#0D0080# ; 000000A4  00000000000001A4  or ax, 0x8000
-#8987007E# ; 000000A7  00000000000001A7  mov word ptr [bx + 0x7e00], ax
-#85D2# ; 000000AB  00000000000001AB  test dx, dx
-#0F84#@a ; 000000AD  00000000000001AD  je 0x10d
-#89D3# ; 000000B1  00000000000001B1  mov bx, dx
-#8B17# ; 000000B3  00000000000001B3  mov dx, word ptr [bx]
-#89F8# ; 000000B5  00000000000001B5  mov ax, di
-#F6C120# ; 000000B7  00000000000001B7  test cl, 0x20
-#7407# ; 000000BA  00000000000001BA  je 0x1c3
-#29D8# ; 000000BC  00000000000001BC  sub ax, bx
-#83E802# ; 000000BE  00000000000001BE  sub ax, 2
-#EB03# ; 000000C1  00000000000001C1  jmp 0x1c6
-#2D0001# ; 000000C3  00000000000001C3  sub ax, 0x100
-#8907# ; 000000C6  00000000000001C6  mov word ptr [bx], ax
-#EBE1# ; 000000C8  00000000000001C8  jmp 0x1ab
-:b ; file offset 00CAh
-#E8#@e ; 000000CA  00000000000001CA  call 0x1e7
-:c ; file offset 00CDh
-#E8#@d ; 000000CD  00000000000001CD  call 0x1de
-#C0E004# ; 000000D0  00000000000001D0  shl al, 4
-#88C2# ; 000000D3  00000000000001D3  mov dl, al
-#E8#@e ; 000000D5  00000000000001D5  call 0x1e7
-#E8#@d ; 000000D8  00000000000001D8  call 0x1de
-#08D0# ; 000000DB  00000000000001DB  or al, dl
-#C3# ; 000000DD  00000000000001DD  ret
-:d ; file offset 00DEh
-#2C30# ; 000000DE  00000000000001DE  sub al, 0x30
-#3C09# ; 000000E0  00000000000001E0  cmp al, 9
-#7602# ; 000000E2  00000000000001E2  jbe 0x1e6
-#2C07# ; 000000E4  00000000000001E4  sub al, 7
-#C3# ; 000000E6  00000000000001E6  ret
-:e ; file offset 00E7h
-#B408# ; 000000E7  00000000000001E7  mov ah, 8
-#CD21# ; 000000E9  00000000000001E9  int 0x21
-#C3# ; 000000EB  00000000000001EB  ret
-:f ; file offset 00ECh
-#89F9# ; 000000EC  00000000000001EC  mov cx, di
-#81E90002# ; 000000EE  00000000000001EE  sub cx, 0x200
-#BA0002# ; 000000F2  00000000000001F2  mov dx, 0x200
-#BB0100# ; 000000F5  00000000000001F5  mov bx, 1
-#B440# ; 000000F8  00000000000001F8  mov ah, 0x40
-#CD21# ; 000000FA  00000000000001FA  int 0x21
-#CD20# ; 000000FC  00000000000001FC  int 0x20
+; Petit: a 254-byte, platform-blind DOS stage-0 assembler
+;
+; Input is read from standard input. Generated bytes are written to standard output.
+; DI is the output cursor at 0200h. A 256-entry symbol table begins at 7E00h.
+#31C0# ; clear AX
+#BF007E# ; point DI at the symbol table
+#B90001# ; clear all 256 symbol entries
+#F3AB# ; zero the symbol table
+#BF0002# ; begin generated output at 0200h
+:a ; dispatch the next source character
+#E8#@e ; read the next source character
+#3C21# ; ignore whitespace and control characters
+#72F9# ; conditional branch
+#0F84#@f ; '!' finishes the source
+#3C3B# ; ';' begins a comment
+#7417# ; conditional branch
+#3C23# ; '#' begins hexadecimal bytes
+#7426# ; conditional branch
+#3C27# ; a quote begins literal text
+#7418# ; conditional branch
+#3C2A# ; '*' repeats a byte
+#742B# ; conditional branch
+#3C3A# ; ':' defines a symbol
+#7468# ; conditional branch
+#3C40# ; '@' emits or records a symbol reference
+#742F# ; conditional branch
+#AA# ; emit AL
+#EBDA# ; continue the current scan or fixup loop
+#E8#@e ; read the next source character
+#3C0A# ; skip through the end of the comment line
+#75F9# ; conditional branch
+#EBD1# ; continue the current scan or fixup loop
+#E8#@e ; read the next source character
+#3C27# ; stop literal text at the closing quote
+#74CA# ; conditional branch
+#AA# ; emit AL
+#EBF6# ; continue the current scan or fixup loop
+#E8#@e ; read the next source character
+#3C23# ; '#' begins hexadecimal bytes
+#74C0# ; conditional branch
+#E8#@c ; read one hexadecimal byte
+#AA# ; emit AL
+#EBF3# ; continue the current scan or fixup loop
+#E8#@b ; read the next hexadecimal byte
+#88C1# ; save the count or symbol name in CL
+#E8#@b ; read the next hexadecimal byte
+#F3AA# ; rep stosb byte ptr es:[di], al
+#EBAE# ; continue the current scan or fixup loop
+#E8#@e ; read the next source character
+#88C1# ; save the count or symbol name in CL
+#30E4# ; clear the high byte of the symbol index
+#D1E0# ; scale the symbol index to a word offset
+#93# ; move the symbol-table offset into BX
+#8B87007E# ; load the symbol entry
+#A90080# ; is this symbol already defined?
+#750C# ; conditional branch
+#AB# ; emit the resolved word
+#89BF007E# ; remember the newest unresolved reference
+#83AF007E02# ; store the reference word address
+#EB8F# ; continue the current scan or fixup loop
+#25FF7F# ; remove the defined flag
+#F6C120# ; select relative or absolute fixup
+#7407# ; conditional branch
+#29F8# ; form a relative displacement
+#83E802# ; make it relative to the end of the word
+#EB03# ; continue the current scan or fixup loop
+#2D0001# ; convert the COM load address to a file offset
+#AB# ; emit the resolved word
+#E9#@a ; return to the dispatcher
+#E8#@e ; read the next source character
+#88C1# ; save the count or symbol name in CL
+#30E4# ; clear the high byte of the symbol index
+#D1E0# ; scale the symbol index to a word offset
+#93# ; move the symbol-table offset into BX
+#8B97007E# ; mov dx, word ptr [bx + 0x7e00]
+#89F8# ; start with the current output address
+#0D0080# ; mark the symbol as defined
+#8987007E# ; publish the symbol definition
+#85D2# ; are unresolved references waiting?
+#0F84#@a ; return to the dispatcher
+#89D3# ; mov bx, dx
+#8B17# ; load the next reference in the chain
+#89F8# ; start with the current output address
+#F6C120# ; select relative or absolute fixup
+#7407# ; conditional branch
+#29D8# ; form the reference displacement
+#83E802# ; make it relative to the end of the word
+#EB03# ; continue the current scan or fixup loop
+#2D0001# ; convert the COM load address to a file offset
+#8907# ; patch the reference word
+#EBE1# ; continue the current scan or fixup loop
+:b ; read one hexadecimal byte
+#E8#@e ; read the next source character
+:c ; combine two hexadecimal digits
+#E8#@d ; convert the hexadecimal digit
+#C0E004# ; move the high hexadecimal digit into place
+#88C2# ; save the high nibble in DL
+#E8#@e ; read the next source character
+#E8#@d ; convert the hexadecimal digit
+#08D0# ; combine the two nibbles
+#C3# ; return
+:d ; convert one hexadecimal digit
+#2C30# ; convert '0'..'9'
+#3C09# ; is it a decimal digit?
+#7602# ; conditional branch
+#2C07# ; adjust 'A'..'F'
+#C3# ; return
+:e ; read one source character without echo
+#B408# ; DOS read-character function
+#CD21# ; call DOS
+#C3# ; return
+:f ; write the generated image and exit
+#89F9# ; compute generated byte count
+#81E90002# ; subtract the 0200h output base
+#BA0002# ; point DOS at the generated bytes
+#BB0100# ; select standard output
+#B440# ; DOS write-file function
+#CD21# ; call DOS
+#CD20# ; return to DOS
 
 !

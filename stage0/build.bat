@@ -1,6 +1,23 @@
 @echo off
-rem Rebuild the raw Orgasm bootstraps with platform-blind Petit.
-rem Run this file from the stage0 directory under DOS.
+rem DOS phase: materialize the two platform Orgasm seeds.
+rem Every filename used here obeys the DOS 8.3 convention.
 
-petit.com < orgasm-linux-x86_64.pm > ..\bin\bootstrap\linux-x86_64\orgasm.elf
-petit.com < orgasm-windows-x86_64.pm > ..\bin\bootstrap\windows-x86_64\orgasm.exe
+if not exist out md out
+
+echo Building Linux seed Orgasm...
+petit.com < orglin.pm > out\orgseed.elf
+if errorlevel 1 goto fail
+
+echo Building Windows seed Orgasm...
+petit.com < orgwin.pm > out\orgseed.exe
+if errorlevel 1 goto fail
+
+echo.
+echo Seed Orgasm executables are in stage0\out.
+echo Continue with linux.sh on Linux or win64.bat on Windows.
+goto done
+
+:fail
+echo Stage-0 seed generation failed.
+
+:done
