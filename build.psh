@@ -27,6 +27,8 @@ bin/concat bin/pish-new peel/out/$platform/pish
 bin/move bin/concat-new bin/concat
 bin/move bin/pish-new bin/pish
 
+echo [ Building FruityOS with Pish and Peel ]
+
 mkdir out
 cd yuzu
 build.psh $platform
@@ -112,3 +114,4 @@ pad out/fruityos_floppy.img 1474560 350208
 uefi seed/out/fruityos-x86_64/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
 
 del initrd.jar .jc-generated.asm .jc-raw .jc-stub .jc-juiced
+bin/echo FruityOS Pish build complete.

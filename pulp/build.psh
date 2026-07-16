@@ -1,3 +1,4 @@
+echo [ Building FruityOS kernel for $1 ]
 mkdir out
 mkdir out/$1
 mkdir tmp
@@ -7,3 +8,4 @@ orgasm src/entry.asm src/idt.asm ../lib/$1/juicer-runtime.asm tmp/$1/pulp-genera
 juicer c out/$1/pulp.bin out/$1/pulp.sys
 pad out/$1/pulp.sys 0 8192
 del tmp/$1/pulp-generated.asm
+echo Pulp build complete.
