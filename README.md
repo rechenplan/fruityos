@@ -1,5 +1,9 @@
 # FruityOS
 
+FruityOS started after encountering the stage0 bootstrap project (https://github.com/oriansj/stage0) and
+realizing that there were implicit dependencies on the host operating system, which usually have their slew of
+dependencies.
+
 FruityOS is a small, monotasking 64-bit operating system for x86 PCs. It boots
 through BIOS or x86-64 UEFI, starts the Jabara-written Pulp kernel, unpacks a
 volatile RAM filesystem, and launches the Pish shell in ring 3.
@@ -12,13 +16,14 @@ PowerShell, `cmd.exe`, Make, NASM, GCC, or another host compiler.
 
 ## Build
 
-Run the platform entrypoint from the repository root:
+Run from the repository root:
 
-| Host | Command |
-| --- | --- |
-| Linux x86-64 | `bin/pish build.psh` |
-| Windows x86-64 | `bin\pish.exe build.psh` |
-| FruityOS x86-64 | `bin/pish build.psh` |
+```
+bin/pish build.psh
+```
+
+This will work on the Windows command prompt, powershell, bash (linux only), and
+FruityOS itself.
 
 Pish sets `$root` to the startup directory and `$platform` to the host platform.
 Every component writes to `out/$1`, where `$1` is its explicit output platform.
