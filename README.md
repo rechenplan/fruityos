@@ -12,13 +12,14 @@ PowerShell, `cmd.exe`, Make, NASM, GCC, or another host compiler.
 
 ## Build
 
-Run the platform entrypoint from the repository root:
+Run from the repository root:
 
-| Host | Command |
-| --- | --- |
-| Linux x86-64 | `bin/pish build.psh` |
-| Windows x86-64 | `bin\pish.exe build.psh` |
-| FruityOS x86-64 | `bin/pish build.psh` |
+```
+bin/pish build.psh
+```
+
+This will work on the Windows command prompt, powershell, bash (linux only), and
+FruityOS itself.
 
 Pish sets `$root` to the startup directory and `$platform` to the host platform.
 Every component writes to `out/$1`, where `$1` is its explicit output platform.
