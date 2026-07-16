@@ -1,3 +1,10 @@
+cd src/fdseed
+clean.psh $1
+cd ../hdseed
+clean.psh $1
+cd ../uefiseed
+clean.psh $1
+cd ../..
 del out/$1/fdseed.bin out/$1/hdseed.bin out/$1/uefiseed-prefix.bin
 rmdir out/$1
 rmdir out

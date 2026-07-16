@@ -58,13 +58,18 @@ Every component build receives its output platform explicitly as `$1`.
 
 ## Component outputs
 
-Each component isolates generated artifacts under `out/$1`:
+Every non-root build script creates a local `out/$1` before writing any
+artifacts. Nested builders publish from their local directories into their
+component-level `out/$1` when the root build needs a stable component path:
 
-- `jabara/out/$platform/` — native `jc`, `jc-self`, and `orgasm`;
-- `yuzu/out/$platform/` — native `byc`, `yc`, and `zest`;
+- `jabara/src/orgasm/out/$platform/` and `jabara/src/jc/out/$platform/` — local Jabara tool outputs;
+- `jabara/out/$platform/` — published `jc`, `jc-self`, and `orgasm`;
+- `yuzu/src/{byc,yc,zest}/out/$platform/` — local Yuzu tool outputs;
+- `yuzu/out/$platform/` — published `byc`, `yc`, and `zest`;
 - `peel/out/$platform/` — native Peel host tools;
 - `peel/out/fruityos-x86_64/` — compressed FAPs and `jc.asm`;
-- `seed/out/fruityos-x86_64/` — BIOS loaders and the UEFI prefix;
+- `seed/src/{fdseed,hdseed,uefiseed}/out/fruityos-x86_64/` — local seed outputs;
+- `seed/out/fruityos-x86_64/` — published BIOS loaders and UEFI prefix;
 - `pulp/out/fruityos-x86_64/` — flat and compressed kernels.
 
 The top-level final images remain under root `out/`.
@@ -104,6 +109,7 @@ out/fruityos_uefi.img
 bin/pish clean.psh
 ```
 
-The cleaner passes the same explicit platform arguments to component clean
-scripts, removes each `out/<platform>/` tree, removes final images, and removes
-the native Peel tools installed into root `bin/`.
+The cleaner passes the same explicit platform arguments through the component
+and nested clean scripts. Each clean script removes its generated files, its
+local `out/$1`, and the enclosing `out` directory. The root cleaner also removes
+final images and the native Peel tools installed into root `bin/`.

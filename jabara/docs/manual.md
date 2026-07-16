@@ -14,9 +14,9 @@ bin/pish build.psh
 
 Orgasm assembles the checked-in generated `src/jbc/jbc.asm` module, and the resulting temporary compiler rebuilds the Jabara toolchain into:
 
-- `jabara/out/orgasm`;
-- `jabara/out/jc`;
-- `jabara/out/jc-self`.
+- `jabara/out/$platform/orgasm`;
+- `jabara/out/$platform/jc`;
+- `jabara/out/$platform/jc-self`.
 
 The compiler accepts:
 

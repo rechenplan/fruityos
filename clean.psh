@@ -14,7 +14,7 @@ cd ..
 cd pulp
 clean.psh fruityos-x86_64
 cd ..
-clean-initrd.psh
+rmdir initrd
 del initrd.jar log.txt loc.txt .jc-generated.asm .jc-raw
 del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
 rmdir out

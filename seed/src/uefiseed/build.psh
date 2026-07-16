@@ -1,1 +1,3 @@
-orgasm uefiseed-prefix.bytes.asm ../../out/$1/uefiseed-prefix.bin
+mkdir out
+mkdir out/$1
+orgasm uefiseed-prefix.bytes.asm out/$1/uefiseed-prefix.bin

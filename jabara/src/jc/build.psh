@@ -1,3 +1,5 @@
-$root/bin/jc.psh $1 ../../out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
-copy ../../out/$1/jc ../../../bin/jc
-$root/bin/jc.psh $1 ../../out/$1/jc-self emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+mkdir out
+mkdir out/$1
+$root/bin/jc.psh $1 out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+copy out/$1/jc ../../../bin/jc
+$root/bin/jc.psh $1 out/$1/jc-self emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara

@@ -1,1 +1,3 @@
-del ../../out/$1/byc
+del out/$1/byc
+rmdir out/$1
+rmdir out

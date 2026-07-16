@@ -40,7 +40,7 @@ cd pulp
 build.psh fruityos-x86_64
 cd ..
 
-clean-initrd.psh
+rmdir initrd
 mkdir initrd
 mkdir initrd/bin
 mkdir initrd/lib

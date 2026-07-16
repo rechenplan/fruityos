@@ -1,1 +1,3 @@
-orgasm fdseed.bytes.asm ../../out/$1/fdseed.bin
+mkdir out
+mkdir out/$1
+orgasm fdseed.bytes.asm out/$1/fdseed.bin

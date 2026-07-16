@@ -1,1 +1,3 @@
-$root/bin/jc.psh $1 ../../out/$1/zest main.yuzu lex.yuzu parse.yuzu emit.yuzu elf.yuzu
+mkdir out
+mkdir out/$1
+$root/bin/jc.psh $1 out/$1/zest main.yuzu lex.yuzu parse.yuzu emit.yuzu elf.yuzu

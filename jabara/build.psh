@@ -6,4 +6,7 @@ build.psh $1
 cd ../jc
 build.psh $1
 cd ../..
+copy src/orgasm/out/$1/orgasm out/$1/orgasm
+copy src/jc/out/$1/jc out/$1/jc
+copy src/jc/out/$1/jc-self out/$1/jc-self
 echo Jabara build complete.

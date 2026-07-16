@@ -8,4 +8,7 @@ build.psh $1
 cd ../zest
 build.psh $1
 cd ../..
+copy src/byc/out/$1/byc out/$1/byc
+copy src/yc/out/$1/yc out/$1/yc
+copy src/zest/out/$1/zest out/$1/zest
 echo Yuzu build complete.

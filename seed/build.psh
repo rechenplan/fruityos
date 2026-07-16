@@ -8,4 +8,7 @@ build.psh $1
 cd ../uefiseed
 build.psh $1
 cd ../..
+copy src/fdseed/out/$1/fdseed.bin out/$1/fdseed.bin
+copy src/hdseed/out/$1/hdseed.bin out/$1/hdseed.bin
+copy src/uefiseed/out/$1/uefiseed-prefix.bin out/$1/uefiseed-prefix.bin
 echo Seed build complete.

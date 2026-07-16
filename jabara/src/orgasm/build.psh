@@ -1,2 +1,4 @@
-$root/bin/jc.psh $1 ../../out/$1/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
-copy ../../out/$1/orgasm ../../../bin/orgasm
+mkdir out
+mkdir out/$1
+$root/bin/jc.psh $1 out/$1/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
+copy out/$1/orgasm ../../../bin/orgasm
