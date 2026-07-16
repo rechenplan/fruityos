@@ -1,7 +1,3 @@
-concat bin/jc.psh scripts/jc.psh
-concat bin/jc-linux-x86_64.psh scripts/jc-linux-x86_64.psh
-concat bin/jc-fruityos-x86_64.psh scripts/jc-fruityos-x86_64.psh
-
 cd jabara
 build.psh $platform fruityos-x86_64
 cd ..
@@ -9,27 +5,6 @@ cd ..
 cd peel
 build.psh $platform
 cd ..
-
-bin/concat bin/concat-new peel/out/$platform/concat
-bin/concat bin/copy peel/out/$platform/copy
-bin/concat bin/del peel/out/$platform/del
-bin/concat bin/dir peel/out/$platform/dir
-bin/concat bin/echo peel/out/$platform/echo
-bin/concat bin/fill peel/out/$platform/fill
-bin/concat bin/fred peel/out/$platform/fred
-bin/concat bin/inode peel/out/$platform/inode
-bin/concat bin/jar peel/out/$platform/jar
-bin/concat bin/juicer peel/out/$platform/juicer
-bin/concat bin/mkdir peel/out/$platform/mkdir
-bin/concat bin/move peel/out/$platform/move
-bin/concat bin/pad peel/out/$platform/pad
-bin/concat bin/rmdir peel/out/$platform/rmdir
-bin/concat bin/type peel/out/$platform/type
-bin/concat bin/uefi peel/out/$platform/uefi
-bin/concat bin/write peel/out/$platform/write
-bin/concat bin/pish-new peel/out/$platform/pish
-bin/move bin/concat-new bin/concat
-bin/move bin/pish-new bin/pish
 
 
 mkdir out
@@ -72,25 +47,25 @@ mkdir initrd/lib/linux-x86_64
 mkdir initrd/lib/fruityos-x86_64
 copy pulp/out/fruityos-x86_64/pulp.sys initrd/pulp.sys
 copy scripts/init.psh initrd/init.psh
-copy peel/out/fruityos-x86_64/jar initrd/bin/jar.fap
-copy peel/out/fruityos-x86_64/juicer initrd/bin/juicer.fap
-copy jabara/out/fruityos-x86_64/orgasm initrd/bin/orgasm.fap
-copy peel/out/fruityos-x86_64/pish initrd/bin/pish.fap
-copy peel/out/fruityos-x86_64/pad initrd/bin/pad.fap
-copy peel/out/fruityos-x86_64/fred initrd/bin/fred.fap
-copy peel/out/fruityos-x86_64/dir initrd/bin/dir.fap
-copy peel/out/fruityos-x86_64/mkdir initrd/bin/mkdir.fap
-copy peel/out/fruityos-x86_64/del initrd/bin/del.fap
-copy peel/out/fruityos-x86_64/echo initrd/bin/echo.fap
-copy peel/out/fruityos-x86_64/concat initrd/bin/concat.fap
-copy peel/out/fruityos-x86_64/copy initrd/bin/copy.fap
-copy peel/out/fruityos-x86_64/inode initrd/bin/inode.fap
-copy peel/out/fruityos-x86_64/move initrd/bin/move.fap
-copy peel/out/fruityos-x86_64/rmdir initrd/bin/rmdir.fap
-copy peel/out/fruityos-x86_64/type initrd/bin/type.fap
-copy peel/out/fruityos-x86_64/write initrd/bin/write.fap
-copy peel/out/fruityos-x86_64/fill initrd/bin/fill.fap
-copy jabara/out/fruityos-x86_64/jc initrd/bin/jc.fap
+copy peel/out/fruityos-x86_64/jar.fap initrd/bin/jar.fap
+copy peel/out/fruityos-x86_64/juicer.fap initrd/bin/juicer.fap
+copy jabara/out/fruityos-x86_64/orgasm.fap initrd/bin/orgasm.fap
+copy peel/out/fruityos-x86_64/pish.fap initrd/bin/pish.fap
+copy peel/out/fruityos-x86_64/pad.fap initrd/bin/pad.fap
+copy peel/out/fruityos-x86_64/fred.fap initrd/bin/fred.fap
+copy peel/out/fruityos-x86_64/dir.fap initrd/bin/dir.fap
+copy peel/out/fruityos-x86_64/mkdir.fap initrd/bin/mkdir.fap
+copy peel/out/fruityos-x86_64/del.fap initrd/bin/del.fap
+copy peel/out/fruityos-x86_64/echo.fap initrd/bin/echo.fap
+copy peel/out/fruityos-x86_64/concat.fap initrd/bin/concat.fap
+copy peel/out/fruityos-x86_64/copy.fap initrd/bin/copy.fap
+copy peel/out/fruityos-x86_64/inode.fap initrd/bin/inode.fap
+copy peel/out/fruityos-x86_64/move.fap initrd/bin/move.fap
+copy peel/out/fruityos-x86_64/rmdir.fap initrd/bin/rmdir.fap
+copy peel/out/fruityos-x86_64/type.fap initrd/bin/type.fap
+copy peel/out/fruityos-x86_64/write.fap initrd/bin/write.fap
+copy peel/out/fruityos-x86_64/fill.fap initrd/bin/fill.fap
+copy jabara/out/fruityos-x86_64/jc.fap initrd/bin/jc.fap
 copy bin/jc.psh initrd/bin/jc.psh
 copy bin/jc-linux-x86_64.psh initrd/bin/jc-linux-x86_64.psh
 copy bin/jc-fruityos-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh

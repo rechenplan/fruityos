@@ -1,6 +1,6 @@
 # FruityOS documentation
 
-These documents describe the repository as built by `bin/pish build.psh`.
+These documents describe the repository as built on either supported host with `bin/pish build.psh`.
 
 ## Guides
 

@@ -1,0 +1,2 @@
+$root/bin/concat out/linux-x86_64/$1.elf out/linux-x86_64/$1
+$root/bin/concat $root/bin/$1.elf out/linux-x86_64/$1.elf

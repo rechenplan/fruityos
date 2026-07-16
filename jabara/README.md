@@ -13,11 +13,10 @@ cd jabara
 build.psh $platform fruityos-x86_64
 ```
 
-Jabara owns the complete compiler bootstrap. The repository checks in Orgasm
-and `src/jbc/jbc.asm`, but no compiler executable. The compiler source build:
+Jabara owns the complete compiler bootstrap. Bootstrap Orgasm lives under `bin/bootstrap/$platform/`, and the repository checks in `src/jbc/jbc.asm`, but no compiler executable. The compiler source build:
 
 1. links `src/jbc/jbc.asm` with the ordinary host platform linker;
-2. installs the resulting first compiler as root `bin/jc`;
+2. installs the resulting first compiler as root `bin/jc.elf`;
 3. rebuilds `jc` through the common compiler driver;
 4. rebuilds and installs host Orgasm;
 5. cross-builds `jc`, Orgasm, and `jc.asm` for FruityOS.
@@ -25,12 +24,12 @@ and `src/jbc/jbc.asm`, but no compiler executable. The compiler source build:
 Published outputs are written to:
 
 ```text
-jabara/out/$platform/jc
-jabara/out/$platform/jc-self
-jabara/out/$platform/orgasm
-jabara/out/fruityos-x86_64/jc
+jabara/out/linux-x86_64/jc.elf
+jabara/out/linux-x86_64/jc-self.elf
+jabara/out/linux-x86_64/orgasm.elf
+jabara/out/fruityos-x86_64/jc.fap
 jabara/out/fruityos-x86_64/jc.asm
-jabara/out/fruityos-x86_64/orgasm
+jabara/out/fruityos-x86_64/orgasm.fap
 ```
 
 The compiler interface is:

@@ -10,10 +10,12 @@ format.
 
 ## Build
 
-The build is driven entirely by Pish scripts and Peel executables. Four packed
-Linux bootstrap executables—`pish`, `orgasm`, `juicer`, and `concat`—build the
-first platform compiler and the native Peel environment; the top-level Pish
-script installs the derived tools into `bin/`.
+The build is driven entirely by Pish scripts and Peel executables. Canonical
+`bin/pish` is the checked-in Linux ELF entrypoint and `bin/pish.fap` is the
+FruityOS entrypoint, so the build command is identical on either host. Bootstrap
+Orgasm, Juicer, and Concat images live under `bin/bootstrap/<platform>/`; their
+launchers dispatch through that directory until freshly built host binaries
+appear in `bin/`.
 
 Build every component and generate all boot images from the repository root:
 
@@ -41,14 +43,14 @@ bin/pish clean.psh
 | `out/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
 | `pulp/out/fruityos-x86_64/pulp.bin` | Flat uncompressed Pulp kernel. |
 | `pulp/out/fruityos-x86_64/pulp.sys` | Juicer-compressed Pulp kernel. |
-| `peel/out/fruityos-x86_64/<name>` | Extensionless compressed Peel applications. |
-| `jabara/out/fruityos-x86_64/{jc,orgasm}` | FruityOS compiler and assembler applications. |
-| `peel/out/$platform/<name>` | Native Peel tools used by the host build. |
+| `peel/out/fruityos-x86_64/<name>.fap` | FruityOS Peel applications. |
+| `jabara/out/fruityos-x86_64/{jc,orgasm}.fap` | FruityOS compiler and assembler applications. |
+| `peel/out/linux-x86_64/<name>.elf` | Native Peel tools used by the host build. |
 | `initrd/` | Staging tree archived into the boot RAM filesystem. |
 
 ## Components
 
-- `bin/` — the checked-in packed Pish, Orgasm, Juicer, and Concat bootstrap tools.
+- `bin/` — the canonical Pish entrypoints, compiler drivers, and bootstrap launchers; packed Orgasm, Juicer, and Concat executables live under `bin/bootstrap/<platform>/`.
 - `jabara/` — Jabara compilers, Orgasm, platform runtimes, tests, and language
   manual.
 - `yuzu/` — Yuzu compiler and Zest assembler sources.

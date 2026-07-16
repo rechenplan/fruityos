@@ -1,0 +1,2 @@
+$root/bin/concat out/fruityos-x86_64/jc.fap out/fruityos-x86_64/jc
+$root/bin/concat out/fruityos-x86_64/orgasm.fap out/fruityos-x86_64/orgasm

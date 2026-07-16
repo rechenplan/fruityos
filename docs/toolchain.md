@@ -5,8 +5,9 @@ modules with Orgasm. Yuzu supplies the `byc`, `yc`, and `zest` tools.
 
 ## Bootstrap and self-hosting
 
-The top-level `bin/` directory checks in packed `pish`, `orgasm`, `juicer`, and
-`concat` executables. No Jabara compiler executable is checked in.
+The top-level `bin/` directory checks in `pish` for Linux and `pish.fap` for
+FruityOS. Packed Orgasm, Juicer, and Concat bootstrap executables live under
+`bin/bootstrap/<platform>/`. No Jabara compiler executable is checked in.
 
 Jabara owns the bootstrap. `jabara/src/jc/build.psh` links
 `jabara/src/jbc/jbc.asm` with the ordinary `lib/$platform/link.psh`, installs

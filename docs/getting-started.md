@@ -2,10 +2,12 @@
 
 ## Host requirements
 
-The repository checks in four packed x86-64 Linux executables: `bin/pish`,
-`bin/orgasm`, `bin/juicer`, and `bin/concat`. They build the first Jabara
-compiler and the Peel tools. The build contains no shell scripts and does not
-require GCC, NASM, or Make.
+The repository checks in `bin/pish` as the Linux shell entrypoint and
+`bin/pish.fap` as the FruityOS entrypoint, plus platform bootstrap copies of
+Orgasm, Juicer, and Concat
+under `bin/bootstrap/<platform>/`. They build the first Jabara compiler and the
+Peel tools. The build contains no shell scripts and does not require GCC, NASM,
+or Make.
 
 Pish treats the directory from which it starts as its root and searches that
 root's `bin` directory for commands, so start builds from the repository root.
@@ -40,9 +42,9 @@ or install additional programs.
 | `out/fruityos.efi` | Standalone x86-64 EFI application. |
 | `pulp/out/fruityos-x86_64/pulp.bin` | Flat Pulp kernel. |
 | `pulp/out/fruityos-x86_64/pulp.sys` | Compressed Pulp kernel embedded in the initrd. |
-| `peel/out/fruityos-x86_64/<name>` | Extensionless compressed FruityOS Peel applications. |
-| `jabara/out/fruityos-x86_64/{jc,orgasm}` | FruityOS compiler and assembler applications. |
-| `peel/out/$platform/<name>` | Native Peel executables for `$platform`. |
+| `peel/out/fruityos-x86_64/<name>.fap` | FruityOS Peel applications. |
+| `jabara/out/fruityos-x86_64/{jc,orgasm}.fap` | FruityOS compiler and assembler applications. |
+| `peel/out/linux-x86_64/<name>.elf` | Native Peel executables for the Linux host. |
 | `initrd/` | Files archived into the boot RAM filesystem. |
 
 ## Physical UEFI systems
@@ -58,5 +60,4 @@ bin/pish clean.psh
 ```
 
 Cleaning removes generated component outputs, the initrd staging tree, and
-transient derived executables. It preserves the four checked-in bootstrap
-executables.
+transient derived executables. It preserves `bin/pish`, `bin/pish.fap`, the platform bootstrap executables, and their launcher scripts.

@@ -1,0 +1,3 @@
+$root/bin/concat out/linux-x86_64/jc.elf out/linux-x86_64/jc
+$root/bin/concat out/linux-x86_64/jc-self.elf out/linux-x86_64/jc-self
+$root/bin/concat out/linux-x86_64/orgasm.elf out/linux-x86_64/orgasm

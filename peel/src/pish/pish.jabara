@@ -182,8 +182,14 @@ sub pish_run_script(file, argc, args)
 	return 0
 end
 
+sub pish_binary_extension()
+	if pish_str_equal(platform, "linux-x86_64") then return ".elf" end
+	if pish_str_equal(platform, "fruityos-x86_64") then return ".fap" end
+	return ""
+end
+
 sub pish_exec(buf, argc, argv)
-	local extension, len
+	local extension, len, binary_extension, binary_len
 	len = pish_strlen([argv])
 	if len >= 4 then
 		extension = [argv] + len - 4
@@ -195,17 +201,21 @@ sub pish_exec(buf, argc, argv)
 		end
 	end
 
-	pish_path(buf, "./", [argv], "")
+	binary_extension = pish_binary_extension()
+	binary_len = pish_strlen(binary_extension)
+	if len >= binary_len then
+		extension = [argv] + len - binary_len
+		if pish_str_equal(extension, binary_extension) then
+			pish_path(buf, "./", [argv], "")
+			if exec(buf, argv) then return 0 end
+			pish_path(buf, pish_bin, [argv], "")
+			if exec(buf, argv) then return 0 end
+		end
+	end
+
+	pish_path(buf, "./", [argv], binary_extension)
 	if exec(buf, argv) then return 0 end
-	pish_path(buf, pish_bin, [argv], "")
-	if exec(buf, argv) then return 0 end
-	pish_path(buf, "./", [argv], ".elf")
-	if exec(buf, argv) then return 0 end
-	pish_path(buf, pish_bin, [argv], ".elf")
-	if exec(buf, argv) then return 0 end
-	pish_path(buf, "./", [argv], ".fap")
-	if exec(buf, argv) then return 0 end
-	pish_path(buf, pish_bin, [argv], ".fap")
+	pish_path(buf, pish_bin, [argv], binary_extension)
 	if exec(buf, argv) then return 0 end
 	pish_path(buf, "./", [argv], ".psh")
 	if pish_run_script(buf, argc, [argv]) then return 0 end

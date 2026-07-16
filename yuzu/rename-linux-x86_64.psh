@@ -1,0 +1,3 @@
+move out/linux-x86_64/byc out/linux-x86_64/byc.elf
+move out/linux-x86_64/yc out/linux-x86_64/yc.elf
+move out/linux-x86_64/zest out/linux-x86_64/zest.elf

@@ -14,9 +14,10 @@ bin/pish build.psh
 
 Orgasm assembles the checked-in generated `src/jbc/jbc.asm` module, and the resulting temporary compiler rebuilds the Jabara toolchain into:
 
-- `jabara/out/$platform/orgasm`;
-- `jabara/out/$platform/jc`;
-- `jabara/out/$platform/jc-self`.
+- `jabara/out/linux-x86_64/orgasm.elf`;
+- `jabara/out/linux-x86_64/jc.elf`;
+- `jabara/out/linux-x86_64/jc-self.elf`;
+- corresponding `.fap` target outputs under `jabara/out/fruityos-x86_64/`.
 
 The compiler accepts:
 

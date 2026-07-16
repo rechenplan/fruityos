@@ -12,12 +12,10 @@ cd peel
 build.psh platform
 ```
 
-`build.psh $1` compiles only the sources beneath `peel/src/` and writes
-extensionless programs to `peel/out/$1/`. The root build first invokes it for
-`$platform`, installs the resulting host utilities into root `bin/`, and later
-invokes it for `fruityos-x86_64`.
-
-During initrd assembly, the root copies the FruityOS outputs to `/bin` with
-`.fap` destination names.
+`build.psh $1` compiles only the sources beneath `peel/src/`. Its
+`rename-$1.psh` helper publishes Linux programs as `.elf` and FruityOS programs
+as `.fap` beneath `peel/out/$1/`, and installs host counterparts into root
+`bin/` as soon as they are available. During initrd assembly, the root copies
+the already named FruityOS `.fap` outputs into `/bin`.
 
 See [Shell and userland](../docs/userland.md).

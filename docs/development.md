@@ -18,15 +18,15 @@ The build itself validates the current integration points:
 - `uefi` constructs both the PE32+ application and FAT16 disk image.
 
 Compiler regression inputs remain under `jabara/tests/` and can be compiled with
-the rebuilt `jabara/out/$platform/jc` and
-`jabara/out/$platform/orgasm` tools.
+the rebuilt `jabara/out/linux-x86_64/jc.elf` and
+`jabara/out/linux-x86_64/orgasm.elf` tools on a Linux host, or the corresponding
+`.fap` outputs on FruityOS.
 
 ## Repository invariants
 
 - Component orchestration is Pish source with the `.psh` suffix.
 - Every orchestration script is Pish source; the repository contains no `.sh` files.
-- The checked-in root `bin/` executables are the packed `pish`, `orgasm`,
-  `juicer`, and `concat` bootstraps. No compiler executable is checked in.
+- Root `bin/` checks in the canonical Linux `pish` and FruityOS `pish.fap` entrypoints. Packed Orgasm, Juicer, and Concat bootstrap copies live under `bin/bootstrap/<platform>/`; root `bin/` contains the Orgasm, Juicer, and Concat launcher scripts. No compiler executable is checked in.
 - Component artifacts are written to platform-specific `out/<platform>/`
   directories; transient modules use `tmp/<platform>/` where needed.
 - Compiler output remains separate from executable headers and platform

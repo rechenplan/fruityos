@@ -1,0 +1,3 @@
+move out/fruityos-x86_64/byc out/fruityos-x86_64/byc.fap
+move out/fruityos-x86_64/yc out/fruityos-x86_64/yc.fap
+move out/fruityos-x86_64/zest out/fruityos-x86_64/zest.fap

@@ -11,23 +11,41 @@ Pish saves that directory as `$root`, exposes the runtime-selected host as
 
 ## Checked-in toolset
 
-The repository checks in exactly four host executables:
+The repository checks in the canonical shell entrypoints:
 
 ```text
 bin/pish
-bin/orgasm
-bin/juicer
-bin/concat
+bin/pish.fap
 ```
 
-All four are packed Linux x86-64 executables. No `jc` executable is checked in.
-There are no bootstrap build scripts or platform bootstrap linkers.
+On Linux, `bin/pish` is directly executable as an ELF. On FruityOS, Pish
+resolves the same extensionless path to `bin/pish.fap`. Both hosts therefore use
+the same command:
 
-Jabara owns the compiler bootstrap. `jabara/src/jc/build.psh` links the checked-in
-`src/jbc/jbc.asm` through the ordinary `lib/$platform/link.psh`, installs that
-first compiler as `bin/jc`, and immediately rebuilds the compiler through the
-common driver. Jabara then rebuilds Orgasm and cross-builds both tools for
-FruityOS.
+```text
+bin/pish build.psh
+```
+
+The non-shell bootstrap toolsets live under their platform directories:
+
+```text
+bin/bootstrap/linux-x86_64/{orgasm,juicer,concat}.elf
+bin/bootstrap/fruityos-x86_64/{orgasm,juicer,concat}.fap
+```
+
+The stable Orgasm, Juicer, and Concat launchers in root `bin/` invoke
+`bin/bootstrap/$platform/<tool>` without spelling an extension. Pish supplies
+the extension selected by `$platform`. Bare tool names prefer
+`bin/<tool>.<platform-extension>` and fall back to the launcher only while that
+host counterpart is absent.
+
+No `jc` executable is checked in. Jabara links the first compiler through the
+ordinary `lib/$platform/link.psh`, installs the platform-appropriate `bin/jc`
+counterpart, rebuilds the compiler, and installs host Orgasm immediately. Peel
+builds Concat, Juicer, and Pish first and installs each platform counterpart into
+`bin/` immediately after it links. The checked-in Linux bootstrap `bin/pish` and
+canonical FruityOS `bin/pish.fap` are preserved by cleaning; native builds may
+also publish the derived `bin/pish.elf` used by normal Pish command lookup.
 
 Linux links create a raw ELF, compress it with Juicer, and concatenate it after
 `lib/linux-x86_64/juicer-decode-stub.asm`. The stub mmaps the linked region at
@@ -39,13 +57,12 @@ preserving the original process stack.
 The root build runs these stages in order:
 
 1. `jabara/build.psh $platform fruityos-x86_64` builds host and target `jc` and Orgasm;
-2. `peel/build.psh $platform` builds the native Peel utilities;
-3. the root installs the native Peel utilities into root `bin/`;
-4. `yuzu/build.psh $platform` and `yuzu/build.psh fruityos-x86_64` build Yuzu tools;
-5. `peel/build.psh fruityos-x86_64` builds the FruityOS Peel utilities;
-6. `seed/build.psh fruityos-x86_64` builds BIOS and UEFI loaders;
-7. `pulp/build.psh fruityos-x86_64` builds the kernel;
-8. the root script creates the initrd and final boot images.
+2. `peel/build.psh $platform` builds and immediately installs the native Peel utilities;
+3. `yuzu/build.psh $platform` and `yuzu/build.psh fruityos-x86_64` build Yuzu tools;
+4. `peel/build.psh fruityos-x86_64` builds the FruityOS Peel utilities;
+5. `seed/build.psh fruityos-x86_64` builds BIOS and UEFI loaders;
+6. `pulp/build.psh fruityos-x86_64` builds the kernel;
+7. the root script creates the initrd and final boot images.
 
 Every component receives its output platform explicitly as `$1`. Jabara receives
 both the host and FruityOS platforms because it must establish the host compiler
@@ -66,8 +83,10 @@ remain owned by the component that contains their source:
 - `seed/out/fruityos-x86_64/` — published BIOS loaders and UEFI prefix;
 - `pulp/out/fruityos-x86_64/` — flat and compressed kernels.
 
-Component outputs are extensionless. The root initrd manifest assigns `.fap`
-names only while copying FruityOS programs into `initrd/bin/`.
+Each Jabara, Peel, and Yuzu build finishes by calling its
+`rename-<platform>.psh` helper. Linux executables are published as `.elf` and
+FruityOS executables as `.fap`. Pish uses `$platform` to search only the matching
+executable extension; it never falls back to the other platform format.
 
 The top-level final images remain under root `out/`.
 
@@ -110,5 +129,4 @@ bin/pish clean.psh
 ```
 
 The root cleaner invokes each component's `clean.psh`, removes the initrd staging
-tree and final images, and deletes derived host tools while preserving the four
-checked-in executables.
+tree and final images, and deletes derived platform tools while preserving `bin/pish`, `bin/pish.fap`, the checked-in bootstrap executables under `bin/bootstrap/<platform>/`, and the launcher scripts.

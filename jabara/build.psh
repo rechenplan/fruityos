@@ -9,3 +9,5 @@ concat out/$1/orgasm src/orgasm/out/$1/orgasm
 concat out/$2/jc src/jc/out/$2/jc
 concat out/$2/jc.asm src/jc/out/$2/jc.asm
 concat out/$2/orgasm src/orgasm/out/$2/orgasm
+rename-$1.psh
+rename-$2.psh

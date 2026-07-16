@@ -3,8 +3,8 @@ clean.psh $1 $2
 cd ../orgasm
 clean.psh $1 $2
 cd ../..
-del out/$1/jc out/$1/jc-self out/$1/orgasm
-del out/$2/jc out/$2/jc.asm out/$2/orgasm
+del out/$1/jc out/$1/jc-self out/$1/orgasm out/$1/jc.elf out/$1/jc-self.elf out/$1/orgasm.elf
+del out/$2/jc out/$2/jc.asm out/$2/orgasm out/$2/jc.fap out/$2/orgasm.fap
 rmdir out/$1
 rmdir out/$2
 rmdir out

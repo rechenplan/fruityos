@@ -1,3 +1,55 @@
+Canonical Linux Pish name and documentation refresh
+---------------------------------------------------
+
+- Renames the checked-in Linux Pish bootstrap from `bin/pish.elf` to
+  extensionless `bin/pish`, allowing a native Linux shell to run
+  `bin/pish build.psh` directly.
+- Keeps `bin/pish.fap` as the FruityOS entrypoint; Pish resolves the same
+  extensionless command to that file on FruityOS.
+- Refreshes repository documentation to match current platform extensions,
+  bootstrap placement, source ownership, outputs, and cleaning behavior.
+
+Silent build orchestration and canonical Pish
+-----------------------------------------------
+
+- Removes progress-message Echo calls from every build and clean script.
+- Keeps the Echo userland utility and its normal build artifacts unchanged.
+- Removes Pish from `bin/bootstrap/<platform>/`; canonical `bin/pish` and `bin/pish.fap` are the only checked-in Pish
+  executables.
+
+Canonical cross-platform Pish entrypoint
+----------------------------------------
+
+- Checks in both `bin/pish` and `bin/pish.fap`; Pish resolves the common
+  extensionless command `bin/pish build.psh` through the runtime `$platform`.
+- Adds FruityOS bootstrap Orgasm, Juicer, and Concat images under
+  `bin/bootstrap/fruityos-x86_64/` alongside the Linux bootstrap set.
+- Installs the first `jc`, Orgasm, and Peel tools using the active platform
+  extension, allowing the same source tree to bootstrap on Linux or FruityOS.
+- Preserves the canonical Pish pair during cleaning while replacing each with
+  the freshly built platform counterpart during a build.
+
+Bootstrap tool relocation
+-------------------------
+
+- Moves the checked-in Orgasm, Juicer, and Concat executables into
+  `bin/bootstrap/<platform>/`.
+- Adds stable `bin/{orgasm,juicer,concat}.psh` launchers that dispatch to
+  `bin/bootstrap/$platform/<tool>`.
+- Installs freshly built host counterparts into `bin/` as soon as each tool is
+  available; Pish binary-first lookup then bypasses the launcher automatically.
+
+Unreleased
+
+Build-system changes:
+
+	1. Jabara, Peel, and Yuzu publish executable outputs through
+	   rename-<platform>.psh helpers. Linux executables use .elf and FruityOS
+	   executables use .fap.
+	2. Pish resolves bare executable names using only the extension selected by
+	   the runtime $platform value; Linux no longer probes .fap and FruityOS no
+	   longer probes .elf.
+
 0.01
 
 Initial release. A monotasking 64 bit OS for x86 written in yuzu: a custom system language.
