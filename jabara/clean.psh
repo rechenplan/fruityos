@@ -1,8 +1,10 @@
-cd src/orgasm
-clean.psh $1
-cd ../jc
-clean.psh $1
+cd src/jc
+clean.psh $1 $2
+cd ../orgasm
+clean.psh $1 $2
 cd ../..
 del out/$1/jc out/$1/jc-self out/$1/orgasm
+del out/$2/jc out/$2/jc.asm out/$2/orgasm
 rmdir out/$1
+rmdir out/$2
 rmdir out

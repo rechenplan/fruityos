@@ -1,12 +1,11 @@
-echo [ Building Jabara for $1 ]
-mkdir out
-mkdir out/$1
-cd src/orgasm
-build.psh $1
-cd ../jc
-build.psh $1
+cd src/jc
+build.psh $1 $2
+cd ../orgasm
+build.psh $1 $2
 cd ../..
-copy src/orgasm/out/$1/orgasm out/$1/orgasm
-copy src/jc/out/$1/jc out/$1/jc
-copy src/jc/out/$1/jc-self out/$1/jc-self
-echo Jabara build complete.
+concat out/$1/jc src/jc/out/$1/jc
+concat out/$1/jc-self src/jc/out/$1/jc-self
+concat out/$1/orgasm src/orgasm/out/$1/orgasm
+concat out/$2/jc src/jc/out/$2/jc
+concat out/$2/jc.asm src/jc/out/$2/jc.asm
+concat out/$2/orgasm src/orgasm/out/$2/orgasm

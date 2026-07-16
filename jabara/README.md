@@ -6,19 +6,32 @@ combines that output with the selected header and runtime.
 
 ## Build
 
-From the repository root, run the complete build with:
+The root invokes:
 
 ```text
-bin/pish build.psh
+cd jabara
+build.psh $platform fruityos-x86_64
 ```
 
-The repository checks in Orgasm and the generated compiler module
-`src/jbc/jbc.asm`, but no Jabara compiler executable. Orgasm assembles the
-module into a temporary bootstrap compiler, which writes:
+Jabara owns the complete compiler bootstrap. The repository checks in Orgasm
+and `src/jbc/jbc.asm`, but no compiler executable. The compiler source build:
 
-- `jabara/out/$platform/orgasm`, the rebuilt assembler;
-- `jabara/out/$platform/jc`, the rebuilt Jabara compiler;
-- `jabara/out/$platform/jc-self`, the self-compiled consistency build.
+1. links `src/jbc/jbc.asm` with the ordinary host platform linker;
+2. installs the resulting first compiler as root `bin/jc`;
+3. rebuilds `jc` through the common compiler driver;
+4. rebuilds and installs host Orgasm;
+5. cross-builds `jc`, Orgasm, and `jc.asm` for FruityOS.
+
+Published outputs are written to:
+
+```text
+jabara/out/$platform/jc
+jabara/out/$platform/jc-self
+jabara/out/$platform/orgasm
+jabara/out/fruityos-x86_64/jc
+jabara/out/fruityos-x86_64/jc.asm
+jabara/out/fruityos-x86_64/orgasm
+```
 
 The compiler interface is:
 
@@ -26,20 +39,17 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
-The build does not invoke a C bootstrap compiler, GCC, NASM, or Make. The
-repository-level Peel bootstrap uses a POSIX shell.
+The build does not invoke a C compiler, GCC, NASM, Make, or a separate bootstrap
+script.
 
 ## Layout
 
 ```text
 jabara/
-├── src/jbc/jbc.asm      generated bootstrap compiler module
-├── src/jc/              Jabara compiler sources
-├── src/orgasm/          assembler sources
-├── lib/pith.jabara      platform service declarations
-├── lib/elf-header.asm   ELF64 header and startup
-├── lib/elf-runtime.asm  Linux services and allocator
-├── lib/fap-runtime.asm  FruityOS startup and services
+├── src/jbc/jbc.asm      generated first-stage compiler module
+├── src/jc/              Jabara compiler sources and build
+├── src/orgasm/          assembler sources and build
+├── lib/                 compiler configuration modules
 ├── tests/               compiler regression inputs
 └── docs/manual.md       language tutorial and reference
 ```

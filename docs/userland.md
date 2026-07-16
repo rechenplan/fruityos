@@ -56,9 +56,9 @@ jobs, or shell conditionals.
 | `type` | Print a file. |
 | `write` | Interactively write lines to a file. |
 
-The root build copies every program in this table directly into the initrd.
-`peel/build.psh` also produces `yc.fap` and `zest.fap` in `peel/out/fruityos-x86_64/`; the root
-initrd manifest does not install them.
+The root build copies the selected programs into the initrd. Peel builds only
+its own userland sources. Jabara supplies `jc` and Orgasm, while Yuzu supplies
+`byc`, `yc`, and `zest` under its own output tree.
 
 ## FAP applications
 

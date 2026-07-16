@@ -1,8 +1,9 @@
 cd yuzu
 clean.psh $platform
+clean.psh fruityos-x86_64
 cd ..
 cd jabara
-clean.psh $platform
+clean.psh $platform fruityos-x86_64
 cd ..
 cd peel
 clean.psh $platform
@@ -14,8 +15,25 @@ cd ..
 cd pulp
 clean.psh fruityos-x86_64
 cd ..
+
+del initrd/pulp.sys initrd/init.psh
+del initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
+del initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
+del initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
+del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jc.fap
+del initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh
+del initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/link.psh
+del initrd/lib/linux-x86_64/juicer-decode-stub.asm
+del initrd/lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/link.psh
+del initrd/lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
+rmdir initrd/lib/linux-x86_64
+rmdir initrd/lib/fruityos-x86_64
+rmdir initrd/bin
+rmdir initrd/lib
+rmdir initrd/src
 rmdir initrd
-del initrd.jar log.txt loc.txt .jc-generated.asm .jc-raw
+
+del initrd.jar log.txt loc.txt .jc-generated.asm .jc-raw .jc-stub .jc-juiced
 del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
 rmdir out
-del bin/concat bin/copy bin/dir bin/echo bin/fill bin/fred bin/inode bin/jar bin/jc bin/juicer bin/mkdir bin/move bin/pad bin/rmdir bin/type bin/uefi bin/write bin/pish-new bin/del
+del bin/copy bin/dir bin/echo bin/fill bin/fred bin/inode bin/jar bin/jc bin/mkdir bin/move bin/pad bin/rmdir bin/type bin/uefi bin/write bin/pish-new bin/del bin/concat-new

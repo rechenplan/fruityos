@@ -1,3 +1,5 @@
 del out/$1/jc out/$1/jc-self
+del out/$2/jc out/$2/jc.asm out/$2/jc-module.asm
 rmdir out/$1
+rmdir out/$2
 rmdir out

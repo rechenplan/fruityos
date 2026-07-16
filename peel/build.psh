@@ -1,78 +1,18 @@
-echo [ Building FruityOS userland for $1 ]
-mkdir out
-mkdir out/$1
-mkdir tmp
-mkdir tmp/$1
-
-echo Building juicer...
-$root/bin/jc-fruityos-x86_64.psh out/$1/juicer.fap src/juicer/juicer.jabara
-
-echo Building concat...
-$root/bin/jc-fruityos-x86_64.psh out/$1/concat.fap src/concat/concat.jabara
-
-echo Building copy...
-$root/bin/jc-fruityos-x86_64.psh out/$1/copy.fap src/copy/copy.jabara
-
-echo Building del...
-$root/bin/jc-fruityos-x86_64.psh out/$1/del.fap src/del/del.jabara
-
-echo Building dir...
-$root/bin/jc-fruityos-x86_64.psh out/$1/dir.fap src/dir/dir.jabara
-
-echo Building echo...
-$root/bin/jc-fruityos-x86_64.psh out/$1/echo.fap src/echo/echo.jabara
-
-echo Building fill...
-$root/bin/jc-fruityos-x86_64.psh out/$1/fill.fap src/fill/fill.jabara
-
-echo Building fred...
-$root/bin/jc-fruityos-x86_64.psh out/$1/fred.fap src/fred/fred.jabara
-
-echo Building inode...
-$root/bin/jc-fruityos-x86_64.psh out/$1/inode.fap src/inode/inode.jabara
-
-echo Building jar...
-$root/bin/jc-fruityos-x86_64.psh out/$1/jar.fap src/jar/jar.jabara
-
-echo Building mkdir...
-$root/bin/jc-fruityos-x86_64.psh out/$1/mkdir.fap src/mkdir/mkdir.jabara
-
-echo Building move...
-$root/bin/jc-fruityos-x86_64.psh out/$1/move.fap src/move/move.jabara
-
-echo Building pad...
-$root/bin/jc-fruityos-x86_64.psh out/$1/pad.fap src/pad/pad.jabara
-
-echo Building pish...
-$root/bin/jc-fruityos-x86_64.psh out/$1/pish.fap src/pish/pish.jabara
-
-echo Building rmdir...
-$root/bin/jc-fruityos-x86_64.psh out/$1/rmdir.fap src/rmdir/rmdir.jabara
-
-echo Building type...
-$root/bin/jc-fruityos-x86_64.psh out/$1/type.fap src/type/type.jabara
-
-echo Building uefi...
-$root/bin/jc-fruityos-x86_64.psh out/$1/uefi.fap src/uefi/uefi.jabara
-
-echo Building write...
-$root/bin/jc-fruityos-x86_64.psh out/$1/write.fap src/write/write.jabara
-
-echo Building orgasm...
-$root/bin/jc-fruityos-x86_64.psh out/$1/orgasm.fap ../jabara/src/orgasm/emit.jabara ../jabara/src/orgasm/lex.jabara ../jabara/src/orgasm/main.jabara ../jabara/src/orgasm/modern.jabara ../jabara/src/orgasm/parse.jabara
-pad out/$1/orgasm.fap 0 8192
-
-echo Building jc...
-$root/bin/jc-fruityos-x86_64.psh out/$1/jc.fap ../jabara/src/jc/emitter.jabara ../jabara/src/jc/lexer.jabara ../jabara/src/jc/main.jabara ../jabara/src/jc/model.jabara ../jabara/src/jc/parser.jabara ../jabara/src/jc/runtime.jabara
-
-echo Building yc...
-$root/bin/jc-fruityos-x86_64.psh out/$1/yc.fap ../yuzu/src/yc/emitter.yuzu ../yuzu/src/yc/lexer.yuzu ../yuzu/src/yc/parser.yuzu ../yuzu/src/yc/yc.yuzu
-
-echo Building zest...
-$root/bin/jc-fruityos-x86_64.psh out/$1/zest.fap ../yuzu/src/zest/main.yuzu ../yuzu/src/zest/lex.yuzu ../yuzu/src/zest/parse.yuzu ../yuzu/src/zest/emit.yuzu ../yuzu/src/zest/elf.yuzu
-
-echo Building jc module...
-$root/bin/jc ../jabara/src/jc/emitter.jabara ../jabara/src/jc/lexer.jabara ../jabara/src/jc/main.jabara ../jabara/src/jc/model.jabara ../jabara/src/jc/parser.jabara ../jabara/src/jc/runtime.jabara ../jabara/lib/jc-fap-config.jabara tmp/$1/jc-module.asm
-concat out/$1/jc.asm ../lib/$1/fap-module-runtime.asm tmp/$1/jc-module.asm ../lib/$1/runtime.asm
-del tmp/$1/jc-module.asm
-echo Peel build complete.
+$root/bin/jc.psh $1 out/$1/concat src/concat/concat.jabara
+$root/bin/jc.psh $1 out/$1/copy src/copy/copy.jabara
+$root/bin/jc.psh $1 out/$1/del src/del/del.jabara
+$root/bin/jc.psh $1 out/$1/dir src/dir/dir.jabara
+$root/bin/jc.psh $1 out/$1/echo src/echo/echo.jabara
+$root/bin/jc.psh $1 out/$1/fill src/fill/fill.jabara
+$root/bin/jc.psh $1 out/$1/fred src/fred/fred.jabara
+$root/bin/jc.psh $1 out/$1/inode src/inode/inode.jabara
+$root/bin/jc.psh $1 out/$1/jar src/jar/jar.jabara
+$root/bin/jc.psh $1 out/$1/juicer src/juicer/juicer.jabara
+$root/bin/jc.psh $1 out/$1/mkdir src/mkdir/mkdir.jabara
+$root/bin/jc.psh $1 out/$1/move src/move/move.jabara
+$root/bin/jc.psh $1 out/$1/pad src/pad/pad.jabara
+$root/bin/jc.psh $1 out/$1/pish src/pish/pish.jabara
+$root/bin/jc.psh $1 out/$1/rmdir src/rmdir/rmdir.jabara
+$root/bin/jc.psh $1 out/$1/type src/type/type.jabara
+$root/bin/jc.psh $1 out/$1/uefi src/uefi/uefi.jabara
+$root/bin/jc.psh $1 out/$1/write src/write/write.jabara

@@ -1,5 +1,11 @@
-mkdir out
-mkdir out/$1
-$root/bin/jc.psh $1 out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
-copy out/$1/jc ../../../bin/jc
+$root/lib/$1/link.psh $root/lib/$1 out/$1/jc $root/jabara/src/jbc/jbc.asm
+$root/bin/concat $root/bin/jc out/$1/jc
+
 $root/bin/jc.psh $1 out/$1/jc-self emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+$root/bin/concat $root/bin/jc out/$1/jc-self
+$root/bin/jc.psh $1 out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+$root/bin/concat $root/bin/jc out/$1/jc
+
+$root/bin/jc.psh $2 out/$2/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+$root/bin/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara ../../lib/jc-fap-config.jabara out/$2/jc-module.asm
+$root/bin/concat out/$2/jc.asm $root/lib/$2/fap-module-runtime.asm out/$2/jc-module.asm $root/lib/$2/runtime.asm

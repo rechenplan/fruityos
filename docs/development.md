@@ -24,10 +24,9 @@ the rebuilt `jabara/out/$platform/jc` and
 ## Repository invariants
 
 - Component orchestration is Pish source with the `.psh` suffix.
-- `peel/build.sh` is the POSIX host bootstrap; subsequent build stages invoke
-  Pish builtins and Peel/Jabara executables.
-- The checked-in root `bin/` executables are `pish` and `orgasm`; compiler
-  driver scripts are checked in alongside them.
+- Every orchestration script is Pish source; the repository contains no `.sh` files.
+- The checked-in root `bin/` executables are the packed `pish`, `orgasm`,
+  `juicer`, and `concat` bootstraps. No compiler executable is checked in.
 - Component artifacts are written to platform-specific `out/<platform>/`
   directories; transient modules use `tmp/<platform>/` where needed.
 - Compiler output remains separate from executable headers and platform

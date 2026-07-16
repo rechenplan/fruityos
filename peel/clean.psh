@@ -1,10 +1,5 @@
-del out/$1/juicer out/$1/juicer.fap out/$1/concat out/$1/concat.fap out/$1/copy out/$1/copy.fap out/$1/del out/$1/del.fap
-del out/$1/dir out/$1/dir.fap out/$1/echo out/$1/echo.fap out/$1/fill out/$1/fill.fap out/$1/fred out/$1/fred.fap
-del out/$1/inode out/$1/inode.fap out/$1/jar out/$1/jar.fap out/$1/mkdir out/$1/mkdir.fap out/$1/move out/$1/move.fap
-del out/$1/pad out/$1/pad.fap out/$1/pish out/$1/pish.fap out/$1/rmdir out/$1/rmdir.fap out/$1/type out/$1/type.fap
-del out/$1/uefi out/$1/uefi.fap out/$1/write out/$1/write.fap
-del out/$1/orgasm.fap out/$1/jc.fap out/$1/yc.fap out/$1/zest.fap out/$1/jc.asm tmp/$1/jc-module.asm
-rmdir tmp/$1
+del out/$1/juicer out/$1/concat out/$1/copy out/$1/del out/$1/dir out/$1/echo
+del out/$1/fill out/$1/fred out/$1/inode out/$1/jar out/$1/mkdir out/$1/move
+del out/$1/pad out/$1/pish out/$1/rmdir out/$1/type out/$1/uefi out/$1/write
 rmdir out/$1
-rmdir tmp
 rmdir out

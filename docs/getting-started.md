@@ -2,10 +2,10 @@
 
 ## Host requirements
 
-The repository checks in only two x86-64 Linux executables: `bin/pish` and
-`bin/orgasm`. Orgasm assembles the generated Jabara bootstrap module, and that
-compiler builds the few Peel file utilities needed by the scripts. The build uses a POSIX shell for `peel/build.sh`, but does not require GCC,
-NASM, or Make.
+The repository checks in four packed x86-64 Linux executables: `bin/pish`,
+`bin/orgasm`, `bin/juicer`, and `bin/concat`. They build the first Jabara
+compiler and the Peel tools. The build contains no shell scripts and does not
+require GCC, NASM, or Make.
 
 Pish treats the directory from which it starts as its root and searches that
 root's `bin` directory for commands, so start builds from the repository root.
@@ -40,7 +40,8 @@ or install additional programs.
 | `out/fruityos.efi` | Standalone x86-64 EFI application. |
 | `pulp/out/fruityos-x86_64/pulp.bin` | Flat Pulp kernel. |
 | `pulp/out/fruityos-x86_64/pulp.sys` | Compressed Pulp kernel embedded in the initrd. |
-| `peel/out/fruityos-x86_64/*.fap` | Compressed FruityOS applications. |
+| `peel/out/fruityos-x86_64/<name>` | Extensionless compressed FruityOS Peel applications. |
+| `jabara/out/fruityos-x86_64/{jc,orgasm}` | FruityOS compiler and assembler applications. |
 | `peel/out/$platform/<name>` | Native Peel executables for `$platform`. |
 | `initrd/` | Files archived into the boot RAM filesystem. |
 
@@ -56,6 +57,6 @@ VGA-compatible text output and a PS/2-compatible keyboard controller.
 bin/pish clean.psh
 ```
 
-Cleaning removes all component and top-level `out/` directories, the initrd
-staging tree, and transient bootstrap executables. It never removes or modifies
-`bin/pish` or `bin/orgasm`.
+Cleaning removes generated component outputs, the initrd staging tree, and
+transient derived executables. It preserves the four checked-in bootstrap
+executables.

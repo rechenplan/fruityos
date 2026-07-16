@@ -10227,3 +10227,4 @@ __jabara_global_jc_heap: dq 0
 __jabara_global_jc_heap_limit: dq 0
 __jabara_global_jc_output: dq 0
 __jabara_global_jc_incremental_heap: dq 0
+__jabara_global_platform: dq 0

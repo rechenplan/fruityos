@@ -1,4 +1,3 @@
-mkdir out
-mkdir out/$1
 $root/bin/jc.psh $1 out/$1/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
-copy out/$1/orgasm ../../../bin/orgasm
+$root/bin/concat $root/bin/orgasm out/$1/orgasm
+$root/bin/jc.psh $2 out/$2/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara

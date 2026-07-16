@@ -10,9 +10,10 @@ format.
 
 ## Build
 
-The build is driven by Pish scripts and Peel executables. A small POSIX
-`peel/build.sh` bootstrap builds the native Peel environment for the host
-platform; the top-level Pish script installs those tools into `bin/`.
+The build is driven entirely by Pish scripts and Peel executables. Four packed
+Linux bootstrap executables—`pish`, `orgasm`, `juicer`, and `concat`—build the
+first platform compiler and the native Peel environment; the top-level Pish
+script installs the derived tools into `bin/`.
 
 Build every component and generate all boot images from the repository root:
 
@@ -20,9 +21,8 @@ Build every component and generate all boot images from the repository root:
 bin/pish build.psh
 ```
 
-The build invokes a POSIX shell only for `peel/build.sh`; it does not require an
-ANSI C compiler, NASM, or Make. After that bootstrap, orchestration uses Pish,
-Peel commands, Jabara, and Orgasm. Component artifacts are separated under
+The build uses no POSIX shell scripts and does not require an ANSI C compiler,
+NASM, or Make. Orchestration uses Pish, Peel commands, Jabara, and Orgasm. Component artifacts are separated under
 `out/<platform>/`; final images remain under the top-level `out/` directory.
 
 Clean generated files with:
@@ -41,13 +41,14 @@ bin/pish clean.psh
 | `out/fruityos.efi` | Standalone x86-64 PE32+ EFI application. |
 | `pulp/out/fruityos-x86_64/pulp.bin` | Flat uncompressed Pulp kernel. |
 | `pulp/out/fruityos-x86_64/pulp.sys` | Juicer-compressed Pulp kernel. |
-| `peel/out/fruityos-x86_64/*.fap` | Compressed FruityOS applications. |
+| `peel/out/fruityos-x86_64/<name>` | Extensionless compressed Peel applications. |
+| `jabara/out/fruityos-x86_64/{jc,orgasm}` | FruityOS compiler and assembler applications. |
 | `peel/out/$platform/<name>` | Native Peel tools used by the host build. |
 | `initrd/` | Staging tree archived into the boot RAM filesystem. |
 
 ## Components
 
-- `bin/` — the checked-in Pish shell and Orgasm assembler used to start the build.
+- `bin/` — the checked-in packed Pish, Orgasm, Juicer, and Concat bootstrap tools.
 - `jabara/` — Jabara compilers, Orgasm, platform runtimes, tests, and language
   manual.
 - `yuzu/` — Yuzu compiler and Zest assembler sources.
