@@ -36,4 +36,9 @@ rmdir initrd
 del initrd.jar log.txt loc.txt .jc-generated.asm .jc-raw .jc-stub .jc-juiced
 del out/fruityos_hdd.img out/fruityos_floppy.img out/fruityos_uefi.img out/fruityos.efi
 rmdir out
+del bin/jc.psh
+del bin/jc-linux-x86_64.psh
+del bin/jc-fruityos-x86_64.psh
+
 del bin/copy bin/dir bin/echo bin/fill bin/fred bin/inode bin/jar bin/jc bin/mkdir bin/move bin/pad bin/rmdir bin/type bin/uefi bin/write bin/pish-new bin/del bin/concat-new
+
