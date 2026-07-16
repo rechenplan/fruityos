@@ -1,5 +1,9 @@
 # FruityOS
 
+FruityOS started after encountering the stage0 bootstrap project (https://github.com/oriansj/stage0) and
+realizing that there were implicit dependencies on the host operating system, which usually have their slew of
+dependencies.
+
 FruityOS is a small, monotasking 64-bit operating system for x86 PCs. It boots
 through BIOS or x86-64 UEFI, starts the Jabara-written Pulp kernel, unpacks a
 volatile RAM filesystem, and launches the Pish shell in ring 3.
