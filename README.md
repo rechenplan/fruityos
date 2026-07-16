@@ -1,9 +1,5 @@
 # FruityOS
 
-FruityOS started after encountering the stage0 bootstrap project (https://github.com/oriansj/stage0) and
-realizing that there were implicit dependencies on the host operating system, which usually have their slew of
-dependencies.
-
 FruityOS is a small, monotasking 64-bit operating system for x86 PCs. It boots
 through BIOS or x86-64 UEFI, starts the Jabara-written Pulp kernel, unpacks a
 volatile RAM filesystem, and launches the Pish shell in ring 3.
@@ -16,14 +12,13 @@ PowerShell, `cmd.exe`, Make, NASM, GCC, or another host compiler.
 
 ## Build
 
-Run from the repository root:
+Run the platform entrypoint from the repository root:
 
-```
-bin/pish build.psh
-```
-
-This will work on the Windows command prompt, powershell, bash (linux only), and
-FruityOS itself.
+| Host | Command |
+| --- | --- |
+| Linux x86-64 | `bin/pish build.psh` |
+| Windows x86-64 | `bin\pish.exe build.psh` |
+| FruityOS x86-64 | `bin/pish build.psh` |
 
 Pish sets `$root` to the startup directory and `$platform` to the host platform.
 Every component writes to `out/$1`, where `$1` is its explicit output platform.
@@ -32,10 +27,21 @@ built for the platform running Pish.
 
 Clean with the corresponding Pish entrypoint and `clean.psh`.
 
-## Exact self-hosting binary surface
+## Bootstrap surfaces
 
-All checked-in executable bootstrap state is contained under `bin/`. There are
-exactly four executable files for each host:
+The irreducible binary surface is one file:
+
+```text
+stage0/petit.com   254-byte DOS stage-0 assembler
+```
+
+[`stage0/petit.pm`](stage0/petit.pm) reproduces it byte-for-byte. Petit then
+materializes the raw Linux and Windows Orgasm bootstraps from human-editable
+`.pm` source. Those generated Orgasm executables assemble the ordinary stage-0
+`.asm` inputs and hand control to the normal Jabara/Pish build.
+
+The platform bootstrap files under `bin/bootstrap/<platform>/` are generated
+host artifacts. A populated build tree uses the following host surface:
 
 | Host | Pish entrypoint | Bootstrap executables |
 | --- | --- | --- |
@@ -43,15 +49,10 @@ exactly four executable files for each host:
 | Windows x86-64 | `bin/pish.exe` | `bin/bootstrap/windows-x86_64/orgasm.exe`, `juicer.exe`, `concat.exe` |
 | FruityOS x86-64 | `bin/pish.fap` | `bin/bootstrap/fruityos-x86_64/orgasm.fap`, `juicer.fap`, `concat.fap` |
 
-No `jc` executable is checked in. Jabara links the first host compiler with the
-three platform bootstrap tools, installs it into `bin/`, and immediately uses
-the common compiler driver for the rest of the build. Fresh host Orgasm,
-Juicer, Concat, Pish, and Peel utilities take over normal command lookup as soon
-as they are available. Windows and FruityOS replace their canonical Pish file;
-Linux installs `bin/pish.elf` beside the checked-in `bin/pish` entrypoint.
-
-The remaining files in `bin/` are Pish source launchers and compiler drivers,
-not additional binary dependencies.
+No `jc` executable is authoritative. Jabara assembles the first host compiler,
+installs it into `bin/`, and immediately uses the common compiler driver for
+the rest of the build. Fresh host Orgasm, Juicer, Concat, Pish, and Peel tools
+replace bootstrap artifacts as soon as they are available.
 
 ## Executable formats
 
@@ -82,7 +83,7 @@ Pish searches only the extension for `$platform`: `.elf`, `.exe`, or `.fap`.
 
 ## Components
 
-- `bin/` — complete checked-in binary surface, bootstrap launchers, and compiler drivers.
+- `bin/` — generated host bootstrap artifacts, launchers, and compiler drivers.
 - `lib/<platform>/` — Pith declarations, startup code, runtime assembly, and linker script.
 - `jabara/` — Jabara compilers, Orgasm, tests, and language manual.
 - `yuzu/` — Yuzu compiler and Zest assembler sources.
@@ -122,3 +123,14 @@ Start with the [documentation index](docs/README.md), especially:
 
 FruityOS is an experimental operating-system and language laboratory rather
 than a Unix-compatible general-purpose system.
+
+## DOS stage 0
+
+The `stage0/` directory contains the platform-blind 254-byte Petit assembler,
+its self-reproducing `petit.pm` source, readable `.pm` sources for the raw Linux
+and Windows Orgasm bootstraps, and DOS batch files. Running
+`stage0/build.bat` writes the Orgasm outputs directly into
+`bin/bootstrap/<platform>/`.
+
+See [`stage0/PETIT.md`](stage0/PETIT.md) for the complete language, memory model,
+forward-reference algorithm, limits, and self-reproduction procedure.

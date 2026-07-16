@@ -27,3 +27,8 @@ and derive the compiler from the small binary surface under `bin/`.
 - [Pulp kernel](../pulp/README.md)
 - [Seed bootloaders](../seed/README.md)
 - [Yuzu toolchain](../yuzu/README.md)
+
+## Stage 0
+
+- [Petit stage-0 assembler](../stage0/PETIT.md)
+- [Stage-0 bootstrap layout](../stage0/README.md)

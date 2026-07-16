@@ -2,10 +2,15 @@
 
 ## Self-hosting bootstrap
 
-Linux, Windows, and FruityOS each start from four checked-in executables: Pish,
-Orgasm, Juicer, and Concat. They are all contained under `bin/`; no compiler
-binary, C compiler, shell toolchain, assembler package, or platform SDK is
-required.
+The bootstrap begins from one irreducible executable: the 254-byte DOS
+`stage0/petit.com`. Petit is reproduced by `stage0/petit.pm` and generates raw
+Orgasm bootstraps from human-editable platform `.pm` source. Full Orgasm then
+assembles the ordinary stage-0 `.asm` sources that populate the host `bin/`
+bootstrap tree.
+
+A populated Linux, Windows, or FruityOS host uses Pish, Orgasm, Juicer, and
+Concat. No compiler binary, C compiler, shell toolchain, assembler package, or
+platform SDK is authoritative.
 
 Jabara owns compiler bootstrap. `jabara/src/jc/build.psh` links
 `jabara/src/jbc/jbc.asm` with `lib/$platform/link.psh`, installs the first host

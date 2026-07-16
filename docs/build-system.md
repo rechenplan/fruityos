@@ -13,10 +13,15 @@ Windows:  bin\pish.exe build.psh
 FruityOS: bin/pish build.psh
 ```
 
-## Complete binary bootstrap surface
+## Stage-0 and host bootstrap surfaces
 
-All executable bootstrap state is under `bin/` and consists of exactly four
-files per host:
+The sole irreducible executable is `stage0/petit.com`. Its readable source,
+`stage0/petit.pm`, reproduces it exactly. Petit generates raw platform Orgasm
+bootstraps from the `.pm` files in `stage0/`; later bootstrap executables under
+`bin/` are derived artifacts.
+
+Once a host bootstrap tree has been populated, it consists of four files per
+host:
 
 | Host | Pish | Orgasm | Juicer | Concat |
 | --- | --- | --- | --- | --- |

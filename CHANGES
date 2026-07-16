@@ -208,3 +208,19 @@ Notes:
 	The rebuilt Pulp artifacts remain in RAMFS and do not replace the kernel
 	that is currently running. Secure Boot and the VGA/PS2 hardware requirements
 	remain unchanged from 0.03.
+
+Stage-0 DOS bootstrap:
+- Added the 254-byte, platform-blind Petit DOS assembler.
+- Added readable Petit sources for the uncompressed Linux and Windows
+  Orgasm bootstrap executables.
+- Added the authoritative generated jbc.asm to stage0.
+- Added DOS batch scripts that materialize stage-0 outputs under bin/.
+
+Stage 0 naming and documentation
+--------------------------------
+
+- Renamed the stage-0 assembler and source to `stage0/petit.com` and
+  `stage0/petit.pm`.
+- Added a complete Petit language and implementation manual covering syntax,
+  symbol/fixup chains, memory layout, limits, self-reproduction, and DOS use.
+- Preserved the authoritative Jabara source tree under `jabara/src/`.

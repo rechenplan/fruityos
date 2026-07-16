@@ -15,9 +15,14 @@ searches `$root/bin` for commands. On Windows the build does not invoke
 PowerShell, `cmd.exe`, MSVC, MinGW, or host file utilities. On Linux it does not
 invoke a POSIX shell, GCC, NASM, or Make. All orchestration is `.psh` source.
 
-## Exact checked-in executable surface
+## Bootstrap surface
 
-A host needs only Pish, Orgasm, Juicer, and Concat:
+The only irreducible executable is `stage0/petit.com`. Run the DOS stage-0
+process first when reconstructing the repository from source; see
+[`stage0/PETIT.md`](../stage0/PETIT.md).
+
+After stage 0 has populated a host bootstrap tree, that host needs Pish,
+Orgasm, Juicer, and Concat:
 
 ```text
 Linux:
