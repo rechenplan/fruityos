@@ -70,5 +70,5 @@ unpacks the initrd into RAMFS, starts `/bin/pish.fap`, and Pish executes
 
 Run `clean.psh` through the same host Pish entrypoint. Cleaning removes generated
 component outputs, host replacements in `bin/`, the initrd staging tree, and
-final images. It preserves the four checked-in executables for each host, the
-Pish launchers, and compiler-driver scripts.
+final images. It preserves the checked-in Pish and bootstrap executables,
+launchers, compiler-driver scripts, and stage0 reconstruction sources.

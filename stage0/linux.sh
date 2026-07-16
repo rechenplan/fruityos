@@ -4,17 +4,17 @@ set -eu
 # Host continuation for Linux x86-64.
 # Run from stage0, after build.bat has generated out/orgseed.elf.
 
-if [ ! -f OUT/ORGSEED.ELF ]; then
+if [ ! -f out/orgseed.elf ]; then
     echo "missing out/orgseed.elf; run build.bat under DOS first" >&2
     exit 1
 fi
 
-chmod +x OUT/ORGSEED.ELF
+chmod +x out/orgseed.elf
 
-seed=OUT/ORGSEED.ELF
-jbc=OUT/JBC.ELF
-orgasm=OUT/ORGASM.ELF
-module=OUT/MODULE.ASM
+seed=out/orgseed.elf
+jbc=out/jbc.elf
+orgasm=out/orgasm.elf
+module=out/module.asm
 
 compile_tool() {
     target=$1

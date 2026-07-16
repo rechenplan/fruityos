@@ -21,10 +21,11 @@ and have an entrypoint and import directory inside the executable image.
 
 ## Repository invariants
 
-- Every orchestration script is Pish source with the `.psh` suffix; no `.sh`
-  files or platform shell commands participate in the build.
-- The entire checked-in executable surface is contained in `bin/` and is exactly
-  Pish, Orgasm, Juicer, and Concat for each host platform.
+- Every normal-build orchestration script is Pish source with the `.psh`
+  suffix; platform shell scripts are confined to stage0 reconstruction.
+- The irreducible executable is `stage0/petit.com`. The populated host surface
+  additionally retains Pish plus Orgasm, Juicer, and Concat for each platform
+  beneath `bin/`.
 - No `jc` executable is checked in.
 - Component artifacts are written to local `out/<platform>/` directories.
 - Published executable suffixes are `.elf`, `.exe`, and `.fap`.
