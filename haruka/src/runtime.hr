@@ -1,0 +1,138 @@
+extern sub brk(address)
+extern sub close(fd)
+extern sub creat(path)
+extern sub exit(status)
+extern sub fputch(fd, character)
+extern sub open(path, flags)
+extern sub read(fd, buffer, count)
+
+local jc_heap, jc_heap_limit, jc_output, jc_incremental_heap
+
+sub jc_alloc(size)
+  local result, required
+  size = (size + 7) & -8
+  if jc_heap == 0 then
+    jc_heap = brk(-1)
+    if jc_incremental_heap then
+      jc_heap_limit = jc_heap
+    else
+      jc_heap_limit = jc_heap + (64 << 20)
+      if brk(jc_heap_limit) < jc_heap_limit then exit(127) end
+    end
+  end
+  required = jc_heap + size
+  if required > jc_heap_limit then
+    if jc_incremental_heap then
+      jc_heap_limit = (required + 65535) & -65536
+      if brk(jc_heap_limit) < jc_heap_limit then exit(127) end
+    else
+      exit(127)
+    end
+  end
+  result = jc_heap
+  jc_heap = jc_heap + size
+  return result
+end
+
+sub jc_strlen(text)
+  local length = 0
+  while byte [text + length] do length = length + 1 end
+  return length
+end
+
+sub jc_copy(text)
+  local length = jc_strlen(text), result = jc_alloc(length + 1), i = 0
+  while i <= length do
+    byte [result + i] = byte [text + i]
+    i = i + 1
+  end
+  return result
+end
+
+sub jc_slice(text, first, last)
+  local length = last - first, result = jc_alloc(length + 1), i = 0
+  while i < length do
+    byte [result + i] = byte [text + first + i]
+    i = i + 1
+  end
+  byte [result + length] = 0
+  return result
+end
+
+sub jc_streq(left, right)
+  while byte [left] == byte [right] do
+    if byte [left] == 0 then return 1 end
+    left = left + 1
+    right = right + 1
+  end
+  return 0
+end
+
+sub jc_putc(character)
+  fputch(jc_output, character)
+end
+
+sub jc_puts(text)
+  while byte [text] do
+    jc_putc(byte [text])
+    text = text + 1
+  end
+end
+
+sub jc_putn(number)
+  local divisor = 1000000000000000000, digit, started = 0
+  if number < 0 then
+    jc_putc(45)
+    number = -number
+  end
+  if number == 0 then jc_putc(48) return 0 end
+  while divisor > 0 do
+    digit = number / divisor
+    if digit != 0 then started = 1 end
+    if started then jc_putc(48 + digit) end
+    number = number % divisor
+    divisor = divisor / 10
+  end
+end
+
+sub jc_line(text)
+  jc_puts(text)
+  jc_putc(10)
+end
+
+sub jc_error_at(line, column, message)
+  local saved = jc_output
+  jc_output = 2
+  jc_puts("jabara:")
+  jc_putn(line)
+  jc_putc(58)
+  jc_putn(column)
+  jc_puts(": ")
+  jc_puts(message)
+  jc_putc(10)
+  jc_output = saved
+  exit(1)
+end
+
+sub jc_next_argument(argument)
+  while byte [argument] do argument = argument + 1 end
+  return argument + 1
+end
+
+sub jc_read_sources(path, file_count)
+  local fd, buffer, cursor, count, index = 0
+  buffer = jc_alloc(file_count * ((128 << 10) + 1))
+  cursor = buffer
+  while index < file_count do
+    fd = open(path, 0)
+    if fd < 0 then jc_error_at(1, 1, "cannot open input") end
+    while (count = read(fd, cursor, 4096)) > 0 do cursor = cursor + count end
+    close(fd)
+    byte [cursor] = 10
+    cursor = cursor + 1
+    path = jc_next_argument(path)
+    index = index + 1
+  end
+  byte [cursor] = 0
+  return buffer
+end

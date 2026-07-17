@@ -1,11 +1,9 @@
-$root/lib/$1/link.psh $root/lib/$1 out/$1/jc $root/jabara/src/jbc/jbc.asm
-$root/jabara/install-$1.psh jc out/$1/jc
+$root/lib/$1/link-jabara.psh $root/lib/$1 out/$1/jc-bootstrap $root/jabara/src/jbc/jbc.asm
+$root/jabara/install-$1.psh jabara out/$1/jc-bootstrap
 
-$root/bin/jc.psh $1 out/$1/jc-self emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
-$root/jabara/install-$1.psh jc out/$1/jc-self
-$root/bin/jc.psh $1 out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
-$root/jabara/install-$1.psh jc out/$1/jc
+$root/bin/jb.psh $1 out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+$root/jabara/install-$1.psh jabara out/$1/jc
 
-$root/bin/jc.psh $2 out/$2/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
-$root/bin/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara ../../lib/jc-fap-config.jabara out/$2/jc-module.asm
+$root/bin/jb.psh $2 out/$2/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+$root/bin/jabara emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara ../../lib/jc-fap-config.jabara out/$2/jc-module.asm
 $root/bin/concat out/$2/jc.asm $root/lib/$2/fap-module-runtime.asm out/$2/jc-module.asm $root/lib/$2/runtime.asm

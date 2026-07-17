@@ -1,0 +1,98 @@
+record Counter value
+
+sub test(condition, code)
+  if condition == 0 then return code end
+  return 0
+end
+
+sub main(argc, argv)
+  local first:SolSource = new SolSource, second:SolSource = new SolSource
+  local parser:SolParser, item:SolItem, result = 0, counter:Counter = new Counter, visit
+
+  first.name = "first.sol"
+  first.text = "sol 1\norg 0x1000\nglobal Start\nextern ext\nStart:\nenter 2\nmov a, -42\nadd b, a, 0b1010\nld c, [fp + slot]\nst [sp - 8], c\nbz c, done\ndb \"A\\n\", 0xff, ext\n"
+  first.next = second
+  second.name = "second.sol"
+  second.text = "done: ret 1\n"
+
+  parser = sol_parser_new(first)
+
+  item = sol_next(parser)
+  result = test(item.kind == SOL_ITEM_VERSION(), 1) if result == 0 then result = test(item.number == 1, 2) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_ORIGIN(), 3) end
+  if result == 0 then result = test(item.number == 4096, 4) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_GLOBAL(), 5) end
+  if result == 0 then result = test(sol_text_equal(item.name, item.name_length, "Start"), 6) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_EXTERN(), 7) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_LABEL(), 8) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_ENTER(), 9) end
+  if result == 0 then result = test(item.first.value.number == 2, 10) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_MOV(), 11) end
+  if result == 0 then result = test(item.second.value.number == -42, 12) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_ADD(), 13) end
+  if result == 0 then result = test(item.third.value.number == 10, 14) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_LD(), 15) end
+  if result == 0 then result = test(item.second.kind == SOL_OPERAND_MEMORY(), 16) end
+  if result == 0 then result = test(item.second.base.register == SOL_REG_FP(), 17) end
+  if result == 0 then result = test(item.second.offset.kind == SOL_TERM_SYMBOL(), 18) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_ST(), 19) end
+  if result == 0 then result = test(item.first.offset.number == -8, 20) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_BZ(), 21) end
+  if result == 0 then result = test(item.second.value.kind == SOL_TERM_SYMBOL(), 22) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_DATA(), 23) end
+  if result == 0 then result = test(item.width == 1, 24) end
+  if result == 0 then result = test(item.first.value.kind == SOL_TERM_STRING(), 25) end
+  if result == 0 then result = test(item.more, 26) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.first.value.number == 255, 27) end
+  if result == 0 then result = test(item.more, 28) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.first.value.kind == SOL_TERM_SYMBOL(), 29) end
+  if result == 0 then result = test(item.more == 0, 30) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_LABEL(), 31) end
+  if result == 0 then result = test(sol_text_equal(item.source_name, 10, "second.sol"), 32) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.operation == SOL_OP_RET(), 33) end
+
+  item = sol_next(parser)
+  if result == 0 then result = test(item.kind == SOL_ITEM_EOF(), 34) end
+
+  if result == 0 then
+    sol_reset(parser)
+    visit = fn current:SolItem do
+      counter.value = counter.value + 1
+      return 0
+    end
+    if sol_each(parser, visit) == 0 then result = 35 end
+    if (result == 0) && (counter.value != 16) then result = 36 end
+  end
+
+  return result
+end

@@ -4,7 +4,6 @@ cd ../orgasm
 build.psh $1 $2
 cd ../..
 concat out/$1/jc src/jc/out/$1/jc
-concat out/$1/jc-self src/jc/out/$1/jc-self
 concat out/$1/orgasm src/orgasm/out/$1/orgasm
 concat out/$2/jc src/jc/out/$2/jc
 concat out/$2/jc.asm src/jc/out/$2/jc.asm

@@ -431,26 +431,26 @@ heap_addr1024:
 	ret
 
 global_getScr:
-	mov rax, [__jabara_global__scr]
+	mov rax, [__haruka_global__scr]
 	ret
 
 global_getKb:
-	mov rax, [__jabara_global__kb]
+	mov rax, [__haruka_global__kb]
 	ret
 
 global_getRamfs:
-	mov rax, [__jabara_global__ramfs]
+	mov rax, [__haruka_global__ramfs]
 	ret
 
 global_getCurrentPid:
-	mov rax, [__jabara_global__pid]
+	mov rax, [__haruka_global__pid]
 	ret
 
 global_setCurrentPid:
 	pop r10
 	pop rdi
 	push r10
-	mov [__jabara_global__pid], rdi
+	mov [__haruka_global__pid], rdi
 	ret
 
 scr_getAddress:

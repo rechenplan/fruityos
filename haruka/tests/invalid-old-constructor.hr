@@ -1,0 +1,6 @@
+record Box value
+
+sub main()
+  local box:Box = Box()
+  return 0
+end

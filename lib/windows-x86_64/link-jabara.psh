@@ -1,0 +1,4 @@
+$root/bin/bootstrap/$platform/orgasm $1/start-jabara.asm $3 $1/runtime-jabara.asm $root/.jc-raw
+$root/bin/bootstrap/$platform/orgasm $1/juicer-decode-stub.asm $root/.jc-stub
+$root/bin/bootstrap/$platform/juicer c $root/.jc-raw $root/.jc-juiced
+$root/bin/bootstrap/$platform/concat $2 $root/.jc-stub $root/.jc-juiced

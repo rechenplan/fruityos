@@ -1,0 +1,6 @@
+record Box value
+
+sub main()
+  local box:Box = new Box
+  return lift box
+end

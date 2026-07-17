@@ -1,0 +1,37 @@
+extern sub mmap(address, length, protection, flags, fd, offset)
+
+sub main(argc, argv)
+  local capacity = 1 << 20, text, cursor, index = 0
+  local source:SolSource = new SolSource, parser:SolParser, item:SolItem, count = 0
+
+  text = mmap(0, capacity, 3, 34, -1, 0)
+  if text <= 0 then return 1 end
+  cursor = text
+  byte [cursor] = 115 cursor = cursor + 1
+  byte [cursor] = 111 cursor = cursor + 1
+  byte [cursor] = 108 cursor = cursor + 1
+  byte [cursor] = 32 cursor = cursor + 1
+  byte [cursor] = 49 cursor = cursor + 1
+  byte [cursor] = 10 cursor = cursor + 1
+  while index < 100000 do
+    byte [cursor] = 110 cursor = cursor + 1
+    byte [cursor] = 111 cursor = cursor + 1
+    byte [cursor] = 112 cursor = cursor + 1
+    byte [cursor] = 10 cursor = cursor + 1
+    index = index + 1
+  end
+  byte [cursor] = 0
+
+  source.name = "stress.sol"
+  source.text = text
+  parser = sol_parser_new(source)
+  while 1 do
+    item = sol_next(parser)
+    if item.kind == SOL_ITEM_ERROR() then return 2 end
+    if item.kind == SOL_ITEM_EOF() then
+      if count != 100001 then return 3 end
+      return 0
+    end
+    count = count + 1
+  end
+end

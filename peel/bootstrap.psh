@@ -1,0 +1,4 @@
+$root/bin/jb.psh $1 out/$1/juicer src/juicer/juicer.hr
+bootstrap-rename-$1.psh juicer
+$root/bin/jb.psh $1 out/$1/pad src/pad/pad.hr
+bootstrap-rename-$1.psh pad

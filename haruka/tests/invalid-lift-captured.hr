@@ -1,0 +1,12 @@
+record Box value
+
+sub main()
+  local outer = fn do
+    local box:Box = new Box
+    local inner = fn do
+      return lift box
+    end
+    return inner()
+  end
+  return outer()
+end

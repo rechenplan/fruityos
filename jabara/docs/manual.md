@@ -16,13 +16,12 @@ Orgasm assembles the checked-in generated `src/jbc/jbc.asm` module, and the resu
 
 - `jabara/out/linux-x86_64/orgasm.elf`;
 - `jabara/out/linux-x86_64/jc.elf`;
-- `jabara/out/linux-x86_64/jc-self.elf`;
 - corresponding `.fap` target outputs under `jabara/out/fruityos-x86_64/`.
 
-The compiler accepts:
+The installed compiler accepts:
 
 ```text
-jc input.jabara [input.jabara ...] output.asm
+jabara input.jabara [input.jabara ...] output.asm
 ```
 
 It emits only assembly. Executable headers, origins, platform services, and
@@ -39,18 +38,18 @@ end
 Build a native application from the repository root:
 
 ```text
-bin/jc.psh $platform first first.jabara
+bin/jb.psh $platform first first.jabara
 ```
 
 Build a FruityOS FAP explicitly:
 
 ```text
-bin/jc-fruityos-x86_64.psh first.fap first.jabara
+bin/jb.psh fruityos-x86_64 first.fap first.jabara
 ```
 
-The public Linux front end is `jc-linux-x86_64.psh`. Both front ends call the
-common driver, which selects `lib/<platform>/pith.jabara`, `start.asm`, and
-`runtime.asm`.
+`jb.psh` selects `lib/<platform>/pith.jabara`, `start-jabara.asm`, and
+`runtime-jabara.asm`. The default `jc.psh` driver is reserved for the
+Haruka/Mars `.hr` chain.
 
 A source set may omit `main` when surrounding assembly calls its subroutines.
 ELF and FAP startup runtimes call `main`, so programs linked with those runtimes
@@ -201,66 +200,116 @@ A record declaration lists word-sized fields:
 record Point x, y
 ```
 
-Calling the record name allocates a zero-initialized object. A compile-time tag
-selects the field layout:
+Construction is explicit with `new`:
 
 ```jabara
 sub main(argc, argv)
-  local point:Point = Point()
+  local point:Point = new Point
   point.x = 20
   point.y = 22
   return point.x + point.y
 end
 ```
 
-Tags may appear on locals, parameters, and record fields:
+A compile-time tag selects the field layout. Tags may appear on locals,
+parameters, and record fields:
 
 ```jabara
 record Node value, next:Node
 
 sub read_next(node:Node)
-  if node.next == 0 then
-    return 0
-  end
+  if node.next == 0 then return 0 end
   return node.next.value
 end
 ```
 
-Tags do not add runtime checks. Records are heap allocated and are not reclaimed.
+Tags do not add runtime checks. `new Record` allocates a zero-initialized object
+in the current function frame. The object is reclaimed when that frame returns
+unless it is explicitly lifted.
+
+The old `Record()` constructor spelling is invalid.
 
 ## Closures
 
-A closure combines an anonymous function with captured locations:
+A closure is an anonymous `fn` together with an inline snapshot of its current
+lexical environment:
 
 ```jabara
 sub main(argc, argv)
-  local add_five
-  add_five = fn value do
+  local add_five = fn value do
     return value + 5
   end
   return add_five(37)
 end
 ```
 
-Each `fn` declares one parameter. Calls with several arguments apply a chain of
-one-argument closures.
+Closures are ordinary allocated records. Their payload begins with a code
+pointer and continues with the captured environment words. Captured scalar
+bindings are snapshot values; mutating one inside the closure changes the
+closure's environment, not the original scalar binding in the creating frame.
+Captured record pointers still refer to the same record objects.
+
+Multi-argument syntax is sugar for nested one-argument closures:
 
 ```jabara
-sub main(argc, argv)
-  local make_adder, add_five
-  make_adder = fn amount do
-    return fn value do
-      return value + amount
-    end
-  end
-  add_five = make_adder(5)
-  return add_five(37)
+local add = fn left, right do
+  return left + right
 end
 ```
 
-Captured variables are shared locations. A closure that captures a stack local
-from an ordinary subroutine must not outlive that subroutine. Environments
-created by a closure and captured by another closure are heap allocated.
+The compiler inserts the required lift for each synthesized intermediate
+closure.
+
+## Lift and function ownership
+
+`lift var` explicitly promotes one allocated value across one lexical function
+boundary:
+
+```jabara
+record Box value
+
+sub main(argc, argv)
+  local make = fn do
+    local box:Box = new Box
+    box.value = 42
+    return lift box
+  end
+  local box:Box = make()
+  return box.value
+end
+```
+
+The rules are:
+
+- `lift` accepts a variable name, not an arbitrary expression;
+- it is legal only inside `fn`;
+- the variable must have been declared in that current `fn` scope;
+- the complete top-level record is copied into the frame that lexically owns
+  the closure;
+- the copy is shallow: record-valued fields remain unchanged pointers;
+- the promoted copy is returned as the expression value;
+- the original variable and object are not modified or rebound.
+
+A named `sub` may be the lexical owner that receives a lifted value, but `lift`
+is invalid inside the `sub` itself. A value that must cross another enclosing
+`fn` boundary must be lifted again by a variable declared in that scope.
+
+Because lift is shallow, referenced child records must be promoted separately
+before they are stored into a parent that will outlive them:
+
+```jabara
+record Child value
+record Parent child:Child
+
+local child:Child = new Child
+local lasting_child:Child = lift child
+local parent:Parent = new Parent
+parent.child = lasting_child
+return lift parent
+```
+
+Every allocated record and closure carries a hidden owner-and-size header used
+by the runtime. The header is not visible through tagged field access.
 
 ## External subroutines
 
@@ -296,7 +345,7 @@ in a subroutine called by their surrounding assembly.
 Reserved words:
 
 ```text
-local if then else end while do sub return byte fn record extern
+local if then else end while do sub return byte fn record extern new lift
 ```
 
 Identifiers begin with a letter or underscore and continue with letters, digits,

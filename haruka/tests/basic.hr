@@ -1,0 +1,4 @@
+sub main()
+  local x = 20, y = 22
+  return x + y - 42
+end

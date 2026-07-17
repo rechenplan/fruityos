@@ -1,0 +1,2 @@
+$root/bin/jb.psh $1 out/$1/haruka src/runtime.hr src/model.hr src/lexer.hr src/parser.hr src/emitter.hr src/main.hr
+bootstrap-rename-$1.psh

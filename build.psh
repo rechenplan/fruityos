@@ -3,9 +3,28 @@ build.psh $platform fruityos-x86_64
 cd ..
 
 cd peel
-build.psh $platform
+bootstrap.psh $platform
 cd ..
 
+cd haruka
+bootstrap.psh $platform
+cd ..
+cd sol/mars
+bootstrap.psh $platform
+cd ../..
+
+cd haruka
+build.psh $platform
+build.psh fruityos-x86_64
+cd ..
+cd sol/mars
+build.psh $platform
+build.psh fruityos-x86_64
+cd ../..
+
+cd peel
+build.psh $platform
+cd ..
 
 mkdir out
 cd yuzu
@@ -26,13 +45,20 @@ del initrd/pulp.sys initrd/init.psh
 del initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
 del initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
 del initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
-del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jc.fap
-del initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh initrd/bin/jc-windows-x86_64.psh
-del initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/link.psh
+del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jabara.fap initrd/bin/haruka.fap initrd/bin/mars.fap
+del initrd/bin/jb.psh initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh initrd/bin/jc-windows-x86_64.psh
+del initrd/lib/linux-x86_64/pith.hr initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/trailer.sol
+del initrd/lib/linux-x86_64/start-jabara.asm initrd/lib/linux-x86_64/runtime-jabara.asm
+del initrd/lib/linux-x86_64/link.psh initrd/lib/linux-x86_64/link-jabara.psh
+del initrd/lib/haruka-runtime.sol
 del initrd/lib/linux-x86_64/juicer-decode-stub.asm
-del initrd/lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/link.psh
+del initrd/lib/fruityos-x86_64/pith.hr initrd/lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/trailer.sol
+del initrd/lib/fruityos-x86_64/start-jabara.asm initrd/lib/fruityos-x86_64/runtime-jabara.asm
+del initrd/lib/fruityos-x86_64/link.psh initrd/lib/fruityos-x86_64/link-jabara.psh
 del initrd/lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
-del initrd/lib/windows-x86_64/pith.jabara initrd/lib/windows-x86_64/start.asm initrd/lib/windows-x86_64/runtime.asm initrd/lib/windows-x86_64/link.psh
+del initrd/lib/windows-x86_64/pith.hr initrd/lib/windows-x86_64/pith.jabara initrd/lib/windows-x86_64/start.asm initrd/lib/windows-x86_64/runtime.asm initrd/lib/windows-x86_64/trailer.sol
+del initrd/lib/windows-x86_64/start-jabara.asm initrd/lib/windows-x86_64/runtime-jabara.asm
+del initrd/lib/windows-x86_64/link.psh initrd/lib/windows-x86_64/link-jabara.psh
 del initrd/lib/windows-x86_64/juicer-decode-stub.asm
 rmdir initrd/lib/linux-x86_64
 rmdir initrd/lib/fruityos-x86_64
@@ -69,26 +95,45 @@ copy peel/out/fruityos-x86_64/rmdir.fap initrd/bin/rmdir.fap
 copy peel/out/fruityos-x86_64/type.fap initrd/bin/type.fap
 copy peel/out/fruityos-x86_64/write.fap initrd/bin/write.fap
 copy peel/out/fruityos-x86_64/fill.fap initrd/bin/fill.fap
-copy jabara/out/fruityos-x86_64/jc.fap initrd/bin/jc.fap
+copy jabara/out/fruityos-x86_64/jc.fap initrd/bin/jabara.fap
+copy haruka/out/fruityos-x86_64/haruka.fap initrd/bin/haruka.fap
+copy sol/mars/out/fruityos-x86_64/mars.fap initrd/bin/mars.fap
+copy bin/jb.psh initrd/bin/jb.psh
 copy bin/jc.psh initrd/bin/jc.psh
 copy bin/jc-linux-x86_64.psh initrd/bin/jc-linux-x86_64.psh
 copy bin/jc-fruityos-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh
 copy bin/jc-windows-x86_64.psh initrd/bin/jc-windows-x86_64.psh
+copy lib/haruka-runtime.sol initrd/lib/haruka-runtime.sol
+copy lib/linux-x86_64/pith.hr initrd/lib/linux-x86_64/pith.hr
 copy lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/pith.jabara
 copy lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/start.asm
 copy lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/runtime.asm
+copy lib/linux-x86_64/start-jabara.asm initrd/lib/linux-x86_64/start-jabara.asm
+copy lib/linux-x86_64/runtime-jabara.asm initrd/lib/linux-x86_64/runtime-jabara.asm
+copy lib/linux-x86_64/trailer.sol initrd/lib/linux-x86_64/trailer.sol
 copy lib/linux-x86_64/link.psh initrd/lib/linux-x86_64/link.psh
+copy lib/linux-x86_64/link-jabara.psh initrd/lib/linux-x86_64/link-jabara.psh
 copy lib/linux-x86_64/juicer-decode-stub.asm initrd/lib/linux-x86_64/juicer-decode-stub.asm
+copy lib/fruityos-x86_64/pith.hr initrd/lib/fruityos-x86_64/pith.hr
 copy lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/pith.jabara
 copy lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/start.asm
 copy lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/runtime.asm
+copy lib/fruityos-x86_64/start-jabara.asm initrd/lib/fruityos-x86_64/start-jabara.asm
+copy lib/fruityos-x86_64/runtime-jabara.asm initrd/lib/fruityos-x86_64/runtime-jabara.asm
+copy lib/fruityos-x86_64/trailer.sol initrd/lib/fruityos-x86_64/trailer.sol
 copy lib/fruityos-x86_64/link.psh initrd/lib/fruityos-x86_64/link.psh
+copy lib/fruityos-x86_64/link-jabara.psh initrd/lib/fruityos-x86_64/link-jabara.psh
 copy lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/juicer-runtime.asm
 copy lib/fruityos-x86_64/fap-module-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
+copy lib/windows-x86_64/pith.hr initrd/lib/windows-x86_64/pith.hr
 copy lib/windows-x86_64/pith.jabara initrd/lib/windows-x86_64/pith.jabara
 copy lib/windows-x86_64/start.asm initrd/lib/windows-x86_64/start.asm
 copy lib/windows-x86_64/runtime.asm initrd/lib/windows-x86_64/runtime.asm
+copy lib/windows-x86_64/start-jabara.asm initrd/lib/windows-x86_64/start-jabara.asm
+copy lib/windows-x86_64/runtime-jabara.asm initrd/lib/windows-x86_64/runtime-jabara.asm
+copy lib/windows-x86_64/trailer.sol initrd/lib/windows-x86_64/trailer.sol
 copy lib/windows-x86_64/link.psh initrd/lib/windows-x86_64/link.psh
+copy lib/windows-x86_64/link-jabara.psh initrd/lib/windows-x86_64/link-jabara.psh
 copy lib/windows-x86_64/juicer-decode-stub.asm initrd/lib/windows-x86_64/juicer-decode-stub.asm
 cd initrd
 ../bin/jar c initrd.jar
@@ -98,7 +143,7 @@ cd ..
 concat out/fruityos_hdd.img seed/out/fruityos-x86_64/hdseed.bin initrd.jar
 pad out/fruityos_hdd.img 1048576 1048576
 concat out/fruityos_floppy.img seed/out/fruityos-x86_64/fdseed.bin initrd.jar
-pad out/fruityos_floppy.img 1474560 350208
+pad out/fruityos_floppy.img 1474560 405504
 uefi seed/out/fruityos-x86_64/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
 
-del initrd.jar .jc-generated.asm .jc-raw .jc-stub .jc-juiced
+del initrd.jar .jb-generated.asm .jc-generated.sol .jc-sol.map .jc-asm.map .jc-prefix .jc-code .jc-raw .jc-stub .jc-juiced

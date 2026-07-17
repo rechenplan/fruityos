@@ -1,0 +1,2 @@
+$root/bin/bootstrap/windows-x86_64/concat out/windows-x86_64/$1.exe out/windows-x86_64/$1
+$root/bin/bootstrap/windows-x86_64/concat $root/bin/$1.exe out/windows-x86_64/$1.exe

@@ -1,0 +1,19 @@
+record Box value
+
+sub main()
+  local make = fn x do
+    local next = fn y do
+      local make_box = fn z do
+        local box:Box = new Box
+        box.value = x + y + z
+        return lift box
+      end
+      return lift make_box
+    end
+    return lift next
+  end
+  local second = make(10)
+  local third = second(12)
+  local result:Box = third(20)
+  return result.value - 42
+end

@@ -1,0 +1,3 @@
+del out/$1/parser-test out/$1/parser-errors out/$1/parser-instructions out/$1/parser-stress out/$1/parser-words
+rmdir out/$1
+rmdir out

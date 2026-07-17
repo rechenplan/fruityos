@@ -1,0 +1,6 @@
+sub main()
+  local add = fn x, y, z do
+    return x + y + z
+  end
+  return add(10, 12, 20) - 42
+end

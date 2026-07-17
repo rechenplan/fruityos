@@ -1,5 +1,7 @@
 # FruityOS
 
+This is the Sol branch.
+
 FruityOS is a small, monotasking 64-bit operating system for x86 PCs. It boots
 through BIOS or x86-64 UEFI, starts the Jabara-written Pulp kernel, unpacks a
 volatile RAM filesystem, and launches the Pish shell in ring 3.
@@ -45,3 +47,14 @@ bin/pish
 
 FruityOS is experimental. It is intentionally much smaller and less general
 than a Unix-compatible operating system.
+
+
+## Sol toolchain
+
+- [`sol/`](sol/) defines the width-neutral Sol IR, its shared streaming parser,
+  and the Mars x86-64 flat-binary backend.
+- [`haruka/`](haruka/) is the default `.hr` compiler frontend and emits Sol.
+- Pluto is the planned native ISA for Sol semantics; Luna and Terra are planned
+  16-bit and 32-bit x86 backends.
+
+Peel and the rest of userland build through Haruka/Mars; Orgasm remains the platform-prefix assembler and Jabara bootstrap assembler.

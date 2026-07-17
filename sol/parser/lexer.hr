@@ -1,0 +1,290 @@
+; Numeric tags below are the public SOL_TOKEN_* values from model.hr.
+; Keeping them literal inside the hot lexer avoids a native call per token.
+
+sub sol_is_space(character)
+  return (character == 9) || (character == 13) || (character == 32)
+end
+
+sub sol_is_digit(character)
+  return (character >= 48) && (character <= 57)
+end
+
+sub sol_is_hex(character)
+  return sol_is_digit(character) ||
+         ((character >= 65) && (character <= 70)) ||
+         ((character >= 97) && (character <= 102))
+end
+
+sub sol_hex_value(character)
+  if character <= 57 then return character - 48 end
+  if character <= 70 then return character - 55 end
+  return character - 87
+end
+
+sub sol_is_name_start(character)
+  return ((character >= 65) && (character <= 90)) ||
+         ((character >= 97) && (character <= 122)) ||
+         (character == 95) || (character == 46) || (character == 36)
+end
+
+sub sol_is_name_continue(character)
+  return sol_is_name_start(character) || sol_is_digit(character)
+end
+
+sub sol_lower(character)
+  if (character >= 65) && (character <= 90) then return character + 32 end
+  return character
+end
+
+sub sol_text_equal(text, length, literal)
+  local index = 0
+  while index < length do
+    if byte [text + index] != byte [literal + index] then return 0 end
+    if byte [literal + index] == 0 then return 0 end
+    index = index + 1
+  end
+  return byte [literal + length] == 0
+end
+
+sub sol_text_iequal(text, length, literal)
+  local index = 0
+  while index < length do
+    if sol_lower(byte [text + index]) != sol_lower(byte [literal + index]) then return 0 end
+    if byte [literal + index] == 0 then return 0 end
+    index = index + 1
+  end
+  return byte [literal + length] == 0
+end
+
+sub sol_escape_value(character)
+  if character == 110 then return 10 end
+  if character == 114 then return 13 end
+  if character == 116 then return 9 end
+  if character == 92 then return 92 end
+  if character == 34 then return 34 end
+  return -1
+end
+
+sub sol_current(parser:SolParser)
+  if parser.source == 0 then return 0 end
+  return byte [parser.source.text + parser.position]
+end
+
+sub sol_peek(parser:SolParser, distance)
+  if parser.source == 0 then return 0 end
+  return byte [parser.source.text + parser.position + distance]
+end
+
+sub sol_advance_character(parser:SolParser)
+  local character = sol_current(parser)
+  if character == 0 then return 0 end
+  parser.position = parser.position + 1
+  if character == 10 then
+    parser.line = parser.line + 1
+    parser.column = 1
+  else
+    parser.column = parser.column + 1
+  end
+  return character
+end
+
+sub sol_token(parser:SolParser, kind, start, length, number, source_name, line, column)
+  parser.token_kind = kind
+  parser.token_start = start
+  parser.token_length = length
+  parser.token_number = number
+  parser.token_source_name = source_name
+  parser.token_line = line
+  parser.token_column = column
+end
+
+sub sol_lex_error(parser:SolParser, message, source_name, line, column)
+  parser.error_text = message
+  sol_token(parser, 1, 0, 0, 0, source_name, line, column)
+end
+
+sub sol_lex(parser:SolParser)
+  local character, start, line, column, source_name, value, base, digits, escape
+  local digit, number_end, significant_start, significant_length, maximum, compare_index
+
+  while 1 do
+    if parser.source == 0 then
+      sol_token(parser, 0, 0, 0, 0, 0, parser.line, parser.column)
+      return 0
+    end
+
+    character = sol_current(parser)
+    if character == 0 then
+      source_name = parser.source.name
+      line = parser.line
+      column = parser.column
+      if parser.source.next == 0 then
+        sol_token(parser, 0, 0, 0, 0, source_name, line, column)
+        return 0
+      end
+      parser.source = parser.source.next
+      parser.position = 0
+      parser.line = 1
+      parser.column = 1
+      sol_token(parser, 5, 0, 0, 0, source_name, line, column)
+      return 0
+    end
+
+    if sol_is_space(character) then
+      sol_advance_character(parser)
+    else
+      if character == 59 then
+        while (sol_current(parser) != 0) && (sol_current(parser) != 10) do
+          sol_advance_character(parser)
+        end
+      else
+        source_name = parser.source.name
+        line = parser.line
+        column = parser.column
+        start = parser.source.text + parser.position
+
+        if character == 10 then
+          sol_advance_character(parser)
+          sol_token(parser, 5, start, 1, 0, source_name, line, column)
+          return 0
+        end
+
+        if sol_is_name_start(character) then
+          while sol_is_name_continue(sol_current(parser)) do sol_advance_character(parser) end
+          sol_token(parser, 2, start,
+                    parser.source.text + parser.position - start,
+                    0, source_name, line, column)
+          return 0
+        end
+
+        if sol_is_digit(character) then
+          value = 0
+          base = 10
+          digits = 0
+          if (character == 48) && ((sol_peek(parser, 1) == 120) || (sol_peek(parser, 1) == 88)) then
+            base = 16
+            sol_advance_character(parser)
+            sol_advance_character(parser)
+            while sol_is_hex(sol_current(parser)) do
+              digit = sol_hex_value(sol_advance_character(parser))
+              if (value >> 60) != 0 then
+                sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                return 0
+              end
+              value = (value << 4) | digit
+              digits = digits + 1
+            end
+          else
+            if (character == 48) && ((sol_peek(parser, 1) == 98) || (sol_peek(parser, 1) == 66)) then
+              base = 2
+              sol_advance_character(parser)
+              sol_advance_character(parser)
+              while (sol_current(parser) == 48) || (sol_current(parser) == 49) do
+                digit = sol_advance_character(parser) - 48
+                if (value >> 63) != 0 then
+                  sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                  return 0
+                end
+                value = (value << 1) | digit
+                digits = digits + 1
+              end
+            else
+              while sol_is_digit(sol_current(parser)) do
+                value = value * 10 + sol_advance_character(parser) - 48
+                digits = digits + 1
+              end
+              number_end = parser.source.text + parser.position
+              significant_start = start
+              while (significant_start < number_end) && (byte [significant_start] == 48) do
+                significant_start = significant_start + 1
+              end
+              significant_length = number_end - significant_start
+              if significant_length > 20 then
+                sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                return 0
+              end
+              if significant_length == 20 then
+                maximum = "18446744073709551615"
+                compare_index = 0
+                while compare_index < 20 do
+                  if byte [significant_start + compare_index] > byte [maximum + compare_index] then
+                    sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                    return 0
+                  end
+                  if byte [significant_start + compare_index] < byte [maximum + compare_index] then
+                    compare_index = 20
+                  else
+                    compare_index = compare_index + 1
+                  end
+                end
+              end
+            end
+          end
+          if digits == 0 then
+            if base == 16 then sol_lex_error(parser, "malformed hexadecimal number", source_name, line, column)
+            else sol_lex_error(parser, "malformed binary number", source_name, line, column) end
+            return 0
+          end
+          if ((sol_current(parser) == 119) || (sol_current(parser) == 87)) &&
+             (sol_is_name_continue(sol_peek(parser, 1)) == 0) then
+            sol_advance_character(parser)
+            sol_token(parser, 12, start,
+                      parser.source.text + parser.position - start,
+                      value, source_name, line, column)
+            return 0
+          end
+          if sol_is_name_continue(sol_current(parser)) then
+            sol_lex_error(parser, "malformed number", source_name, line, column)
+            return 0
+          end
+          sol_token(parser, 3, start,
+                    parser.source.text + parser.position - start,
+                    value, source_name, line, column)
+          return 0
+        end
+
+        if character == 34 then
+          sol_advance_character(parser)
+          start = parser.source.text + parser.position
+          while (sol_current(parser) != 0) && (sol_current(parser) != 34) do
+            character = sol_advance_character(parser)
+            if character == 10 then
+              sol_lex_error(parser, "newline in string", source_name, line, column)
+              return 0
+            end
+            if character == 92 then
+              if sol_current(parser) == 0 then
+                sol_lex_error(parser, "unterminated string", source_name, line, column)
+                return 0
+              end
+              escape = sol_advance_character(parser)
+              if sol_escape_value(escape) < 0 then
+                sol_lex_error(parser, "invalid string escape", source_name, line, column)
+                return 0
+              end
+            end
+          end
+          if sol_current(parser) != 34 then
+            sol_lex_error(parser, "unterminated string", source_name, line, column)
+            return 0
+          end
+          sol_token(parser, 4, start,
+                    parser.source.text + parser.position - start,
+                    0, source_name, line, column)
+          sol_advance_character(parser)
+          return 0
+        end
+
+        sol_advance_character(parser)
+        if character == 44 then sol_token(parser, 6, start, 1, 0, source_name, line, column) return 0 end
+        if character == 58 then sol_token(parser, 7, start, 1, 0, source_name, line, column) return 0 end
+        if character == 91 then sol_token(parser, 8, start, 1, 0, source_name, line, column) return 0 end
+        if character == 93 then sol_token(parser, 9, start, 1, 0, source_name, line, column) return 0 end
+        if character == 43 then sol_token(parser, 10, start, 1, 0, source_name, line, column) return 0 end
+        if character == 45 then sol_token(parser, 11, start, 1, 0, source_name, line, column) return 0 end
+        sol_lex_error(parser, "invalid character", source_name, line, column)
+        return 0
+      end
+    end
+  end
+end

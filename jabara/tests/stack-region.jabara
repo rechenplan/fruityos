@@ -1,0 +1,21 @@
+record Pair left, right
+
+sub main(argc, argv)
+  local make_sum, sum, pair:Pair, i = 0, total = 0, right = 2
+  make_sum = fn base, extra, final do
+    local temp:Pair = new Pair
+    temp.left = base
+    temp.right = extra
+    return temp.left + temp.right + final
+  end
+  sum = make_sum
+  pair = new Pair
+  pair.left = 40
+  while i < 1024 do
+    pair = new Pair
+    pair.left = i
+    total = total + (pair.left - i)
+    i = i + 1
+  end
+  return (sum(20, right, 20) - 42) + total
+end

@@ -1,2 +1,6 @@
-$root/bin/orgasm $1/start.asm $3 $1/runtime.asm $root/.jc-raw
-$root/bin/juicer c $root/.jc-raw $2
+$root/bin/mars -o 8393728 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
+$root/bin/orgasm -m $root/.jc-asm.map $root/.jc-sol.map $1/start.asm $1/runtime.asm $root/.jc-prefix
+$root/bin/pad $root/.jc-prefix 1024 1024
+$root/bin/mars -o 8393728 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
+$root/bin/concat $root/.jc-raw $root/.jc-prefix $root/.jc-code
+$root/bin/juicer l $root/.jc-raw $2

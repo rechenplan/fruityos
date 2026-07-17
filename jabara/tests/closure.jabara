@@ -6,14 +6,16 @@ sub main(argc, argv)
   local make_counter, counter, add_value
   make_counter = fn ignored do
     local value = 40
-    return fn increment do
+    local result = fn increment do
       value = value + increment
       return value
     end
+    return lift result
   end
   counter = make_counter(0)
   add_value = fn left do
-    return fn right do return add(left, right) end
+    local result = fn right do return add(left, right) end
+    return lift result
   end
   if (counter(2) == 42) && (add_value(20, 22) == 42) then
     return 0

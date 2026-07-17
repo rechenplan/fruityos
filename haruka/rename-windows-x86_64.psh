@@ -1,0 +1,2 @@
+$root/bin/concat out/windows-x86_64/haruka.exe out/windows-x86_64/haruka
+$root/bin/concat $root/bin/haruka.exe out/windows-x86_64/haruka.exe

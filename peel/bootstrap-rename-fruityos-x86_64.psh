@@ -1,0 +1,2 @@
+$root/bin/bootstrap/fruityos-x86_64/concat out/fruityos-x86_64/$1.fap out/fruityos-x86_64/$1
+$root/bin/bootstrap/fruityos-x86_64/concat $root/bin/$1.fap out/fruityos-x86_64/$1.fap

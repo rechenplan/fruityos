@@ -3,14 +3,14 @@ clean.psh $1 $2
 cd ../orgasm
 clean.psh $1 $2
 cd ../..
-del out/$1/jc out/$1/jc-self out/$1/orgasm
-del out/$1/jc.elf out/$1/jc-self.elf out/$1/orgasm.elf
-del out/$1/jc.fap out/$1/jc-self.fap out/$1/orgasm.fap
-del out/$1/jc.exe out/$1/jc-self.exe out/$1/orgasm.exe
+del out/$1/jc out/$1/orgasm
+del out/$1/jc.elf out/$1/orgasm.elf
+del out/$1/jc.fap out/$1/orgasm.fap
+del out/$1/jc.exe out/$1/orgasm.exe
 del out/$2/jc out/$2/jc.asm out/$2/orgasm
-del out/$2/jc.elf out/$2/jc-self.elf out/$2/orgasm.elf
-del out/$2/jc.fap out/$2/jc-self.fap out/$2/orgasm.fap
-del out/$2/jc.exe out/$2/jc-self.exe out/$2/orgasm.exe
+del out/$2/jc.elf out/$2/orgasm.elf
+del out/$2/jc.fap out/$2/orgasm.fap
+del out/$2/jc.exe out/$2/orgasm.exe
 rmdir out/$1
 rmdir out/$2
 rmdir out

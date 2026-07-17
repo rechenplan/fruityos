@@ -1,0 +1,68 @@
+sub main(argc, argv)
+  local input_count, index = 0, path, output_path, map_path, map_only = 0
+  local remaining = argc - 1, parsing_options = 1
+  local head:SolSource, tail:SolSource, source:SolSource
+  local parser:SolParser, state:MarsState = new MarsState, output:MarsOutput = new MarsOutput
+
+  path = mars_next_argument(argv)
+  while (remaining > 0) && parsing_options do
+    if mars_streq(path, "-o") then
+      if remaining < 2 then mars_error(0, "missing origin value") end
+      path = mars_next_argument(path)
+      state.base_origin = mars_atoi(path)
+      state.base_origin_set = 1
+      path = mars_next_argument(path)
+      remaining = remaining - 2
+    else
+      if mars_streq(path, "-M") then
+        if remaining < 2 then mars_error(0, "missing map path") end
+        path = mars_next_argument(path)
+        map_path = path
+        map_only = 1
+        state.allow_unresolved = 1
+        path = mars_next_argument(path)
+        remaining = remaining - 2
+      else
+        parsing_options = 0
+      end
+    end
+  end
+
+  if map_only then
+    if remaining < 1 then
+      mars_puts("usage: mars [-o origin] -M output.map input.sol [input.sol ...]\n")
+      return 1
+    end
+    input_count = remaining
+  else
+    if remaining < 2 then
+      mars_puts("usage: mars [-o origin] input.sol [input.sol ...] output.bin\n")
+      return 1
+    end
+    input_count = remaining - 1
+  end
+
+  while index < input_count do
+    source = new SolSource
+    source.name = path
+    source.text = mars_read_source(path)
+    if head == 0 then head = source else tail.next = source end
+    tail = source
+    path = mars_next_argument(path)
+    index = index + 1
+  end
+  if map_only == 0 then output_path = path end
+
+  parser = sol_parser_new(head)
+  state.parser = parser
+  state.output = output
+  mars_layout(state)
+  if map_only then
+    mars_write_map(state, map_path)
+    return 0
+  end
+  mars_output_init(output, output_path)
+  mars_emit(state)
+  mars_output_close(output)
+  return 0
+end

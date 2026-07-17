@@ -1,5 +1,5 @@
 %define PITH_exit
-__jabara_fap_start:
+__haruka_fap_start:
 	push rdi
 	push rsi
 	call main

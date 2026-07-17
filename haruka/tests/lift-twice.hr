@@ -1,0 +1,15 @@
+record Box value
+
+sub main()
+  local middle = fn do
+    local inner = fn do
+      local box:Box = new Box
+      box.value = 42
+      return lift box
+    end
+    local box:Box = inner()
+    return lift box
+  end
+  local result:Box = middle()
+  return result.value - 42
+end

@@ -1,0 +1,5 @@
+$root/bin/jc.psh $1 out/$1/parser-test model.hr lexer.hr parser.hr tests/parser.hr
+$root/bin/jc.psh $1 out/$1/parser-errors model.hr lexer.hr parser.hr tests/errors.hr
+$root/bin/jc.psh $1 out/$1/parser-instructions model.hr lexer.hr parser.hr tests/instructions.hr
+$root/bin/jc.psh $1 out/$1/parser-stress model.hr lexer.hr parser.hr tests/stress.hr
+$root/bin/jc.psh $1 out/$1/parser-words model.hr lexer.hr parser.hr tests/words.hr

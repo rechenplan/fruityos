@@ -1,0 +1,2 @@
+$root/bin/bootstrap/windows-x86_64/concat out/windows-x86_64/mars.exe out/windows-x86_64/mars
+$root/bin/bootstrap/windows-x86_64/concat $root/bin/mars.exe out/windows-x86_64/mars.exe

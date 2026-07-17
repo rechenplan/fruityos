@@ -1,1 +1,1 @@
-$root/bin/concat $root/bin/$1.exe $2
+$root/bin/bootstrap/$platform/concat $root/bin/$1.exe $2

@@ -1,3 +1,28 @@
+local em_binding = fn do
+  local value:Binding = new Binding
+  return lift value
+end
+
+local em_lookup_value = fn do
+  local value:Lookup = new Lookup
+  return lift value
+end
+
+local em_scope = fn do
+  local value:Scope = new Scope
+  return lift value
+end
+
+local em_closure_info = fn do
+  local value:ClosureInfo = new ClosureInfo
+  return lift value
+end
+
+local em_emitter = fn do
+  local value:Emitter = new Emitter
+  return lift value
+end
+
 sub em_text(text)
   jc_puts(text)
 end
@@ -176,7 +201,7 @@ sub em_scope_own(scope:Scope, name)
 end
 
 sub em_scope_add(emitter:Emitter, scope:Scope, name, tag, line)
-  local binding:Binding = Binding(), tail:Binding
+  local binding:Binding = em_binding(), tail:Binding
   if em_scope_own(scope, name) != 0 then return 0 end
   if tag != 0 then
     if em_find_record(emitter, tag) == 0 then
@@ -240,7 +265,13 @@ sub em_statements_return(statement:Stmt)
 end
 
 sub em_statements_have_closure(statement:Stmt)
+  local name:Name
   while statement != 0 do
+    name = statement.names
+    while name != 0 do
+      if em_expr_has_closure(name.initializer) then return 1 end
+      name = name.next
+    end
     if em_expr_has_closure(statement.expr) then return 1 end
     if em_statements_have_closure(statement.body) then return 1 end
     if em_statements_have_closure(statement.else_body) then return 1 end
@@ -272,7 +303,7 @@ sub em_program_has_closure(program:Program)
 end
 
 sub em_lookup(scope:Scope, name)
-  local result:Lookup = Lookup(), level = 0, binding:Binding
+  local result:Lookup = em_lookup_value(), level = 0, binding:Binding
   while scope != 0 do
     binding = em_scope_own(scope, name)
     if binding != 0 then
@@ -296,7 +327,7 @@ sub em_frame_offset(scope:Scope, binding:Binding)
   if binding.parameter then
     return (scope.parameter_count - binding.slot + 2) * 8
   end
-  return (scope.parameter_count - binding.slot) * 8
+  return (scope.parameter_count - binding.slot) * 8 - 24
 end
 
 sub em_frame_reference(scope:Scope, binding:Binding)
@@ -320,9 +351,11 @@ sub em_expr_record_type(emitter:Emitter, expr:Expr)
       if lookup.binding.tag != 0 then return em_find_record(emitter, lookup.binding.tag) end
     end
   end
-  if (expr.kind == EX_CALL()) && (expr.left.kind == EX_NAME()) then
-    if em_name_is_bound(emitter, expr.left.text) == 0 then
-      return em_find_record(emitter, expr.left.text)
+  if expr.kind == EX_NEW() then return em_find_record(emitter, expr.text) end
+  if expr.kind == EX_LIFT() then
+    lookup = em_lookup(emitter.scope, expr.text)
+    if (lookup.binding != 0) && (lookup.binding.tag != 0) then
+      return em_find_record(emitter, lookup.binding.tag)
     end
   end
   if expr.kind == EX_MEMBER() then
@@ -462,12 +495,6 @@ sub em_call_is_direct(emitter:Emitter, callee:Expr)
   return em_find_function(emitter, callee.text) != 0
 end
 
-sub em_call_is_constructor(emitter:Emitter, callee:Expr)
-  if callee.kind != EX_NAME() then return 0 end
-  if em_name_is_bound(emitter, callee.text) then return 0 end
-  return em_find_record(emitter, callee.text) != 0
-end
-
 sub em_emit_pith_define(emitter:Emitter, name)
   local function:Function = em_find_function_body(emitter, name)
   if (function != 0) & function.is_extern & (function.pith_defined == 0) then
@@ -477,11 +504,19 @@ sub em_emit_pith_define(emitter:Emitter, name)
 end
 
 sub em_emit_alloc_call(emitter:Emitter)
-  if emitter.alloc_defined == 0 then
+  if (emitter.alloc_defined & 1) == 0 then
     em_line("%define JABARA_ALLOC")
-    emitter.alloc_defined = 1
+    emitter.alloc_defined = emitter.alloc_defined | 1
   end
   em_instruction("call\t__jabara_alloc")
+end
+
+sub em_emit_lift_call(emitter:Emitter)
+  if (emitter.alloc_defined & 2) == 0 then
+    em_line("%define JABARA_LIFT")
+    emitter.alloc_defined = emitter.alloc_defined | 2
+  end
+  em_instruction("call\t__jabara_lift")
 end
 
 sub em_emit_direct_call(emitter:Emitter, expr:Expr)
@@ -515,7 +550,9 @@ sub em_emit_closure_call(emitter:Emitter, expr:Expr)
   if count == 0 then
     em_instruction("mov\trax, [rsp]")
     em_instruction("xor\tedx, edx")
-    em_instruction("mov\trcx, [rax + 8]")
+    em_instruction("mov\tr8, [rax - 16]")
+    em_instruction("lea\trcx, [rax + 8]")
+    em_instruction("push\tr8")
     em_instruction("push\trcx")
     em_instruction("push\trdx")
     em_instruction("call\t[rax]")
@@ -525,7 +562,9 @@ sub em_emit_closure_call(emitter:Emitter, expr:Expr)
         em_text("\tmov\trax, [rsp + ") em_number(count * 8) em_line("]")
       end
       em_text("\tmov\trdx, [rsp + ") em_number((count - 1 - index) * 8) em_line("]")
-      em_instruction("mov\trcx, [rax + 8]")
+      em_instruction("mov\tr8, [rax - 16]")
+      em_instruction("lea\trcx, [rax + 8]")
+      em_instruction("push\tr8")
       em_instruction("push\trcx")
       em_instruction("push\trdx")
       em_instruction("call\t[rax]")
@@ -536,8 +575,9 @@ sub em_emit_closure_call(emitter:Emitter, expr:Expr)
 end
 
 sub em_new_closure_scope(emitter:Emitter, expr:Expr, number)
-  local scope:Scope = Scope(), info:ClosureInfo = ClosureInfo()
+  local scope:Scope = em_scope(), info:ClosureInfo = em_closure_info()
   scope.parent = emitter.scope
+  scope.is_fn = 1
   em_scope_add_parameter(emitter, scope, expr.text, expr.tag, expr.line)
   em_collect_locals(emitter, scope, expr.body)
   info.expr = expr
@@ -549,19 +589,25 @@ sub em_new_closure_scope(emitter:Emitter, expr:Expr, number)
 end
 
 sub em_emit_closure_value(emitter:Emitter, expr:Expr)
-  local number = em_new_label(emitter)
+  local number = em_new_label(emitter), words = 1, index = 0
   em_new_closure_scope(emitter, expr, number)
+  if emitter.scope.is_global == 0 then words = emitter.scope.slot_count + 1 end
   em_text("\tlea\trax, [rel ") em_private_label(emitter, "closure", number) em_line("]")
   em_instruction("push\trax")
-  if emitter.scope.is_global then em_instruction("xor\trax, rax")
-  else em_instruction("mov\trax, [rbp - 8]") end
-  em_instruction("push\trax")
-  em_instruction("push\t16")
+  em_text("\tpush\t") em_number((words + 1) * 8) em_newline()
   em_emit_alloc_call(emitter)
-  em_instruction("pop\trdx")
   em_instruction("pop\trcx")
   em_instruction("mov\t[rax], rcx")
-  em_instruction("mov\t[rax + 8], rdx")
+  if emitter.scope.is_global then
+    em_instruction("mov\tqword [rax + 8], 0")
+  else
+    em_instruction("mov\trdx, [rbp - 8]")
+    while index < words do
+      em_text("\tmov\trcx, [rdx + ") em_number(index * 8) em_line("]")
+      em_text("\tmov\t[rax + ") em_number((index + 1) * 8) em_line("], rcx")
+      index = index + 1
+    end
+  end
 end
 
 sub em_emit_string(emitter:Emitter, text)
@@ -580,9 +626,10 @@ sub em_emit_string(emitter:Emitter, text)
 end
 
 sub em_emit_record_constructor(emitter:Emitter, expr:Expr)
-  local definition:Record = em_find_record(emitter, expr.left.text)
-  local count = em_record_field_count(definition), index = 0
-  if expr.argument_count != 0 then jc_error_at(expr.line, 1, "record constructors take no arguments") end
+  local definition:Record = em_find_record(emitter, expr.text)
+  local count, index = 0
+  if definition == 0 then jc_error_at(expr.line, 1, "unknown record") end
+  count = em_record_field_count(definition)
   if count == 0 then em_instruction("push\t8")
   else em_text("\tpush\t") em_number(count * 8) em_newline() end
   em_emit_alloc_call(emitter)
@@ -590,6 +637,21 @@ sub em_emit_record_constructor(emitter:Emitter, expr:Expr)
     em_text("\tmov\tqword [rax + ") em_number(index * 8) em_line("], 0")
     index = index + 1
   end
+end
+
+sub em_emit_lift(emitter:Emitter, expr:Expr)
+  local lookup:Lookup = em_lookup(emitter.scope, expr.text)
+  if emitter.scope.is_fn == 0 then jc_error_at(expr.line, 1, "lift is only valid inside fn") end
+  if lookup.binding == 0 then jc_error_at(expr.line, 1, "lift requires a variable") end
+  if lookup.owner != emitter.scope then jc_error_at(expr.line, 1, "lift requires a variable from the current scope") end
+  if emitter.direct_frames then
+    em_text("\tmov\trax, ") em_frame_reference(lookup.owner, lookup.binding) em_newline()
+  else
+    em_emit_name_address(emitter, expr.text)
+    em_instruction("mov\trax, [rax]")
+  end
+  em_instruction("push\trax")
+  em_emit_lift_call(emitter)
 end
 
 sub em_emit_expr(emitter:Emitter, expr:Expr)
@@ -613,6 +675,8 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
     end end end
     return 0
   end
+  if expr.kind == EX_NEW() then em_emit_record_constructor(emitter, expr) return 0 end
+  if expr.kind == EX_LIFT() then em_emit_lift(emitter, expr) return 0 end
   if expr.kind == EX_DEREF() then em_emit_expr(emitter, expr.left) em_instruction("mov\trax, [rax]") return 0 end
   if expr.kind == EX_MEMBER() then
     definition = em_expr_record_type(emitter, expr.left)
@@ -656,11 +720,20 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
   end
   if expr.kind == EX_BINARY() then em_emit_binary(emitter, expr) return 0 end
   if expr.kind == EX_ASSIGN() then
-    if (expr.left.kind == EX_NAME()) & emitter.direct_frames then
+    if expr.left.kind == EX_NAME() then
       lookup = em_lookup(emitter.scope, expr.left.text)
       if lookup.binding != 0 then
-        em_emit_expr(emitter, expr.right)
-        em_emit_name_store(emitter, lookup)
+        if emitter.direct_frames | lookup.owner.is_global then
+          em_emit_expr(emitter, expr.right)
+          em_emit_name_store(emitter, lookup)
+        else
+          em_emit_expr(emitter, expr.right)
+          em_instruction("push\trax")
+          em_emit_name_address(emitter, expr.left.text)
+          em_instruction("pop\trdi")
+          em_instruction("mov\t[rax], rdi")
+          em_instruction("mov\trax, rdi")
+        end
         return 0
       end
     end
@@ -692,7 +765,10 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
     return 0
   end
   if expr.kind == EX_CALL() then
-    if em_call_is_constructor(emitter, expr.left) then em_emit_record_constructor(emitter, expr) return 0 end
+    if (expr.left.kind == EX_NAME()) && (em_name_is_bound(emitter, expr.left.text) == 0) &&
+       (em_find_record(emitter, expr.left.text) != 0) then
+      jc_error_at(expr.line, 1, "record construction requires new")
+    end
     if em_call_is_direct(emitter, expr.left) then em_emit_direct_call(emitter, expr) return 0 end
     if (expr.left.kind == EX_NAME()) && (em_name_is_bound(emitter, expr.left.text) == 0) then
       jc_error_at(expr.line, 1, "call to undeclared sub")
@@ -713,11 +789,11 @@ sub em_emit_initializers(emitter:Emitter, name:Name)
         em_emit_expr(emitter, name.initializer)
         em_emit_name_store(emitter, lookup)
       else
-        em_emit_name_address(emitter, name.name)
-        em_instruction("push\trax")
         em_emit_expr(emitter, name.initializer)
+        em_instruction("push\trax")
+        em_emit_name_address(emitter, name.name)
         em_instruction("pop\trdi")
-        em_instruction("mov\t[rdi], rax")
+        em_instruction("mov\t[rax], rdi")
       end
     end
     name = name.next
@@ -821,7 +897,7 @@ sub em_parameter_count(function:Function)
 end
 
 sub em_emit_function(emitter:Emitter, function:Function)
-  local scope:Scope = Scope(), parameter:Name = function.parameters
+  local scope:Scope = em_scope(), parameter:Name = function.parameters
   local count = 0, index = 0, saved_return = emitter.return_label, saved_return_bytes = emitter.return_bytes
   local environment_size, frame_size, binding:Binding, zeroed
   scope.parent = emitter.global_scope
@@ -838,7 +914,7 @@ sub em_emit_function(emitter:Emitter, function:Function)
   emitter.return_label = em_new_label(emitter)
   emitter.return_bytes = count * 8
   if emitter.direct_frames then
-    environment_size = ((((scope.slot_count - scope.parameter_count) * 8) + 15) & -16)
+    environment_size = (((((scope.slot_count - scope.parameter_count) * 8) + 24) + 15) & -16)
   else
     environment_size = ((((scope.slot_count + 1) * 8) + 15) & -16)
   end
@@ -846,6 +922,7 @@ sub em_emit_function(emitter:Emitter, function:Function)
   em_text(function.name) em_line(":")
   if emitter.direct_frames then
     em_emit_enter(environment_size)
+    em_instruction("mov\t[rbp - 24], rsp")
     binding = scope.bindings
     while binding != 0 do
       if (binding.parameter == 0) & (binding.initialized == 0) then
@@ -855,8 +932,9 @@ sub em_emit_function(emitter:Emitter, function:Function)
       binding = binding.next
     end
   else
-    frame_size = 16 + environment_size
+    frame_size = 32 + environment_size
     em_emit_enter(frame_size)
+    em_instruction("mov\t[rbp - 24], rsp")
     em_text("\tlea\trax, [rbp - ") em_number(frame_size) em_line("]")
     em_instruction("mov\t[rbp - 8], rax")
     em_zero_environment(scope.slot_count)
@@ -882,13 +960,17 @@ end
 sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
   local saved_scope:Scope = emitter.scope
   local saved_return = emitter.return_label, saved_return_bytes = emitter.return_bytes
+  local environment_size = ((((info.scope.slot_count + 1) * 8) + 15) & -16)
+  local frame_size = 24 + environment_size
   emitter.scope = info.scope
   emitter.return_label = em_new_label(emitter)
-  emitter.return_bytes = 16
+  emitter.return_bytes = 24
   em_newline() em_private_label(emitter, "closure", info.label) em_line(":")
-  em_emit_enter(16)
-  em_text("\tpush\t") em_number((info.scope.slot_count + 1) * 8) em_newline()
-  em_emit_alloc_call(emitter)
+  em_emit_enter(frame_size)
+  em_instruction("mov\trdx, [rbp + 32]")
+  em_instruction("mov\t[rbp - 16], rdx")
+  em_instruction("mov\t[rbp - 24], rsp")
+  em_text("\tlea\trax, [rbp - ") em_number(frame_size) em_line("]")
   em_instruction("mov\t[rbp - 8], rax")
   em_zero_environment(info.scope.slot_count)
   em_instruction("mov\trdx, [rbp + 24]")
@@ -905,10 +987,10 @@ sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
 end
 
 sub em_emit_program(program:Program)
-  local emitter:Emitter = Emitter(), function:Function, info:ClosureInfo, binding:Binding, prune
+  local emitter:Emitter = em_emitter(), function:Function, info:ClosureInfo, binding:Binding, prune
   emitter.program = program
   emitter.direct_frames = em_program_has_closure(program) == 0
-  emitter.global_scope = Scope()
+  emitter.global_scope = em_scope()
   emitter.global_scope.is_global = 1
   emitter.scope = emitter.global_scope
   em_validate_records(emitter)
