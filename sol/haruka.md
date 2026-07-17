@@ -5,14 +5,14 @@ Haruka and Jabara accept the same language; Haruka is not a rewrite or
 replacement of Jabara.
 
 ```text
-Jabara source -> Haruka -> Sol IR -> backend
+Haruka source (`.hr`) -> Haruka -> Sol IR -> backend
 ```
 
 ## Shared frontend
 
 Haruka's language model, lexer, parser, scope rules, and multi-argument `fn`
-desugaring are kept synchronized with Jabara. The checked-in `model.jabara`,
-`lexer.jabara`, and `parser.jabara` files are byte-identical between the two
+desugaring are kept synchronized with Jabara. The checked-in `model.hr`,
+`lexer.hr`, and `parser.hr` files are byte-identical between the two
 compilers. Haruka differs only where target-independent Sol emission replaces
 Jabara's native x86-64 emission.
 
@@ -51,7 +51,7 @@ A value must be lifted once at each additional function boundary it must cross.
 An enclosing named `sub` may own the lifted copy, although `lift` itself is
 invalid in the `sub` body.
 
-The shared implementation is `../haruka/runtime.sol`. Sol itself does not make
+The shared implementation is `../lib/haruka-runtime.sol`. Sol itself does not make
 `lift` an IR opcode; Haruka lowers it to the ordinary Sol routine
 `__haruka_lift`.
 

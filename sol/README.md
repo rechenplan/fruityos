@@ -24,7 +24,7 @@ flat binary         16-bit binary       32-bit binary       native binary
 ```
 
 Mars is the first concrete Sol backend. It is a flat assembler written in
-Jabara: it reads textual Sol and writes raw x86-64 machine code directly. It
+Haruka: it reads textual Sol and writes raw x86-64 machine code directly. It
 does not emit assembly language and it does not invoke Orgasm.
 
 Luna and Terra are planned backends for 16-bit real-mode x86 and 32-bit
@@ -33,9 +33,8 @@ directly.
 
 Jabara remains the existing compiler implementation and language reference.
 Haruka is a separate compiler for that same language: it accepts Jabara source
-syntax and semantics but emits Sol instead of Orgasm/x86-64 assembly. Mars and
-the shared Sol parser are implemented in Jabara without making Jabara itself a
-Sol frontend.
+syntax and semantics but emits Sol instead of Orgasm/x86-64 assembly. Mars and the shared Sol parser are implemented in Haruka. Jabara remains the
+legacy native compiler and bootstrap language.
 
 ## Design rules
 
@@ -77,5 +76,5 @@ The repository currently contains a streaming generic Sol parser, a tested
 Mars x86-64 flat-binary backend, and a Haruka frontend whose lexer, grammar, and
 AST match Jabara. Haruka's width-neutral Sol runtime implements frame-local
 allocation and shallow `lift var`, and the complete pipeline is exercised
-through Mars. Future Jabara-language changes must remain synchronized between
-the two compilers.
+through Mars. Future language changes must remain synchronized between the Jabara and Haruka
+frontends.

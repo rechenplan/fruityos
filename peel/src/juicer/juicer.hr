@@ -146,6 +146,27 @@ sub compress(fin, fout)
 	write(fout, bytePtr, 3)
 end
 
+sub literal(fin, fout)
+	local bytePtr, count, n
+	bytePtr = malloc(11)
+	while 1 do
+		count = 0
+		while count < 8 do
+			n = read(fin, bytePtr + count + 1, 8 - count)
+			if n <= 0 then
+				byte [bytePtr] = (1 << count) - 1
+				byte [bytePtr + count + 1] = 0
+				byte [bytePtr + count + 2] = 0
+				write(fout, bytePtr, count + 3)
+				return 0
+			end
+			count = count + n
+		end
+		byte [bytePtr] = 255
+		write(fout, bytePtr, 9)
+	end
+end
+
 sub decompress(fin, fout)
 	local filePtr, fileSize, inputPtr, inputSize, count
 	filePtr = malloc(2 << 20)
@@ -161,7 +182,7 @@ end
 sub main(argc, argv)
 	local fin, fout, mode
 	if argc != 4 then
-		puts("usage: juicer d|c infile outfile")
+		puts("usage: juicer d|c|l infile outfile")
 		putch(10)
 		return 0
 	end
@@ -189,11 +210,15 @@ sub main(argc, argv)
 		if byte mode == byte ["c"] then
 			compress(fin, fout)
 		else
-			puts("unrecognized mode")
-			putch(10)
-			close(fin)
-			close(fout)
-			return 0
+			if byte mode == byte ["l"] then
+				literal(fin, fout)
+			else
+				puts("unrecognized mode")
+				putch(10)
+				close(fin)
+				close(fout)
+				return 0
+			end
 		end
 	end
 	close(fin)

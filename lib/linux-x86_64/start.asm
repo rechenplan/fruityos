@@ -16,15 +16,15 @@ __elf_program_header:
 	dq 0
 	dq 0x400000
 	dq 0x400000
-	dq __jabara_file_end - 0x400000
-	dq __jabara_file_end - 0x400000
+	dq __haruka_file_end - 0x400000
+	dq __haruka_file_end - 0x400000
 	dq 4096
 
 platform: db "linux-x86_64", 0
 
 _start:
 	lea	rax, [rel platform]
-	mov	[rel __jabara_global_platform], rax
+	mov	[rel __haruka_global_platform], rax
 	mov rax, [rsp]
 	mov rdx, [rsp + 8]
 	push rax

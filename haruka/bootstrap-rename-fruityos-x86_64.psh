@@ -1,0 +1,2 @@
+$root/bin/bootstrap/fruityos-x86_64/concat out/fruityos-x86_64/haruka.fap out/fruityos-x86_64/haruka
+$root/bin/bootstrap/fruityos-x86_64/concat $root/bin/haruka.fap out/fruityos-x86_64/haruka.fap

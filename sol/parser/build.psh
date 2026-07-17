@@ -1,5 +1,5 @@
-$root/bin/jc.psh $1 out/$1/parser-test model.jabara lexer.jabara parser.jabara tests/parser.jabara
-$root/bin/jc.psh $1 out/$1/parser-errors model.jabara lexer.jabara parser.jabara tests/errors.jabara
-$root/bin/jc.psh $1 out/$1/parser-instructions model.jabara lexer.jabara parser.jabara tests/instructions.jabara
-$root/bin/jc.psh $1 out/$1/parser-stress model.jabara lexer.jabara parser.jabara tests/stress.jabara
-$root/bin/jc.psh $1 out/$1/parser-words model.jabara lexer.jabara parser.jabara tests/words.jabara
+$root/bin/jc.psh $1 out/$1/parser-test model.hr lexer.hr parser.hr tests/parser.hr
+$root/bin/jc.psh $1 out/$1/parser-errors model.hr lexer.hr parser.hr tests/errors.hr
+$root/bin/jc.psh $1 out/$1/parser-instructions model.hr lexer.hr parser.hr tests/instructions.hr
+$root/bin/jc.psh $1 out/$1/parser-stress model.hr lexer.hr parser.hr tests/stress.hr
+$root/bin/jc.psh $1 out/$1/parser-words model.hr lexer.hr parser.hr tests/words.hr

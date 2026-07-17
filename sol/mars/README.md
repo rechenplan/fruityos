@@ -1,6 +1,6 @@
 # Mars
 
-Mars is the x86-64 flat-binary backend for Sol. It is written in Jabara and
+Mars is the x86-64 flat-binary backend for Sol. It is written in Haruka and
 consumes the shared parser in `../parser`.
 
 ```text

@@ -5,10 +5,10 @@ same source language and emits width-neutral textual Sol instead of x86-64
 Orgasm input.
 
 ```text
-haruka input.jabara [input.jabara ...] output.sol
+haruka input.hr [input.hr ...] output.sol
 ```
 
-Haruka's `model.jabara`, `lexer.jabara`, and `parser.jabara` are kept
+Haruka's `model.hr`, `lexer.hr`, and `parser.hr` are kept
 byte-identical to Jabara's corresponding frontend sources. Only the emitter and
 runtime boundary differ.
 
@@ -40,7 +40,7 @@ Closures are ordinary variable-sized records containing their code pointer and
 inline captured environment. They use the same allocation header and the same
 shallow lift operation as declared records.
 
-The shared width-neutral runtime is [`runtime.sol`](runtime.sol). It implements
+The shared width-neutral runtime is [`lib/haruka-runtime.sol`](../lib/haruka-runtime.sol). It implements
 local stack insertion and lexical-owner promotion using Sol word-scaled
 operations, so Mars, Luna, Terra, and Pluto can share the language lifetime
 model.
@@ -50,7 +50,7 @@ model.
 The test pipeline is:
 
 ```text
-Jabara-language source -> Haruka -> Sol -> Mars -> raw x86-64 -> host harness
+Haruka source (`.hr`) -> Haruka -> Sol -> Mars -> raw x86-64 -> host harness
 ```
 
 Tests cover locals, tagged records, field mutation, shallow pointer

@@ -889,6 +889,7 @@ sub em_emit_program(program:Program)
   em_line("\nalign 1w")
   binding = emitter.global_scope.bindings
   while binding != 0 do
+    em_text("global __haruka_global_") em_line(binding.name)
     em_text("__haruka_global_") em_text(binding.name) em_line(": word 0")
     binding = binding.next
   end

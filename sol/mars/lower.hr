@@ -1,6 +1,6 @@
 ; Sol and x86 register/opcode tags are kept literal in this hot lowering path.
-; Their public names and numeric values are documented in ../parser/model.jabara
-; and model.jabara.
+; Their public names and numeric values are documented in ../parser/model.hr
+; and model.hr.
 
 sub mars_visible_register(register)
   if register == 2 then return 0 end

@@ -1,5 +1,5 @@
 ; Numeric tags below match the SOL_TOKEN, SOL_TERM, SOL_OPERAND, SOL_ITEM,
-; SOL_REG, and SOL_OP values declared in model.jabara.  The named functions
+; SOL_REG, and SOL_OP values declared in model.hr.  The named functions
 ; remain the public API; literals keep the parser and Mars FAP compact.
 
 sub sol_clear_term(term:SolTerm)

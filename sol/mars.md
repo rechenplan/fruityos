@@ -2,7 +2,7 @@
 
 Mars is the Sol backend for x86-64.
 
-It is a flat assembler written in Jabara. Mars reads textual Sol, lays out the
+It is a flat assembler written in Haruka. Mars reads textual Sol, lays out the
 program, lowers each operation directly to x86-64 machine code, resolves
 symbols, and writes a raw binary file.
 
@@ -86,7 +86,7 @@ emitting a silent placeholder.
 
 ## Implementation structure
 
-Mars is implemented in Jabara using records and closures. The preferred style
+Mars is implemented in Haruka using records and closures. The preferred style
 is callback-oriented and lazy:
 
 - input files are cached once so both passes see identical bytes;

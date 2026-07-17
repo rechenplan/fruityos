@@ -82,6 +82,11 @@ sub mars_write_map(state:MarsState, path)
       mars_fd_putn(fd, symbol.address)
       fputch(fd, 10)
     end
+    if symbol.external && symbol.referenced && (symbol.defined == 0) then
+      mars_fd_put_slice(fd, "%define PITH_", 13)
+      mars_fd_put_slice(fd, symbol.name, symbol.length)
+      fputch(fd, 10)
+    end
     symbol = symbol.next
   end
   close(fd)

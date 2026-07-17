@@ -3,50 +3,49 @@
 ## Self-hosting bootstrap
 
 The bootstrap begins from one irreducible executable: the 254-byte DOS
-`stage0/petit.com`. Petit is reproduced by `stage0/petit.pm` and generates the
-raw Linux and Windows seed Orgasm executables from the 8.3-safe `orglin.pm` and
-`orgwin.pm` sources. The host seed first assembles `stage0/jbc.asm`; JBC compiles
-current Orgasm; the seed assembles current Orgasm once; current Orgasm assembles
-every remaining bootstrap image into `stage0/out`.
+`stage0/petit.com`. Petit reproduces the seed Orgasm binaries. The host seed
+assembles JBC; JBC produces the first Jabara compiler; that compiler builds
+current Orgasm and one bootstrap copy each of Haruka and Mars.
 
-A populated Linux, Windows, or FruityOS host uses Pish, Orgasm, Juicer, and
-Concat. No compiler binary, C compiler, shell toolchain, assembler package, or
-platform SDK is authoritative.
-
-Jabara owns compiler bootstrap. `jabara/src/jc/build.psh` links
-`jabara/src/jbc/jbc.asm` with `lib/$platform/link.psh`, installs the first host
-`jc`, rebuilds `jc` through the common driver, and then rebuilds Orgasm. Peel
-rebuilds Concat, Juicer, Pish, and the remaining host tools. The root then
-cross-builds FruityOS.
+Jabara is retained as the bootstrap language. Its sources remain `.jabara`, and
+its legacy driver is `bin/jb.psh`. Once bootstrap Haruka and Mars exist, every
+ordinary native and cross build uses Haruka -> Sol -> Mars through `bin/jc.psh`.
+Peel is then rebuilt through that default chain, followed by the rest of the
+system.
 
 ## Compiler drivers
 
 ```text
-bin/jc.psh PLATFORM OUTPUT SOURCE...
-bin/jc-linux-x86_64.psh OUTPUT SOURCE...
-bin/jc-windows-x86_64.psh OUTPUT SOURCE...
-bin/jc-fruityos-x86_64.psh OUTPUT SOURCE...
+bin/jc.psh PLATFORM OUTPUT SOURCE.hr...
+bin/jc-linux-x86_64.psh OUTPUT SOURCE.hr...
+bin/jc-windows-x86_64.psh OUTPUT SOURCE.hr...
+bin/jc-fruityos-x86_64.psh OUTPUT SOURCE.hr...
 ```
 
-`jc` itself emits headerless x86-64 module assembly:
+The default driver compiles Haruka source to Sol, lays it out with Mars, and
+cross-resolves platform assembly through Orgasm's symbol map. The selected
+platform linker adds the executable prefix, startup, Pith wrappers, runtime,
+and compression.
+
+Jabara and bootstrap-only inputs use the separate legacy driver:
 
 ```text
-jc input.jabara [input.jabara ...] output.asm
+bin/jb.psh PLATFORM OUTPUT SOURCE.jabara...
 ```
 
-The selected platform linker adds headers, startup, Pith wrappers, runtime, and
-compression.
+`jb.psh` invokes the Jabara compiler and the preserved Jabara/Orgasm platform
+linker. It is not used by normal application builds.
 
 ## Calling convention
 
-Jabara uses a callee-clean stack ABI. Arguments are evaluated and pushed left to
+Jabara and Haruka use the same callee-clean stack ABI. Arguments are evaluated and pushed left to
 right, so the final argument is nearest the return address. Platform runtimes
 adapt this ABI to Linux syscalls, the FruityOS syscall table, or Microsoft x64
 `kernel32.dll` calls.
 
 ## Pith reachability and imports
 
-JC emits `%define PITH_name` for referenced external calls. Orgasm's preprocessor
+Haruka emits external calls, and Mars's layout map emits `%define PITH_name` for referenced platform symbols. Orgasm's preprocessor
 supports nested `%ifdef`, `%ifndef`, `%else`, and `%endif`; directives in inactive
 branches have no side effects. Platform runtimes use those definitions to omit
 unreferenced wrappers. The Windows runtime also derives a conditional import
@@ -54,10 +53,10 @@ table, so each PE carries only the `kernel32.dll` APIs required by that program.
 
 ## Haruka and Mars
 
-Haruka implements the Jabara language but emits width-neutral Sol:
+Haruka implements the shared language and emits width-neutral Sol:
 
 ```text
-haruka input.jabara [input.jabara ...] output.sol
+haruka input.hr [input.hr ...] output.sol
 ```
 
 Mars consumes one logical Sol stream and emits a raw x86-64 image:

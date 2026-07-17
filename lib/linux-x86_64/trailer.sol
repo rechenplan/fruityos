@@ -1,0 +1,2 @@
+global __haruka_file_end
+__haruka_file_end:

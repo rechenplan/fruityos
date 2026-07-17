@@ -1,38 +1,38 @@
-$root/bin/jc.psh $1 out/$1/concat src/concat/concat.jabara
+$root/bin/jc.psh $1 out/$1/concat src/concat/concat.hr
 rename-$1.psh concat
-$root/bin/jc.psh $1 out/$1/juicer src/juicer/juicer.jabara
+$root/bin/jc.psh $1 out/$1/juicer src/juicer/juicer.hr
 rename-$1.psh juicer
-$root/bin/jc.psh $1 out/$1/pish src/pish/pish.jabara
+$root/bin/jc.psh $1 out/$1/pish src/pish/pish.hr
 rename-$1.psh pish
-$root/bin/jc.psh $1 out/$1/copy src/copy/copy.jabara
+$root/bin/jc.psh $1 out/$1/copy src/copy/copy.hr
 rename-$1.psh copy
-$root/bin/jc.psh $1 out/$1/del src/del/del.jabara
+$root/bin/jc.psh $1 out/$1/del src/del/del.hr
 rename-$1.psh del
-$root/bin/jc.psh $1 out/$1/dir src/dir/dir.jabara
+$root/bin/jc.psh $1 out/$1/dir src/dir/dir.hr
 rename-$1.psh dir
-$root/bin/jc.psh $1 out/$1/echo src/echo/echo.jabara
+$root/bin/jc.psh $1 out/$1/echo src/echo/echo.hr
 rename-$1.psh echo
-$root/bin/jc.psh $1 out/$1/fill src/fill/fill.jabara
+$root/bin/jc.psh $1 out/$1/fill src/fill/fill.hr
 rename-$1.psh fill
-$root/bin/jc.psh $1 out/$1/fred src/fred/fred.jabara
+$root/bin/jc.psh $1 out/$1/fred src/fred/fred.hr
 rename-$1.psh fred
-$root/bin/jc.psh $1 out/$1/inode src/inode/inode.jabara
+$root/bin/jc.psh $1 out/$1/inode src/inode/inode.hr
 rename-$1.psh inode
-$root/bin/jc.psh $1 out/$1/jar src/jar/jar.jabara
+$root/bin/jc.psh $1 out/$1/jar src/jar/jar.hr
 rename-$1.psh jar
-$root/bin/jc.psh $1 out/$1/mkdir src/mkdir/mkdir.jabara
+$root/bin/jc.psh $1 out/$1/mkdir src/mkdir/mkdir.hr
 rename-$1.psh mkdir
-$root/bin/jc.psh $1 out/$1/move src/move/move.jabara
+$root/bin/jc.psh $1 out/$1/move src/move/move.hr
 rename-$1.psh move
-$root/bin/jc.psh $1 out/$1/pad src/pad/pad.jabara
+$root/bin/jc.psh $1 out/$1/pad src/pad/pad.hr
 rename-$1.psh pad
-$root/bin/jc.psh $1 out/$1/rmdir src/rmdir/rmdir.jabara
+$root/bin/jc.psh $1 out/$1/rmdir src/rmdir/rmdir.hr
 rename-$1.psh rmdir
-$root/bin/jc.psh $1 out/$1/type src/type/type.jabara
+$root/bin/jc.psh $1 out/$1/type src/type/type.hr
 rename-$1.psh type
-$root/bin/jc.psh $1 out/$1/uefi src/uefi/uefi.jabara
+$root/bin/jc.psh $1 out/$1/uefi src/uefi/uefi.hr
 rename-$1.psh uefi
-$root/bin/jc.psh $1 out/$1/write src/write/write.jabara
+$root/bin/jc.psh $1 out/$1/write src/write/write.hr
 rename-$1.psh write
 del out/$1/concat out/$1/juicer out/$1/pish out/$1/copy out/$1/del out/$1/dir
 del out/$1/echo out/$1/fill out/$1/fred out/$1/inode out/$1/jar out/$1/mkdir

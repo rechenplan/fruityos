@@ -3,7 +3,7 @@ sub main(argc, argv)
   local source, program:Program
   if argc < 3 then
     jc_output = 2
-    jc_line("usage: haruka input.jabara [input.jabara ...] output.sol")
+    jc_line("usage: haruka input.hr [input.hr ...] output.sol")
     return 1
   end
   input_path = jc_next_argument(argv)

@@ -1257,9 +1257,6 @@ __win_name_WriteFile: dw 0
 	db "WriteFile",0
 %endif
 
-__win_section_end:
-__win_section_virtual_size equ __win_section_end-__win_section_start
-align 512
-__win_file_end:
+__win_section_virtual_size equ __win_file_end-__win_section_start
 __win_section_raw_size equ __win_file_end-__win_section_start
 __win_image_size equ __win_file_end-WIN_IMAGE_BASE

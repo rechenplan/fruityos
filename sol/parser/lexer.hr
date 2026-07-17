@@ -1,4 +1,4 @@
-; Numeric tags below are the public SOL_TOKEN_* values from model.jabara.
+; Numeric tags below are the public SOL_TOKEN_* values from model.hr.
 ; Keeping them literal inside the hot lexer avoids a native call per token.
 
 sub sol_is_space(character)

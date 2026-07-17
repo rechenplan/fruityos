@@ -36,6 +36,7 @@ bin/concat.psh
 The common compiler driver and its thin platform selectors are:
 
 ```text
+bin/jb.psh
 bin/jc.psh
 bin/jc-linux-x86_64.psh
 bin/jc-windows-x86_64.psh

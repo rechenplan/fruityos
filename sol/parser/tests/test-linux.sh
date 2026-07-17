@@ -17,8 +17,8 @@ mkdir -p "$tmp"
 build() {
     name=$1
     "$jc" "$root/lib/linux-x86_64/pith.jabara" \
-        "$parser/model.jabara" "$parser/lexer.jabara" "$parser/parser.jabara" \
-        "$here/$name.jabara" "$tmp/$name.asm"
+        "$parser/model.hr" "$parser/lexer.hr" "$parser/parser.hr" \
+        "$here/$name.hr" "$tmp/$name.asm"
     "$root/bin/orgasm" "$root/lib/linux-x86_64/start.asm" "$tmp/$name.asm" \
         "$root/lib/linux-x86_64/runtime.asm" "$tmp/$name.raw"
     "$root/bin/orgasm" "$root/lib/linux-x86_64/juicer-decode-stub.asm" "$tmp/stub"

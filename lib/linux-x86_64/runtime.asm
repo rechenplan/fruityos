@@ -415,7 +415,6 @@ dup2:
 	ret
 %endif
 
-__jabara_file_end:
 
 %ifdef PITH_juicer_decode64
 bits 64

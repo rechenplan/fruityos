@@ -68,7 +68,7 @@ platform: db "windows-x86_64",0
 
 _start:
 	lea rax,[rel platform]
-	mov [rel __jabara_global_platform],rax
+	mov [rel __haruka_global_platform],rax
 	call __win_init_args
 	push rax
 	push rdx

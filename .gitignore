@@ -17,9 +17,12 @@ out
 !/bin/bootstrap/fruityos-x86_64/concat.fap
 !/bin/pish
 !/bin/pish.fap
+!/bin/pish.exe
+!/bin/jb.psh
 !/bin/jc.psh
 !/bin/jc-linux-x86_64.psh
 !/bin/jc-fruityos-x86_64.psh
+!/bin/jc-windows-x86_64.psh
 !/bin/orgasm.psh
 !/bin/juicer.psh
 !/bin/concat.psh

@@ -13,25 +13,23 @@ cd jabara
 build.psh $platform fruityos-x86_64
 ```
 
-Jabara owns the complete compiler bootstrap. Bootstrap Orgasm lives under
+Jabara owns the legacy bootstrap boundary. Bootstrap Orgasm lives under
 `bin/bootstrap/$platform/`, and the repository checks in `src/jbc/jbc.asm`, but
 no compiler executable. The compiler source build:
 
-1. links `src/jbc/jbc.asm` with the ordinary host platform linker;
-2. installs the resulting first compiler as `bin/jc.<host-extension>`;
-3. rebuilds `jc` through the common compiler driver;
+1. links `src/jbc/jbc.asm` with the preserved Jabara platform linker;
+2. installs the first compiler as `bin/jabara.<host-extension>`;
+3. builds one current Jabara compiler generation through `bin/jb.psh`;
 4. rebuilds and installs host Orgasm;
-5. cross-builds `jc`, Orgasm, and `jc.asm` for FruityOS.
+5. cross-builds Jabara, Orgasm, and the Jabara FAP module for FruityOS.
 
 Host outputs use the active platform suffix:
 
 ```text
 jabara/out/linux-x86_64/jc.elf
-jabara/out/linux-x86_64/jc-self.elf
 jabara/out/linux-x86_64/orgasm.elf
 
 jabara/out/windows-x86_64/jc.exe
-jabara/out/windows-x86_64/jc-self.exe
 jabara/out/windows-x86_64/orgasm.exe
 
 jabara/out/fruityos-x86_64/jc.fap
@@ -44,10 +42,16 @@ The FruityOS target build also publishes:
 jabara/out/fruityos-x86_64/jc.asm
 ```
 
-The compiler interface is:
+The installed compiler interface is:
 
 ```text
-jc input.jabara [input.jabara ...] output.asm
+jabara input.jabara [input.jabara ...] output.asm
+```
+
+The executable-building legacy driver is:
+
+```text
+bin/jb.psh PLATFORM OUTPUT SOURCE.jabara...
 ```
 
 The current language uses `new Record` for record construction and `lift var`

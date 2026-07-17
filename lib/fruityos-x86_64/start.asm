@@ -3,8 +3,8 @@ org 0x801000
 
 _start:
 	lea	rax, [rel platform]
-	mov	[rel __jabara_global_platform], rax
-	jmp __jabara_fap_start
+	mov	[rel __haruka_global_platform], rax
+	jmp __haruka_fap_start
 
 platform: db "fruityos-x86_64", 0
 

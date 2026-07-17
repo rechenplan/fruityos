@@ -36,18 +36,22 @@ per target directly in `stage0/out`:
 host suffix. As soon as a rebuilt `bin/<tool>.<suffix>` exists, normal binary
 lookup selects it before the launcher.
 
-No `jc` executable is checked in. Jabara uses the ordinary host linker to create
-and install the first compiler, then every subsequent native or cross build uses
-`bin/jc.psh PLATFORM OUTPUT SOURCES...`.
+No compiler executable is checked in. JBC creates the first Jabara compiler,
+which is installed as `bin/jabara.<suffix>`. The legacy `bin/jb.psh` driver then
+builds current Orgasm plus bootstrap Haruka, Mars, Juicer, and Pad. Every normal
+native or cross build after that uses
+`bin/jc.psh PLATFORM OUTPUT SOURCE.hr...`.
 
 ## Root pipeline
 
-1. `jabara/build.psh $platform fruityos-x86_64` creates host `jc`/Orgasm and
-   cross-builds their FruityOS forms.
-2. `peel/build.psh $platform` builds and immediately installs the host Peel tools.
-3. Haruka and Mars are built for the host and for FruityOS.
-4. `yuzu/build.psh $platform` builds host Yuzu; a second call builds FruityOS Yuzu.
-5. `peel/build.psh fruityos-x86_64` builds the target userland.
+1. `jabara/build.psh $platform fruityos-x86_64` creates legacy Jabara and
+   Orgasm for the host and FruityOS.
+2. `peel/bootstrap.psh`, `haruka/bootstrap.psh`, and `sol/mars/bootstrap.psh`
+   create the minimal host tools needed to leave the legacy chain.
+3. Haruka and Mars rebuild themselves through the default Haruka -> Sol -> Mars
+   path for the host and FruityOS.
+4. Peel rebuilds all host tools through the default path.
+5. Yuzu builds for the host and FruityOS; Peel builds the FruityOS userland.
 6. Seed and Pulp build for `fruityos-x86_64`.
 7. The root script stages the initrd and produces BIOS and UEFI images.
 
@@ -59,11 +63,11 @@ beneath its own `out/$1`. Rename helpers publish extension-bearing executables:
 ## Pulp mixed-language image
 
 Pulp is linked as two adjacent flat regions. Handwritten x86-64 remains in
-Orgasm; Jabara-language kernel sources are compiled by Haruka to Sol and by
+Orgasm; Haruka-language kernel sources are compiled by Haruka to Sol and by
 Mars to x86-64 bytes.
 
 ```text
-Jabara-language Pulp sources -> Haruka -> pulp.sol
+Pulp `.hr` sources          -> Haruka -> pulp.sol
 pulp.sol at 0x11200         -> Mars layout map
 assembly + Sol map          -> Orgasm -> 0x10000 region + assembly map
 pulp.sol + assembly map     -> Mars -> 0x11200 region
@@ -81,24 +85,26 @@ retains the existing 8 KiB compressed-kernel limit.
 Each compiler driver selects:
 
 ```text
-lib/<platform>/pith.jabara
+lib/<platform>/pith.hr
 lib/<platform>/start.asm
 lib/<platform>/runtime.asm
+lib/<platform>/trailer.sol
 lib/<platform>/link.psh
 ```
 
 ### Linux x86-64
 
-Orgasm creates a raw static ELF. Juicer compresses it. Concat appends the stream
-to a small ELF launcher, which mmaps the decoded image at `0x400000`, reads
-`e_entry`, restores the native process stack, and enters it.
+Mars first exports the Haruka region's symbols. Orgasm uses that map to build a
+fixed 1 KiB ELF/startup/runtime prefix, then Mars resolves the assembly symbols
+and emits the adjacent code region. Concat joins both regions; Juicer compresses
+the result and a small ELF decode stub enters it at its linked address.
 
 ### Windows x86-64
 
-Orgasm creates a one-section PE32+ console image with 512-byte file and section
-alignment, no CRT, no import library, and only the `kernel32.dll` APIs selected
-by Pith reachability. Juicer compresses that PE. Concat appends it to a compact
-PE32+ launcher that:
+The same two-map protocol builds a fixed 4 KiB PE32+ prefix followed by the Mars
+region. The runtime has no CRT or import library and includes only the
+`kernel32.dll` APIs selected by Pith reachability. Juicer compresses that PE and
+Concat appends it to a compact PE32+ launcher that:
 
 1. opens its own executable;
 2. reads the appended Juicer stream;

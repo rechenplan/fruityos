@@ -1,4 +1,2 @@
-mkdir out
-mkdir out/$1
-$root/bin/jc.psh $1 out/$1/haruka src/runtime.jabara src/model.jabara src/lexer.jabara src/parser.jabara src/emitter.jabara src/main.jabara
+$root/bin/jc.psh $1 out/$1/haruka src/runtime.hr src/model.hr src/lexer.hr src/parser.hr src/emitter.hr src/main.hr
 rename-$1.psh

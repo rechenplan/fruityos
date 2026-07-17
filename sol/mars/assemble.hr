@@ -1,4 +1,4 @@
-; Sol item and term tags below match ../parser/model.jabara.
+; Sol item and term tags below match ../parser/model.hr.
 
 sub mars_data_width(item:SolItem)
   if item.width == 0 then return 8 end

@@ -1,3 +1,3 @@
-$root/bin/jc.psh $1 out/$1/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
+$root/bin/jb.psh $1 out/$1/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
 $root/jabara/install-$1.psh orgasm out/$1/orgasm
-$root/bin/jc.psh $2 out/$2/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
+$root/bin/jb.psh $2 out/$2/orgasm main.jabara lex.jabara modern.jabara parse.jabara emit.jabara
