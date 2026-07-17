@@ -16,12 +16,10 @@ the 254-byte DOS assembler `stage0/petit.com`; the process is documented in
 
 ## Build
 
-Run the native Pish entrypoint from the repository root:
+On Linux, Windows, and FruityOS, run the native Pish entrypoint from the repository root:
 
 ```text
-FruityOS: bin/pish build.psh
-Linux:    bin/pish build.psh
-Windows:  bin\pish build.psh
+bin/pish build.psh
 ```
 
 The build writes BIOS and UEFI images beneath `out/`. See
