@@ -6,6 +6,15 @@ cd peel
 build.psh $platform
 cd ..
 
+cd haruka
+build.psh $platform
+build.psh fruityos-x86_64
+cd ..
+
+cd sol/mars
+build.psh $platform
+build.psh fruityos-x86_64
+cd ../..
 
 mkdir out
 cd yuzu
@@ -70,6 +79,8 @@ copy peel/out/fruityos-x86_64/type.fap initrd/bin/type.fap
 copy peel/out/fruityos-x86_64/write.fap initrd/bin/write.fap
 copy peel/out/fruityos-x86_64/fill.fap initrd/bin/fill.fap
 copy jabara/out/fruityos-x86_64/jc.fap initrd/bin/jc.fap
+copy haruka/out/fruityos-x86_64/haruka.fap initrd/bin/haruka.fap
+copy sol/mars/out/fruityos-x86_64/mars.fap initrd/bin/mars.fap
 copy bin/jc.psh initrd/bin/jc.psh
 copy bin/jc-linux-x86_64.psh initrd/bin/jc-linux-x86_64.psh
 copy bin/jc-fruityos-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh

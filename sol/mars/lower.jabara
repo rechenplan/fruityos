@@ -1,0 +1,404 @@
+; Sol and x86 register/opcode tags are kept literal in this hot lowering path.
+; Their public names and numeric values are documented in ../parser/model.jabara
+; and model.jabara.
+
+sub mars_visible_register(register)
+  if register == 2 then return 0 end
+  if register == 3 then return 3 end
+  if register == 4 then return 1 end
+  if register == 5 then return 2 end
+  if register == 6 then return 5 end
+  if register == 7 then return 4 end
+  return -1
+end
+
+sub mars_direct_register(term:SolTerm)
+  if term.kind != 1 then return -1 end
+  if (term.register == 1) || (term.register == 8) then return -1 end
+  return mars_visible_register(term.register)
+end
+
+sub mars_direct_memory(operand:SolOperand)
+  if mars_direct_register(operand.base) < 0 then return 0 end
+  if (operand.offset.kind == 2) ||
+     (operand.offset.kind == 5) then return 1 end
+  return 0
+end
+
+sub mars_direct_offset(operand:SolOperand)
+  if operand.offset.kind == 5 then return operand.offset.number * 8 end
+  return operand.offset.number
+end
+
+sub mars_fast_move(state:MarsState, item:SolItem, next_ip)
+  local destination = mars_visible_register(item.first.value.register), source
+  if item.first.value.register == 1 then return 1 end
+  if destination < 0 then return 0 end
+  if item.second.value.kind == 2 then
+    mars_mov_ri(state, destination, item.second.value.number)
+    return 1
+  end
+  if item.second.value.kind == 5 then
+    mars_mov_ri(state, destination, item.second.value.number * 8)
+    return 1
+  end
+  if item.second.value.kind != 1 then return 0 end
+  if item.second.value.register == 1 then
+    mars_mov_ri(state, destination, 0)
+    return 1
+  end
+  if item.second.value.register == 8 then
+    mars_mov_abs(state, destination, next_ip)
+    return 1
+  end
+  source = mars_visible_register(item.second.value.register)
+  if source < 0 then return 0 end
+  if destination != source then mars_mov_rr(state, destination, source) end
+  return 1
+end
+
+sub mars_fast_binary(state:MarsState, item:SolItem)
+  local operation = item.operation
+  local destination = mars_visible_register(item.first.value.register)
+  local left = mars_direct_register(item.second.value)
+  local right = mars_direct_register(item.third.value), source
+  if (destination < 0) || (left < 0) || (right < 0) then return 0 end
+
+  if (operation >= 12) && (operation <= 17) then
+    mars_cmp_rr(state, left, right)
+    mars_setcc(state, mars_compare_condition(operation), destination)
+    mars_movzx_byte(state, destination, destination)
+    return 1
+  end
+
+  if (operation == 10) || (operation == 11) then
+    if destination != left then return 0 end
+    if right == 1 then
+      if operation == 10 then mars_shift_cl(state, 4, destination)
+      else mars_shift_cl(state, 5, destination) end
+      return 1
+    end
+    if (destination == 1) || (destination == 4) then return 0 end
+    mars_push_r(state, 1)
+    mars_mov_rr(state, 1, right)
+    if operation == 10 then mars_shift_cl(state, 4, destination)
+    else mars_shift_cl(state, 5, destination) end
+    mars_pop_r(state, 1)
+    return 1
+  end
+
+  if operation == 3 then
+    if destination != left then return 0 end
+    mars_binary_rr(state, 41, destination, right)
+    return 1
+  end
+
+  if (operation == 2) || (operation == 4) ||
+     (operation == 7) || (operation == 8) ||
+     (operation == 9) then
+    if destination == left then source = right
+    else
+      if destination == right then source = left else return 0 end
+    end
+    if operation == 2 then mars_binary_rr(state, 1, destination, source) end
+    if operation == 4 then mars_imul_rr(state, destination, source) end
+    if operation == 7 then mars_binary_rr(state, 33, destination, source) end
+    if operation == 8 then mars_binary_rr(state, 9, destination, source) end
+    if operation == 9 then mars_binary_rr(state, 49, destination, source) end
+    return 1
+  end
+  return 0
+end
+
+sub mars_fast_load(state:MarsState, item:SolItem)
+  local destination = mars_visible_register(item.first.value.register)
+  if item.first.value.register == 1 then return 1 end
+  if (destination < 0) || (mars_direct_memory(item.second) == 0) then return 0 end
+  mars_load_memory(state, destination, mars_direct_register(item.second.base),
+                   mars_direct_offset(item.second), item.operation == 19)
+  return 1
+end
+
+sub mars_fast_store(state:MarsState, item:SolItem)
+  local source, base
+  if mars_direct_memory(item.first) == 0 then return 0 end
+  base = mars_direct_register(item.first.base)
+  if (item.second.value.kind == 1) &&
+     (item.second.value.register == 1) then
+    mars_store_zero(state, base, mars_direct_offset(item.first), item.operation == 21)
+    return 1
+  end
+  source = mars_direct_register(item.second.value)
+  if source < 0 then return 0 end
+  mars_store_memory(state, base, mars_direct_offset(item.first), source,
+                    item.operation == 21)
+  return 1
+end
+
+sub mars_fast_branch(state:MarsState, item:SolItem)
+  local condition = mars_direct_register(item.first.value), target, symbol:MarsSymbol
+  if (condition < 0) || (item.second.value.kind != 3) then return 0 end
+  symbol = mars_get_symbol(state, item.second.value.text, item.second.value.length)
+  target = mars_symbol_value(state, item.second.value)
+  mars_test_rr(state, condition, condition)
+  if item.operation == 22 then mars_branch_symbol(state, 132, target, state.round > 1 && symbol.defined && (symbol.external == 0))
+  else mars_branch_symbol(state, 133, target, state.round > 1 && symbol.defined && (symbol.external == 0)) end
+  return 1
+end
+
+sub mars_fast_unary(state:MarsState, item:SolItem)
+  local destination = mars_visible_register(item.first.value.register)
+  local source = mars_direct_register(item.second.value)
+  if (destination < 0) || (source < 0) then return 0 end
+  if item.operation == 33 then
+    mars_test_rr(state, source, source)
+    mars_setcc(state, 149, destination)
+    mars_movzx_byte(state, destination, destination)
+    return 1
+  end
+  if destination != source then mars_mov_rr(state, destination, source) end
+  if item.operation == 31 then mars_unary_r(state, 3, destination)
+  else mars_unary_r(state, 2, destination) end
+  return 1
+end
+
+sub mars_load_term(state:MarsState, term:SolTerm, target, next_ip)
+  local source
+  if term.kind == 2 then
+    mars_mov_ri(state, target, term.number)
+    return 0
+  end
+  if term.kind == 5 then
+    mars_mov_ri(state, target, term.number * 8)
+    return 0
+  end
+  if term.kind == 3 then
+    mars_mov_abs(state, target, mars_symbol_value(state, term))
+    return 0
+  end
+  if term.kind != 1 then mars_error(state.item, "internal operand error") end
+  if term.register == 1 then
+    mars_mov_ri(state, target, 0)
+    return 0
+  end
+  if term.register == 8 then
+    mars_mov_abs(state, target, next_ip)
+    return 0
+  end
+  source = mars_visible_register(term.register)
+  if source < 0 then mars_error(state.item, "internal register error") end
+  mars_mov_rr(state, target, source)
+end
+
+sub mars_commit(state:MarsState, register, source)
+  local destination
+  if register == 1 then return 0 end
+  if register == 8 then
+    mars_jmp_r(state, source)
+    return 0
+  end
+  destination = mars_visible_register(register)
+  if destination < 0 then mars_error(state.item, "internal destination error") end
+  mars_mov_rr(state, destination, source)
+end
+
+sub mars_memory_address(state:MarsState, operand:SolOperand, next_ip)
+  mars_load_term(state, operand.base, 8, next_ip)
+  mars_load_term(state, operand.offset, 9, next_ip)
+  mars_binary_rr(state, 1, 8, 9)
+end
+
+sub mars_compare_condition(operation)
+  if operation == 12 then return 148 end
+  if operation == 13 then return 149 end
+  if operation == 14 then return 156 end
+  if operation == 15 then return 158 end
+  if operation == 16 then return 159 end
+  if operation == 17 then return 157 end
+  return 0
+end
+
+sub mars_lower_binary(state:MarsState, item:SolItem, next_ip)
+  local operation = item.operation
+  mars_load_term(state, item.second.value, 8, next_ip)
+  mars_load_term(state, item.third.value, 9, next_ip)
+
+  if operation == 2 then mars_binary_rr(state, 1, 8, 9) end
+  if operation == 3 then mars_binary_rr(state, 41, 8, 9) end
+  if operation == 4 then mars_imul_rr(state, 8, 9) end
+  if operation == 7 then mars_binary_rr(state, 33, 8, 9) end
+  if operation == 8 then mars_binary_rr(state, 9, 8, 9) end
+  if operation == 9 then mars_binary_rr(state, 49, 8, 9) end
+
+  if (operation == 10) || (operation == 11) then
+    mars_mov_rr(state, 10, 1)
+    mars_mov_rr(state, 1, 9)
+    if operation == 10 then mars_shift_cl(state, 4, 8)
+    else mars_shift_cl(state, 5, 8) end
+    mars_mov_rr(state, 1, 10)
+  end
+
+  if (operation == 5) || (operation == 6) then
+    mars_mov_rr(state, 10, 0)
+    mars_mov_rr(state, 11, 2)
+    mars_mov_rr(state, 0, 8)
+    mars_mov_ri(state, 2, 0)
+    mars_div_r(state, 9)
+    if operation == 5 then mars_mov_rr(state, 8, 0)
+    else mars_mov_rr(state, 8, 2) end
+    mars_mov_rr(state, 0, 10)
+    mars_mov_rr(state, 2, 11)
+  end
+
+  if (operation >= 12) && (operation <= 17) then
+    mars_cmp_rr(state, 8, 9)
+    mars_setcc(state, mars_compare_condition(operation), 8)
+    mars_movzx_byte(state, 8, 8)
+  end
+
+  mars_commit(state, item.first.value.register, 8)
+end
+
+sub mars_lower_branch(state:MarsState, item:SolItem, next_ip)
+  local branch_if_zero = item.operation == 22, target, skip, symbol:MarsSymbol
+  mars_load_term(state, item.first.value, 8, next_ip)
+  if item.second.value.kind == 3 then
+    symbol = mars_get_symbol(state, item.second.value.text, item.second.value.length)
+    target = mars_symbol_value(state, item.second.value)
+    mars_test_rr(state, 8, 8)
+    if branch_if_zero then mars_branch_symbol(state, 132, target, state.round > 1 && symbol.defined && (symbol.external == 0))
+    else mars_branch_symbol(state, 133, target, state.round > 1 && symbol.defined && (symbol.external == 0)) end
+    return 0
+  end
+
+  mars_load_term(state, item.second.value, 9, next_ip)
+  mars_test_rr(state, 8, 8)
+  skip = state.address + 9
+  if branch_if_zero then mars_jcc32(state, 133, skip)
+  else mars_jcc32(state, 132, skip) end
+  mars_jmp_r(state, 9)
+end
+
+sub mars_lower_instruction(state:MarsState, item:SolItem, next_ip)
+  local operation = item.operation, target, address, symbol:MarsSymbol
+  state.item = item
+  if (operation != 20) || (item.second.value.kind != 1) ||
+     (item.second.value.register != 1) || (mars_direct_memory(item.first) == 0) then
+    state.zero_valid = 0
+  end
+
+  if operation == 34 then mars_byte(state, 144) return 0 end
+
+  if operation == 1 then
+    if mars_fast_move(state, item, next_ip) then return 0 end
+    mars_load_term(state, item.second.value, 8, next_ip)
+    mars_commit(state, item.first.value.register, 8)
+    return 0
+  end
+
+  if (operation >= 2) && (operation <= 17) then
+    if mars_fast_binary(state, item) then return 0 end
+    mars_lower_binary(state, item, next_ip)
+    return 0
+  end
+
+  if (operation == 18) || (operation == 19) then
+    if mars_fast_load(state, item) then return 0 end
+    mars_memory_address(state, item.second, next_ip)
+    mars_load_memory(state, 8, 8, 0, operation == 19)
+    mars_commit(state, item.first.value.register, 8)
+    return 0
+  end
+
+  if (operation == 20) || (operation == 21) then
+    if mars_fast_store(state, item) then return 0 end
+    mars_memory_address(state, item.first, next_ip)
+    mars_load_term(state, item.second.value, 10, next_ip)
+    mars_store_memory(state, 8, 0, 10, operation == 21)
+    return 0
+  end
+
+  if (operation == 22) || (operation == 23) then
+    if mars_fast_branch(state, item) then return 0 end
+    mars_lower_branch(state, item, next_ip)
+    return 0
+  end
+
+  if (operation == 24) || (operation == 25) then
+    if item.first.value.kind == 3 then
+      symbol = mars_get_symbol(state, item.first.value.text, item.first.value.length)
+      target = mars_symbol_value(state, item.first.value)
+      if operation == 24 then
+        mars_branch_symbol(state, 233, target, state.round > 1 && symbol.defined && (symbol.external == 0))
+      else mars_rel32(state, 232, target) end
+    else
+      mars_load_term(state, item.first.value, 8, next_ip)
+      if operation == 24 then mars_jmp_r(state, 8)
+      else mars_call_r(state, 8) end
+    end
+    return 0
+  end
+
+  if operation == 26 then
+    mars_ret(state, item.first.value.number)
+    return 0
+  end
+
+  if operation == 27 then
+    target = mars_direct_register(item.first.value)
+    if target >= 0 then mars_push_r(state, target) return 0 end
+    mars_load_term(state, item.first.value, 8, next_ip)
+    mars_push_r(state, 8)
+    return 0
+  end
+
+  if operation == 28 then
+    target = mars_visible_register(item.first.value.register)
+    if target >= 0 then mars_pop_r(state, target) return 0 end
+    mars_pop_r(state, 8)
+    mars_commit(state, item.first.value.register, 8)
+    return 0
+  end
+
+  if operation == 29 then
+    mars_enter(state, item.first.value.number)
+    return 0
+  end
+
+  if operation == 30 then
+    if item.first.value.register == 1 then return 0 end
+    symbol = mars_get_symbol(state, item.second.value.text, item.second.value.length)
+    address = mars_symbol_value(state, item.second.value)
+    target = mars_visible_register(item.first.value.register)
+    if target < 0 then target = 8 end
+    if (state.round > 1) && symbol.defined && (symbol.external == 0) && (address >= 0) && (address <= 4294967295) then
+      mars_mov_ri(state, target, address)
+    else mars_mov_abs(state, target, address) end
+    if item.first.value.register == 8 then mars_commit(state, 8, target) end
+    return 0
+  end
+
+  if (operation == 31) || (operation == 32) || (operation == 33) then
+    if mars_fast_unary(state, item) then return 0 end
+    mars_load_term(state, item.second.value, 8, next_ip)
+    if operation == 31 then mars_unary_r(state, 3, 8) end
+    if operation == 32 then mars_unary_r(state, 2, 8) end
+    if operation == 33 then
+      mars_test_rr(state, 8, 8)
+      mars_setcc(state, 149, 8)
+      mars_movzx_byte(state, 8, 8)
+    end
+    mars_commit(state, item.first.value.register, 8)
+    return 0
+  end
+
+  mars_error(item, "Mars has no lowering for this operation")
+end
+
+sub mars_measure_instruction(state:MarsState, item:SolItem)
+  state.measuring = 1
+  state.measure_count = 0
+  mars_lower_instruction(state, item, 0)
+  state.measuring = 0
+  return state.measure_count
+end

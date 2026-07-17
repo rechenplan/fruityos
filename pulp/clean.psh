@@ -1,4 +1,5 @@
-del out/$1/pulp.bin out/$1/pulp.sys tmp/$1/pulp-generated.asm
+del out/$1/pulp.bin out/$1/pulp.sys
+del tmp/$1/pulp.sol tmp/$1/sol.map tmp/$1/asm.map tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin
 rmdir tmp/$1
 rmdir out/$1
 rmdir tmp

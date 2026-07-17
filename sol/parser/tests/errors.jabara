@@ -1,0 +1,36 @@
+sub parser_has_error(parser:SolParser, source:SolSource, text)
+  local item:SolItem
+  source.text = text
+  sol_reset(parser)
+  while 1 do
+    item = sol_next(parser)
+    if item.kind == SOL_ITEM_ERROR() then return 1 end
+    if item.kind == SOL_ITEM_EOF() then return 0 end
+  end
+end
+
+sub main(argc, argv)
+  local source:SolSource = new SolSource, parser:SolParser
+  source.name = "error.sol"
+  source.text = "sol 1\n"
+  parser = sol_parser_new(source)
+
+  if parser_has_error(parser, source, "nop\n") == 0 then return 1 end
+  if parser_has_error(parser, source, "sol 2\n") == 0 then return 2 end
+  if parser_has_error(parser, source, "sol 1\nwat\n") == 0 then return 3 end
+  if parser_has_error(parser, source, "sol 1\nld a, [fp - label]\n") == 0 then return 4 end
+  if parser_has_error(parser, source, "sol 1\ndb 1,\n") == 0 then return 5 end
+  if parser_has_error(parser, source, "sol 1\ndb \"bad\\q\"\n") == 0 then return 6 end
+  if parser_has_error(parser, source, "sol 1\nmov nope, 1\n") == 0 then return 7 end
+  if parser_has_error(parser, source, "sol 1\na:\n") == 0 then return 8 end
+  if parser_has_error(parser, source, "sol 1\nglobal sp\n") == 0 then return 9 end
+  if parser_has_error(parser, source, "sol 1\ndb a\n") == 0 then return 10 end
+  if parser_has_error(parser, source, "sol 1\ndq 0x10000000000000000\n") == 0 then return 11 end
+  if parser_has_error(parser, source, "sol 1\ndq 0b10000000000000000000000000000000000000000000000000000000000000000\n") == 0 then return 12 end
+  if parser_has_error(parser, source, "sol 1\ndq 18446744073709551616\n") == 0 then return 13 end
+  if parser_has_error(parser, source, "sol 1\norg 2w\n") == 0 then return 14 end
+  if parser_has_error(parser, source, "sol 1\nenter 2w\n") == 0 then return 15 end
+  if parser_has_error(parser, source, "sol 1\ndq 184467440737095516150\n") == 0 then return 16 end
+  if parser_has_error(parser, source, "sol 1\ndq 00018446744073709551616\n") == 0 then return 17 end
+  return 0
+end

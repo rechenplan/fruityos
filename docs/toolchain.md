@@ -1,4 +1,4 @@
-# Jabara, Orgasm, and Yuzu toolchains
+# Jabara, Haruka, Mars, Orgasm, and Yuzu toolchains
 
 ## Self-hosting bootstrap
 
@@ -52,15 +52,40 @@ branches have no side effects. Platform runtimes use those definitions to omit
 unreferenced wrappers. The Windows runtime also derives a conditional import
 table, so each PE carries only the `kernel32.dll` APIs required by that program.
 
+## Haruka and Mars
+
+Haruka implements the Jabara language but emits width-neutral Sol:
+
+```text
+haruka input.jabara [input.jabara ...] output.sol
+```
+
+Mars consumes one logical Sol stream and emits a raw x86-64 image:
+
+```text
+mars input.sol [input.sol ...] output.bin
+mars -o ORIGIN -M output.map input.sol [input.sol ...]
+```
+
+`-o` supplies an implicit origin when the stream has no `org`. `-M` performs
+layout only, permits declared externals to remain unresolved, and writes global
+symbols as `name equ address` for a later assembly pass.
+
 ## Orgasm
 
 ```text
 orgasm input.asm [input.asm ...] output
+orgasm -m output.map input.asm [input.asm ...] output
 ```
 
-Inputs share one symbol table. Orgasm implements the compact x86-64 subset used
-by FruityOS. Windows runtime assembly deliberately works within that subset
-rather than expanding Orgasm for isolated instruction forms.
+Inputs share one symbol table. With `-m`, Orgasm writes resolved symbols in the
+same `name equ address` format accepted by Sol. Pulp uses the two map modes to
+cross-resolve handwritten assembly and Mars-generated code without introducing
+an object format or general linker.
+
+Orgasm implements the compact x86-64 subset used by FruityOS. Windows runtime
+assembly deliberately works within that subset rather than expanding Orgasm
+for isolated instruction forms.
 
 ## Windows runtime
 

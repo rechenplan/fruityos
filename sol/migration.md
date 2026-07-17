@@ -33,11 +33,19 @@ sol/
         ... future backend ...
 
 haruka/
-    ... future language frontend ...
+    ... Jabara-language Sol frontend ...
 ```
 
 Documentation may keep `mars.md`, `luna-terra.md`, and `haruka.md` at the Sol
 root while implementations live in their own directories.
+
+## Current status
+
+- Phase 1 is complete for the current Sol version.
+- Phase 2 is complete for the initial Mars target profile.
+- Phase 3 has an executable x86-64 semantic corpus plus parser and malformed-input tests.
+- Phase 4 is complete for the current language surface, including the shared `new Record` and shallow `lift var` runtime model.
+- Phases 5 and 6 have not started.
 
 ## Phase 1: establish Sol
 
@@ -67,10 +75,11 @@ root while implementations live in their own directories.
 
 ## Phase 4: build Haruka
 
-- Create Haruka as a separate frontend.
-- Lower Haruka language constructs to Sol.
+- Create Haruka as a separate compiler for the Jabara language.
+- Keep Haruka's lexer, grammar, AST, and language semantics synchronized with Jabara.
+- Lower the shared language constructs to Sol.
 - Do not describe this as rewriting Jabara.
-- Continue using Jabara where useful for implementing the toolchain.
+- Continue using Jabara to implement the toolchain.
 
 ## Phase 5: add Luna and Terra
 

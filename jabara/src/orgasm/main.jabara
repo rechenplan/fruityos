@@ -24,13 +24,74 @@ sub main_assemble(files, count, fout, symtab)
 	return pos
 end
 
-sub main(argc, args)
-	local symtab, i, files, outfile, fout, size, relaxed
+sub main_streq(a, b)
+	while byte [a] == byte [b] do
+		if byte [a] == 0 then return 1 end
+		a = a + 1
+		b = b + 1
+	end
+	return 0
+end
 
-	if argc < 3 then
-		lex_puts("usage: orgasm input.asm [input.asm ...] output")
+sub main_map_putn(fd, number)
+	local divisor = 1000000000000000000, digit, started = 0
+	if number < 0 then fputch(fd, 45) number = -number end
+	if number == 0 then fputch(fd, 48) return 0 end
+	while divisor > 0 do
+		digit = number / divisor
+		if digit != 0 then started = 1 end
+		if started then fputch(fd, 48 + digit) end
+		number = number % divisor
+		divisor = divisor / 10
+	end
+end
+
+sub main_write_map(symtab, path)
+	local fd = creat(path), i = 0, entry, name
+	if fd <= 0 then
+		lex_puts("error creating symbol map")
 		putch(10)
 		exit(1)
+	end
+	while i < 8192 do
+		entry = symtab + (i << 6)
+		if [entry] >= 0 then
+			name = entry + 8
+			while byte [name] do fputch(fd, byte [name]) name = name + 1 end
+			fputch(fd, 32)
+			fputch(fd, 101)
+			fputch(fd, 113)
+			fputch(fd, 117)
+			fputch(fd, 32)
+			main_map_putn(fd, [entry])
+			fputch(fd, 10)
+		end
+		i = i + 1
+	end
+	close(fd)
+end
+
+sub main(argc, args)
+	local symtab, i, files, outfile, fout, size, relaxed, mapfile, input_count
+
+	if argc < 3 then
+		lex_puts("usage: orgasm [-m output.map] input.asm [input.asm ...] output")
+		putch(10)
+		exit(1)
+	end
+
+	files = main_next_arg(args)
+	if main_streq(files, "-m") then
+		if argc < 5 then
+			lex_puts("usage: orgasm -m output.map input.asm [input.asm ...] output")
+			putch(10)
+			exit(1)
+		end
+		mapfile = main_next_arg(files)
+		files = main_next_arg(mapfile)
+		input_count = argc - 4
+	else
+		input_count = argc - 2
 	end
 
 	symtab = brk(-1)
@@ -41,10 +102,9 @@ sub main(argc, args)
 		[symtab + (i << 6)] = -1
 		i = i + 1
 	end
-	files = main_next_arg(args)
 	outfile = files
 	i = 0
-	while i < (argc - 2) do
+	while i < input_count do
 		outfile = main_next_arg(outfile)
 		i = i + 1
 	end
@@ -56,12 +116,13 @@ sub main(argc, args)
 		exit(1)
 	end
 
-	size = main_assemble(files, argc - 2, -1, symtab)
-	relaxed = main_assemble(files, argc - 2, -2, symtab)
+	size = main_assemble(files, input_count, -1, symtab)
+	relaxed = main_assemble(files, input_count, -2, symtab)
 	while relaxed < size do
 		size = relaxed
-		relaxed = main_assemble(files, argc - 2, -2, symtab)
+		relaxed = main_assemble(files, input_count, -2, symtab)
 	end
-	main_assemble(files, argc - 2, fout, symtab)
+	main_assemble(files, input_count, fout, symtab)
 	close(fout)
+	if mapfile != 0 then main_write_map(symtab, mapfile) end
 end

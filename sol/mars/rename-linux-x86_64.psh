@@ -1,0 +1,1 @@
+$root/bin/concat out/linux-x86_64/mars.elf out/linux-x86_64/mars

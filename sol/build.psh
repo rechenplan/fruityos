@@ -1,0 +1,5 @@
+cd parser
+build.psh $1
+cd ../mars
+build.psh $1
+cd ..

@@ -31,9 +31,11 @@ Luna and Terra are planned backends for 16-bit real-mode x86 and 32-bit
 protected-mode x86. Pluto is a processor ISA designed to execute Sol semantics
 directly.
 
-Jabara remains the existing language and compiler implementation. The future
-frontend that targets Sol is a separate language named Haruka. Mars may be
-implemented in Jabara without making Jabara itself a Sol frontend.
+Jabara remains the existing compiler implementation and language reference.
+Haruka is a separate compiler for that same language: it accepts Jabara source
+syntax and semantics but emits Sol instead of Orgasm/x86-64 assembly. Mars and
+the shared Sol parser are implemented in Jabara without making Jabara itself a
+Sol frontend.
 
 ## Design rules
 
@@ -68,8 +70,12 @@ Sol follows these rules:
 ## Status
 
 Sol version 1 is under active development. The semantic core and the naming
-split are intentional. Exact textual conveniences, exceptional behavior,
-object-layout helpers, and Pluto opcode assignments are not frozen.
+split are intentional. Exact exceptional behavior and Pluto opcode assignments
+are not frozen.
 
-The current priority is to complete and test Mars before using Sol as the
-output of a production frontend.
+The repository currently contains a streaming generic Sol parser, a tested
+Mars x86-64 flat-binary backend, and a Haruka frontend whose lexer, grammar, and
+AST match Jabara. Haruka's width-neutral Sol runtime implements frame-local
+allocation and shallow `lift var`, and the complete pipeline is exercised
+through Mars. Future Jabara-language changes must remain synchronized between
+the two compilers.

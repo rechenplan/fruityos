@@ -9,6 +9,14 @@ cd peel
 clean.psh $platform
 clean.psh fruityos-x86_64
 cd ..
+cd haruka
+clean.psh $platform
+clean.psh fruityos-x86_64
+cd ..
+cd sol/mars
+clean.psh $platform
+clean.psh fruityos-x86_64
+cd ../..
 cd seed
 clean.psh fruityos-x86_64
 cd ..
@@ -20,7 +28,7 @@ del initrd/pulp.sys initrd/init.psh
 del initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
 del initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
 del initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
-del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jc.fap
+del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jc.fap initrd/bin/haruka.fap initrd/bin/mars.fap
 del initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh initrd/bin/jc-windows-x86_64.psh
 del initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/link.psh
 del initrd/lib/linux-x86_64/juicer-decode-stub.asm

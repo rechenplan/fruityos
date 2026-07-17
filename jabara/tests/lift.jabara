@@ -1,0 +1,10 @@
+record Box value
+sub main()
+  local make = fn do
+    local box:Box = new Box
+    box.value = 42
+    return lift box
+  end
+  local box:Box = make()
+  return box.value - 42
+end

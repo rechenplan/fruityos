@@ -1,0 +1,13 @@
+sub main()
+  local make_counter, counter
+  make_counter = fn ignored do
+    local value = 40
+    local result = fn increment do
+      value = value + increment
+      return value
+    end
+    return lift result
+  end
+  counter = make_counter(0)
+  return counter(2) - 42
+end

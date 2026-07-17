@@ -1,0 +1,286 @@
+sub mars_byte(state:MarsState, value)
+  if state.measuring then
+    state.measure_count = state.measure_count + 1
+    return 0
+  end
+  if state.pass == 2 then mars_output_byte(state.output, value & 255) end
+  state.address = state.address + 1
+  state.offset = state.offset + 1
+end
+
+sub mars_bytes(state:MarsState, value, count)
+  while count > 0 do
+    mars_byte(state, value)
+    value = value >> 8
+    count = count - 1
+  end
+end
+
+sub mars_advance(state:MarsState, count)
+  state.address = state.address + count
+  state.offset = state.offset + count
+end
+
+sub mars_rex(state:MarsState, wide, reg, index, base)
+  local prefix = 64
+  if wide then prefix = prefix | 8 end
+  if reg >= 8 then prefix = prefix | 4 end
+  if index >= 8 then prefix = prefix | 2 end
+  if base >= 8 then prefix = prefix | 1 end
+  if prefix != 64 then mars_byte(state, prefix) end
+end
+
+sub mars_modrm(state:MarsState, mode, reg, rm)
+  mars_byte(state, (mode << 6) | ((reg & 7) << 3) | (rm & 7))
+end
+
+sub mars_mov_rr(state:MarsState, destination, source)
+  mars_rex(state, 1, source, 0, destination)
+  mars_byte(state, 137)
+  mars_modrm(state, 3, source, destination)
+end
+
+sub mars_mov_ri(state:MarsState, destination, value)
+  if value == 0 then
+    mars_rex(state, 0, destination, 0, destination)
+    mars_byte(state, 49)
+    mars_modrm(state, 3, destination, destination)
+    return 0
+  end
+  if (destination < 4) && (value > 0) && (value <= 255) then
+    mars_rex(state, 0, destination, 0, destination)
+    mars_byte(state, 49)
+    mars_modrm(state, 3, destination, destination)
+    mars_byte(state, 176 + destination)
+    mars_byte(state, value)
+    return 0
+  end
+  if (value >= 0) && (value <= 4294967295) then
+    mars_rex(state, 0, 0, 0, destination)
+    mars_byte(state, 184 + (destination & 7))
+    mars_bytes(state, value, 4)
+    return 0
+  end
+  if (value >= -2147483648) && (value <= 2147483647) then
+    mars_rex(state, 1, 0, 0, destination)
+    mars_byte(state, 199)
+    mars_modrm(state, 3, 0, destination)
+    mars_bytes(state, value, 4)
+    return 0
+  end
+  mars_rex(state, 1, 0, 0, destination)
+  mars_byte(state, 184 + (destination & 7))
+  mars_bytes(state, value, 8)
+end
+
+
+sub mars_mov_abs(state:MarsState, destination, value)
+  mars_rex(state, 1, 0, 0, destination)
+  mars_byte(state, 184 + (destination & 7))
+  mars_bytes(state, value, 8)
+end
+
+sub mars_rex_byte(state:MarsState, reg, base)
+  local prefix = 64
+  if reg >= 8 then prefix = prefix | 4 end
+  if base >= 8 then prefix = prefix | 1 end
+  if (reg >= 8) || (base >= 4) then mars_byte(state, prefix) end
+end
+
+sub mars_movzx_byte(state:MarsState, destination, source)
+  mars_rex_byte(state, destination, source)
+  mars_byte(state, 15)
+  mars_byte(state, 182)
+  mars_modrm(state, 3, destination, source)
+end
+
+sub mars_push_r(state:MarsState, target)
+  mars_rex(state, 0, 0, 0, target)
+  mars_byte(state, 80 + (target & 7))
+end
+
+sub mars_pop_r(state:MarsState, target)
+  mars_rex(state, 0, 0, 0, target)
+  mars_byte(state, 88 + (target & 7))
+end
+
+sub mars_memory_modrm(state:MarsState, reg, base, displacement)
+  local mode = 0
+  if displacement == 0 then
+    if ((base & 7) == 5) then mode = 1 end
+  else
+    if (displacement >= -128) && (displacement <= 127) then mode = 1 else mode = 2 end
+  end
+  mars_modrm(state, mode, reg, base)
+  if (base & 7) == 4 then mars_modrm(state, 0, 4, base) end
+  if mode == 1 then mars_byte(state, displacement) end
+  if mode == 2 then mars_bytes(state, displacement, 4) end
+end
+
+sub mars_load_memory(state:MarsState, destination, base, displacement, byte_width)
+  if byte_width then
+    mars_rex(state, 0, destination, 0, base)
+    mars_byte(state, 15)
+    mars_byte(state, 182)
+  else
+    mars_rex(state, 1, destination, 0, base)
+    mars_byte(state, 139)
+  end
+  mars_memory_modrm(state, destination, base, displacement)
+end
+
+sub mars_store_memory(state:MarsState, base, displacement, source, byte_width)
+  if byte_width then mars_rex_byte(state, source, base)
+  else mars_rex(state, 1, source, 0, base) end
+  if byte_width then mars_byte(state, 136) else mars_byte(state, 137) end
+  mars_memory_modrm(state, source, base, displacement)
+end
+
+sub mars_store_zero(state:MarsState, base, displacement, byte_width)
+  if byte_width then
+    mars_rex(state, 0, 0, 0, base)
+    mars_byte(state, 198)
+    mars_memory_modrm(state, 0, base, displacement)
+    mars_byte(state, 0)
+  else
+    if state.zero_valid == 0 then mars_mov_ri(state, 8, 0) end
+    state.zero_valid = 1
+    mars_store_memory(state, base, displacement, 8, 0)
+  end
+end
+
+sub mars_binary_rr(state:MarsState, opcode, destination, source)
+  mars_rex(state, 1, source, 0, destination)
+  mars_byte(state, opcode)
+  mars_modrm(state, 3, source, destination)
+end
+
+sub mars_imul_rr(state:MarsState, destination, source)
+  mars_rex(state, 1, destination, 0, source)
+  mars_byte(state, 15)
+  mars_byte(state, 175)
+  mars_modrm(state, 3, destination, source)
+end
+
+sub mars_unary_r(state:MarsState, group, target)
+  mars_rex(state, 1, 0, 0, target)
+  mars_byte(state, 247)
+  mars_modrm(state, 3, group, target)
+end
+
+sub mars_shift_cl(state:MarsState, group, target)
+  mars_rex(state, 1, 0, 0, target)
+  mars_byte(state, 211)
+  mars_modrm(state, 3, group, target)
+end
+
+sub mars_cmp_rr(state:MarsState, left, right)
+  mars_rex(state, 1, right, 0, left)
+  mars_byte(state, 57)
+  mars_modrm(state, 3, right, left)
+end
+
+sub mars_test_rr(state:MarsState, left, right)
+  mars_rex(state, 1, right, 0, left)
+  mars_byte(state, 133)
+  mars_modrm(state, 3, right, left)
+end
+
+sub mars_setcc(state:MarsState, condition, target)
+  mars_rex_byte(state, 0, target)
+  mars_byte(state, 15)
+  mars_byte(state, condition)
+  mars_modrm(state, 3, 0, target)
+end
+
+sub mars_div_r(state:MarsState, target)
+  mars_rex(state, 1, 0, 0, target)
+  mars_byte(state, 247)
+  mars_modrm(state, 3, 6, target)
+end
+
+sub mars_jmp_r(state:MarsState, target)
+  mars_rex(state, 0, 0, 0, target)
+  mars_byte(state, 255)
+  mars_modrm(state, 3, 4, target)
+end
+
+sub mars_call_r(state:MarsState, target)
+  mars_rex(state, 0, 0, 0, target)
+  mars_byte(state, 255)
+  mars_modrm(state, 3, 2, target)
+end
+
+sub mars_rel32(state:MarsState, opcode, target)
+  local start = state.address, displacement
+  mars_byte(state, opcode)
+  if state.measuring then
+    mars_bytes(state, 0, 4)
+    return 0
+  end
+  displacement = target - (start + 5)
+  if (displacement < -2147483648) || (displacement > 2147483647) then
+    mars_error(state.item, "relative target is out of range")
+  end
+  mars_bytes(state, displacement, 4)
+end
+
+sub mars_jcc32(state:MarsState, condition, target)
+  local start = state.address, displacement
+  mars_byte(state, 15)
+  mars_byte(state, condition)
+  if state.measuring then
+    mars_bytes(state, 0, 4)
+    return 0
+  end
+  displacement = target - (start + 6)
+  if (displacement < -2147483648) || (displacement > 2147483647) then
+    mars_error(state.item, "relative target is out of range")
+  end
+  mars_bytes(state, displacement, 4)
+end
+
+sub mars_branch_symbol(state:MarsState, opcode, target, relax)
+  local start = state.address, displacement
+  if state.measuring then start = start + state.measure_count end
+  displacement = target - (start + 2)
+  if relax && (displacement >= -128) && (displacement <= 127) then
+    if opcode == 233 then opcode = 235 else opcode = opcode - 16 end
+    mars_byte(state, opcode)
+    mars_byte(state, displacement)
+  else
+    if opcode == 233 then mars_rel32(state, opcode, target)
+    else mars_jcc32(state, opcode, target) end
+  end
+end
+
+sub mars_enter(state:MarsState, words)
+  local bytes
+  if (words < 0) || (words > 268435455) then mars_error(state.item, "frame is too large") end
+  bytes = words * 8
+  if bytes <= 65535 then
+    mars_byte(state, 200)
+    mars_bytes(state, bytes, 2)
+    mars_byte(state, 0)
+    return 0
+  end
+  mars_byte(state, 85)
+  mars_mov_rr(state, 5, 4)
+  mars_rex(state, 1, 0, 0, 4)
+  mars_byte(state, 129)
+  mars_modrm(state, 3, 5, 4)
+  mars_bytes(state, bytes, 4)
+end
+
+sub mars_ret(state:MarsState, words)
+  local bytes
+  if (words < 0) || (words > 8191) then mars_error(state.item, "return argument count is too large") end
+  bytes = words * 8
+  mars_byte(state, 201)
+  if bytes == 0 then
+    mars_byte(state, 195)
+  else
+    mars_byte(state, 194)
+    mars_bytes(state, bytes, 2)
+  end
+end

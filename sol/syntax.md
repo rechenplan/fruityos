@@ -58,10 +58,17 @@ bz   a, done
 bnz  b, again
 ```
 
-The displacement in a memory expression is an address displacement. Current
-text accepts numeric or symbolic values. Target-independent frontends should
-prefer symbolic object layout and word-count frame operations over hard-coded
-byte offsets.
+Plain numeric displacements and immediates are exact byte/integer values. A
+number suffixed with `w` is multiplied by the backend-selected word size:
+
+```text
+add a, fp, -2w
+ld  b, [fp + 3w]
+```
+
+This is the canonical form for frame slots, record fields, and other
+target-word-scaled addresses. `2w` is 16 bytes in Mars, 4 bytes in Luna, and 8
+bytes in Terra. Word-scaled numbers are accepted by `align` so `align 1w` expresses target-word alignment. They are not accepted for `org`, `enter`, `ret`, or explicit-width data directives; those constructs already have defined units.
 
 ## Labels and symbols
 

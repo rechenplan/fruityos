@@ -1,0 +1,6 @@
+record MarsSymbol name, length, address, defined, external, exported, referenced, source_name, line, column, next:MarsSymbol
+record MarsOutput fd, buffer, used, capacity
+record MarsState parser:SolParser, symbols:MarsSymbol, symbol_tail:MarsSymbol,
+       output:MarsOutput, pass, origin, origin_set, base_origin, base_origin_set,
+       address, offset, emitted, allow_unresolved,
+       measuring, measure_count, image_size, round, zero_valid, pending_name, pending_length, item:SolItem

@@ -1,0 +1,96 @@
+record SolSource name, text, next:SolSource
+record SolTerm kind, register, number, text, length
+record SolOperand kind, value:SolTerm, base:SolTerm, offset:SolTerm
+record SolItem kind, operation, width, number, name, name_length, message,
+       source_name, line, column, operand_count,
+       first:SolOperand, second:SolOperand, third:SolOperand, more
+record SolParser first:SolSource, source:SolSource,
+       position, line, column,
+       token_kind, token_start, token_length, token_number,
+       token_source_name, token_line, token_column,
+       item:SolItem, failed, error_text,
+       saw_version, pending_data, pending_width,
+       pending_index, pending_source_name, pending_line, pending_column
+
+sub SOL_TOKEN_EOF() return 0 end
+sub SOL_TOKEN_ERROR() return 1 end
+sub SOL_TOKEN_ID() return 2 end
+sub SOL_TOKEN_NUMBER() return 3 end
+sub SOL_TOKEN_STRING() return 4 end
+sub SOL_TOKEN_NEWLINE() return 5 end
+sub SOL_TOKEN_COMMA() return 6 end
+sub SOL_TOKEN_COLON() return 7 end
+sub SOL_TOKEN_LBRACKET() return 8 end
+sub SOL_TOKEN_RBRACKET() return 9 end
+sub SOL_TOKEN_PLUS() return 10 end
+sub SOL_TOKEN_MINUS() return 11 end
+sub SOL_TOKEN_WORD_NUMBER() return 12 end
+
+sub SOL_TERM_NONE() return 0 end
+sub SOL_TERM_REGISTER() return 1 end
+sub SOL_TERM_IMMEDIATE() return 2 end
+sub SOL_TERM_SYMBOL() return 3 end
+sub SOL_TERM_STRING() return 4 end
+sub SOL_TERM_WORDS() return 5 end
+
+sub SOL_OPERAND_NONE() return 0 end
+sub SOL_OPERAND_VALUE() return 1 end
+sub SOL_OPERAND_MEMORY() return 2 end
+
+sub SOL_ITEM_EOF() return 0 end
+sub SOL_ITEM_ERROR() return 1 end
+sub SOL_ITEM_VERSION() return 2 end
+sub SOL_ITEM_ORIGIN() return 3 end
+sub SOL_ITEM_LABEL() return 4 end
+sub SOL_ITEM_GLOBAL() return 5 end
+sub SOL_ITEM_EXTERN() return 6 end
+sub SOL_ITEM_ALIGN() return 7 end
+sub SOL_ITEM_DATA() return 8 end
+sub SOL_ITEM_INSTRUCTION() return 9 end
+sub SOL_ITEM_EQU() return 10 end
+
+sub SOL_REG_NONE() return 0 end
+sub SOL_REG_Z() return 1 end
+sub SOL_REG_A() return 2 end
+sub SOL_REG_B() return 3 end
+sub SOL_REG_C() return 4 end
+sub SOL_REG_D() return 5 end
+sub SOL_REG_FP() return 6 end
+sub SOL_REG_SP() return 7 end
+sub SOL_REG_IP() return 8 end
+
+sub SOL_OP_NONE() return 0 end
+sub SOL_OP_MOV() return 1 end
+sub SOL_OP_ADD() return 2 end
+sub SOL_OP_SUB() return 3 end
+sub SOL_OP_MUL() return 4 end
+sub SOL_OP_DIV() return 5 end
+sub SOL_OP_REM() return 6 end
+sub SOL_OP_AND() return 7 end
+sub SOL_OP_OR() return 8 end
+sub SOL_OP_XOR() return 9 end
+sub SOL_OP_SHL() return 10 end
+sub SOL_OP_SHR() return 11 end
+sub SOL_OP_EQ() return 12 end
+sub SOL_OP_NE() return 13 end
+sub SOL_OP_LT() return 14 end
+sub SOL_OP_LE() return 15 end
+sub SOL_OP_GT() return 16 end
+sub SOL_OP_GE() return 17 end
+sub SOL_OP_LD() return 18 end
+sub SOL_OP_LDB() return 19 end
+sub SOL_OP_ST() return 20 end
+sub SOL_OP_STB() return 21 end
+sub SOL_OP_BZ() return 22 end
+sub SOL_OP_BNZ() return 23 end
+sub SOL_OP_JMP() return 24 end
+sub SOL_OP_CALL() return 25 end
+sub SOL_OP_RET() return 26 end
+sub SOL_OP_PUSH() return 27 end
+sub SOL_OP_POP() return 28 end
+sub SOL_OP_ENTER() return 29 end
+sub SOL_OP_ADDR() return 30 end
+sub SOL_OP_NEG() return 31 end
+sub SOL_OP_NOT() return 32 end
+sub SOL_OP_BOOL() return 33 end
+sub SOL_OP_NOP() return 34 end

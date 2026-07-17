@@ -65,6 +65,10 @@ Sol source that depends on overflow, sign, or shifts is interpreted at the
 selected target width. Width-polymorphic source must avoid constants and
 algorithms whose meaning changes across the intended profiles.
 
+Textual Sol provides word-scaled constants such as `2w`. A backend resolves
+these as `2 * word_bytes`. They allow one Sol program to express frame slots
+and record fields without fixing a byte width.
+
 ## Memory
 
 Memory is byte-addressed. `ldb` and `stb` always access exactly one byte.

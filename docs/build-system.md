@@ -45,14 +45,36 @@ and install the first compiler, then every subsequent native or cross build uses
 1. `jabara/build.psh $platform fruityos-x86_64` creates host `jc`/Orgasm and
    cross-builds their FruityOS forms.
 2. `peel/build.psh $platform` builds and immediately installs the host Peel tools.
-3. `yuzu/build.psh $platform` builds host Yuzu; a second call builds FruityOS Yuzu.
-4. `peel/build.psh fruityos-x86_64` builds the target userland.
-5. Seed and Pulp build for `fruityos-x86_64`.
-6. The root script stages the initrd and produces BIOS and UEFI images.
+3. Haruka and Mars are built for the host and for FruityOS.
+4. `yuzu/build.psh $platform` builds host Yuzu; a second call builds FruityOS Yuzu.
+5. `peel/build.psh fruityos-x86_64` builds the target userland.
+6. Seed and Pulp build for `fruityos-x86_64`.
+7. The root script stages the initrd and produces BIOS and UEFI images.
 
 Every subdirectory build receives its output platform as `$1` and writes only
 beneath its own `out/$1`. Rename helpers publish extension-bearing executables:
 `.elf`, `.exe`, or `.fap`.
+
+
+## Pulp mixed-language image
+
+Pulp is linked as two adjacent flat regions. Handwritten x86-64 remains in
+Orgasm; Jabara-language kernel sources are compiled by Haruka to Sol and by
+Mars to x86-64 bytes.
+
+```text
+Jabara-language Pulp sources -> Haruka -> pulp.sol
+pulp.sol at 0x11200         -> Mars layout map
+assembly + Sol map          -> Orgasm -> 0x10000 region + assembly map
+pulp.sol + assembly map     -> Mars -> 0x11200 region
+padded assembly + Mars bytes -> Concat -> pulp.bin -> Juicer -> pulp.sys
+```
+
+The handwritten region is fixed at 4,608 bytes (`0x10000` through `0x111ff`).
+`pad` rejects an oversized Orgasm result before padding it to that exact size,
+so the Mars origin cannot silently drift. Mars and Orgasm exchange absolute
+symbols as `name equ address` text files. The final `pad ... 0 8192` command
+retains the existing 8 KiB compressed-kernel limit.
 
 ## Platform linkers
 

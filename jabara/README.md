@@ -50,6 +50,10 @@ The compiler interface is:
 jc input.jabara [input.jabara ...] output.asm
 ```
 
+The current language uses `new Record` for record construction and `lift var`
+for explicit shallow promotion from an `fn` into its lexical owner frame. See
+the language manual for the scope and lifetime rules.
+
 The build does not invoke a C compiler, GCC, NASM, Make, PowerShell, `cmd.exe`,
 or a separate bootstrap script.
 

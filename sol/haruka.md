@@ -1,56 +1,63 @@
 # Haruka
 
-Haruka is the future language frontend that will produce Sol IR.
-
-Haruka is a new frontend, not a rewrite of Jabara. Jabara remains the existing
-language/compiler and may continue to implement tools such as Mars.
-
-The boundary is:
+Haruka is a separate compiler for the Jabara language that produces Sol IR.
+Haruka and Jabara accept the same language; Haruka is not a rewrite or
+replacement of Jabara.
 
 ```text
-Haruka source -> Haruka frontend -> Sol IR -> backend
+Jabara source -> Haruka -> Sol IR -> backend
 ```
 
-## Frontend responsibilities
+## Shared frontend
 
-Haruka is responsible for:
-
-- parsing and language semantics;
-- lexical scope and closure construction;
-- type/tag analysis;
-- object and frame layout expressed in target-parametric terms;
-- lowering high-level control flow to Sol branches;
-- selecting runtime calls;
-- emitting valid textual or in-memory Sol.
-
-The selected backend is responsible for word width and target encoding. Haruka
-must not embed x86 instruction forms or Pluto parcel details in Sol output.
+Haruka's language model, lexer, parser, scope rules, and multi-argument `fn`
+desugaring are kept synchronized with Jabara. The checked-in `model.jabara`,
+`lexer.jabara`, and `parser.jabara` files are byte-identical between the two
+compilers. Haruka differs only where target-independent Sol emission replaces
+Jabara's native x86-64 emission.
 
 ## Width-sensitive lowering
 
-Sol operations are word-polymorphic, but concrete layouts are not always
-width-independent. Haruka should represent frame slots, arguments, record
-fields, and target words in a way that backends can scale correctly.
+Haruka expresses frame slots, arguments, record fields, closure fields, object
+headers, and lexical-environment offsets with Sol word-scaled constants such as
+`2w`. The selected backend resolves those constants using its target word
+width. Haruka does not embed x86 instruction forms or Pluto encoding details.
 
-Until Sol's target-parametric layout expressions are frozen, a Haruka build may
-select a target profile before final Sol serialization. That is still different
-from emitting target assembly: the output remains Sol operations and Sol data,
-with the backend owning native lowering.
+## Records, closures, and lift
 
-## Closures and records
+Record construction is explicit:
 
-Haruka may choose its own record and closure representation so long as it is
-expressed in ordinary Sol memory operations and runtime conventions. Sol does
-not define a garbage collector, heap, stack-region model, or boxing semantics.
-Those belong to the frontend/runtime pair.
+```jabara
+local node:Node = new Node
+```
 
-This separation is intentional. Jabara's manual boxing experiments and closure
-representation do not automatically become Sol semantics or Haruka language
-rules.
+Every allocated object has a hidden two-word header containing its lexical owner
+frame and payload size. A closure is an ordinary variable-sized record: its
+payload contains the code pointer followed by an inline snapshot of its current
+lexical environment.
 
-## Validation
+`lift var` implements explicit persistence across one lexical function
+boundary:
 
-The Haruka frontend should be tested by compiling the same Sol output through
-multiple backends and comparing language-visible behavior. Backend-specific
-runtime boundaries may differ, but pure computation and memory behavior should
-agree at the selected word width.
+- it is legal only inside `fn`;
+- `var` must be a binding declared in that current `fn` scope;
+- it shallow-copies the entire top-level record payload into the closure's
+  lexical owner frame;
+- it returns the promoted copy and does not modify `var`;
+- referenced subrecords are not copied and must be lifted explicitly when their
+  lifetime also needs extension.
+
+A value must be lifted once at each additional function boundary it must cross.
+An enclosing named `sub` may own the lifted copy, although `lift` itself is
+invalid in the `sub` body.
+
+The shared implementation is `../haruka/runtime.sol`. Sol itself does not make
+`lift` an IR opcode; Haruka lowers it to the ordinary Sol routine
+`__haruka_lift`.
+
+## Current validation
+
+Haruka programs execute end to end through Mars. The suite covers records,
+shallow pointer identity, repeated lift, captured closure state, nested closure
+creation after an outer activation has returned, and multi-argument currying.
+The same language-level tests also run against Jabara's native emitter.

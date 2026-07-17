@@ -4,9 +4,19 @@ bits 64
 global em_text
 em_text:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_puts
 	xor	eax, eax
 __jabara_return_1:
@@ -17,9 +27,19 @@ __jabara_return_1:
 global em_number
 em_number:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_putn
 	xor	eax, eax
 __jabara_return_2:
@@ -30,8 +50,12 @@ __jabara_return_2:
 global em_newline
 em_newline:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	push	10
 	call	jc_putc
 	xor	eax, eax
@@ -42,9 +66,19 @@ __jabara_return_3:
 global em_line
 em_line:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_line
 	xor	eax, eax
 __jabara_return_4:
@@ -55,11 +89,21 @@ __jabara_return_4:
 global em_instruction
 em_instruction:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	push	9
 	call	jc_putc
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_line
 	xor	eax, eax
 __jabara_return_5:
@@ -70,16 +114,29 @@ __jabara_return_5:
 global em_new_label
 em_new_label:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	add	rax, 1
 	pop	rdi
 	mov	qword [rdi + 48], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	db 201
 	db 194
@@ -88,15 +145,31 @@ em_new_label:
 global em_private_label
 em_private_label:
 	db 200
-	dw	0
+	dw	64
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 32]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 24], rdx
 	jmp	__jabara_string_after_8
 __jabara_string_8: db 95,95,106,97,98,97,114,97,95,0
 __jabara_string_after_8:
 	lea	rax, [rel __jabara_string_8]
 	push	rax
 	call	em_text
-	db	255,117,24
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_text
 	jmp	__jabara_string_after_9
 __jabara_string_9: db 95,0
@@ -104,7 +177,10 @@ __jabara_string_after_9:
 	lea	rax, [rel __jabara_string_9]
 	push	rax
 	call	em_text
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_number
 	xor	eax, eax
 __jabara_return_7:
@@ -115,15 +191,31 @@ __jabara_return_7:
 global em_label
 em_label:
 	db 200
-	dw	0
+	dw	64
 	db 0
-	db	255,117,24
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	jmp	__jabara_string_after_11
 __jabara_string_11: db 108,97,98,101,108,0
 __jabara_string_after_11:
 	lea	rax, [rel __jabara_string_11]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_private_label
 	xor	eax, eax
 __jabara_return_10:
@@ -134,15 +226,31 @@ __jabara_return_10:
 global em_return_label
 em_return_label:
 	db 200
-	dw	0
+	dw	64
 	db 0
-	db	255,117,24
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	jmp	__jabara_string_after_13
 __jabara_string_13: db 114,101,116,117,114,110,0
 __jabara_string_after_13:
 	lea	rax, [rel __jabara_string_13]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_private_label
 	xor	eax, eax
 __jabara_return_12:
@@ -153,31 +261,64 @@ __jabara_return_12:
 global em_find_function
 em_find_function:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 24]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_15:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_16
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_17
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 __jabara_label_17:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_15
 __jabara_label_16:
 	mov	rax, 0
@@ -188,43 +329,86 @@ __jabara_label_16:
 global em_find_function_body
 em_find_function_body:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	rax, [rbp + 24]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_19:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_20
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_21
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	cmp	rax, 0
 	jne	__jabara_label_22
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 __jabara_label_22:
 	mov	rax, [rbp - 8]
-	mov	[rbp - 16], rax
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_21:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_19
 __jabara_label_20:
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
@@ -232,54 +416,92 @@ __jabara_label_20:
 global em_mark_reachable_expr
 em_mark_reachable_expr:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 __jabara_label_24:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_25
 	call	EX_CALL
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_26
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	cmp	rax, 0
 	je	__jabara_label_27
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_28
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_find_function_body
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_29
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	cmp	rax, 0
 	jne	__jabara_label_30
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 1
 	pop	rdi
 	mov	qword [rdi + 40], rax
-	db	255,117,24
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_mark_reachable_statements
@@ -288,29 +510,56 @@ __jabara_label_29:
 __jabara_label_28:
 __jabara_label_27:
 __jabara_label_26:
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_mark_reachable_expr
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	push	rax
 	call	em_mark_reachable_expr
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 64]
 	push	rax
 	call	em_mark_reachable_expr
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 80]
 	push	rax
 	call	em_mark_reachable_statements
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 88]
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_24
 __jabara_label_25:
 	xor	eax, eax
@@ -322,49 +571,103 @@ __jabara_return_23:
 global em_mark_reachable_statements
 em_mark_reachable_statements:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 __jabara_label_32:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_33
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_34:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_35
-	db	255,117,24
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_mark_reachable_expr
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_34
 __jabara_label_35:
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	call	em_mark_reachable_expr
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_mark_reachable_statements
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	push	rax
 	call	em_mark_reachable_statements
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_32
 __jabara_label_33:
 	xor	eax, eax
@@ -376,17 +679,34 @@ __jabara_return_31:
 global em_mark_reachable
 em_mark_reachable:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	jmp	__jabara_string_after_37
 __jabara_string_37: db 95,95,106,97,98,97,114,97,95,114,111,111,116,115,0
 __jabara_string_after_37:
 	lea	rax, [rel __jabara_string_37]
 	push	rax
 	call	em_find_function
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
 	jne	__jabara_label_38
 	mov	rax, 0
@@ -394,8 +714,13 @@ __jabara_string_after_37:
 	db 194
 	dw	8
 __jabara_label_38:
-	db	255,117,16
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_mark_reachable_statements
@@ -407,31 +732,64 @@ __jabara_label_38:
 global em_find_record
 em_find_record:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 24]
-	mov	rax, [rax]
-	mov	rax, [rax]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_40:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_41
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_42
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 __jabara_label_42:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_40
 __jabara_label_41:
 	mov	rax, 0
@@ -442,30 +800,63 @@ __jabara_label_41:
 global em_find_record_field
 em_find_record_field:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 8]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_44:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_45
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_46
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 __jabara_label_46:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_44
 __jabara_label_45:
 	mov	rax, 0
@@ -476,35 +867,80 @@ __jabara_label_45:
 global em_record_field_offset
 em_record_field_offset:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 8]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_48:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_49
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_50
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 __jabara_label_50:
-	mov	rax, [rbp - 16]
-	add	rax, 8
-	mov	[rbp - 16], rax
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	add	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_48
 __jabara_label_49:
 	mov	rax, 1
@@ -516,26 +952,63 @@ __jabara_label_49:
 global em_record_field_count
 em_record_field_count:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_52:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_53
-	mov	rax, [rbp - 16]
-	add	rax, 1
-	mov	[rbp - 16], rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_52
 __jabara_label_53:
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -543,27 +1016,49 @@ __jabara_label_53:
 global em_validate_records
 em_validate_records:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	mov	rax, [rax]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_55:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_56
-	db	255,117,16
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_find_function
 	cmp	rax, 0
 	je	__jabara_label_57
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	push	1
@@ -575,22 +1070,37 @@ __jabara_string_after_58:
 	call	jc_error_at
 __jabara_label_57:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_59:
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_60
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_61
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	push	1
@@ -601,30 +1111,55 @@ __jabara_string_after_62:
 	push	rax
 	call	jc_error_at
 __jabara_label_61:
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_59
 __jabara_label_60:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 24], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_63:
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_64
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
 	je	__jabara_label_65
-	db	255,117,16
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	em_find_record
 	cmp	rax, 0
 	jne	__jabara_label_66
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	push	1
@@ -636,14 +1171,28 @@ __jabara_string_after_67:
 	call	jc_error_at
 __jabara_label_66:
 __jabara_label_65:
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 24], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_63
 __jabara_label_64:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_55
 __jabara_label_56:
 	xor	eax, eax
@@ -655,30 +1204,63 @@ __jabara_return_54:
 global em_scope_own
 em_scope_own:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 8]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 __jabara_label_69:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_70
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_streq
 	test	rax, rax
 	jz	__jabara_label_71
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 __jabara_label_71:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_69
 __jabara_label_70:
 	mov	rax, 0
@@ -689,22 +1271,53 @@ __jabara_label_70:
 global em_scope_add
 em_scope_add:
 	db 200
-	dw	16
+	dw	96
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	push	48
-%define JABARA_ALLOC
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
 	mov	qword [rax + 24], 0
 	mov	qword [rax + 32], 0
 	mov	qword [rax + 40], 0
-	mov	[rbp - 8], rax
-	db	255,117,40
-	db	255,117,32
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	rdx, [rbp + 48]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 40]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 32]
+	mov	[rax + 24], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 32], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 40], rdx
+	mov	rax, [rel __jabara_global_em_binding]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_scope_own
 	cmp	rax, 0
 	je	__jabara_label_73
@@ -713,15 +1326,26 @@ em_scope_add:
 	db 194
 	dw	40
 __jabara_label_73:
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_74
-	db	255,117,48
-	db	255,117,24
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	em_find_record
 	cmp	rax, 0
 	jne	__jabara_label_75
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
 	push	1
 	jmp	__jabara_string_after_76
 __jabara_string_76: db 118,97,114,105,97,98,108,101,32,104,97,115,32,97,110,32,117,110,107,110,111,119,110,32,116,97,103,0
@@ -732,71 +1356,119 @@ __jabara_string_after_76:
 __jabara_label_75:
 __jabara_label_74:
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 32]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 0], rax
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	test	rax, rax
 	jz	__jabara_label_78
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 0
 	pop	rdi
 	mov	qword [rdi + 16], rax
 	jmp	__jabara_label_77
 __jabara_label_78:
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	add	rax, 1
 	pop	rdi
 	mov	qword [rdi + 16], rax
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	pop	rdi
 	mov	qword [rdi + 16], rax
 __jabara_label_77:
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
 	jne	__jabara_label_80
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
 	jmp	__jabara_label_79
 __jabara_label_80:
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_81:
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	cmp	rax, 0
 	je	__jabara_label_82
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
-	mov	[rbp - 16], rax
-	jmp	__jabara_label_81
-__jabara_label_82:
-	mov	rax, [rbp - 16]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_81
+__jabara_label_82:
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 40], rax
 __jabara_label_79:
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	40
@@ -804,32 +1476,81 @@ __jabara_label_79:
 global em_scope_add_parameter
 em_scope_add_parameter:
 	db 200
-	dw	16
+	dw	96
 	db 0
-	db	255,117,48
-	db	255,117,40
-	db	255,117,32
-	db	255,117,24
-	db	255,117,16
-	call	em_scope_add
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	rdx, [rbp + 48]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 40]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 32]
+	mov	[rax + 24], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 32], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 40], rdx
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	call	em_scope_add
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_84
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 1
 	pop	rdi
 	mov	qword [rdi + 32], rax
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	add	rax, 1
 	pop	rdi
 	mov	qword [rdi + 24], rax
 __jabara_label_84:
 	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	40
@@ -837,50 +1558,98 @@ __jabara_label_84:
 global em_collect_locals
 em_collect_locals:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 32]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 24], rdx
 __jabara_label_86:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_87
 	call	ST_LOCAL
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_88
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_89:
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_90
-	db	255,117,32
-	db	255,117,24
 	mov	rax, [rbp - 8]
+	add	rax, 8
 	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	em_scope_add
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_91
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	cmp	rax, 0
 	je	__jabara_label_92
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 1
 	pop	rdi
@@ -888,48 +1657,90 @@ __jabara_label_89:
 __jabara_label_92:
 __jabara_label_91:
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_89
 __jabara_label_90:
 __jabara_label_88:
 	call	ST_IF
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_93
-	db	255,117,32
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_collect_locals
-	db	255,117,32
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	push	rax
 	call	em_collect_locals
 __jabara_label_93:
 	call	ST_WHILE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_94
-	db	255,117,32
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_collect_locals
 __jabara_label_94:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_86
 __jabara_label_87:
 	xor	eax, eax
@@ -941,22 +1752,46 @@ __jabara_return_85:
 global em_statements_return
 em_statements_return:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 __jabara_label_96:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_97
-	mov	rax, [rbp + 16]
-	mov	[rbp - 8], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_96
 __jabara_label_97:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
 	jne	__jabara_label_98
 	mov	rax, 0
@@ -967,6 +1802,8 @@ __jabara_label_98:
 	call	ST_RETURN
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
@@ -979,11 +1816,15 @@ __jabara_label_99:
 	call	ST_IF
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_100
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	cmp	rax, 0
 	jne	__jabara_label_101
@@ -993,11 +1834,15 @@ __jabara_label_99:
 	dw	8
 __jabara_label_101:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	push	rax
 	call	em_statements_return
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_statements_return
@@ -1015,38 +1860,44 @@ __jabara_label_100:
 global em_statements_have_closure
 em_statements_have_closure:
 	db 200
-	dw	0
+	dw	64
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 __jabara_label_103:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_104
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_105:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_106
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
 	push	rax
 	call	em_expr_has_closure
-	test	rax, rax
-	jz	__jabara_label_105
-	mov	rax, 1
-	db 201
-	db 194
-	dw	8
-__jabara_label_105:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 32]
-	push	rax
-	call	em_statements_have_closure
-	test	rax, rax
-	jz	__jabara_label_106
-	mov	rax, 1
-	db 201
-	db 194
-	dw	8
-__jabara_label_106:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	push	rax
-	call	em_statements_have_closure
 	test	rax, rax
 	jz	__jabara_label_107
 	mov	rax, 1
@@ -1054,9 +1905,67 @@ __jabara_label_106:
 	db 194
 	dw	8
 __jabara_label_107:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_105
+__jabara_label_106:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	call	em_expr_has_closure
+	test	rax, rax
+	jz	__jabara_label_108
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_108:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 32]
+	push	rax
+	call	em_statements_have_closure
+	test	rax, rax
+	jz	__jabara_label_109
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_109:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	push	rax
+	call	em_statements_have_closure
+	test	rax, rax
+	jz	__jabara_label_110
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_110:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	jmp	__jabara_label_103
 __jabara_label_104:
 	mov	rax, 0
@@ -1067,61 +1976,41 @@ __jabara_label_104:
 global em_expr_has_closure
 em_expr_has_closure:
 	db 200
-	dw	0
+	dw	48
 	db 0
-__jabara_label_109:
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+__jabara_label_112:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_110
+	je	__jabara_label_113
 	call	EX_CLOSURE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_111
-	mov	rax, 1
-	db 201
-	db 194
-	dw	8
-__jabara_label_111:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_expr_has_closure
-	test	rax, rax
-	jz	__jabara_label_112
-	mov	rax, 1
-	db 201
-	db 194
-	dw	8
-__jabara_label_112:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 56]
-	push	rax
-	call	em_expr_has_closure
-	test	rax, rax
-	jz	__jabara_label_113
-	mov	rax, 1
-	db 201
-	db 194
-	dw	8
-__jabara_label_113:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 64]
-	push	rax
-	call	em_expr_has_closure
-	test	rax, rax
-	jz	__jabara_label_114
+	jne	__jabara_label_114
 	mov	rax, 1
 	db 201
 	db 194
 	dw	8
 __jabara_label_114:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 80]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
 	push	rax
-	call	em_statements_have_closure
+	call	em_expr_has_closure
 	test	rax, rax
 	jz	__jabara_label_115
 	mov	rax, 1
@@ -1129,11 +2018,57 @@ __jabara_label_114:
 	db 194
 	dw	8
 __jabara_label_115:
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	call	em_expr_has_closure
+	test	rax, rax
+	jz	__jabara_label_116
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_116:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	call	em_expr_has_closure
+	test	rax, rax
+	jz	__jabara_label_117
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_117:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 80]
+	push	rax
+	call	em_statements_have_closure
+	test	rax, rax
+	jz	__jabara_label_118
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_118:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 88]
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_109
-__jabara_label_110:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_112
+__jabara_label_113:
 	mov	rax, 0
 	db 201
 	db 194
@@ -1142,27 +2077,28 @@ __jabara_label_110:
 global em_program_has_closure
 em_program_has_closure:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
 	push	rax
-	call	em_statements_have_closure
-	test	rax, rax
-	jz	__jabara_label_117
-	mov	rax, 1
-	db 201
-	db 194
-	dw	8
-__jabara_label_117:
-__jabara_label_118:
 	mov	rax, [rbp - 8]
-	cmp	rax, 0
-	je	__jabara_label_119
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_statements_have_closure
@@ -1173,11 +2109,37 @@ __jabara_label_118:
 	db 194
 	dw	8
 __jabara_label_120:
+__jabara_label_121:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_122
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_statements_have_closure
+	test	rax, rax
+	jz	__jabara_label_123
+	mov	rax, 1
+	db 201
+	db 194
+	dw	8
+__jabara_label_123:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_118
-__jabara_label_119:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_121
+__jabara_label_122:
 	mov	rax, 0
 	db 201
 	db 194
@@ -1186,63 +2148,135 @@ __jabara_label_119:
 global em_lookup
 em_lookup:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 24], rax
-	push	24
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
-	mov	[rbp - 8], rax
-	mov	rax, 0
-	mov	[rbp - 16], rax
-__jabara_label_122:
-	mov	rax, [rbp + 24]
-	cmp	rax, 0
-	je	__jabara_label_123
-	db	255,117,24
-	db	255,117,16
-	call	em_scope_own
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
-	cmp	rax, 0
-	je	__jabara_label_124
-	mov	rax, [rbp - 8]
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rel __jabara_global_em_lookup_value]
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_125:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_126
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_scope_own
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_127
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 0], rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 16], rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
-__jabara_label_124:
-	mov	rax, [rbp + 24]
+__jabara_label_127:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	cmp	rax, 0
-	jne	__jabara_label_125
-	mov	rax, [rbp - 16]
-	add	rax, 1
-	mov	[rbp - 16], rax
-__jabara_label_125:
-	mov	rax, [rbp + 24]
-	mov	rax, [rax]
-	mov	[rbp + 24], rax
-	jmp	__jabara_label_122
-__jabara_label_123:
+	jne	__jabara_label_128
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_128:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_125
+__jabara_label_126:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
@@ -1250,17 +2284,39 @@ __jabara_label_123:
 global em_name_is_bound
 em_name_is_bound:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 24]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_lookup
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -1274,18 +2330,34 @@ em_name_is_bound:
 global em_frame_offset
 em_frame_offset:
 	db 200
-	dw	0
+	dw	64
 	db 0
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	test	rax, rax
-	jz	__jabara_label_128
+	jz	__jabara_label_131
 	mov	rax, 8
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	pop	rdi
 	sub	rax, rdi
@@ -1295,18 +2367,23 @@ em_frame_offset:
 	db 201
 	db 194
 	dw	16
-__jabara_label_128:
+__jabara_label_131:
 	mov	rax, 8
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	pop	rdi
 	sub	rax, rdi
 	pop	rdi
 	imul	rax, rdi
+	sub	rax, 24
 	db 201
 	db 194
 	dw	16
@@ -1314,52 +2391,81 @@ __jabara_label_128:
 global em_frame_reference
 em_frame_reference:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	db	255,117,24
-	db	255,117,16
-	call	em_frame_offset
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-	jmp	__jabara_string_after_130
-__jabara_string_130: db 91,114,98,112,0
-__jabara_string_after_130:
-	lea	rax, [rel __jabara_string_130]
-	push	rax
-	call	em_text
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	mov	rax, [rbp - 8]
-	cmp	rax, 0
-	jge	__jabara_label_132
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_frame_offset
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	jmp	__jabara_string_after_133
-__jabara_string_133: db 32,45,32,0
+__jabara_string_133: db 91,114,98,112,0
 __jabara_string_after_133:
 	lea	rax, [rel __jabara_string_133]
 	push	rax
 	call	em_text
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	cmp	rax, 0
+	jge	__jabara_label_135
+	jmp	__jabara_string_after_136
+__jabara_string_136: db 32,45,32,0
+__jabara_string_after_136:
+	lea	rax, [rel __jabara_string_136]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	mov	rax, 0
 	pop	rdi
 	sub	rax, rdi
 	push	rax
 	call	em_number
-	jmp	__jabara_label_131
-__jabara_label_132:
-	jmp	__jabara_string_after_134
-__jabara_string_134: db 32,43,32,0
-__jabara_string_after_134:
-	lea	rax, [rel __jabara_string_134]
+	jmp	__jabara_label_134
+__jabara_label_135:
+	jmp	__jabara_string_after_137
+__jabara_string_137: db 32,43,32,0
+__jabara_string_after_137:
+	lea	rax, [rel __jabara_string_137]
 	push	rax
 	call	em_text
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_number
-__jabara_label_131:
-	jmp	__jabara_string_after_135
-__jabara_string_135: db 93,0
-__jabara_string_after_135:
-	lea	rax, [rel __jabara_string_135]
+__jabara_label_134:
+	jmp	__jabara_string_after_138
+__jabara_string_138: db 93,0
+__jabara_string_after_138:
+	lea	rax, [rel __jabara_string_138]
 	push	rax
 	call	em_text
 	xor	eax, eax
-__jabara_return_129:
+__jabara_return_132:
 	db 201
 	db 194
 	dw	16
@@ -1367,38 +2473,67 @@ __jabara_return_129:
 global em_expr_record_type
 em_expr_record_type:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_137
-	mov	rax, [rbp + 24]
+	jne	__jabara_label_140
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_lookup
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_138
+	je	__jabara_label_141
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
-	je	__jabara_label_139
-	db	255,117,24
+	je	__jabara_label_142
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
@@ -1406,28 +2541,81 @@ em_expr_record_type:
 	db 201
 	db 194
 	dw	16
-__jabara_label_139:
-__jabara_label_138:
-__jabara_label_137:
-	call	EX_NAME
+__jabara_label_142:
+__jabara_label_141:
+__jabara_label_140:
+	call	EX_NEW
 	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
+	mov	rax, [rbp - 8]
+	add	rax, 16
 	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_143
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_find_record
+	db 201
+	db 194
+	dw	16
+__jabara_label_143:
+	call	EX_LIFT
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_144
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_lookup
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
-	sete	dl
+	setne	dl
 	mov	eax, edx
 	push	rax
-	call	EX_CALL
+	mov	rax, 0
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
-	sete	dl
+	setne	dl
 	mov	eax, edx
 	pop	rdi
 	test	rax, rax
@@ -1438,93 +2626,132 @@ __jabara_label_137:
 	movzx	edi, dil
 	and	eax, edi
 	test	rax, rax
-	jz	__jabara_label_140
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	mov	rax, [rax + 16]
+	jz	__jabara_label_145
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	call	em_name_is_bound
-	cmp	rax, 0
-	jne	__jabara_label_141
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	mov	rax, [rax + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
 	push	rax
 	call	em_find_record
 	db 201
 	db 194
 	dw	16
-__jabara_label_141:
-__jabara_label_140:
+__jabara_label_145:
+__jabara_label_144:
 	call	EX_MEMBER
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_142
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_146
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_expr_record_type
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_143
-	db	255,117,240
-	mov	rax, [rbp + 16]
+	je	__jabara_label_147
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_find_record_field
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_144
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_148
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_145
-__jabara_string_145: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
-__jabara_string_after_145:
-	lea	rax, [rel __jabara_string_145]
+	jmp	__jabara_string_after_149
+__jabara_string_149: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
+__jabara_string_after_149:
+	lea	rax, [rel __jabara_string_149]
 	push	rax
 	call	jc_error_at
-__jabara_label_144:
-	mov	rax, [rbp - 24]
+__jabara_label_148:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
-	je	__jabara_label_146
-	db	255,117,24
-	mov	rax, [rbp - 24]
+	je	__jabara_label_150
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	em_find_record
 	db 201
 	db 194
 	dw	16
+__jabara_label_150:
+__jabara_label_147:
 __jabara_label_146:
-__jabara_label_143:
-__jabara_label_142:
 	call	EX_ASSIGN
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_147
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_151
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	push	rax
 	call	em_expr_record_type
 	db 201
 	db 194
 	dw	16
-__jabara_label_147:
+__jabara_label_151:
 	mov	rax, 0
 	db 201
 	db 194
@@ -1533,77 +2760,118 @@ __jabara_label_147:
 global em_emit_name_address
 em_emit_name_address:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	mov	rax, [rbp + 24]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	db	255,117,16
-	call	em_lookup
-	mov	[rbp - 8], rax
-	mov	rax, 0
-	mov	[rbp - 16], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_lookup
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_149
-	jmp	__jabara_string_after_150
-__jabara_string_150: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
-__jabara_string_after_150:
-	lea	rax, [rel __jabara_string_150]
-	push	rax
-	call	em_text
-	db	255,117,16
-	call	em_text
-	jmp	__jabara_string_after_151
-__jabara_string_151: db 93,0
-__jabara_string_after_151:
-	lea	rax, [rel __jabara_string_151]
-	push	rax
-	call	em_line
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_149:
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	mov	rax, [rax + 32]
-	test	rax, rax
-	jz	__jabara_label_152
-	jmp	__jabara_string_after_153
-__jabara_string_153: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
-__jabara_string_after_153:
-	lea	rax, [rel __jabara_string_153]
-	push	rax
-	call	em_text
-	db	255,117,16
-	call	em_text
+	jne	__jabara_label_153
 	jmp	__jabara_string_after_154
-__jabara_string_154: db 93,0
+__jabara_string_154: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
 __jabara_string_after_154:
 	lea	rax, [rel __jabara_string_154]
 	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_155
+__jabara_string_155: db 93,0
+__jabara_string_after_155:
+	lea	rax, [rel __jabara_string_155]
+	push	rax
 	call	em_line
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_152:
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 72]
+__jabara_label_153:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 32]
 	test	rax, rax
-	jz	__jabara_label_155
-	jmp	__jabara_string_after_156
-__jabara_string_156: db 9,108,101,97,9,114,97,120,44,32,0
-__jabara_string_after_156:
-	lea	rax, [rel __jabara_string_156]
+	jz	__jabara_label_156
+	jmp	__jabara_string_after_157
+__jabara_string_157: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
+__jabara_string_after_157:
+	lea	rax, [rel __jabara_string_157]
 	push	rax
 	call	em_text
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_158
+__jabara_string_158: db 93,0
+__jabara_string_after_158:
+	lea	rax, [rel __jabara_string_158]
+	push	rax
+	call	em_line
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_156:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	test	rax, rax
+	jz	__jabara_label_159
+	jmp	__jabara_string_after_160
+__jabara_string_160: db 9,108,101,97,9,114,97,120,44,32,0
+__jabara_string_after_160:
+	lea	rax, [rel __jabara_string_160]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_frame_reference
@@ -1612,41 +2880,54 @@ __jabara_string_after_156:
 	db 201
 	db 194
 	dw	16
-__jabara_label_155:
-	jmp	__jabara_string_after_157
-__jabara_string_157: db 109,111,118,9,114,97,120,44,32,91,114,98,112,32,45,32,56,93,0
-__jabara_string_after_157:
-	lea	rax, [rel __jabara_string_157]
-	push	rax
-	call	em_instruction
-__jabara_label_158:
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 16]
-	push	rax
-	mov	rax, [rbp - 16]
-	pop	rdi
-	cmp	rax, rdi
-	jge	__jabara_label_159
-	jmp	__jabara_string_after_160
-__jabara_string_160: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
-__jabara_string_after_160:
-	lea	rax, [rel __jabara_string_160]
-	push	rax
-	call	em_instruction
-	mov	rax, [rbp - 16]
-	add	rax, 1
-	mov	[rbp - 16], rax
-	jmp	__jabara_label_158
 __jabara_label_159:
 	jmp	__jabara_string_after_161
-__jabara_string_161: db 9,97,100,100,9,114,97,120,44,32,0
+__jabara_string_161: db 109,111,118,9,114,97,120,44,32,91,114,98,112,32,45,32,56,93,0
 __jabara_string_after_161:
 	lea	rax, [rel __jabara_string_161]
+	push	rax
+	call	em_instruction
+__jabara_label_162:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jge	__jabara_label_163
+	jmp	__jabara_string_after_164
+__jabara_string_164: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
+__jabara_string_after_164:
+	lea	rax, [rel __jabara_string_164]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_162
+__jabara_label_163:
+	jmp	__jabara_string_after_165
+__jabara_string_165: db 9,97,100,100,9,114,97,120,44,32,0
+__jabara_string_after_165:
+	lea	rax, [rel __jabara_string_165]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	pop	rdi
@@ -1655,7 +2936,7 @@ __jabara_string_after_161:
 	call	em_number
 	call	em_newline
 	xor	eax, eax
-__jabara_return_148:
+__jabara_return_152:
 	db 201
 	db 194
 	dw	16
@@ -1663,54 +2944,72 @@ __jabara_return_148:
 global em_emit_name_store
 em_emit_name_store:
 	db 200
-	dw	0
+	dw	64
 	db 0
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	mov	rax, [rax + 32]
 	test	rax, rax
-	jz	__jabara_label_164
-	jmp	__jabara_string_after_165
-__jabara_string_165: db 9,109,111,118,9,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
-__jabara_string_after_165:
-	lea	rax, [rel __jabara_string_165]
+	jz	__jabara_label_168
+	jmp	__jabara_string_after_169
+__jabara_string_169: db 9,109,111,118,9,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
+__jabara_string_after_169:
+	lea	rax, [rel __jabara_string_169]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_text
-	jmp	__jabara_string_after_166
-__jabara_string_166: db 93,44,32,114,97,120,0
-__jabara_string_after_166:
-	lea	rax, [rel __jabara_string_166]
+	jmp	__jabara_string_after_170
+__jabara_string_170: db 93,44,32,114,97,120,0
+__jabara_string_after_170:
+	lea	rax, [rel __jabara_string_170]
 	push	rax
 	call	em_line
-	jmp	__jabara_label_163
-__jabara_label_164:
-	jmp	__jabara_string_after_167
-__jabara_string_167: db 9,109,111,118,9,0
-__jabara_string_after_167:
-	lea	rax, [rel __jabara_string_167]
+	jmp	__jabara_label_167
+__jabara_label_168:
+	jmp	__jabara_string_after_171
+__jabara_string_171: db 9,109,111,118,9,0
+__jabara_string_after_171:
+	lea	rax, [rel __jabara_string_171]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_frame_reference
-	jmp	__jabara_string_after_168
-__jabara_string_168: db 44,32,114,97,120,0
-__jabara_string_after_168:
-	lea	rax, [rel __jabara_string_168]
+	jmp	__jabara_string_after_172
+__jabara_string_172: db 44,32,114,97,120,0
+__jabara_string_after_172:
+	lea	rax, [rel __jabara_string_172]
 	push	rax
 	call	em_line
-__jabara_label_163:
+__jabara_label_167:
 	xor	eax, eax
-__jabara_return_162:
+__jabara_return_166:
 	db 201
 	db 194
 	dw	16
@@ -1718,50 +3017,87 @@ __jabara_return_162:
 global em_emit_push_expr
 em_emit_push_expr:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	rax, [rbp + 24]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 72]
 	test	rax, rax
-	jz	__jabara_label_170
+	jz	__jabara_label_174
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_171
-	mov	rax, [rbp + 24]
+	jne	__jabara_label_175
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_lookup
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_172
+	je	__jabara_label_176
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	mov	rax, [rax + 32]
 	cmp	rax, 0
-	jne	__jabara_label_173
+	jne	__jabara_label_177
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_frame_offset
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, 127
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -1771,7 +3107,9 @@ em_emit_push_expr:
 	mov	rax, 128
 	neg	rax
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -1780,14 +3118,16 @@ em_emit_push_expr:
 	pop	rdi
 	and	rax, rdi
 	test	rax, rax
-	jz	__jabara_label_174
-	jmp	__jabara_string_after_175
-__jabara_string_175: db 9,100,98,9,50,53,53,44,49,49,55,44,0
-__jabara_string_after_175:
-	lea	rax, [rel __jabara_string_175]
+	jz	__jabara_label_178
+	jmp	__jabara_string_after_179
+__jabara_string_179: db 9,100,98,9,50,53,53,44,49,49,55,44,0
+__jabara_string_after_179:
+	lea	rax, [rel __jabara_string_179]
 	push	rax
 	call	em_text
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	and	rax, 255
 	push	rax
 	call	em_number
@@ -1796,22 +3136,28 @@ __jabara_string_after_175:
 	db 201
 	db 194
 	dw	16
+__jabara_label_178:
+__jabara_label_177:
+__jabara_label_176:
+__jabara_label_175:
 __jabara_label_174:
-__jabara_label_173:
-__jabara_label_172:
-__jabara_label_171:
-__jabara_label_170:
-	db	255,117,24
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_176
-__jabara_string_176: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_176:
-	lea	rax, [rel __jabara_string_176]
+	jmp	__jabara_string_after_180
+__jabara_string_180: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_180:
+	lea	rax, [rel __jabara_string_180]
 	push	rax
 	call	em_instruction
 	xor	eax, eax
-__jabara_return_169:
+__jabara_return_173:
 	db 201
 	db 194
 	dw	16
@@ -1819,32 +3165,57 @@ __jabara_return_169:
 global em_emit_lvalue_address
 em_emit_lvalue_address:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	call	EX_BYTE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_178
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_182
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
-__jabara_label_178:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_182:
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_179
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_183
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_emit_name_address
@@ -1852,16 +3223,23 @@ __jabara_label_178:
 	db 201
 	db 194
 	dw	16
-__jabara_label_179:
+__jabara_label_183:
 	call	EX_DEREF
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_180
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_184
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
@@ -1869,95 +3247,147 @@ __jabara_label_179:
 	db 201
 	db 194
 	dw	16
-__jabara_label_180:
+__jabara_label_184:
 	call	EX_MEMBER
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_181
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_185
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_expr_record_type
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_182
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_186
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_183
-__jabara_string_183: db 109,101,109,98,101,114,32,97,99,99,101,115,115,32,114,101,113,117,105,114,101,115,32,97,32,114,101,99,111,114,100,32,116,97,103,0
-__jabara_string_after_183:
-	lea	rax, [rel __jabara_string_183]
-	push	rax
-	call	jc_error_at
-__jabara_label_182:
-	db	255,117,248
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_find_record_field
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
-	cmp	rax, 0
-	jne	__jabara_label_184
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	push	1
-	jmp	__jabara_string_after_185
-__jabara_string_185: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
-__jabara_string_after_185:
-	lea	rax, [rel __jabara_string_185]
-	push	rax
-	call	jc_error_at
-__jabara_label_184:
-	db	255,117,248
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_record_field_offset
-	mov	[rbp - 24], rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	mov	rax, [rbp - 24]
-	cmp	rax, 0
-	je	__jabara_label_186
 	jmp	__jabara_string_after_187
-__jabara_string_187: db 9,97,100,100,9,114,97,120,44,32,0
+__jabara_string_187: db 109,101,109,98,101,114,32,97,99,99,101,115,115,32,114,101,113,117,105,114,101,115,32,97,32,114,101,99,111,114,100,32,116,97,103,0
 __jabara_string_after_187:
 	lea	rax, [rel __jabara_string_187]
 	push	rax
+	call	jc_error_at
+__jabara_label_186:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_find_record_field
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_188
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_189
+__jabara_string_189: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
+__jabara_string_after_189:
+	lea	rax, [rel __jabara_string_189]
+	push	rax
+	call	jc_error_at
+__jabara_label_188:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_record_field_offset
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_190
+	jmp	__jabara_string_after_191
+__jabara_string_191: db 9,97,100,100,9,114,97,120,44,32,0
+__jabara_string_after_191:
+	lea	rax, [rel __jabara_string_191]
+	push	rax
 	call	em_text
-	db	255,117,232
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
 	call	em_number
 	call	em_newline
-__jabara_label_186:
+__jabara_label_190:
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_181:
-	mov	rax, [rbp + 16]
+__jabara_label_185:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_188
-__jabara_string_188: db 101,120,112,114,101,115,115,105,111,110,32,105,115,32,110,111,116,32,97,115,115,105,103,110,97,98,108,101,0
-__jabara_string_after_188:
-	lea	rax, [rel __jabara_string_188]
+	jmp	__jabara_string_after_192
+__jabara_string_192: db 101,120,112,114,101,115,115,105,111,110,32,105,115,32,110,111,116,32,97,115,115,105,103,110,97,98,108,101,0
+__jabara_string_after_192:
+	lea	rax, [rel __jabara_string_192]
 	push	rax
 	call	jc_error_at
 	xor	eax, eax
-__jabara_return_177:
+__jabara_return_181:
 	db 201
 	db 194
 	dw	16
@@ -1965,42 +3395,52 @@ __jabara_return_177:
 global em_comparison
 em_comparison:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	jmp	__jabara_string_after_190
-__jabara_string_190: db 120,111,114,9,101,100,120,44,32,101,100,120,0
-__jabara_string_after_190:
-	lea	rax, [rel __jabara_string_190]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_191
-__jabara_string_191: db 99,109,112,9,114,97,120,44,32,114,100,105,0
-__jabara_string_after_191:
-	lea	rax, [rel __jabara_string_191]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_192
-__jabara_string_192: db 9,0
-__jabara_string_after_192:
-	lea	rax, [rel __jabara_string_192]
-	push	rax
-	call	em_text
-	db	255,117,16
-	call	em_text
-	jmp	__jabara_string_after_193
-__jabara_string_193: db 9,100,108,0
-__jabara_string_after_193:
-	lea	rax, [rel __jabara_string_193]
-	push	rax
-	call	em_line
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	jmp	__jabara_string_after_194
-__jabara_string_194: db 109,111,118,9,101,97,120,44,32,101,100,120,0
+__jabara_string_194: db 120,111,114,9,101,100,120,44,32,101,100,120,0
 __jabara_string_after_194:
 	lea	rax, [rel __jabara_string_194]
 	push	rax
 	call	em_instruction
+	jmp	__jabara_string_after_195
+__jabara_string_195: db 99,109,112,9,114,97,120,44,32,114,100,105,0
+__jabara_string_after_195:
+	lea	rax, [rel __jabara_string_195]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_196
+__jabara_string_196: db 9,0
+__jabara_string_after_196:
+	lea	rax, [rel __jabara_string_196]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_197
+__jabara_string_197: db 9,100,108,0
+__jabara_string_after_197:
+	lea	rax, [rel __jabara_string_197]
+	push	rax
+	call	em_line
+	jmp	__jabara_string_after_198
+__jabara_string_198: db 109,111,118,9,101,97,120,44,32,101,100,120,0
+__jabara_string_after_198:
+	lea	rax, [rel __jabara_string_198]
+	push	rax
+	call	em_instruction
 	xor	eax, eax
-__jabara_return_189:
+__jabara_return_193:
 	db 201
 	db 194
 	dw	8
@@ -2008,93 +3448,56 @@ __jabara_return_189:
 global em_emit_binary
 em_emit_binary:
 	db 200
-	dw	0
+	dw	64
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	call	EX_NUMBER
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_196
+	jne	__jabara_label_200
 	call	T_PLUS
 	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_197
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	jmp	__jabara_string_after_198
-__jabara_string_198: db 9,97,100,100,9,114,97,120,44,32,0
-__jabara_string_after_198:
-	lea	rax, [rel __jabara_string_198]
-	push	rax
-	call	em_text
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 56]
-	mov	rax, [rax + 32]
-	push	rax
-	call	em_number
-	call	em_newline
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_197:
-	call	T_MINUS
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_199
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	jmp	__jabara_string_after_200
-__jabara_string_200: db 9,115,117,98,9,114,97,120,44,32,0
-__jabara_string_after_200:
-	lea	rax, [rel __jabara_string_200]
-	push	rax
-	call	em_text
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 56]
-	mov	rax, [rax + 32]
-	push	rax
-	call	em_number
-	call	em_newline
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_199:
-	call	T_AMP
-	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_201
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
 	jmp	__jabara_string_after_202
-__jabara_string_202: db 9,97,110,100,9,114,97,120,44,32,0
+__jabara_string_202: db 9,97,100,100,9,114,97,120,44,32,0
 __jabara_string_after_202:
 	lea	rax, [rel __jabara_string_202]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax + 32]
 	push	rax
@@ -2105,25 +3508,34 @@ __jabara_string_after_202:
 	db 194
 	dw	16
 __jabara_label_201:
-	call	T_PIPE
+	call	T_MINUS
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_203
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
 	jmp	__jabara_string_after_204
-__jabara_string_204: db 9,111,114,9,114,97,120,44,32,0
+__jabara_string_204: db 9,115,117,98,9,114,97,120,44,32,0
 __jabara_string_after_204:
 	lea	rax, [rel __jabara_string_204]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax + 32]
 	push	rax
@@ -2134,25 +3546,34 @@ __jabara_string_after_204:
 	db 194
 	dw	16
 __jabara_label_203:
-	call	T_XOR
+	call	T_AMP
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_205
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
 	jmp	__jabara_string_after_206
-__jabara_string_206: db 9,120,111,114,9,114,97,120,44,32,0
+__jabara_string_206: db 9,97,110,100,9,114,97,120,44,32,0
 __jabara_string_after_206:
 	lea	rax, [rel __jabara_string_206]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax + 32]
 	push	rax
@@ -2163,25 +3584,34 @@ __jabara_string_after_206:
 	db 194
 	dw	16
 __jabara_label_205:
-	call	T_SHL
+	call	T_PIPE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_207
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
 	jmp	__jabara_string_after_208
-__jabara_string_208: db 9,115,104,108,9,114,97,120,44,32,0
+__jabara_string_208: db 9,111,114,9,114,97,120,44,32,0
 __jabara_string_after_208:
 	lea	rax, [rel __jabara_string_208]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax + 32]
 	push	rax
@@ -2192,25 +3622,34 @@ __jabara_string_after_208:
 	db 194
 	dw	16
 __jabara_label_207:
-	call	T_SHR
+	call	T_XOR
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_209
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
 	jmp	__jabara_string_after_210
-__jabara_string_210: db 9,115,104,114,9,114,97,120,44,32,0
+__jabara_string_210: db 9,120,111,114,9,114,97,120,44,32,0
 __jabara_string_after_210:
 	lea	rax, [rel __jabara_string_210]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax + 32]
 	push	rax
@@ -2221,68 +3660,120 @@ __jabara_string_after_210:
 	db 194
 	dw	16
 __jabara_label_209:
-__jabara_label_196:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 56]
+	call	T_SHL
 	push	rax
-	call	em_emit_push_expr
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	jmp	__jabara_string_after_211
-__jabara_string_211: db 112,111,112,9,114,100,105,0
-__jabara_string_after_211:
-	lea	rax, [rel __jabara_string_211]
-	push	rax
-	call	em_instruction
-	call	T_PLUS
-	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_212
-	jmp	__jabara_string_after_213
-__jabara_string_213: db 97,100,100,9,114,97,120,44,32,114,100,105,0
-__jabara_string_after_213:
-	lea	rax, [rel __jabara_string_213]
+	jne	__jabara_label_211
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
+	jmp	__jabara_string_after_212
+__jabara_string_212: db 9,115,104,108,9,114,97,120,44,32,0
+__jabara_string_after_212:
+	lea	rax, [rel __jabara_string_212]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	mov	rax, [rax + 32]
+	push	rax
+	call	em_number
+	call	em_newline
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_212:
-	call	T_MINUS
+__jabara_label_211:
+	call	T_SHR
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_214
+	jne	__jabara_label_213
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
+	jmp	__jabara_string_after_214
+__jabara_string_214: db 9,115,104,114,9,114,97,120,44,32,0
+__jabara_string_after_214:
+	lea	rax, [rel __jabara_string_214]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	mov	rax, [rax + 32]
+	push	rax
+	call	em_number
+	call	em_newline
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_213:
+__jabara_label_200:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	call	em_emit_push_expr
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
 	jmp	__jabara_string_after_215
-__jabara_string_215: db 115,117,98,9,114,97,120,44,32,114,100,105,0
+__jabara_string_215: db 112,111,112,9,114,100,105,0
 __jabara_string_after_215:
 	lea	rax, [rel __jabara_string_215]
 	push	rax
 	call	em_instruction
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_214:
-	call	T_STAR
+	call	T_PLUS
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_216
 	jmp	__jabara_string_after_217
-__jabara_string_217: db 105,109,117,108,9,114,97,120,44,32,114,100,105,0
+__jabara_string_217: db 97,100,100,9,114,97,120,44,32,114,100,105,0
 __jabara_string_after_217:
 	lea	rax, [rel __jabara_string_217]
 	push	rax
@@ -2292,23 +3783,19 @@ __jabara_string_after_217:
 	db 194
 	dw	16
 __jabara_label_216:
-	call	T_SLASH
+	call	T_MINUS
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_218
 	jmp	__jabara_string_after_219
-__jabara_string_219: db 120,111,114,9,101,100,120,44,32,101,100,120,0
+__jabara_string_219: db 115,117,98,9,114,97,120,44,32,114,100,105,0
 __jabara_string_after_219:
 	lea	rax, [rel __jabara_string_219]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_220
-__jabara_string_220: db 100,105,118,9,114,100,105,0
-__jabara_string_after_220:
-	lea	rax, [rel __jabara_string_220]
 	push	rax
 	call	em_instruction
 	mov	rax, 0
@@ -2316,27 +3803,43 @@ __jabara_string_after_220:
 	db 194
 	dw	16
 __jabara_label_218:
-	call	T_PERCENT
+	call	T_STAR
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_221
-	jmp	__jabara_string_after_222
-__jabara_string_222: db 120,111,114,9,101,100,120,44,32,101,100,120,0
-__jabara_string_after_222:
-	lea	rax, [rel __jabara_string_222]
+	jne	__jabara_label_220
+	jmp	__jabara_string_after_221
+__jabara_string_221: db 105,109,117,108,9,114,97,120,44,32,114,100,105,0
+__jabara_string_after_221:
+	lea	rax, [rel __jabara_string_221]
 	push	rax
 	call	em_instruction
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_220:
+	call	T_SLASH
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_222
 	jmp	__jabara_string_after_223
-__jabara_string_223: db 100,105,118,9,114,100,105,0
+__jabara_string_223: db 120,111,114,9,101,100,120,44,32,101,100,120,0
 __jabara_string_after_223:
 	lea	rax, [rel __jabara_string_223]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_224
-__jabara_string_224: db 109,111,118,9,114,97,120,44,32,114,100,120,0
+__jabara_string_224: db 100,105,118,9,114,100,105,0
 __jabara_string_after_224:
 	lea	rax, [rel __jabara_string_224]
 	push	rax
@@ -2345,34 +3848,30 @@ __jabara_string_after_224:
 	db 201
 	db 194
 	dw	16
-__jabara_label_221:
-	call	T_AMP
+__jabara_label_222:
+	call	T_PERCENT
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_225
 	jmp	__jabara_string_after_226
-__jabara_string_226: db 97,110,100,9,114,97,120,44,32,114,100,105,0
+__jabara_string_226: db 120,111,114,9,101,100,120,44,32,101,100,120,0
 __jabara_string_after_226:
 	lea	rax, [rel __jabara_string_226]
 	push	rax
 	call	em_instruction
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_225:
-	call	T_PIPE
+	jmp	__jabara_string_after_227
+__jabara_string_227: db 100,105,118,9,114,100,105,0
+__jabara_string_after_227:
+	lea	rax, [rel __jabara_string_227]
 	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_227
+	call	em_instruction
 	jmp	__jabara_string_after_228
-__jabara_string_228: db 111,114,9,114,97,120,44,32,114,100,105,0
+__jabara_string_228: db 109,111,118,9,114,97,120,44,32,114,100,120,0
 __jabara_string_after_228:
 	lea	rax, [rel __jabara_string_228]
 	push	rax
@@ -2381,16 +3880,18 @@ __jabara_string_after_228:
 	db 201
 	db 194
 	dw	16
-__jabara_label_227:
-	call	T_XOR
+__jabara_label_225:
+	call	T_AMP
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_229
 	jmp	__jabara_string_after_230
-__jabara_string_230: db 120,111,114,9,114,97,120,44,32,114,100,105,0
+__jabara_string_230: db 97,110,100,9,114,97,120,44,32,114,100,105,0
 __jabara_string_after_230:
 	lea	rax, [rel __jabara_string_230]
 	push	rax
@@ -2400,23 +3901,19 @@ __jabara_string_after_230:
 	db 194
 	dw	16
 __jabara_label_229:
-	call	T_SHL
+	call	T_PIPE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_231
 	jmp	__jabara_string_after_232
-__jabara_string_232: db 109,111,118,9,114,99,120,44,32,114,100,105,0
+__jabara_string_232: db 111,114,9,114,97,120,44,32,114,100,105,0
 __jabara_string_after_232:
 	lea	rax, [rel __jabara_string_232]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_233
-__jabara_string_233: db 115,104,108,9,114,97,120,44,32,99,108,0
-__jabara_string_after_233:
-	lea	rax, [rel __jabara_string_233]
 	push	rax
 	call	em_instruction
 	mov	rax, 0
@@ -2424,183 +3921,201 @@ __jabara_string_after_233:
 	db 194
 	dw	16
 __jabara_label_231:
-	call	T_SHR
+	call	T_XOR
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_234
-	jmp	__jabara_string_after_235
-__jabara_string_235: db 109,111,118,9,114,99,120,44,32,114,100,105,0
-__jabara_string_after_235:
-	lea	rax, [rel __jabara_string_235]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_236
-__jabara_string_236: db 115,104,114,9,114,97,120,44,32,99,108,0
-__jabara_string_after_236:
-	lea	rax, [rel __jabara_string_236]
+	jne	__jabara_label_233
+	jmp	__jabara_string_after_234
+__jabara_string_234: db 120,111,114,9,114,97,120,44,32,114,100,105,0
+__jabara_string_after_234:
+	lea	rax, [rel __jabara_string_234]
 	push	rax
 	call	em_instruction
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_234:
-	call	T_AND
+__jabara_label_233:
+	call	T_SHL
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_237
-	jmp	__jabara_string_after_238
-__jabara_string_238: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
-__jabara_string_after_238:
-	lea	rax, [rel __jabara_string_238]
+	jne	__jabara_label_235
+	jmp	__jabara_string_after_236
+__jabara_string_236: db 109,111,118,9,114,99,120,44,32,114,100,105,0
+__jabara_string_after_236:
+	lea	rax, [rel __jabara_string_236]
 	push	rax
 	call	em_instruction
+	jmp	__jabara_string_after_237
+__jabara_string_237: db 115,104,108,9,114,97,120,44,32,99,108,0
+__jabara_string_after_237:
+	lea	rax, [rel __jabara_string_237]
+	push	rax
+	call	em_instruction
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_235:
+	call	T_SHR
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_238
 	jmp	__jabara_string_after_239
-__jabara_string_239: db 115,101,116,110,122,9,97,108,0
+__jabara_string_239: db 109,111,118,9,114,99,120,44,32,114,100,105,0
 __jabara_string_after_239:
 	lea	rax, [rel __jabara_string_239]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_240
-__jabara_string_240: db 109,111,118,122,120,9,101,97,120,44,32,97,108,0
+__jabara_string_240: db 115,104,114,9,114,97,120,44,32,99,108,0
 __jabara_string_after_240:
 	lea	rax, [rel __jabara_string_240]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_241
-__jabara_string_241: db 116,101,115,116,9,114,100,105,44,32,114,100,105,0
-__jabara_string_after_241:
-	lea	rax, [rel __jabara_string_241]
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_238:
+	call	T_AND
 	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_241
 	jmp	__jabara_string_after_242
-__jabara_string_242: db 115,101,116,110,122,9,100,105,108,0
+__jabara_string_242: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
 __jabara_string_after_242:
 	lea	rax, [rel __jabara_string_242]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_243
-__jabara_string_243: db 109,111,118,122,120,9,101,100,105,44,32,100,105,108,0
+__jabara_string_243: db 115,101,116,110,122,9,97,108,0
 __jabara_string_after_243:
 	lea	rax, [rel __jabara_string_243]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_244
-__jabara_string_244: db 97,110,100,9,101,97,120,44,32,101,100,105,0
+__jabara_string_244: db 109,111,118,122,120,9,101,97,120,44,32,97,108,0
 __jabara_string_after_244:
 	lea	rax, [rel __jabara_string_244]
 	push	rax
 	call	em_instruction
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_237:
-	call	T_OR
+	jmp	__jabara_string_after_245
+__jabara_string_245: db 116,101,115,116,9,114,100,105,44,32,114,100,105,0
+__jabara_string_after_245:
+	lea	rax, [rel __jabara_string_245]
 	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_245
+	call	em_instruction
 	jmp	__jabara_string_after_246
-__jabara_string_246: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
+__jabara_string_246: db 115,101,116,110,122,9,100,105,108,0
 __jabara_string_after_246:
 	lea	rax, [rel __jabara_string_246]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_247
-__jabara_string_247: db 115,101,116,110,122,9,97,108,0
+__jabara_string_247: db 109,111,118,122,120,9,101,100,105,44,32,100,105,108,0
 __jabara_string_after_247:
 	lea	rax, [rel __jabara_string_247]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_248
-__jabara_string_248: db 109,111,118,122,120,9,101,97,120,44,32,97,108,0
+__jabara_string_248: db 97,110,100,9,101,97,120,44,32,101,100,105,0
 __jabara_string_after_248:
 	lea	rax, [rel __jabara_string_248]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_249
-__jabara_string_249: db 116,101,115,116,9,114,100,105,44,32,114,100,105,0
-__jabara_string_after_249:
-	lea	rax, [rel __jabara_string_249]
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_241:
+	call	T_OR
 	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_249
 	jmp	__jabara_string_after_250
-__jabara_string_250: db 115,101,116,110,122,9,100,105,108,0
+__jabara_string_250: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
 __jabara_string_after_250:
 	lea	rax, [rel __jabara_string_250]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_251
-__jabara_string_251: db 109,111,118,122,120,9,101,100,105,44,32,100,105,108,0
+__jabara_string_251: db 115,101,116,110,122,9,97,108,0
 __jabara_string_after_251:
 	lea	rax, [rel __jabara_string_251]
 	push	rax
 	call	em_instruction
 	jmp	__jabara_string_after_252
-__jabara_string_252: db 111,114,9,101,97,120,44,32,101,100,105,0
+__jabara_string_252: db 109,111,118,122,120,9,101,97,120,44,32,97,108,0
 __jabara_string_after_252:
 	lea	rax, [rel __jabara_string_252]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_253
+__jabara_string_253: db 116,101,115,116,9,114,100,105,44,32,114,100,105,0
+__jabara_string_after_253:
+	lea	rax, [rel __jabara_string_253]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_254
+__jabara_string_254: db 115,101,116,110,122,9,100,105,108,0
+__jabara_string_after_254:
+	lea	rax, [rel __jabara_string_254]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_255
+__jabara_string_255: db 109,111,118,122,120,9,101,100,105,44,32,100,105,108,0
+__jabara_string_after_255:
+	lea	rax, [rel __jabara_string_255]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_256
+__jabara_string_256: db 111,114,9,101,97,120,44,32,101,100,105,0
+__jabara_string_after_256:
+	lea	rax, [rel __jabara_string_256]
 	push	rax
 	call	em_instruction
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_245:
+__jabara_label_249:
 	call	T_EQ
 	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_253
-	jmp	__jabara_string_after_254
-__jabara_string_254: db 115,101,116,101,0
-__jabara_string_after_254:
-	lea	rax, [rel __jabara_string_254]
-	push	rax
-	call	em_comparison
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_253:
-	call	T_NE
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_255
-	jmp	__jabara_string_after_256
-__jabara_string_256: db 115,101,116,110,101,0
-__jabara_string_after_256:
-	lea	rax, [rel __jabara_string_256]
-	push	rax
-	call	em_comparison
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_255:
-	call	T_LT
-	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_257
 	jmp	__jabara_string_after_258
-__jabara_string_258: db 115,101,116,108,0
+__jabara_string_258: db 115,101,116,101,0
 __jabara_string_after_258:
 	lea	rax, [rel __jabara_string_258]
 	push	rax
@@ -2610,15 +4125,17 @@ __jabara_string_after_258:
 	db 194
 	dw	16
 __jabara_label_257:
-	call	T_LE
+	call	T_NE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_259
 	jmp	__jabara_string_after_260
-__jabara_string_260: db 115,101,116,108,101,0
+__jabara_string_260: db 115,101,116,110,101,0
 __jabara_string_after_260:
 	lea	rax, [rel __jabara_string_260]
 	push	rax
@@ -2628,15 +4145,17 @@ __jabara_string_after_260:
 	db 194
 	dw	16
 __jabara_label_259:
-	call	T_GT
+	call	T_LT
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_261
 	jmp	__jabara_string_after_262
-__jabara_string_262: db 115,101,116,103,0
+__jabara_string_262: db 115,101,116,108,0
 __jabara_string_after_262:
 	lea	rax, [rel __jabara_string_262]
 	push	rax
@@ -2646,15 +4165,17 @@ __jabara_string_after_262:
 	db 194
 	dw	16
 __jabara_label_261:
-	call	T_GE
+	call	T_LE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_263
 	jmp	__jabara_string_after_264
-__jabara_string_264: db 115,101,116,103,101,0
+__jabara_string_264: db 115,101,116,108,101,0
 __jabara_string_after_264:
 	lea	rax, [rel __jabara_string_264]
 	push	rax
@@ -2664,18 +4185,60 @@ __jabara_string_after_264:
 	db 194
 	dw	16
 __jabara_label_263:
-	mov	rax, [rbp + 16]
+	call	T_GT
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_265
+	jmp	__jabara_string_after_266
+__jabara_string_266: db 115,101,116,103,0
+__jabara_string_after_266:
+	lea	rax, [rel __jabara_string_266]
+	push	rax
+	call	em_comparison
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_265:
+	call	T_GE
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_267
+	jmp	__jabara_string_after_268
+__jabara_string_268: db 115,101,116,103,101,0
+__jabara_string_after_268:
+	lea	rax, [rel __jabara_string_268]
+	push	rax
+	call	em_comparison
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_267:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_265
-__jabara_string_265: db 117,110,115,117,112,112,111,114,116,101,100,32,98,105,110,97,114,121,32,111,112,101,114,97,116,111,114,0
-__jabara_string_after_265:
-	lea	rax, [rel __jabara_string_265]
+	jmp	__jabara_string_after_269
+__jabara_string_269: db 117,110,115,117,112,112,111,114,116,101,100,32,98,105,110,97,114,121,32,111,112,101,114,97,116,111,114,0
+__jabara_string_after_269:
+	lea	rax, [rel __jabara_string_269]
 	push	rax
 	call	jc_error_at
 	xor	eax, eax
-__jabara_return_195:
+__jabara_return_199:
 	db 201
 	db 194
 	dw	16
@@ -2683,84 +4246,61 @@ __jabara_return_195:
 global em_call_is_direct
 em_call_is_direct:
 	db 200
-	dw	0
+	dw	64
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	je	__jabara_label_267
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_267:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_name_is_bound
-	test	rax, rax
-	jz	__jabara_label_268
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_268:
-	mov	rax, 0
-	push	rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_find_function
-	pop	rdi
-	xor	edx, edx
-	cmp	rax, rdi
-	setne	dl
-	mov	eax, edx
-	db 201
-	db 194
-	dw	16
-
-global em_call_is_constructor
-em_call_is_constructor:
-	db 200
-	dw	0
-	db 0
-	call	EX_NAME
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	cmp	rax, rdi
-	je	__jabara_label_270
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_270:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_name_is_bound
-	test	rax, rax
-	jz	__jabara_label_271
+	je	__jabara_label_271
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
 __jabara_label_271:
-	mov	rax, 0
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
-	call	em_find_record
+	call	em_name_is_bound
+	test	rax, rax
+	jz	__jabara_label_272
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_272:
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_find_function
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -2773,15 +4313,38 @@ __jabara_label_271:
 global em_emit_pith_define
 em_emit_pith_define:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	db	255,117,24
-	db	255,117,16
-	call	em_find_function_body
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_find_function_body
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	pop	rdi
 	xor	edx, edx
@@ -2790,11 +4353,15 @@ em_emit_pith_define:
 	mov	eax, edx
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	mov	rax, 0
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -2805,23 +4372,28 @@ em_emit_pith_define:
 	pop	rdi
 	and	rax, rdi
 	test	rax, rax
-	jz	__jabara_label_273
-	jmp	__jabara_string_after_274
-__jabara_string_274: db 37,100,101,102,105,110,101,32,80,73,84,72,95,0
-__jabara_string_after_274:
-	lea	rax, [rel __jabara_string_274]
+	jz	__jabara_label_274
+	jmp	__jabara_string_after_275
+__jabara_string_275: db 37,100,101,102,105,110,101,32,80,73,84,72,95,0
+__jabara_string_after_275:
+	lea	rax, [rel __jabara_string_275]
 	push	rax
 	call	em_text
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_line
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 1
 	pop	rdi
 	mov	qword [rdi + 48], rax
-__jabara_label_273:
+__jabara_label_274:
 	xor	eax, eax
-__jabara_return_272:
+__jabara_return_273:
 	db 201
 	db 194
 	dw	16
@@ -2829,32 +4401,97 @@ __jabara_return_272:
 global em_emit_alloc_call
 em_emit_alloc_call:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 80]
+	and	rax, 1
 	cmp	rax, 0
-	jne	__jabara_label_276
-	jmp	__jabara_string_after_277
-__jabara_string_277: db 37,100,101,102,105,110,101,32,74,65,66,65,82,65,95,65,76,76,79,67,0
-__jabara_string_after_277:
-	lea	rax, [rel __jabara_string_277]
-	push	rax
-	call	em_line
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, 1
-	pop	rdi
-	mov	qword [rdi + 80], rax
-__jabara_label_276:
+	jne	__jabara_label_277
 	jmp	__jabara_string_after_278
-__jabara_string_278: db 99,97,108,108,9,95,95,106,97,98,97,114,97,95,97,108,108,111,99,0
+__jabara_string_278: db 37,100,101,102,105,110,101,32,74,65,66,65,82,65,95,65,76,76,79,67,0
 __jabara_string_after_278:
 	lea	rax, [rel __jabara_string_278]
 	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 80]
+	or	rax, 1
+	pop	rdi
+	mov	qword [rdi + 80], rax
+__jabara_label_277:
+	jmp	__jabara_string_after_279
+__jabara_string_279: db 99,97,108,108,9,95,95,106,97,98,97,114,97,95,97,108,108,111,99,0
+__jabara_string_after_279:
+	lea	rax, [rel __jabara_string_279]
+	push	rax
 	call	em_instruction
 	xor	eax, eax
-__jabara_return_275:
+__jabara_return_276:
+	db 201
+	db 194
+	dw	8
+
+global em_emit_lift_call
+em_emit_lift_call:
+	db 200
+	dw	48
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 80]
+	and	rax, 2
+	cmp	rax, 0
+	jne	__jabara_label_281
+	jmp	__jabara_string_after_282
+__jabara_string_282: db 37,100,101,102,105,110,101,32,74,65,66,65,82,65,95,76,73,70,84,0
+__jabara_string_after_282:
+	lea	rax, [rel __jabara_string_282]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 80]
+	or	rax, 2
+	pop	rdi
+	mov	qword [rdi + 80], rax
+__jabara_label_281:
+	jmp	__jabara_string_after_283
+__jabara_string_283: db 99,97,108,108,9,95,95,106,97,98,97,114,97,95,108,105,102,116,0
+__jabara_string_after_283:
+	lea	rax, [rel __jabara_string_283]
+	push	rax
+	call	em_instruction
+	xor	eax, eax
+__jabara_return_280:
 	db 201
 	db 194
 	dw	8
@@ -2862,46 +4499,78 @@ __jabara_return_275:
 global em_emit_direct_call
 em_emit_direct_call:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 64]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_emit_pith_define
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 72]
 	cmp	rax, 8191
-	jle	__jabara_label_280
-	mov	rax, [rbp + 16]
+	jle	__jabara_label_285
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_281
-__jabara_string_281: db 99,97,108,108,115,32,115,117,112,112,111,114,116,32,97,116,32,109,111,115,116,32,56,49,57,49,32,97,114,103,117,109,101,110,116,115,0
-__jabara_string_after_281:
-	lea	rax, [rel __jabara_string_281]
+	jmp	__jabara_string_after_286
+__jabara_string_286: db 99,97,108,108,115,32,115,117,112,112,111,114,116,32,97,116,32,109,111,115,116,32,56,49,57,49,32,97,114,103,117,109,101,110,116,115,0
+__jabara_string_after_286:
+	lea	rax, [rel __jabara_string_286]
 	push	rax
 	call	jc_error_at
-__jabara_label_280:
-__jabara_label_282:
+__jabara_label_285:
+__jabara_label_287:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_283
+	je	__jabara_label_288
 	call	EX_NUMBER
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_285
+	jne	__jabara_label_290
 	mov	rax, 2147483647
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	pop	rdi
 	xor	edx, edx
@@ -2912,6 +4581,8 @@ __jabara_label_282:
 	mov	rax, 0
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	pop	rdi
 	xor	edx, edx
@@ -2921,48 +4592,71 @@ __jabara_label_282:
 	pop	rdi
 	and	rax, rdi
 	test	rax, rax
-	jz	__jabara_label_287
-	jmp	__jabara_string_after_288
-__jabara_string_288: db 9,112,117,115,104,9,0
-__jabara_string_after_288:
-	lea	rax, [rel __jabara_string_288]
+	jz	__jabara_label_292
+	jmp	__jabara_string_after_293
+__jabara_string_293: db 9,112,117,115,104,9,0
+__jabara_string_after_293:
+	lea	rax, [rel __jabara_string_293]
 	push	rax
 	call	em_text
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_number
 	call	em_newline
-	jmp	__jabara_label_286
-__jabara_label_287:
-	db	255,117,24
-	db	255,117,248
-	call	em_emit_push_expr
-__jabara_label_286:
-	jmp	__jabara_label_284
-__jabara_label_285:
-	db	255,117,24
-	db	255,117,248
-	call	em_emit_push_expr
-__jabara_label_284:
+	jmp	__jabara_label_291
+__jabara_label_292:
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_push_expr
+__jabara_label_291:
+	jmp	__jabara_label_289
+__jabara_label_290:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_push_expr
+__jabara_label_289:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 88]
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_282
-__jabara_label_283:
-	jmp	__jabara_string_after_289
-__jabara_string_289: db 9,99,97,108,108,9,0
-__jabara_string_after_289:
-	lea	rax, [rel __jabara_string_289]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_287
+__jabara_label_288:
+	jmp	__jabara_string_after_294
+__jabara_string_294: db 9,99,97,108,108,9,0
+__jabara_string_after_294:
+	lea	rax, [rel __jabara_string_294]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_line
 	xor	eax, eax
-__jabara_return_279:
+__jabara_return_284:
 	db 201
 	db 194
 	dw	16
@@ -2970,125 +4664,202 @@ __jabara_return_279:
 global em_emit_closure_call
 em_emit_closure_call:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 64]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 16], rax
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 72]
-	mov	[rbp - 24], rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_291
-__jabara_string_291: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_291:
-	lea	rax, [rel __jabara_string_291]
+	jmp	__jabara_string_after_296
+__jabara_string_296: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_296:
+	lea	rax, [rel __jabara_string_296]
 	push	rax
 	call	em_instruction
-__jabara_label_292:
+__jabara_label_297:
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_293
-	db	255,117,24
-	db	255,117,248
+	je	__jabara_label_298
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_294
-__jabara_string_294: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_294:
-	lea	rax, [rel __jabara_string_294]
-	push	rax
-	call	em_instruction
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 88]
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_292
-__jabara_label_293:
-	mov	rax, [rbp - 24]
-	cmp	rax, 0
-	jne	__jabara_label_296
-	jmp	__jabara_string_after_297
-__jabara_string_297: db 109,111,118,9,114,97,120,44,32,91,114,115,112,93,0
-__jabara_string_after_297:
-	lea	rax, [rel __jabara_string_297]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_298
-__jabara_string_298: db 120,111,114,9,101,100,120,44,32,101,100,120,0
-__jabara_string_after_298:
-	lea	rax, [rel __jabara_string_298]
-	push	rax
-	call	em_instruction
 	jmp	__jabara_string_after_299
-__jabara_string_299: db 109,111,118,9,114,99,120,44,32,91,114,97,120,32,43,32,56,93,0
+__jabara_string_299: db 112,117,115,104,9,114,97,120,0
 __jabara_string_after_299:
 	lea	rax, [rel __jabara_string_299]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_300
-__jabara_string_300: db 112,117,115,104,9,114,99,120,0
-__jabara_string_after_300:
-	lea	rax, [rel __jabara_string_300]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 88]
 	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_301
-__jabara_string_301: db 112,117,115,104,9,114,100,120,0
-__jabara_string_after_301:
-	lea	rax, [rel __jabara_string_301]
-	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_297
+__jabara_label_298:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_301
 	jmp	__jabara_string_after_302
-__jabara_string_302: db 99,97,108,108,9,91,114,97,120,93,0
+__jabara_string_302: db 109,111,118,9,114,97,120,44,32,91,114,115,112,93,0
 __jabara_string_after_302:
 	lea	rax, [rel __jabara_string_302]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_label_295
-__jabara_label_296:
-__jabara_label_303:
-	db	255,117,232
-	mov	rax, [rbp - 16]
-	pop	rdi
-	cmp	rax, rdi
-	jge	__jabara_label_304
-	mov	rax, [rbp - 16]
-	cmp	rax, 0
-	jne	__jabara_label_305
+	jmp	__jabara_string_after_303
+__jabara_string_303: db 120,111,114,9,101,100,120,44,32,101,100,120,0
+__jabara_string_after_303:
+	lea	rax, [rel __jabara_string_303]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_304
+__jabara_string_304: db 109,111,118,9,114,56,44,32,91,114,97,120,32,45,32,49,54,93,0
+__jabara_string_after_304:
+	lea	rax, [rel __jabara_string_304]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_305
+__jabara_string_305: db 108,101,97,9,114,99,120,44,32,91,114,97,120,32,43,32,56,93,0
+__jabara_string_after_305:
+	lea	rax, [rel __jabara_string_305]
+	push	rax
+	call	em_instruction
 	jmp	__jabara_string_after_306
-__jabara_string_306: db 9,109,111,118,9,114,97,120,44,32,91,114,115,112,32,43,32,0
+__jabara_string_306: db 112,117,115,104,9,114,56,0
 __jabara_string_after_306:
 	lea	rax, [rel __jabara_string_306]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_307
+__jabara_string_307: db 112,117,115,104,9,114,99,120,0
+__jabara_string_after_307:
+	lea	rax, [rel __jabara_string_307]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_308
+__jabara_string_308: db 112,117,115,104,9,114,100,120,0
+__jabara_string_after_308:
+	lea	rax, [rel __jabara_string_308]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_309
+__jabara_string_309: db 99,97,108,108,9,91,114,97,120,93,0
+__jabara_string_after_309:
+	lea	rax, [rel __jabara_string_309]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_label_300
+__jabara_label_301:
+__jabara_label_310:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jge	__jabara_label_311
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_312
+	jmp	__jabara_string_after_313
+__jabara_string_313: db 9,109,111,118,9,114,97,120,44,32,91,114,115,112,32,43,32,0
+__jabara_string_after_313:
+	lea	rax, [rel __jabara_string_313]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	imul	rax, rdi
 	push	rax
 	call	em_number
-	jmp	__jabara_string_after_307
-__jabara_string_307: db 93,0
-__jabara_string_after_307:
-	lea	rax, [rel __jabara_string_307]
+	jmp	__jabara_string_after_314
+__jabara_string_314: db 93,0
+__jabara_string_after_314:
+	lea	rax, [rel __jabara_string_314]
 	push	rax
 	call	em_line
-__jabara_label_305:
-	jmp	__jabara_string_after_308
-__jabara_string_308: db 9,109,111,118,9,114,100,120,44,32,91,114,115,112,32,43,32,0
-__jabara_string_after_308:
-	lea	rax, [rel __jabara_string_308]
+__jabara_label_312:
+	jmp	__jabara_string_after_315
+__jabara_string_315: db 9,109,111,118,9,114,100,120,44,32,91,114,115,112,32,43,32,0
+__jabara_string_after_315:
+	lea	rax, [rel __jabara_string_315]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
-	db	255,117,240
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	sub	rax, 1
 	pop	rdi
 	sub	rax, rdi
@@ -3096,51 +4867,72 @@ __jabara_string_after_308:
 	imul	rax, rdi
 	push	rax
 	call	em_number
-	jmp	__jabara_string_after_309
-__jabara_string_309: db 93,0
-__jabara_string_after_309:
-	lea	rax, [rel __jabara_string_309]
+	jmp	__jabara_string_after_316
+__jabara_string_316: db 93,0
+__jabara_string_after_316:
+	lea	rax, [rel __jabara_string_316]
 	push	rax
 	call	em_line
-	jmp	__jabara_string_after_310
-__jabara_string_310: db 109,111,118,9,114,99,120,44,32,91,114,97,120,32,43,32,56,93,0
-__jabara_string_after_310:
-	lea	rax, [rel __jabara_string_310]
+	jmp	__jabara_string_after_317
+__jabara_string_317: db 109,111,118,9,114,56,44,32,91,114,97,120,32,45,32,49,54,93,0
+__jabara_string_after_317:
+	lea	rax, [rel __jabara_string_317]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_311
-__jabara_string_311: db 112,117,115,104,9,114,99,120,0
-__jabara_string_after_311:
-	lea	rax, [rel __jabara_string_311]
+	jmp	__jabara_string_after_318
+__jabara_string_318: db 108,101,97,9,114,99,120,44,32,91,114,97,120,32,43,32,56,93,0
+__jabara_string_after_318:
+	lea	rax, [rel __jabara_string_318]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_312
-__jabara_string_312: db 112,117,115,104,9,114,100,120,0
-__jabara_string_after_312:
-	lea	rax, [rel __jabara_string_312]
+	jmp	__jabara_string_after_319
+__jabara_string_319: db 112,117,115,104,9,114,56,0
+__jabara_string_after_319:
+	lea	rax, [rel __jabara_string_319]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_313
-__jabara_string_313: db 99,97,108,108,9,91,114,97,120,93,0
-__jabara_string_after_313:
-	lea	rax, [rel __jabara_string_313]
+	jmp	__jabara_string_after_320
+__jabara_string_320: db 112,117,115,104,9,114,99,120,0
+__jabara_string_after_320:
+	lea	rax, [rel __jabara_string_320]
 	push	rax
 	call	em_instruction
-	mov	rax, [rbp - 16]
+	jmp	__jabara_string_after_321
+__jabara_string_321: db 112,117,115,104,9,114,100,120,0
+__jabara_string_after_321:
+	lea	rax, [rel __jabara_string_321]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_322
+__jabara_string_322: db 99,97,108,108,9,91,114,97,120,93,0
+__jabara_string_after_322:
+	lea	rax, [rel __jabara_string_322]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 16], rax
-	jmp	__jabara_label_303
-__jabara_label_304:
-__jabara_label_295:
-	jmp	__jabara_string_after_314
-__jabara_string_314: db 9,97,100,100,9,114,115,112,44,32,0
-__jabara_string_after_314:
-	lea	rax, [rel __jabara_string_314]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_310
+__jabara_label_311:
+__jabara_label_300:
+	jmp	__jabara_string_after_323
+__jabara_string_323: db 9,97,100,100,9,114,115,112,44,32,0
+__jabara_string_after_323:
+	lea	rax, [rel __jabara_string_323]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	add	rax, 1
 	pop	rdi
 	imul	rax, rdi
@@ -3148,7 +4940,7 @@ __jabara_string_after_314:
 	call	em_number
 	call	em_newline
 	xor	eax, eax
-__jabara_return_290:
+__jabara_return_295:
 	db 201
 	db 194
 	dw	16
@@ -3156,87 +4948,177 @@ __jabara_return_290:
 global em_new_closure_scope
 em_new_closure_scope:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	push	48
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
 	mov	qword [rax + 24], 0
 	mov	qword [rax + 32], 0
 	mov	qword [rax + 40], 0
-	mov	[rbp - 8], rax
-	push	32
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 8]
+	mov	rdx, [rbp + 32]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 24], rdx
+	mov	rax, [rel __jabara_global_em_scope]
 	push	rax
-	mov	rax, [rbp + 32]
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rel __jabara_global_em_closure_info]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	pop	rdi
 	mov	qword [rdi + 0], rax
-	db	255,117,32
-	db	255,117,248
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 16]
-	push	rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 24]
-	push	rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 8]
-	push	rax
-	call	em_scope_add_parameter
-	db	255,117,32
-	db	255,117,248
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 80]
-	push	rax
-	call	em_collect_locals
-	mov	rax, [rbp - 16]
-	push	rax
-	mov	rax, [rbp + 24]
-	pop	rdi
-	mov	qword [rdi + 0], rax
-	mov	rax, [rbp - 16]
-	push	rax
 	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 8], rax
-	mov	rax, [rbp - 16]
+	add	rax, 32
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
-	pop	rdi
-	mov	qword [rdi + 16], rax
-	mov	rax, [rbp + 32]
-	mov	rax, [rax + 32]
-	cmp	rax, 0
-	jne	__jabara_label_317
-	mov	rax, [rbp + 32]
-	push	rax
-	mov	rax, [rbp - 16]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	jmp	__jabara_label_316
-__jabara_label_317:
-	mov	rax, [rbp + 32]
-	mov	rax, [rax + 40]
-	push	rax
-	mov	rax, [rbp - 16]
-	pop	rdi
-	mov	qword [rdi + 24], rax
-__jabara_label_316:
-	mov	rax, [rbp + 32]
-	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, 1
 	pop	rdi
 	mov	qword [rdi + 40], rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	call	em_scope_add_parameter
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 80]
+	push	rax
+	call	em_collect_locals
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 8], rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 32]
+	cmp	rax, 0
+	jne	__jabara_label_326
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	jmp	__jabara_label_325
+__jabara_label_326:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 24], rax
+__jabara_label_325:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 40], rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	24
@@ -3244,101 +5126,232 @@ __jabara_label_316:
 global em_emit_closure_value
 em_emit_closure_value:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	db	255,117,24
-	call	em_new_label
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	db	255,117,24
-	db	255,117,16
-	db	255,117,248
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_new_label
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_new_closure_scope
-	jmp	__jabara_string_after_319
-__jabara_string_319: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
-__jabara_string_after_319:
-	lea	rax, [rel __jabara_string_319]
-	push	rax
-	call	em_text
-	db	255,117,24
-	jmp	__jabara_string_after_320
-__jabara_string_320: db 99,108,111,115,117,114,101,0
-__jabara_string_after_320:
-	lea	rax, [rel __jabara_string_320]
-	push	rax
-	db	255,117,248
-	call	em_private_label
-	jmp	__jabara_string_after_321
-__jabara_string_321: db 93,0
-__jabara_string_after_321:
-	lea	rax, [rel __jabara_string_321]
-	push	rax
-	call	em_line
-	jmp	__jabara_string_after_322
-__jabara_string_322: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_322:
-	lea	rax, [rel __jabara_string_322]
-	push	rax
-	call	em_instruction
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	mov	rax, [rax + 32]
-	test	rax, rax
-	jz	__jabara_label_324
-	jmp	__jabara_string_after_325
-__jabara_string_325: db 120,111,114,9,114,97,120,44,32,114,97,120,0
-__jabara_string_after_325:
-	lea	rax, [rel __jabara_string_325]
+	cmp	rax, 0
+	jne	__jabara_label_328
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	mov	rax, [rax + 16]
+	add	rax, 1
 	push	rax
-	call	em_instruction
-	jmp	__jabara_label_323
-__jabara_label_324:
-	jmp	__jabara_string_after_326
-__jabara_string_326: db 109,111,118,9,114,97,120,44,32,91,114,98,112,32,45,32,56,93,0
-__jabara_string_after_326:
-	lea	rax, [rel __jabara_string_326]
-	push	rax
-	call	em_instruction
-__jabara_label_323:
-	jmp	__jabara_string_after_327
-__jabara_string_327: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_327:
-	lea	rax, [rel __jabara_string_327]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_328
-__jabara_string_328: db 112,117,115,104,9,49,54,0
-__jabara_string_after_328:
-	lea	rax, [rel __jabara_string_328]
-	push	rax
-	call	em_instruction
-	db	255,117,24
-	call	em_emit_alloc_call
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_328:
 	jmp	__jabara_string_after_329
-__jabara_string_329: db 112,111,112,9,114,100,120,0
+__jabara_string_329: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
 __jabara_string_after_329:
 	lea	rax, [rel __jabara_string_329]
 	push	rax
-	call	em_instruction
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	jmp	__jabara_string_after_330
-__jabara_string_330: db 112,111,112,9,114,99,120,0
+__jabara_string_330: db 99,108,111,115,117,114,101,0
 __jabara_string_after_330:
 	lea	rax, [rel __jabara_string_330]
 	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_private_label
 	jmp	__jabara_string_after_331
-__jabara_string_331: db 109,111,118,9,91,114,97,120,93,44,32,114,99,120,0
+__jabara_string_331: db 93,0
 __jabara_string_after_331:
 	lea	rax, [rel __jabara_string_331]
 	push	rax
-	call	em_instruction
+	call	em_line
 	jmp	__jabara_string_after_332
-__jabara_string_332: db 109,111,118,9,91,114,97,120,32,43,32,56,93,44,32,114,100,120,0
+__jabara_string_332: db 112,117,115,104,9,114,97,120,0
 __jabara_string_after_332:
 	lea	rax, [rel __jabara_string_332]
 	push	rax
 	call	em_instruction
+	jmp	__jabara_string_after_333
+__jabara_string_333: db 9,112,117,115,104,9,0
+__jabara_string_after_333:
+	lea	rax, [rel __jabara_string_333]
+	push	rax
+	call	em_text
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	add	rax, 1
+	pop	rdi
+	imul	rax, rdi
+	push	rax
+	call	em_number
+	call	em_newline
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_alloc_call
+	jmp	__jabara_string_after_334
+__jabara_string_334: db 112,111,112,9,114,99,120,0
+__jabara_string_after_334:
+	lea	rax, [rel __jabara_string_334]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_335
+__jabara_string_335: db 109,111,118,9,91,114,97,120,93,44,32,114,99,120,0
+__jabara_string_after_335:
+	lea	rax, [rel __jabara_string_335]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	mov	rax, [rax + 32]
+	test	rax, rax
+	jz	__jabara_label_337
+	jmp	__jabara_string_after_338
+__jabara_string_338: db 109,111,118,9,113,119,111,114,100,32,91,114,97,120,32,43,32,56,93,44,32,48,0
+__jabara_string_after_338:
+	lea	rax, [rel __jabara_string_338]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_label_336
+__jabara_label_337:
+	jmp	__jabara_string_after_339
+__jabara_string_339: db 109,111,118,9,114,100,120,44,32,91,114,98,112,32,45,32,56,93,0
+__jabara_string_after_339:
+	lea	rax, [rel __jabara_string_339]
+	push	rax
+	call	em_instruction
+__jabara_label_340:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jge	__jabara_label_341
+	jmp	__jabara_string_after_342
+__jabara_string_342: db 9,109,111,118,9,114,99,120,44,32,91,114,100,120,32,43,32,0
+__jabara_string_after_342:
+	lea	rax, [rel __jabara_string_342]
+	push	rax
+	call	em_text
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	imul	rax, rdi
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_343
+__jabara_string_343: db 93,0
+__jabara_string_after_343:
+	lea	rax, [rel __jabara_string_343]
+	push	rax
+	call	em_line
+	jmp	__jabara_string_after_344
+__jabara_string_344: db 9,109,111,118,9,91,114,97,120,32,43,32,0
+__jabara_string_after_344:
+	lea	rax, [rel __jabara_string_344]
+	push	rax
+	call	em_text
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	add	rax, 1
+	pop	rdi
+	imul	rax, rdi
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_345
+__jabara_string_345: db 93,44,32,114,99,120,0
+__jabara_string_after_345:
+	lea	rax, [rel __jabara_string_345]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_340
+__jabara_label_341:
+__jabara_label_336:
 	xor	eax, eax
-__jabara_return_318:
+__jabara_return_327:
 	db 201
 	db 194
 	dw	16
@@ -3346,121 +5359,185 @@ __jabara_return_318:
 global em_emit_string
 em_emit_string:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	db	255,117,24
-	call	em_new_label
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	rax, [rbp + 16]
-	mov	[rbp - 16], rax
-	jmp	__jabara_string_after_334
-__jabara_string_334: db 9,106,109,112,9,0
-__jabara_string_after_334:
-	lea	rax, [rel __jabara_string_334]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	call	em_text
-	db	255,117,24
-	jmp	__jabara_string_after_335
-__jabara_string_335: db 115,116,114,105,110,103,95,97,102,116,101,114,0
-__jabara_string_after_335:
-	lea	rax, [rel __jabara_string_335]
+	call	em_new_label
 	push	rax
-	db	255,117,248
-	call	em_private_label
-	call	em_newline
-	db	255,117,24
-	jmp	__jabara_string_after_336
-__jabara_string_336: db 115,116,114,105,110,103,0
-__jabara_string_after_336:
-	lea	rax, [rel __jabara_string_336]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	db	255,117,248
-	call	em_private_label
-	jmp	__jabara_string_after_337
-__jabara_string_337: db 58,32,100,98,32,0
-__jabara_string_after_337:
-	lea	rax, [rel __jabara_string_337]
-	push	rax
-	call	em_text
-	mov	rax, [rbp - 16]
-	movzx	eax, byte [rax]
-	cmp	rax, 0
-	jne	__jabara_label_338
-	jmp	__jabara_string_after_339
-__jabara_string_339: db 48,0
-__jabara_string_after_339:
-	lea	rax, [rel __jabara_string_339]
-	push	rax
-	call	em_text
-__jabara_label_338:
-__jabara_label_340:
-	mov	rax, [rbp - 16]
-	movzx	eax, byte [rax]
-	cmp	rax, 0
-	je	__jabara_label_341
-	mov	rax, [rbp - 16]
-	movzx	eax, byte [rax]
-	push	rax
-	call	em_number
-	jmp	__jabara_string_after_342
-__jabara_string_342: db 44,0
-__jabara_string_after_342:
-	lea	rax, [rel __jabara_string_342]
-	push	rax
-	call	em_text
-	mov	rax, [rbp - 16]
-	add	rax, 1
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
-	movzx	eax, byte [rax]
-	cmp	rax, 0
-	jne	__jabara_label_343
-	jmp	__jabara_string_after_344
-__jabara_string_344: db 48,0
-__jabara_string_after_344:
-	lea	rax, [rel __jabara_string_344]
-	push	rax
-	call	em_text
-__jabara_label_343:
-	jmp	__jabara_label_340
-__jabara_label_341:
-	call	em_newline
-	db	255,117,24
-	jmp	__jabara_string_after_345
-__jabara_string_345: db 115,116,114,105,110,103,95,97,102,116,101,114,0
-__jabara_string_after_345:
-	lea	rax, [rel __jabara_string_345]
-	push	rax
-	db	255,117,248
-	call	em_private_label
-	jmp	__jabara_string_after_346
-__jabara_string_346: db 58,0
-__jabara_string_after_346:
-	lea	rax, [rel __jabara_string_346]
-	push	rax
-	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
 	jmp	__jabara_string_after_347
-__jabara_string_347: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
+__jabara_string_347: db 9,106,109,112,9,0
 __jabara_string_after_347:
 	lea	rax, [rel __jabara_string_347]
 	push	rax
 	call	em_text
-	db	255,117,24
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	jmp	__jabara_string_after_348
-__jabara_string_348: db 115,116,114,105,110,103,0
+__jabara_string_348: db 115,116,114,105,110,103,95,97,102,116,101,114,0
 __jabara_string_after_348:
 	lea	rax, [rel __jabara_string_348]
 	push	rax
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_private_label
+	call	em_newline
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	jmp	__jabara_string_after_349
-__jabara_string_349: db 93,0
+__jabara_string_349: db 115,116,114,105,110,103,0
 __jabara_string_after_349:
 	lea	rax, [rel __jabara_string_349]
 	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_private_label
+	jmp	__jabara_string_after_350
+__jabara_string_350: db 58,32,100,98,32,0
+__jabara_string_after_350:
+	lea	rax, [rel __jabara_string_350]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	movzx	eax, byte [rax]
+	cmp	rax, 0
+	jne	__jabara_label_351
+	jmp	__jabara_string_after_352
+__jabara_string_352: db 48,0
+__jabara_string_after_352:
+	lea	rax, [rel __jabara_string_352]
+	push	rax
+	call	em_text
+__jabara_label_351:
+__jabara_label_353:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	movzx	eax, byte [rax]
+	cmp	rax, 0
+	je	__jabara_label_354
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	movzx	eax, byte [rax]
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_355
+__jabara_string_355: db 44,0
+__jabara_string_after_355:
+	lea	rax, [rel __jabara_string_355]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	movzx	eax, byte [rax]
+	cmp	rax, 0
+	jne	__jabara_label_356
+	jmp	__jabara_string_after_357
+__jabara_string_357: db 48,0
+__jabara_string_after_357:
+	lea	rax, [rel __jabara_string_357]
+	push	rax
+	call	em_text
+__jabara_label_356:
+	jmp	__jabara_label_353
+__jabara_label_354:
+	call	em_newline
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_358
+__jabara_string_358: db 115,116,114,105,110,103,95,97,102,116,101,114,0
+__jabara_string_after_358:
+	lea	rax, [rel __jabara_string_358]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_private_label
+	jmp	__jabara_string_after_359
+__jabara_string_359: db 58,0
+__jabara_string_after_359:
+	lea	rax, [rel __jabara_string_359]
+	push	rax
+	call	em_line
+	jmp	__jabara_string_after_360
+__jabara_string_360: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
+__jabara_string_after_360:
+	lea	rax, [rel __jabara_string_360]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_361
+__jabara_string_361: db 115,116,114,105,110,103,0
+__jabara_string_after_361:
+	lea	rax, [rel __jabara_string_361]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_private_label
+	jmp	__jabara_string_after_362
+__jabara_string_362: db 93,0
+__jabara_string_after_362:
+	lea	rax, [rel __jabara_string_362]
+	push	rax
 	call	em_line
 	xor	eax, eax
-__jabara_return_333:
+__jabara_return_346:
 	db 201
 	db 194
 	dw	16
@@ -3468,95 +5545,308 @@ __jabara_return_333:
 global em_emit_record_constructor
 em_emit_record_constructor:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_find_record
-	mov	[rbp - 8], rax
-	db	255,117,248
-	call	em_record_field_count
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 24], rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 72]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_351
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_364
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_352
-__jabara_string_352: db 114,101,99,111,114,100,32,99,111,110,115,116,114,117,99,116,111,114,115,32,116,97,107,101,32,110,111,32,97,114,103,117,109,101,110,116,115,0
-__jabara_string_after_352:
-	lea	rax, [rel __jabara_string_352]
+	jmp	__jabara_string_after_365
+__jabara_string_365: db 117,110,107,110,111,119,110,32,114,101,99,111,114,100,0
+__jabara_string_after_365:
+	lea	rax, [rel __jabara_string_365]
 	push	rax
 	call	jc_error_at
-__jabara_label_351:
-	mov	rax, [rbp - 16]
+__jabara_label_364:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_record_field_count
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_354
-	jmp	__jabara_string_after_355
-__jabara_string_355: db 112,117,115,104,9,56,0
-__jabara_string_after_355:
-	lea	rax, [rel __jabara_string_355]
+	jne	__jabara_label_367
+	jmp	__jabara_string_after_368
+__jabara_string_368: db 112,117,115,104,9,56,0
+__jabara_string_after_368:
+	lea	rax, [rel __jabara_string_368]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_label_353
-__jabara_label_354:
-	jmp	__jabara_string_after_356
-__jabara_string_356: db 9,112,117,115,104,9,0
-__jabara_string_after_356:
-	lea	rax, [rel __jabara_string_356]
+	jmp	__jabara_label_366
+__jabara_label_367:
+	jmp	__jabara_string_after_369
+__jabara_string_369: db 9,112,117,115,104,9,0
+__jabara_string_after_369:
+	lea	rax, [rel __jabara_string_369]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	imul	rax, rdi
 	push	rax
 	call	em_number
 	call	em_newline
-__jabara_label_353:
-	db	255,117,24
+__jabara_label_366:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_alloc_call
-__jabara_label_357:
-	db	255,117,240
-	mov	rax, [rbp - 24]
+__jabara_label_370:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jge	__jabara_label_358
-	jmp	__jabara_string_after_359
-__jabara_string_359: db 9,109,111,118,9,113,119,111,114,100,32,91,114,97,120,32,43,32,0
-__jabara_string_after_359:
-	lea	rax, [rel __jabara_string_359]
+	jge	__jabara_label_371
+	jmp	__jabara_string_after_372
+__jabara_string_372: db 9,109,111,118,9,113,119,111,114,100,32,91,114,97,120,32,43,32,0
+__jabara_string_after_372:
+	lea	rax, [rel __jabara_string_372]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	imul	rax, rdi
 	push	rax
 	call	em_number
-	jmp	__jabara_string_after_360
-__jabara_string_360: db 93,44,32,48,0
-__jabara_string_after_360:
-	lea	rax, [rel __jabara_string_360]
+	jmp	__jabara_string_after_373
+__jabara_string_373: db 93,44,32,48,0
+__jabara_string_after_373:
+	lea	rax, [rel __jabara_string_373]
 	push	rax
 	call	em_line
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_357
-__jabara_label_358:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_370
+__jabara_label_371:
 	xor	eax, eax
-__jabara_return_350:
+__jabara_return_363:
+	db 201
+	db 194
+	dw	16
+
+global em_emit_lift
+em_emit_lift:
+	db 200
+	dw	64
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_lookup
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	mov	rax, [rax + 40]
+	cmp	rax, 0
+	jne	__jabara_label_375
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_376
+__jabara_string_376: db 108,105,102,116,32,105,115,32,111,110,108,121,32,118,97,108,105,100,32,105,110,115,105,100,101,32,102,110,0
+__jabara_string_after_376:
+	lea	rax, [rel __jabara_string_376]
+	push	rax
+	call	jc_error_at
+__jabara_label_375:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_377
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_378
+__jabara_string_378: db 108,105,102,116,32,114,101,113,117,105,114,101,115,32,97,32,118,97,114,105,97,98,108,101,0
+__jabara_string_after_378:
+	lea	rax, [rel __jabara_string_378]
+	push	rax
+	call	jc_error_at
+__jabara_label_377:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	pop	rdi
+	cmp	rax, rdi
+	je	__jabara_label_379
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_380
+__jabara_string_380: db 108,105,102,116,32,114,101,113,117,105,114,101,115,32,97,32,118,97,114,105,97,98,108,101,32,102,114,111,109,32,116,104,101,32,99,117,114,114,101,110,116,32,115,99,111,112,101,0
+__jabara_string_after_380:
+	lea	rax, [rel __jabara_string_380]
+	push	rax
+	call	jc_error_at
+__jabara_label_379:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	test	rax, rax
+	jz	__jabara_label_382
+	jmp	__jabara_string_after_383
+__jabara_string_383: db 9,109,111,118,9,114,97,120,44,32,0
+__jabara_string_after_383:
+	lea	rax, [rel __jabara_string_383]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_frame_reference
+	call	em_newline
+	jmp	__jabara_label_381
+__jabara_label_382:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_emit_name_address
+	jmp	__jabara_string_after_384
+__jabara_string_384: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
+__jabara_string_after_384:
+	lea	rax, [rel __jabara_string_384]
+	push	rax
+	call	em_instruction
+__jabara_label_381:
+	jmp	__jabara_string_after_385
+__jabara_string_385: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_385:
+	lea	rax, [rel __jabara_string_385]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_lift_call
+	xor	eax, eax
+__jabara_return_374:
 	db 201
 	db 194
 	dw	16
@@ -3564,28 +5854,41 @@ __jabara_return_350:
 global em_emit_expr
 em_emit_expr:
 	db 200
-	dw	48
+	dw	96
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	mov	[rbp - 40], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	call	EX_NUMBER
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_362
-	jmp	__jabara_string_after_363
-__jabara_string_363: db 9,109,111,118,9,114,97,120,44,32,0
-__jabara_string_after_363:
-	lea	rax, [rel __jabara_string_363]
+	jne	__jabara_label_387
+	jmp	__jabara_string_after_388
+__jabara_string_388: db 9,109,111,118,9,114,97,120,44,32,0
+__jabara_string_after_388:
+	lea	rax, [rel __jabara_string_388]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_number
@@ -3594,16 +5897,23 @@ __jabara_string_after_363:
 	db 201
 	db 194
 	dw	16
-__jabara_label_362:
+__jabara_label_387:
 	call	EX_STRING
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_364
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_389
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_emit_string
@@ -3611,383 +5921,229 @@ __jabara_label_362:
 	db 201
 	db 194
 	dw	16
-__jabara_label_364:
+__jabara_label_389:
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_365
-	mov	rax, [rbp + 24]
+	jne	__jabara_label_390
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_lookup
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_367
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_392
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_find_function
 	cmp	rax, 0
-	je	__jabara_label_368
-	mov	rax, [rbp + 16]
+	je	__jabara_label_393
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_369
-__jabara_string_369: db 115,117,98,32,99,97,110,110,111,116,32,98,101,32,117,115,101,100,32,97,115,32,97,32,118,97,108,117,101,59,32,119,114,97,112,32,105,116,32,105,110,32,102,110,0
-__jabara_string_after_369:
-	lea	rax, [rel __jabara_string_369]
+	jmp	__jabara_string_after_394
+__jabara_string_394: db 115,117,98,32,99,97,110,110,111,116,32,98,101,32,117,115,101,100,32,97,115,32,97,32,118,97,108,117,101,59,32,119,114,97,112,32,105,116,32,105,110,32,102,110,0
+__jabara_string_after_394:
+	lea	rax, [rel __jabara_string_394]
 	push	rax
 	call	jc_error_at
-__jabara_label_368:
-	jmp	__jabara_string_after_370
-__jabara_string_370: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
-__jabara_string_after_370:
-	lea	rax, [rel __jabara_string_370]
-	push	rax
-	call	em_text
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_text
-	jmp	__jabara_string_after_371
-__jabara_string_371: db 93,0
-__jabara_string_after_371:
-	lea	rax, [rel __jabara_string_371]
-	push	rax
-	call	em_line
-	jmp	__jabara_label_366
-__jabara_label_367:
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	mov	rax, [rax + 32]
-	test	rax, rax
-	jz	__jabara_label_373
-	jmp	__jabara_string_after_374
-__jabara_string_374: db 9,109,111,118,9,114,97,120,44,32,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
-__jabara_string_after_374:
-	lea	rax, [rel __jabara_string_374]
-	push	rax
-	call	em_text
-	mov	rax, [rbp - 8]
-	mov	rax, [rax]
-	mov	rax, [rax]
-	push	rax
-	call	em_text
-	jmp	__jabara_string_after_375
-__jabara_string_375: db 93,0
-__jabara_string_after_375:
-	lea	rax, [rel __jabara_string_375]
-	push	rax
-	call	em_line
-	jmp	__jabara_label_372
-__jabara_label_373:
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 72]
-	test	rax, rax
-	jz	__jabara_label_377
-	jmp	__jabara_string_after_378
-__jabara_string_378: db 9,109,111,118,9,114,97,120,44,32,0
-__jabara_string_after_378:
-	lea	rax, [rel __jabara_string_378]
-	push	rax
-	call	em_text
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp - 8]
-	mov	rax, [rax]
-	push	rax
-	call	em_frame_reference
-	call	em_newline
-	jmp	__jabara_label_376
-__jabara_label_377:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_emit_name_address
-	jmp	__jabara_string_after_379
-__jabara_string_379: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
-__jabara_string_after_379:
-	lea	rax, [rel __jabara_string_379]
-	push	rax
-	call	em_instruction
-__jabara_label_376:
-__jabara_label_372:
-__jabara_label_366:
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_365:
-	call	EX_DEREF
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_380
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	jmp	__jabara_string_after_381
-__jabara_string_381: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
-__jabara_string_after_381:
-	lea	rax, [rel __jabara_string_381]
-	push	rax
-	call	em_instruction
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_380:
-	call	EX_MEMBER
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_382
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_expr_record_type
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
-	cmp	rax, 0
-	jne	__jabara_label_383
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	push	1
-	jmp	__jabara_string_after_384
-__jabara_string_384: db 109,101,109,98,101,114,32,97,99,99,101,115,115,32,114,101,113,117,105,114,101,115,32,97,32,114,101,99,111,114,100,32,116,97,103,0
-__jabara_string_after_384:
-	lea	rax, [rel __jabara_string_384]
-	push	rax
-	call	jc_error_at
-__jabara_label_383:
-	db	255,117,240
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_find_record_field
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
-	cmp	rax, 0
-	jne	__jabara_label_385
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	push	1
-	jmp	__jabara_string_after_386
-__jabara_string_386: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
-__jabara_string_after_386:
-	lea	rax, [rel __jabara_string_386]
-	push	rax
-	call	jc_error_at
-__jabara_label_385:
-	db	255,117,240
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_record_field_offset
-	mov	[rbp - 40], rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	mov	rax, [rbp - 40]
-	cmp	rax, 0
-	jne	__jabara_label_388
-	jmp	__jabara_string_after_389
-__jabara_string_389: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
-__jabara_string_after_389:
-	lea	rax, [rel __jabara_string_389]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_label_387
-__jabara_label_388:
-	jmp	__jabara_string_after_390
-__jabara_string_390: db 9,109,111,118,9,114,97,120,44,32,91,114,97,120,32,43,32,0
-__jabara_string_after_390:
-	lea	rax, [rel __jabara_string_390]
-	push	rax
-	call	em_text
-	db	255,117,216
-	call	em_number
-	jmp	__jabara_string_after_391
-__jabara_string_391: db 93,0
-__jabara_string_after_391:
-	lea	rax, [rel __jabara_string_391]
-	push	rax
-	call	em_line
-__jabara_label_387:
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_382:
-	call	EX_BYTE
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_392
-	call	EX_NAME
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	mov	rax, [rax]
-	pop	rdi
-	cmp	rax, rdi
-	jne	__jabara_label_393
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 24]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_lookup
-	mov	[rbp - 8], rax
-	mov	rax, [rbp - 8]
-	mov	rax, [rax]
-	cmp	rax, 0
-	je	__jabara_label_394
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	mov	rax, [rax + 32]
-	test	rax, rax
-	jz	__jabara_label_396
-	jmp	__jabara_string_after_397
-__jabara_string_397: db 9,109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
-__jabara_string_after_397:
-	lea	rax, [rel __jabara_string_397]
-	push	rax
-	call	em_text
-	mov	rax, [rbp - 8]
-	mov	rax, [rax]
-	mov	rax, [rax]
-	push	rax
-	call	em_text
-	jmp	__jabara_string_after_398
-__jabara_string_398: db 93,0
-__jabara_string_after_398:
-	lea	rax, [rel __jabara_string_398]
-	push	rax
-	call	em_line
-	jmp	__jabara_label_395
-__jabara_label_396:
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 72]
-	test	rax, rax
-	jz	__jabara_label_400
-	jmp	__jabara_string_after_401
-__jabara_string_401: db 9,109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,0
-__jabara_string_after_401:
-	lea	rax, [rel __jabara_string_401]
-	push	rax
-	call	em_text
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp - 8]
-	mov	rax, [rax]
-	push	rax
-	call	em_frame_reference
-	call	em_newline
-	jmp	__jabara_label_399
-__jabara_label_400:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_lvalue_address
-	jmp	__jabara_string_after_402
-__jabara_string_402: db 109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,91,114,97,120,93,0
-__jabara_string_after_402:
-	lea	rax, [rel __jabara_string_402]
-	push	rax
-	call	em_instruction
-__jabara_label_399:
-__jabara_label_395:
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_394:
 __jabara_label_393:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
+	jmp	__jabara_string_after_395
+__jabara_string_395: db 9,108,101,97,9,114,97,120,44,32,91,114,101,108,32,0
+__jabara_string_after_395:
+	lea	rax, [rel __jabara_string_395]
 	push	rax
-	call	em_emit_lvalue_address
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_396
+__jabara_string_396: db 93,0
+__jabara_string_after_396:
+	lea	rax, [rel __jabara_string_396]
+	push	rax
+	call	em_line
+	jmp	__jabara_label_391
+__jabara_label_392:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 32]
+	test	rax, rax
+	jz	__jabara_label_398
+	jmp	__jabara_string_after_399
+__jabara_string_399: db 9,109,111,118,9,114,97,120,44,32,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
+__jabara_string_after_399:
+	lea	rax, [rel __jabara_string_399]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_400
+__jabara_string_400: db 93,0
+__jabara_string_after_400:
+	lea	rax, [rel __jabara_string_400]
+	push	rax
+	call	em_line
+	jmp	__jabara_label_397
+__jabara_label_398:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	test	rax, rax
+	jz	__jabara_label_402
 	jmp	__jabara_string_after_403
-__jabara_string_403: db 109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,91,114,97,120,93,0
+__jabara_string_403: db 9,109,111,118,9,114,97,120,44,32,0
 __jabara_string_after_403:
 	lea	rax, [rel __jabara_string_403]
 	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_frame_reference
+	call	em_newline
+	jmp	__jabara_label_401
+__jabara_label_402:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_emit_name_address
+	jmp	__jabara_string_after_404
+__jabara_string_404: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
+__jabara_string_after_404:
+	lea	rax, [rel __jabara_string_404]
+	push	rax
 	call	em_instruction
+__jabara_label_401:
+__jabara_label_397:
+__jabara_label_391:
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_392:
-	call	EX_UNARY
+__jabara_label_390:
+	call	EX_NEW
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_404
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
-	push	rax
-	call	em_emit_expr
-	call	T_MINUS
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
-	pop	rdi
-	cmp	rax, rdi
 	jne	__jabara_label_405
-	jmp	__jabara_string_after_406
-__jabara_string_406: db 110,101,103,9,114,97,120,0
-__jabara_string_after_406:
-	lea	rax, [rel __jabara_string_406]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_record_constructor
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
 __jabara_label_405:
-	call	T_BNOT
+	call	EX_LIFT
 	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_406
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_lift
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_406:
+	call	EX_DEREF
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
 	jne	__jabara_label_407
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
 	jmp	__jabara_string_after_408
-__jabara_string_408: db 110,111,116,9,114,97,120,0
+__jabara_string_408: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
 __jabara_string_after_408:
 	lea	rax, [rel __jabara_string_408]
 	push	rax
@@ -3997,319 +6153,828 @@ __jabara_string_after_408:
 	db 194
 	dw	16
 __jabara_label_407:
-	jmp	__jabara_string_after_409
-__jabara_string_409: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
-__jabara_string_after_409:
-	lea	rax, [rel __jabara_string_409]
+	call	EX_MEMBER
 	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_410
-__jabara_string_410: db 115,101,116,122,9,97,108,0
-__jabara_string_after_410:
-	lea	rax, [rel __jabara_string_410]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_409
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_expr_record_type
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_410
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
 	jmp	__jabara_string_after_411
-__jabara_string_411: db 109,111,118,122,120,9,114,97,120,44,32,97,108,0
+__jabara_string_411: db 109,101,109,98,101,114,32,97,99,99,101,115,115,32,114,101,113,117,105,114,101,115,32,97,32,114,101,99,111,114,100,32,116,97,103,0
 __jabara_string_after_411:
 	lea	rax, [rel __jabara_string_411]
+	push	rax
+	call	jc_error_at
+__jabara_label_410:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_find_record_field
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_412
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_413
+__jabara_string_413: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
+__jabara_string_after_413:
+	lea	rax, [rel __jabara_string_413]
+	push	rax
+	call	jc_error_at
+__jabara_label_412:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_record_field_offset
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_415
+	jmp	__jabara_string_after_416
+__jabara_string_416: db 109,111,118,9,114,97,120,44,32,91,114,97,120,93,0
+__jabara_string_after_416:
+	lea	rax, [rel __jabara_string_416]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_label_414
+__jabara_label_415:
+	jmp	__jabara_string_after_417
+__jabara_string_417: db 9,109,111,118,9,114,97,120,44,32,91,114,97,120,32,43,32,0
+__jabara_string_after_417:
+	lea	rax, [rel __jabara_string_417]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_418
+__jabara_string_418: db 93,0
+__jabara_string_after_418:
+	lea	rax, [rel __jabara_string_418]
+	push	rax
+	call	em_line
+__jabara_label_414:
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_409:
+	call	EX_BYTE
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_419
+	call	EX_NAME
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_420
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_lookup
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_421
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 32]
+	test	rax, rax
+	jz	__jabara_label_423
+	jmp	__jabara_string_after_424
+__jabara_string_424: db 9,109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,91,114,101,108,32,95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
+__jabara_string_after_424:
+	lea	rax, [rel __jabara_string_424]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_425
+__jabara_string_425: db 93,0
+__jabara_string_after_425:
+	lea	rax, [rel __jabara_string_425]
+	push	rax
+	call	em_line
+	jmp	__jabara_label_422
+__jabara_label_423:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	test	rax, rax
+	jz	__jabara_label_427
+	jmp	__jabara_string_after_428
+__jabara_string_428: db 9,109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,0
+__jabara_string_after_428:
+	lea	rax, [rel __jabara_string_428]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_frame_reference
+	call	em_newline
+	jmp	__jabara_label_426
+__jabara_label_427:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_lvalue_address
+	jmp	__jabara_string_after_429
+__jabara_string_429: db 109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,91,114,97,120,93,0
+__jabara_string_after_429:
+	lea	rax, [rel __jabara_string_429]
+	push	rax
+	call	em_instruction
+__jabara_label_426:
+__jabara_label_422:
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_421:
+__jabara_label_420:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_lvalue_address
+	jmp	__jabara_string_after_430
+__jabara_string_430: db 109,111,118,122,120,9,101,97,120,44,32,98,121,116,101,32,91,114,97,120,93,0
+__jabara_string_after_430:
+	lea	rax, [rel __jabara_string_430]
 	push	rax
 	call	em_instruction
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_404:
-	call	EX_BINARY
+__jabara_label_419:
+	call	EX_UNARY
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_412
-	db	255,117,24
-	db	255,117,16
+	jne	__jabara_label_431
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_emit_expr
+	call	T_MINUS
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_432
+	jmp	__jabara_string_after_433
+__jabara_string_433: db 110,101,103,9,114,97,120,0
+__jabara_string_after_433:
+	lea	rax, [rel __jabara_string_433]
+	push	rax
+	call	em_instruction
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_432:
+	call	T_BNOT
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_434
+	jmp	__jabara_string_after_435
+__jabara_string_435: db 110,111,116,9,114,97,120,0
+__jabara_string_after_435:
+	lea	rax, [rel __jabara_string_435]
+	push	rax
+	call	em_instruction
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_434:
+	jmp	__jabara_string_after_436
+__jabara_string_436: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
+__jabara_string_after_436:
+	lea	rax, [rel __jabara_string_436]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_437
+__jabara_string_437: db 115,101,116,122,9,97,108,0
+__jabara_string_after_437:
+	lea	rax, [rel __jabara_string_437]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_438
+__jabara_string_438: db 109,111,118,122,120,9,114,97,120,44,32,97,108,0
+__jabara_string_after_438:
+	lea	rax, [rel __jabara_string_438]
+	push	rax
+	call	em_instruction
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_431:
+	call	EX_BINARY
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_439
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_binary
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_412:
+__jabara_label_439:
 	call	EX_ASSIGN
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_413
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 72]
-	push	rax
+	jne	__jabara_label_440
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax]
 	pop	rdi
-	xor	edx, edx
 	cmp	rax, rdi
-	sete	dl
-	mov	eax, edx
-	pop	rdi
-	and	rax, rdi
-	test	rax, rax
-	jz	__jabara_label_414
-	mov	rax, [rbp + 24]
+	jne	__jabara_label_441
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_lookup
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_415
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	je	__jabara_label_442
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	pop	rdi
+	or	rax, rdi
+	test	rax, rax
+	jz	__jabara_label_444
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	push	rax
 	call	em_emit_expr
-	db	255,117,24
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_name_store
+	jmp	__jabara_label_443
+__jabara_label_444:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	call	em_emit_expr
+	jmp	__jabara_string_after_445
+__jabara_string_445: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_445:
+	lea	rax, [rel __jabara_string_445]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_emit_name_address
+	jmp	__jabara_string_after_446
+__jabara_string_446: db 112,111,112,9,114,100,105,0
+__jabara_string_after_446:
+	lea	rax, [rel __jabara_string_446]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_447
+__jabara_string_447: db 109,111,118,9,91,114,97,120,93,44,32,114,100,105,0
+__jabara_string_after_447:
+	lea	rax, [rel __jabara_string_447]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_448
+__jabara_string_448: db 109,111,118,9,114,97,120,44,32,114,100,105,0
+__jabara_string_after_448:
+	lea	rax, [rel __jabara_string_448]
+	push	rax
+	call	em_instruction
+__jabara_label_443:
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_415:
-__jabara_label_414:
-	mov	rax, [rbp + 16]
+__jabara_label_442:
+__jabara_label_441:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp - 32], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	EX_BYTE
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_416
-	mov	rax, [rbp - 32]
+	jne	__jabara_label_449
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp - 32], rax
-__jabara_label_416:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_449:
 	call	EX_MEMBER
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_417
-	db	255,117,24
-	mov	rax, [rbp - 32]
+	jne	__jabara_label_450
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_expr_record_type
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_418
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_451
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_419
-__jabara_string_419: db 109,101,109,98,101,114,32,97,99,99,101,115,115,32,114,101,113,117,105,114,101,115,32,97,32,114,101,99,111,114,100,32,116,97,103,0
-__jabara_string_after_419:
-	lea	rax, [rel __jabara_string_419]
+	jmp	__jabara_string_after_452
+__jabara_string_452: db 109,101,109,98,101,114,32,97,99,99,101,115,115,32,114,101,113,117,105,114,101,115,32,97,32,114,101,99,111,114,100,32,116,97,103,0
+__jabara_string_after_452:
+	lea	rax, [rel __jabara_string_452]
 	push	rax
 	call	jc_error_at
-__jabara_label_418:
-	db	255,117,240
-	mov	rax, [rbp - 32]
+__jabara_label_451:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_find_record_field
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_420
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_453
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_421
-__jabara_string_421: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
-__jabara_string_after_421:
-	lea	rax, [rel __jabara_string_421]
+	jmp	__jabara_string_after_454
+__jabara_string_454: db 116,97,103,103,101,100,32,114,101,99,111,114,100,32,104,97,115,32,110,111,32,115,117,99,104,32,102,105,101,108,100,0
+__jabara_string_after_454:
+	lea	rax, [rel __jabara_string_454]
 	push	rax
 	call	jc_error_at
-__jabara_label_420:
-	db	255,117,240
-	mov	rax, [rbp - 32]
+__jabara_label_453:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_record_field_offset
-	mov	[rbp - 40], rax
-	db	255,117,24
-	mov	rax, [rbp - 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_422
-__jabara_string_422: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_422:
-	lea	rax, [rel __jabara_string_422]
+	jmp	__jabara_string_after_455
+__jabara_string_455: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_455:
+	lea	rax, [rel __jabara_string_455]
 	push	rax
 	call	em_instruction
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_423
-__jabara_string_423: db 112,111,112,9,114,100,105,0
-__jabara_string_after_423:
-	lea	rax, [rel __jabara_string_423]
+	jmp	__jabara_string_after_456
+__jabara_string_456: db 112,111,112,9,114,100,105,0
+__jabara_string_after_456:
+	lea	rax, [rel __jabara_string_456]
 	push	rax
 	call	em_instruction
 	call	EX_BYTE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_425
-	jmp	__jabara_string_after_426
-__jabara_string_426: db 9,109,111,118,9,98,121,116,101,32,91,114,100,105,32,43,32,0
-__jabara_string_after_426:
-	lea	rax, [rel __jabara_string_426]
+	jne	__jabara_label_458
+	jmp	__jabara_string_after_459
+__jabara_string_459: db 9,109,111,118,9,98,121,116,101,32,91,114,100,105,32,43,32,0
+__jabara_string_after_459:
+	lea	rax, [rel __jabara_string_459]
 	push	rax
 	call	em_text
-	db	255,117,216
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
 	call	em_number
-	jmp	__jabara_string_after_427
-__jabara_string_427: db 93,44,32,97,108,0
-__jabara_string_after_427:
-	lea	rax, [rel __jabara_string_427]
+	jmp	__jabara_string_after_460
+__jabara_string_460: db 93,44,32,97,108,0
+__jabara_string_after_460:
+	lea	rax, [rel __jabara_string_460]
 	push	rax
 	call	em_line
-	jmp	__jabara_label_424
-__jabara_label_425:
-	jmp	__jabara_string_after_428
-__jabara_string_428: db 9,109,111,118,9,113,119,111,114,100,32,91,114,100,105,32,43,32,0
-__jabara_string_after_428:
-	lea	rax, [rel __jabara_string_428]
+	jmp	__jabara_label_457
+__jabara_label_458:
+	jmp	__jabara_string_after_461
+__jabara_string_461: db 9,109,111,118,9,113,119,111,114,100,32,91,114,100,105,32,43,32,0
+__jabara_string_after_461:
+	lea	rax, [rel __jabara_string_461]
 	push	rax
 	call	em_text
-	db	255,117,216
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
 	call	em_number
-	jmp	__jabara_string_after_429
-__jabara_string_429: db 93,44,32,114,97,120,0
-__jabara_string_after_429:
-	lea	rax, [rel __jabara_string_429]
+	jmp	__jabara_string_after_462
+__jabara_string_462: db 93,44,32,114,97,120,0
+__jabara_string_after_462:
+	lea	rax, [rel __jabara_string_462]
 	push	rax
 	call	em_line
-__jabara_label_424:
+__jabara_label_457:
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_417:
-	db	255,117,24
-	mov	rax, [rbp + 16]
+__jabara_label_450:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_lvalue_address
-	jmp	__jabara_string_after_430
-__jabara_string_430: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_430:
-	lea	rax, [rel __jabara_string_430]
+	jmp	__jabara_string_after_463
+__jabara_string_463: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_463:
+	lea	rax, [rel __jabara_string_463]
 	push	rax
 	call	em_instruction
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_431
-__jabara_string_431: db 112,111,112,9,114,100,105,0
-__jabara_string_after_431:
-	lea	rax, [rel __jabara_string_431]
+	jmp	__jabara_string_after_464
+__jabara_string_464: db 112,111,112,9,114,100,105,0
+__jabara_string_after_464:
+	lea	rax, [rel __jabara_string_464]
 	push	rax
 	call	em_instruction
 	call	EX_BYTE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_433
-	jmp	__jabara_string_after_434
-__jabara_string_434: db 109,111,118,9,91,114,100,105,93,44,32,97,108,0
-__jabara_string_after_434:
-	lea	rax, [rel __jabara_string_434]
+	jne	__jabara_label_466
+	jmp	__jabara_string_after_467
+__jabara_string_467: db 109,111,118,9,91,114,100,105,93,44,32,97,108,0
+__jabara_string_after_467:
+	lea	rax, [rel __jabara_string_467]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_label_432
-__jabara_label_433:
-	jmp	__jabara_string_after_435
-__jabara_string_435: db 109,111,118,9,91,114,100,105,93,44,32,114,97,120,0
-__jabara_string_after_435:
-	lea	rax, [rel __jabara_string_435]
+	jmp	__jabara_label_465
+__jabara_label_466:
+	jmp	__jabara_string_after_468
+__jabara_string_468: db 109,111,118,9,91,114,100,105,93,44,32,114,97,120,0
+__jabara_string_after_468:
+	lea	rax, [rel __jabara_string_468]
 	push	rax
 	call	em_instruction
-__jabara_label_432:
+__jabara_label_465:
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_413:
+__jabara_label_440:
 	call	EX_CALL
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_436
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_469
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
+	mov	rax, [rax + 16]
 	push	rax
-	call	em_call_is_constructor
-	test	rax, rax
-	jz	__jabara_label_437
-	db	255,117,24
-	db	255,117,16
-	call	em_emit_record_constructor
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_437:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 48]
+	call	em_find_record
+	pop	rdi
+	xor	edx, edx
+	cmp	rax, rdi
+	setne	dl
+	mov	eax, edx
 	push	rax
-	call	em_call_is_direct
-	test	rax, rax
-	jz	__jabara_label_438
-	db	255,117,24
-	db	255,117,16
-	call	em_emit_direct_call
-	mov	rax, 0
-	db 201
-	db 194
-	dw	16
-__jabara_label_438:
 	mov	rax, 0
 	push	rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax + 16]
 	push	rax
@@ -4322,7 +6987,97 @@ __jabara_label_438:
 	push	rax
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	mov	rax, [rax]
+	pop	rdi
+	xor	edx, edx
+	cmp	rax, rdi
+	sete	dl
+	mov	eax, edx
+	pop	rdi
+	test	rax, rax
+	setnz	al
+	movzx	eax, al
+	test	rdi, rdi
+	setnz	dil
+	movzx	edi, dil
+	and	eax, edi
+	pop	rdi
+	test	rax, rax
+	setnz	al
+	movzx	eax, al
+	test	rdi, rdi
+	setnz	dil
+	movzx	edi, dil
+	and	eax, edi
+	test	rax, rax
+	jz	__jabara_label_470
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_471
+__jabara_string_471: db 114,101,99,111,114,100,32,99,111,110,115,116,114,117,99,116,105,111,110,32,114,101,113,117,105,114,101,115,32,110,101,119,0
+__jabara_string_after_471:
+	lea	rax, [rel __jabara_string_471]
+	push	rax
+	call	jc_error_at
+__jabara_label_470:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	push	rax
+	call	em_call_is_direct
+	test	rax, rax
+	jz	__jabara_label_472
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_direct_call
+	mov	rax, 0
+	db 201
+	db 194
+	dw	16
+__jabara_label_472:
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 48]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_name_is_bound
+	pop	rdi
+	xor	edx, edx
+	cmp	rax, rdi
+	sete	dl
+	mov	eax, edx
+	push	rax
+	call	EX_NAME
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	mov	rax, [rax]
 	pop	rdi
@@ -4339,53 +7094,71 @@ __jabara_label_438:
 	movzx	edi, dil
 	and	eax, edi
 	test	rax, rax
-	jz	__jabara_label_439
-	mov	rax, [rbp + 16]
+	jz	__jabara_label_473
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_440
-__jabara_string_440: db 99,97,108,108,32,116,111,32,117,110,100,101,99,108,97,114,101,100,32,115,117,98,0
-__jabara_string_after_440:
-	lea	rax, [rel __jabara_string_440]
+	jmp	__jabara_string_after_474
+__jabara_string_474: db 99,97,108,108,32,116,111,32,117,110,100,101,99,108,97,114,101,100,32,115,117,98,0
+__jabara_string_after_474:
+	lea	rax, [rel __jabara_string_474]
 	push	rax
 	call	jc_error_at
-__jabara_label_439:
-	db	255,117,24
-	db	255,117,16
+__jabara_label_473:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_closure_call
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_436:
+__jabara_label_469:
 	call	EX_CLOSURE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_441
-	db	255,117,24
-	db	255,117,16
+	jne	__jabara_label_475
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_closure_value
 	mov	rax, 0
 	db 201
 	db 194
 	dw	16
-__jabara_label_441:
-	mov	rax, [rbp + 16]
+__jabara_label_475:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_442
-__jabara_string_442: db 117,110,115,117,112,112,111,114,116,101,100,32,101,120,112,114,101,115,115,105,111,110,0
-__jabara_string_after_442:
-	lea	rax, [rel __jabara_string_442]
+	jmp	__jabara_string_after_476
+__jabara_string_476: db 117,110,115,117,112,112,111,114,116,101,100,32,101,120,112,114,101,115,115,105,111,110,0
+__jabara_string_after_476:
+	lea	rax, [rel __jabara_string_476]
 	push	rax
 	call	jc_error_at
 	xor	eax, eax
-__jabara_return_361:
+__jabara_return_386:
 	db 201
 	db 194
 	dw	16
@@ -4393,77 +7166,129 @@ __jabara_return_361:
 global em_emit_initializers
 em_emit_initializers:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-__jabara_label_444:
-	mov	rax, [rbp + 16]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+__jabara_label_478:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_445
-	mov	rax, [rbp + 16]
+	je	__jabara_label_479
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	cmp	rax, 0
-	je	__jabara_label_446
-	mov	rax, [rbp + 24]
+	je	__jabara_label_480
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 72]
 	test	rax, rax
-	jz	__jabara_label_448
-	mov	rax, [rbp + 24]
+	jz	__jabara_label_482
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_lookup
-	mov	[rbp - 8], rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_emit_expr
-	db	255,117,24
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_name_store
-	jmp	__jabara_label_447
-__jabara_label_448:
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jmp	__jabara_label_481
+__jabara_label_482:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_emit_expr
+	jmp	__jabara_string_after_483
+__jabara_string_483: db 112,117,115,104,9,114,97,120,0
+__jabara_string_after_483:
+	lea	rax, [rel __jabara_string_483]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	em_emit_name_address
-	jmp	__jabara_string_after_449
-__jabara_string_449: db 112,117,115,104,9,114,97,120,0
-__jabara_string_after_449:
-	lea	rax, [rel __jabara_string_449]
+	jmp	__jabara_string_after_484
+__jabara_string_484: db 112,111,112,9,114,100,105,0
+__jabara_string_after_484:
+	lea	rax, [rel __jabara_string_484]
 	push	rax
 	call	em_instruction
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_emit_expr
-	jmp	__jabara_string_after_450
-__jabara_string_450: db 112,111,112,9,114,100,105,0
-__jabara_string_after_450:
-	lea	rax, [rel __jabara_string_450]
+	jmp	__jabara_string_after_485
+__jabara_string_485: db 109,111,118,9,91,114,97,120,93,44,32,114,100,105,0
+__jabara_string_after_485:
+	lea	rax, [rel __jabara_string_485]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_451
-__jabara_string_451: db 109,111,118,9,91,114,100,105,93,44,32,114,97,120,0
-__jabara_string_after_451:
-	lea	rax, [rel __jabara_string_451]
-	push	rax
-	call	em_instruction
-__jabara_label_447:
-__jabara_label_446:
-	mov	rax, [rbp + 16]
+__jabara_label_481:
+__jabara_label_480:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_444
-__jabara_label_445:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_478
+__jabara_label_479:
 	xor	eax, eax
-__jabara_return_443:
+__jabara_return_477:
 	db 201
 	db 194
 	dw	16
@@ -4471,11 +7296,26 @@ __jabara_return_443:
 global em_emit_false_branch
 em_emit_false_branch:
 	db 200
-	dw	0
+	dw	64
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 32]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 24], rdx
 	call	T_GE
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	xor	edx, edx
@@ -4485,7 +7325,9 @@ em_emit_false_branch:
 	push	rax
 	call	T_GT
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	xor	edx, edx
@@ -4495,7 +7337,9 @@ em_emit_false_branch:
 	push	rax
 	call	T_LE
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	xor	edx, edx
@@ -4505,7 +7349,9 @@ em_emit_false_branch:
 	push	rax
 	call	T_LT
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	xor	edx, edx
@@ -4515,7 +7361,9 @@ em_emit_false_branch:
 	push	rax
 	call	T_NE
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	xor	edx, edx
@@ -4525,7 +7373,9 @@ em_emit_false_branch:
 	push	rax
 	call	T_EQ
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	xor	edx, edx
@@ -4545,7 +7395,9 @@ em_emit_false_branch:
 	push	rax
 	call	EX_BINARY
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -4555,171 +7407,220 @@ em_emit_false_branch:
 	pop	rdi
 	and	rax, rdi
 	test	rax, rax
-	jz	__jabara_label_453
+	jz	__jabara_label_487
 	call	EX_NUMBER
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_455
-	db	255,117,32
-	mov	rax, [rbp + 24]
+	jne	__jabara_label_489
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_456
-__jabara_string_456: db 9,99,109,112,9,114,97,120,44,32,0
-__jabara_string_after_456:
-	lea	rax, [rel __jabara_string_456]
+	jmp	__jabara_string_after_490
+__jabara_string_490: db 9,99,109,112,9,114,97,120,44,32,0
+__jabara_string_after_490:
+	lea	rax, [rel __jabara_string_490]
 	push	rax
 	call	em_text
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_number
 	call	em_newline
-	jmp	__jabara_label_454
-__jabara_label_455:
-	db	255,117,32
-	mov	rax, [rbp + 24]
+	jmp	__jabara_label_488
+__jabara_label_489:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 56]
 	push	rax
 	call	em_emit_push_expr
-	db	255,117,32
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
 	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_457
-__jabara_string_457: db 112,111,112,9,114,100,105,0
-__jabara_string_after_457:
-	lea	rax, [rel __jabara_string_457]
+	jmp	__jabara_string_after_491
+__jabara_string_491: db 112,111,112,9,114,100,105,0
+__jabara_string_after_491:
+	lea	rax, [rel __jabara_string_491]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_458
-__jabara_string_458: db 99,109,112,9,114,97,120,44,32,114,100,105,0
-__jabara_string_after_458:
-	lea	rax, [rel __jabara_string_458]
+	jmp	__jabara_string_after_492
+__jabara_string_492: db 99,109,112,9,114,97,120,44,32,114,100,105,0
+__jabara_string_after_492:
+	lea	rax, [rel __jabara_string_492]
 	push	rax
 	call	em_instruction
-__jabara_label_454:
+__jabara_label_488:
 	call	T_EQ
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_459
-	jmp	__jabara_string_after_460
-__jabara_string_460: db 9,106,110,101,9,0
-__jabara_string_after_460:
-	lea	rax, [rel __jabara_string_460]
+	jne	__jabara_label_493
+	jmp	__jabara_string_after_494
+__jabara_string_494: db 9,106,110,101,9,0
+__jabara_string_after_494:
+	lea	rax, [rel __jabara_string_494]
 	push	rax
 	call	em_text
-__jabara_label_459:
+__jabara_label_493:
 	call	T_NE
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_461
-	jmp	__jabara_string_after_462
-__jabara_string_462: db 9,106,101,9,0
-__jabara_string_after_462:
-	lea	rax, [rel __jabara_string_462]
+	jne	__jabara_label_495
+	jmp	__jabara_string_after_496
+__jabara_string_496: db 9,106,101,9,0
+__jabara_string_after_496:
+	lea	rax, [rel __jabara_string_496]
 	push	rax
 	call	em_text
-__jabara_label_461:
+__jabara_label_495:
 	call	T_LT
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_463
-	jmp	__jabara_string_after_464
-__jabara_string_464: db 9,106,103,101,9,0
-__jabara_string_after_464:
-	lea	rax, [rel __jabara_string_464]
+	jne	__jabara_label_497
+	jmp	__jabara_string_after_498
+__jabara_string_498: db 9,106,103,101,9,0
+__jabara_string_after_498:
+	lea	rax, [rel __jabara_string_498]
 	push	rax
 	call	em_text
-__jabara_label_463:
+__jabara_label_497:
 	call	T_LE
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_465
-	jmp	__jabara_string_after_466
-__jabara_string_466: db 9,106,103,9,0
-__jabara_string_after_466:
-	lea	rax, [rel __jabara_string_466]
+	jne	__jabara_label_499
+	jmp	__jabara_string_after_500
+__jabara_string_500: db 9,106,103,9,0
+__jabara_string_after_500:
+	lea	rax, [rel __jabara_string_500]
 	push	rax
 	call	em_text
-__jabara_label_465:
+__jabara_label_499:
 	call	T_GT
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_467
-	jmp	__jabara_string_after_468
-__jabara_string_468: db 9,106,108,101,9,0
-__jabara_string_after_468:
-	lea	rax, [rel __jabara_string_468]
+	jne	__jabara_label_501
+	jmp	__jabara_string_after_502
+__jabara_string_502: db 9,106,108,101,9,0
+__jabara_string_after_502:
+	lea	rax, [rel __jabara_string_502]
 	push	rax
 	call	em_text
-__jabara_label_467:
+__jabara_label_501:
 	call	T_GE
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_469
-	jmp	__jabara_string_after_470
-__jabara_string_470: db 9,106,108,9,0
-__jabara_string_after_470:
-	lea	rax, [rel __jabara_string_470]
+	jne	__jabara_label_503
+	jmp	__jabara_string_after_504
+__jabara_string_504: db 9,106,108,9,0
+__jabara_string_after_504:
+	lea	rax, [rel __jabara_string_504]
 	push	rax
 	call	em_text
-__jabara_label_469:
-	db	255,117,32
-	db	255,117,16
+__jabara_label_503:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_label
 	call	em_newline
 	mov	rax, 0
 	db 201
 	db 194
 	dw	24
-__jabara_label_453:
-	db	255,117,32
-	db	255,117,24
+__jabara_label_487:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_expr
-	jmp	__jabara_string_after_471
-__jabara_string_471: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
-__jabara_string_after_471:
-	lea	rax, [rel __jabara_string_471]
+	jmp	__jabara_string_after_505
+__jabara_string_505: db 116,101,115,116,9,114,97,120,44,32,114,97,120,0
+__jabara_string_after_505:
+	lea	rax, [rel __jabara_string_505]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_472
-__jabara_string_472: db 9,106,122,9,0
-__jabara_string_after_472:
-	lea	rax, [rel __jabara_string_472]
+	jmp	__jabara_string_after_506
+__jabara_string_506: db 9,106,122,9,0
+__jabara_string_after_506:
+	lea	rax, [rel __jabara_string_506]
 	push	rax
 	call	em_text
-	db	255,117,32
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_label
 	call	em_newline
 	xor	eax, eax
-__jabara_return_452:
+__jabara_return_486:
 	db 201
 	db 194
 	dw	24
@@ -4727,43 +7628,55 @@ __jabara_return_452:
 global em_emit_return
 em_emit_return:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	jmp	__jabara_string_after_474
-__jabara_string_474: db 100,98,32,50,48,49,0
-__jabara_string_after_474:
-	lea	rax, [rel __jabara_string_474]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	jmp	__jabara_string_after_508
+__jabara_string_508: db 100,98,32,50,48,49,0
+__jabara_string_after_508:
+	lea	rax, [rel __jabara_string_508]
 	push	rax
 	call	em_instruction
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_476
-	jmp	__jabara_string_after_477
-__jabara_string_477: db 114,101,116,0
-__jabara_string_after_477:
-	lea	rax, [rel __jabara_string_477]
+	jne	__jabara_label_510
+	jmp	__jabara_string_after_511
+__jabara_string_511: db 114,101,116,0
+__jabara_string_after_511:
+	lea	rax, [rel __jabara_string_511]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_label_475
-__jabara_label_476:
-	jmp	__jabara_string_after_478
-__jabara_string_478: db 100,98,32,49,57,52,0
-__jabara_string_after_478:
-	lea	rax, [rel __jabara_string_478]
+	jmp	__jabara_label_509
+__jabara_label_510:
+	jmp	__jabara_string_after_512
+__jabara_string_512: db 100,98,32,49,57,52,0
+__jabara_string_after_512:
+	lea	rax, [rel __jabara_string_512]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_479
-__jabara_string_479: db 9,100,119,9,0
-__jabara_string_after_479:
-	lea	rax, [rel __jabara_string_479]
+	jmp	__jabara_string_after_513
+__jabara_string_513: db 9,100,119,9,0
+__jabara_string_after_513:
+	lea	rax, [rel __jabara_string_513]
 	push	rax
 	call	em_text
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_number
 	call	em_newline
-__jabara_label_475:
+__jabara_label_509:
 	xor	eax, eax
-__jabara_return_473:
+__jabara_return_507:
 	db 201
 	db 194
 	dw	8
@@ -4771,202 +7684,363 @@ __jabara_return_473:
 global em_emit_statements
 em_emit_statements:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-__jabara_label_481:
-	mov	rax, [rbp + 16]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+__jabara_label_515:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_482
+	je	__jabara_label_516
 	call	ST_LOCAL
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_483
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_517
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_emit_initializers
-__jabara_label_483:
+__jabara_label_517:
 	call	ST_EXPR
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_484
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_518
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	call	em_emit_expr
-__jabara_label_484:
+__jabara_label_518:
 	call	ST_RETURN
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_485
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_519
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	call	em_emit_expr
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 64]
 	push	rax
 	call	em_emit_return
-__jabara_label_485:
+__jabara_label_519:
 	call	ST_IF
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_486
-	db	255,117,24
+	jne	__jabara_label_520
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_new_label
-	mov	[rbp - 16], rax
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	cmp	rax, 0
-	jne	__jabara_label_488
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_522
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	db	255,117,240
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_false_branch
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_emit_statements
-	jmp	__jabara_label_487
-__jabara_label_488:
-	db	255,117,24
+	jmp	__jabara_label_521
+__jabara_label_522:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_new_label
-	mov	[rbp - 8], rax
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_false_branch
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_emit_statements
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_statements_return
 	cmp	rax, 0
-	jne	__jabara_label_489
-	jmp	__jabara_string_after_490
-__jabara_string_490: db 9,106,109,112,9,0
-__jabara_string_after_490:
-	lea	rax, [rel __jabara_string_490]
+	jne	__jabara_label_523
+	jmp	__jabara_string_after_524
+__jabara_string_524: db 9,106,109,112,9,0
+__jabara_string_after_524:
+	lea	rax, [rel __jabara_string_524]
 	push	rax
 	call	em_text
-	db	255,117,24
-	db	255,117,240
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	em_label
 	call	em_newline
-__jabara_label_489:
-	db	255,117,24
-	db	255,117,248
+__jabara_label_523:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	em_label
-	jmp	__jabara_string_after_491
-__jabara_string_491: db 58,0
-__jabara_string_after_491:
-	lea	rax, [rel __jabara_string_491]
+	jmp	__jabara_string_after_525
+__jabara_string_525: db 58,0
+__jabara_string_after_525:
+	lea	rax, [rel __jabara_string_525]
 	push	rax
 	call	em_line
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 40]
 	push	rax
 	call	em_emit_statements
-__jabara_label_487:
-	db	255,117,24
-	db	255,117,240
+__jabara_label_521:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	em_label
-	jmp	__jabara_string_after_492
-__jabara_string_492: db 58,0
-__jabara_string_after_492:
-	lea	rax, [rel __jabara_string_492]
+	jmp	__jabara_string_after_526
+__jabara_string_526: db 58,0
+__jabara_string_after_526:
+	lea	rax, [rel __jabara_string_526]
 	push	rax
 	call	em_line
-__jabara_label_486:
+__jabara_label_520:
 	call	ST_WHILE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_493
-	db	255,117,24
+	jne	__jabara_label_527
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_new_label
-	mov	[rbp - 24], rax
-	db	255,117,24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_new_label
-	mov	[rbp - 16], rax
-	db	255,117,24
-	db	255,117,232
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
 	call	em_label
-	jmp	__jabara_string_after_494
-__jabara_string_494: db 58,0
-__jabara_string_after_494:
-	lea	rax, [rel __jabara_string_494]
+	jmp	__jabara_string_after_528
+__jabara_string_528: db 58,0
+__jabara_string_after_528:
+	lea	rax, [rel __jabara_string_528]
 	push	rax
 	call	em_line
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	db	255,117,240
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_false_branch
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
 	call	em_emit_statements
-	jmp	__jabara_string_after_495
-__jabara_string_495: db 9,106,109,112,9,0
-__jabara_string_after_495:
-	lea	rax, [rel __jabara_string_495]
+	jmp	__jabara_string_after_529
+__jabara_string_529: db 9,106,109,112,9,0
+__jabara_string_after_529:
+	lea	rax, [rel __jabara_string_529]
 	push	rax
 	call	em_text
-	db	255,117,24
-	db	255,117,232
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
 	call	em_label
 	call	em_newline
-	db	255,117,24
-	db	255,117,240
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	em_label
-	jmp	__jabara_string_after_496
-__jabara_string_496: db 58,0
-__jabara_string_after_496:
-	lea	rax, [rel __jabara_string_496]
+	jmp	__jabara_string_after_530
+__jabara_string_530: db 58,0
+__jabara_string_after_530:
+	lea	rax, [rel __jabara_string_530]
 	push	rax
 	call	em_line
-__jabara_label_493:
-	mov	rax, [rbp + 16]
+__jabara_label_527:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_481
-__jabara_label_482:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_515
+__jabara_label_516:
 	xor	eax, eax
-__jabara_return_480:
+__jabara_return_514:
 	db 201
 	db 194
 	dw	16
@@ -4974,42 +8048,68 @@ __jabara_return_480:
 global em_zero_environment
 em_zero_environment:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-__jabara_label_498:
-	db	255,117,16
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, 0
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_532:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jg	__jabara_label_499
-	jmp	__jabara_string_after_500
-__jabara_string_500: db 9,109,111,118,9,113,119,111,114,100,32,91,114,97,120,32,43,32,0
-__jabara_string_after_500:
-	lea	rax, [rel __jabara_string_500]
+	jg	__jabara_label_533
+	jmp	__jabara_string_after_534
+__jabara_string_534: db 9,109,111,118,9,113,119,111,114,100,32,91,114,97,120,32,43,32,0
+__jabara_string_after_534:
+	lea	rax, [rel __jabara_string_534]
 	push	rax
 	call	em_text
 	mov	rax, 8
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	imul	rax, rdi
 	push	rax
 	call	em_number
-	jmp	__jabara_string_after_501
-__jabara_string_501: db 93,44,32,48,0
-__jabara_string_after_501:
-	lea	rax, [rel __jabara_string_501]
+	jmp	__jabara_string_after_535
+__jabara_string_535: db 93,44,32,48,0
+__jabara_string_after_535:
+	lea	rax, [rel __jabara_string_535]
 	push	rax
 	call	em_line
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_498
-__jabara_label_499:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_532
+__jabara_label_533:
 	xor	eax, eax
-__jabara_return_497:
+__jabara_return_531:
 	db 201
 	db 194
 	dw	8
@@ -5017,31 +8117,41 @@ __jabara_return_497:
 global em_emit_enter
 em_emit_enter:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	jmp	__jabara_string_after_503
-__jabara_string_503: db 100,98,32,50,48,48,0
-__jabara_string_after_503:
-	lea	rax, [rel __jabara_string_503]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	jmp	__jabara_string_after_537
+__jabara_string_537: db 100,98,32,50,48,48,0
+__jabara_string_after_537:
+	lea	rax, [rel __jabara_string_537]
 	push	rax
 	call	em_instruction
-	jmp	__jabara_string_after_504
-__jabara_string_504: db 9,100,119,9,0
-__jabara_string_after_504:
-	lea	rax, [rel __jabara_string_504]
+	jmp	__jabara_string_after_538
+__jabara_string_538: db 9,100,119,9,0
+__jabara_string_after_538:
+	lea	rax, [rel __jabara_string_538]
 	push	rax
 	call	em_text
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	em_number
 	call	em_newline
-	jmp	__jabara_string_after_505
-__jabara_string_505: db 100,98,32,48,0
-__jabara_string_after_505:
-	lea	rax, [rel __jabara_string_505]
+	jmp	__jabara_string_after_539
+__jabara_string_539: db 100,98,32,48,0
+__jabara_string_after_539:
+	lea	rax, [rel __jabara_string_539]
 	push	rax
 	call	em_instruction
 	xor	eax, eax
-__jabara_return_502:
+__jabara_return_536:
 	db 201
 	db 194
 	dw	8
@@ -5049,26 +8159,63 @@ __jabara_return_502:
 global em_parameter_count
 em_parameter_count:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 16], rax
-__jabara_label_507:
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_541:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_508
-	mov	rax, [rbp - 16]
-	add	rax, 1
-	mov	[rbp - 16], rax
+	je	__jabara_label_542
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_507
-__jabara_label_508:
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_541
+__jabara_label_542:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -5076,572 +8223,11 @@ __jabara_label_508:
 global em_emit_function
 em_emit_function:
 	db 200
-	dw	80
+	dw	144
 	db 0
-	xor	eax, eax
-	mov	[rbp - 56], rax
-	mov	[rbp - 64], rax
-	mov	[rbp - 72], rax
-	mov	[rbp - 80], rax
-	push	48
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	qword [rax + 32], 0
-	mov	qword [rax + 40], 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 144]
 	mov	[rbp - 8], rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	mov	[rbp - 16], rax
-	mov	rax, 0
-	mov	[rbp - 24], rax
-	mov	rax, 0
-	mov	[rbp - 32], rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 56]
-	mov	[rbp - 40], rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 64]
-	mov	[rbp - 48], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 8]
-	pop	rdi
-	mov	qword [rdi + 0], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 16]
-	pop	rdi
-	mov	qword [rdi + 40], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 16], rax
-__jabara_label_510:
-	mov	rax, [rbp - 16]
-	cmp	rax, 0
-	je	__jabara_label_511
-	db	255,117,24
-	db	255,117,248
-	mov	rax, [rbp - 16]
-	mov	rax, [rax]
-	push	rax
-	mov	rax, [rbp - 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 24]
-	push	rax
-	call	em_scope_add_parameter
-	mov	rax, [rbp - 24]
-	add	rax, 1
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 16]
-	mov	rax, [rax + 24]
-	mov	[rbp - 16], rax
-	jmp	__jabara_label_510
-__jabara_label_511:
-	mov	rax, [rbp - 24]
-	cmp	rax, 8191
-	jle	__jabara_label_512
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 24]
-	push	rax
-	push	1
-	jmp	__jabara_string_after_513
-__jabara_string_513: db 115,117,98,32,115,117,112,112,111,114,116,115,32,97,116,32,109,111,115,116,32,56,49,57,49,32,112,97,114,97,109,101,116,101,114,115,0
-__jabara_string_after_513:
-	lea	rax, [rel __jabara_string_513]
-	push	rax
-	call	jc_error_at
-__jabara_label_512:
-	db	255,117,24
-	db	255,117,248
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_collect_locals
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 24], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	db	255,117,24
-	call	em_new_label
-	pop	rdi
-	mov	qword [rdi + 56], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, 8
-	push	rax
-	mov	rax, [rbp - 24]
-	pop	rdi
-	imul	rax, rdi
-	pop	rdi
-	mov	qword [rdi + 64], rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 72]
-	test	rax, rax
-	jz	__jabara_label_515
-	mov	rax, 16
-	neg	rax
-	push	rax
-	mov	rax, 8
-	push	rax
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 24]
-	push	rax
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 16]
-	pop	rdi
-	sub	rax, rdi
-	pop	rdi
-	imul	rax, rdi
-	add	rax, 15
-	pop	rdi
-	and	rax, rdi
-	mov	[rbp - 56], rax
-	jmp	__jabara_label_514
-__jabara_label_515:
-	mov	rax, 16
-	neg	rax
-	push	rax
-	mov	rax, 8
-	push	rax
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 16]
-	add	rax, 1
-	pop	rdi
-	imul	rax, rdi
-	add	rax, 15
-	pop	rdi
-	and	rax, rdi
-	mov	[rbp - 56], rax
-__jabara_label_514:
-	jmp	__jabara_string_after_516
-__jabara_string_516: db 10,103,108,111,98,97,108,32,0
-__jabara_string_after_516:
-	lea	rax, [rel __jabara_string_516]
-	push	rax
-	call	em_text
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	push	rax
-	call	em_text
-	call	em_newline
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	push	rax
-	call	em_text
-	jmp	__jabara_string_after_517
-__jabara_string_517: db 58,0
-__jabara_string_after_517:
-	lea	rax, [rel __jabara_string_517]
-	push	rax
-	call	em_line
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 72]
-	test	rax, rax
-	jz	__jabara_label_519
-	db	255,117,200
-	call	em_emit_enter
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	mov	[rbp - 72], rax
-__jabara_label_520:
-	mov	rax, [rbp - 72]
-	cmp	rax, 0
-	je	__jabara_label_521
-	mov	rax, 0
-	push	rax
-	mov	rax, [rbp - 72]
-	mov	rax, [rax + 24]
-	pop	rdi
-	xor	edx, edx
-	cmp	rax, rdi
-	sete	dl
-	mov	eax, edx
-	push	rax
-	mov	rax, 0
-	push	rax
-	mov	rax, [rbp - 72]
-	mov	rax, [rax + 32]
-	pop	rdi
-	xor	edx, edx
-	cmp	rax, rdi
-	sete	dl
-	mov	eax, edx
-	pop	rdi
-	and	rax, rdi
-	test	rax, rax
-	jz	__jabara_label_522
-	mov	rax, [rbp - 80]
-	cmp	rax, 0
-	jne	__jabara_label_523
-	jmp	__jabara_string_after_524
-__jabara_string_524: db 120,111,114,9,101,97,120,44,32,101,97,120,0
-__jabara_string_after_524:
-	lea	rax, [rel __jabara_string_524]
-	push	rax
-	call	em_instruction
-	mov	rax, 1
-	mov	[rbp - 80], rax
-__jabara_label_523:
-	jmp	__jabara_string_after_525
-__jabara_string_525: db 9,109,111,118,9,0
-__jabara_string_after_525:
-	lea	rax, [rel __jabara_string_525]
-	push	rax
-	call	em_text
-	db	255,117,248
-	db	255,117,184
-	call	em_frame_reference
-	jmp	__jabara_string_after_526
-__jabara_string_526: db 44,32,114,97,120,0
-__jabara_string_after_526:
-	lea	rax, [rel __jabara_string_526]
-	push	rax
-	call	em_line
-__jabara_label_522:
-	mov	rax, [rbp - 72]
-	mov	rax, [rax + 40]
-	mov	[rbp - 72], rax
-	jmp	__jabara_label_520
-__jabara_label_521:
-	jmp	__jabara_label_518
-__jabara_label_519:
-	db	255,117,200
-	mov	rax, 16
-	pop	rdi
-	add	rax, rdi
-	mov	[rbp - 64], rax
-	db	255,117,192
-	call	em_emit_enter
-	jmp	__jabara_string_after_527
-__jabara_string_527: db 9,108,101,97,9,114,97,120,44,32,91,114,98,112,32,45,32,0
-__jabara_string_after_527:
-	lea	rax, [rel __jabara_string_527]
-	push	rax
-	call	em_text
-	db	255,117,192
-	call	em_number
-	jmp	__jabara_string_after_528
-__jabara_string_528: db 93,0
-__jabara_string_after_528:
-	lea	rax, [rel __jabara_string_528]
-	push	rax
-	call	em_line
-	jmp	__jabara_string_after_529
-__jabara_string_529: db 109,111,118,9,91,114,98,112,32,45,32,56,93,44,32,114,97,120,0
-__jabara_string_after_529:
-	lea	rax, [rel __jabara_string_529]
-	push	rax
-	call	em_instruction
-	mov	rax, [rbp - 8]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_zero_environment
-	mov	rax, 0
-	mov	[rbp - 32], rax
-__jabara_label_530:
-	db	255,117,232
-	mov	rax, [rbp - 32]
-	pop	rdi
-	cmp	rax, rdi
-	jge	__jabara_label_531
-	jmp	__jabara_string_after_532
-__jabara_string_532: db 9,109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,0
-__jabara_string_after_532:
-	lea	rax, [rel __jabara_string_532]
-	push	rax
-	call	em_text
-	mov	rax, 8
-	push	rax
-	db	255,117,224
-	mov	rax, [rbp - 24]
-	pop	rdi
-	sub	rax, rdi
-	add	rax, 1
-	pop	rdi
-	imul	rax, rdi
-	push	rax
-	call	em_number
-	jmp	__jabara_string_after_533
-__jabara_string_533: db 93,0
-__jabara_string_after_533:
-	lea	rax, [rel __jabara_string_533]
-	push	rax
-	call	em_line
-	jmp	__jabara_string_after_534
-__jabara_string_534: db 9,109,111,118,9,91,114,97,120,32,43,32,0
-__jabara_string_after_534:
-	lea	rax, [rel __jabara_string_534]
-	push	rax
-	call	em_text
-	mov	rax, 8
-	push	rax
-	mov	rax, [rbp - 32]
-	add	rax, 1
-	pop	rdi
-	imul	rax, rdi
-	push	rax
-	call	em_number
-	jmp	__jabara_string_after_535
-__jabara_string_535: db 93,44,32,114,100,120,0
-__jabara_string_after_535:
-	lea	rax, [rel __jabara_string_535]
-	push	rax
-	call	em_line
-	mov	rax, [rbp - 32]
-	add	rax, 1
-	mov	[rbp - 32], rax
-	jmp	__jabara_label_530
-__jabara_label_531:
-__jabara_label_518:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	push	rax
-	jmp	__jabara_string_after_537
-__jabara_string_537: db 109,97,105,110,0
-__jabara_string_after_537:
-	lea	rax, [rel __jabara_string_537]
-	push	rax
-	call	jc_streq
-	test	rax, rax
-	jz	__jabara_label_536
-	db	255,117,24
-	mov	rax, [rbp + 24]
-	mov	rax, [rax]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_emit_statements
-__jabara_label_536:
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_emit_statements
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_statements_return
-	cmp	rax, 0
-	jne	__jabara_label_538
-	jmp	__jabara_string_after_539
-__jabara_string_539: db 120,111,114,9,101,97,120,44,32,101,97,120,0
-__jabara_string_after_539:
-	lea	rax, [rel __jabara_string_539]
-	push	rax
-	call	em_instruction
-	db	255,117,24
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 56]
-	push	rax
-	call	em_return_label
-	jmp	__jabara_string_after_540
-__jabara_string_540: db 58,0
-__jabara_string_after_540:
-	lea	rax, [rel __jabara_string_540]
-	push	rax
-	call	em_line
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 64]
-	push	rax
-	call	em_emit_return
-__jabara_label_538:
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 40]
-	pop	rdi
-	mov	qword [rdi + 56], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 48]
-	pop	rdi
-	mov	qword [rdi + 64], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 8]
-	pop	rdi
-	mov	qword [rdi + 24], rax
-	xor	eax, eax
-__jabara_return_509:
-	db 201
-	db 194
-	dw	16
-
-global em_emit_closure_function
-em_emit_closure_function:
-	db 200
-	dw	32
-	db 0
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 56]
-	mov	[rbp - 16], rax
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 64]
-	mov	[rbp - 24], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	pop	rdi
-	mov	qword [rdi + 24], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	db	255,117,24
-	call	em_new_label
-	pop	rdi
-	mov	qword [rdi + 56], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, 16
-	pop	rdi
-	mov	qword [rdi + 64], rax
-	call	em_newline
-	db	255,117,24
-	jmp	__jabara_string_after_542
-__jabara_string_542: db 99,108,111,115,117,114,101,0
-__jabara_string_after_542:
-	lea	rax, [rel __jabara_string_542]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_private_label
-	jmp	__jabara_string_after_543
-__jabara_string_543: db 58,0
-__jabara_string_after_543:
-	lea	rax, [rel __jabara_string_543]
-	push	rax
-	call	em_line
-	push	16
-	call	em_emit_enter
-	jmp	__jabara_string_after_544
-__jabara_string_544: db 9,112,117,115,104,9,0
-__jabara_string_after_544:
-	lea	rax, [rel __jabara_string_544]
-	push	rax
-	call	em_text
-	mov	rax, 8
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	mov	rax, [rax + 16]
-	add	rax, 1
-	pop	rdi
-	imul	rax, rdi
-	push	rax
-	call	em_number
-	call	em_newline
-	db	255,117,24
-	call	em_emit_alloc_call
-	jmp	__jabara_string_after_545
-__jabara_string_545: db 109,111,118,9,91,114,98,112,32,45,32,56,93,44,32,114,97,120,0
-__jabara_string_after_545:
-	lea	rax, [rel __jabara_string_545]
-	push	rax
-	call	em_instruction
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	mov	rax, [rax + 16]
-	push	rax
-	call	em_zero_environment
-	jmp	__jabara_string_after_546
-__jabara_string_546: db 109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,50,52,93,0
-__jabara_string_after_546:
-	lea	rax, [rel __jabara_string_546]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_547
-__jabara_string_547: db 109,111,118,9,91,114,97,120,93,44,32,114,100,120,0
-__jabara_string_after_547:
-	lea	rax, [rel __jabara_string_547]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_548
-__jabara_string_548: db 109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,49,54,93,0
-__jabara_string_after_548:
-	lea	rax, [rel __jabara_string_548]
-	push	rax
-	call	em_instruction
-	jmp	__jabara_string_after_549
-__jabara_string_549: db 109,111,118,9,91,114,97,120,32,43,32,56,93,44,32,114,100,120,0
-__jabara_string_after_549:
-	lea	rax, [rel __jabara_string_549]
-	push	rax
-	call	em_instruction
-	db	255,117,24
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	mov	rax, [rax + 80]
-	push	rax
-	call	em_emit_statements
-	jmp	__jabara_string_after_550
-__jabara_string_550: db 120,111,114,9,101,97,120,44,32,101,97,120,0
-__jabara_string_after_550:
-	lea	rax, [rel __jabara_string_550]
-	push	rax
-	call	em_instruction
-	db	255,117,24
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 56]
-	push	rax
-	call	em_return_label
-	jmp	__jabara_string_after_551
-__jabara_string_551: db 58,0
-__jabara_string_after_551:
-	lea	rax, [rel __jabara_string_551]
-	push	rax
-	call	em_line
-	mov	rax, [rbp + 24]
-	mov	rax, [rax + 64]
-	push	rax
-	call	em_emit_return
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 16]
-	pop	rdi
-	mov	qword [rdi + 56], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 24]
-	pop	rdi
-	mov	qword [rdi + 64], rax
-	mov	rax, [rbp + 24]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 24], rax
-	xor	eax, eax
-__jabara_return_541:
-	db 201
-	db 194
-	dw	16
-
-global em_emit_program
-em_emit_program:
-	db 200
-	dw	48
-	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	mov	[rbp - 40], rax
-	push	88
-	call	__jabara_alloc
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
@@ -5653,98 +8239,346 @@ em_emit_program:
 	mov	qword [rax + 64], 0
 	mov	qword [rax + 72], 0
 	mov	qword [rax + 80], 0
-	mov	[rbp - 8], rax
-	mov	rax, [rbp - 8]
+	mov	qword [rax + 88], 0
+	mov	qword [rax + 96], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rel __jabara_global_em_scope]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
 	pop	rdi
 	mov	qword [rdi + 0], rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
-	mov	rax, 0
-	push	rax
-	db	255,117,16
-	call	em_program_has_closure
-	pop	rdi
-	xor	edx, edx
-	cmp	rax, rdi
-	sete	dl
-	mov	eax, edx
-	pop	rdi
-	mov	qword [rdi + 72], rax
 	mov	rax, [rbp - 8]
-	push	rax
-	push	48
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	qword [rax + 32], 0
-	mov	qword [rax + 40], 0
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
 	pop	rdi
-	mov	qword [rdi + 8], rax
+	mov	qword [rdi + 48], rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 16], rax
+__jabara_label_544:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_545
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
-	mov	rax, 1
-	pop	rdi
-	mov	qword [rdi + 32], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	call	em_scope_add_parameter
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	add	rax, 1
 	push	rax
 	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
+	add	rax, 40
 	pop	rdi
-	mov	qword [rdi + 24], rax
-	db	255,117,248
-	call	em_validate_records
-	db	255,117,248
-	call	em_mark_reachable
-	mov	[rbp - 40], rax
-	db	255,117,248
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
+	add	rax, 32
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_544
+__jabara_label_545:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 8191
+	jle	__jabara_label_546
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	push	1
+	jmp	__jabara_string_after_547
+__jabara_string_547: db 115,117,98,32,115,117,112,112,111,114,116,115,32,97,116,32,109,111,115,116,32,56,49,57,49,32,112,97,114,97,109,101,116,101,114,115,0
+__jabara_string_after_547:
+	lea	rax, [rel __jabara_string_547]
+	push	rax
+	call	jc_error_at
+__jabara_label_546:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	call	em_collect_locals
-	jmp	__jabara_string_after_553
-__jabara_string_553: db 59,32,103,101,110,101,114,97,116,101,100,32,98,121,32,116,104,101,32,106,97,98,97,114,97,32,99,111,109,112,105,108,101,114,0
-__jabara_string_after_553:
-	lea	rax, [rel __jabara_string_553]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 24], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_new_label
+	pop	rdi
+	mov	qword [rdi + 56], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	imul	rax, rdi
+	pop	rdi
+	mov	qword [rdi + 64], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	test	rax, rax
+	jz	__jabara_label_549
+	mov	rax, 16
+	neg	rax
+	push	rax
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	pop	rdi
+	sub	rax, rdi
+	pop	rdi
+	imul	rax, rdi
+	add	rax, 24
+	add	rax, 15
+	pop	rdi
+	and	rax, rdi
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_548
+__jabara_label_549:
+	mov	rax, 16
+	neg	rax
+	push	rax
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	add	rax, 1
+	pop	rdi
+	imul	rax, rdi
+	add	rax, 15
+	pop	rdi
+	and	rax, rdi
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_548:
+	jmp	__jabara_string_after_550
+__jabara_string_550: db 10,103,108,111,98,97,108,32,0
+__jabara_string_after_550:
+	lea	rax, [rel __jabara_string_550]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	call	em_newline
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_551
+__jabara_string_551: db 58,0
+__jabara_string_after_551:
+	lea	rax, [rel __jabara_string_551]
 	push	rax
 	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 72]
+	test	rax, rax
+	jz	__jabara_label_553
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_enter
 	jmp	__jabara_string_after_554
-__jabara_string_554: db 98,105,116,115,32,54,52,0
+__jabara_string_554: db 109,111,118,9,91,114,98,112,32,45,32,50,52,93,44,32,114,115,112,0
 __jabara_string_after_554:
 	lea	rax, [rel __jabara_string_554]
 	push	rax
-	call	em_line
-	mov	rax, [rbp + 16]
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 __jabara_label_555:
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
 	cmp	rax, 0
 	je	__jabara_label_556
-	mov	rax, [rbp - 16]
-	mov	rax, [rax + 40]
-	push	rax
 	mov	rax, 0
 	push	rax
-	mov	rax, [rbp - 40]
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
 	sete	dl
 	mov	eax, edx
-	pop	rdi
-	or	rax, rdi
 	push	rax
 	mov	rax, 0
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	pop	rdi
 	xor	edx, edx
@@ -5755,67 +8589,881 @@ __jabara_label_555:
 	and	rax, rdi
 	test	rax, rax
 	jz	__jabara_label_557
-	db	255,117,248
-	db	255,117,240
-	call	em_emit_function
-__jabara_label_557:
-	mov	rax, [rbp - 16]
-	mov	rax, [rax + 56]
-	mov	[rbp - 16], rax
-	jmp	__jabara_label_555
-__jabara_label_556:
 	mov	rax, [rbp - 8]
-	mov	rax, [rax + 32]
-	mov	[rbp - 24], rax
-__jabara_label_558:
-	mov	rax, [rbp - 24]
+	add	rax, 96
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_559
-	db	255,117,248
-	db	255,117,232
-	call	em_emit_closure_function
-	mov	rax, [rbp - 24]
-	mov	rax, [rax + 24]
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_558
-__jabara_label_559:
+	jne	__jabara_label_558
+	jmp	__jabara_string_after_559
+__jabara_string_559: db 120,111,114,9,101,97,120,44,32,101,97,120,0
+__jabara_string_after_559:
+	lea	rax, [rel __jabara_string_559]
+	push	rax
+	call	em_instruction
+	mov	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 96
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_558:
 	jmp	__jabara_string_after_560
-__jabara_string_560: db 10,97,108,105,103,110,32,56,0
+__jabara_string_560: db 9,109,111,118,9,0
 __jabara_string_after_560:
 	lea	rax, [rel __jabara_string_560]
 	push	rax
-	call	em_line
+	call	em_text
 	mov	rax, [rbp - 8]
-	mov	rax, [rax + 8]
-	mov	rax, [rax + 8]
-	mov	[rbp - 32], rax
-__jabara_label_561:
-	mov	rax, [rbp - 32]
-	cmp	rax, 0
-	je	__jabara_label_562
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
+	push	rax
+	call	em_frame_reference
+	jmp	__jabara_string_after_561
+__jabara_string_561: db 44,32,114,97,120,0
+__jabara_string_after_561:
+	lea	rax, [rel __jabara_string_561]
+	push	rax
+	call	em_line
+__jabara_label_557:
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_555
+__jabara_label_556:
+	jmp	__jabara_label_552
+__jabara_label_553:
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 32
+	pop	rdi
+	add	rax, rdi
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 80
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 80
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_enter
+	jmp	__jabara_string_after_562
+__jabara_string_562: db 109,111,118,9,91,114,98,112,32,45,32,50,52,93,44,32,114,115,112,0
+__jabara_string_after_562:
+	lea	rax, [rel __jabara_string_562]
+	push	rax
+	call	em_instruction
 	jmp	__jabara_string_after_563
-__jabara_string_563: db 95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
+__jabara_string_563: db 9,108,101,97,9,114,97,120,44,32,91,114,98,112,32,45,32,0
 __jabara_string_after_563:
 	lea	rax, [rel __jabara_string_563]
 	push	rax
 	call	em_text
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 80
 	mov	rax, [rax]
 	push	rax
-	call	em_text
+	call	em_number
 	jmp	__jabara_string_after_564
-__jabara_string_564: db 58,32,100,113,32,48,0
+__jabara_string_564: db 93,0
 __jabara_string_after_564:
 	lea	rax, [rel __jabara_string_564]
 	push	rax
 	call	em_line
-	mov	rax, [rbp - 32]
-	mov	rax, [rax + 40]
-	mov	[rbp - 32], rax
-	jmp	__jabara_label_561
-__jabara_label_562:
+	jmp	__jabara_string_after_565
+__jabara_string_565: db 109,111,118,9,91,114,98,112,32,45,32,56,93,44,32,114,97,120,0
+__jabara_string_after_565:
+	lea	rax, [rel __jabara_string_565]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_zero_environment
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_566:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	pop	rdi
+	cmp	rax, rdi
+	jge	__jabara_label_567
+	jmp	__jabara_string_after_568
+__jabara_string_568: db 9,109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,0
+__jabara_string_after_568:
+	lea	rax, [rel __jabara_string_568]
+	push	rax
+	call	em_text
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	sub	rax, rdi
+	add	rax, 1
+	pop	rdi
+	imul	rax, rdi
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_569
+__jabara_string_569: db 93,0
+__jabara_string_after_569:
+	lea	rax, [rel __jabara_string_569]
+	push	rax
+	call	em_line
+	jmp	__jabara_string_after_570
+__jabara_string_570: db 9,109,111,118,9,91,114,97,120,32,43,32,0
+__jabara_string_after_570:
+	lea	rax, [rel __jabara_string_570]
+	push	rax
+	call	em_text
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	add	rax, 1
+	pop	rdi
+	imul	rax, rdi
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_571
+__jabara_string_571: db 93,44,32,114,100,120,0
+__jabara_string_after_571:
+	lea	rax, [rel __jabara_string_571]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	add	rax, 1
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_566
+__jabara_label_567:
+__jabara_label_552:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_573
+__jabara_string_573: db 109,97,105,110,0
+__jabara_string_after_573:
+	lea	rax, [rel __jabara_string_573]
+	push	rax
+	call	jc_streq
+	test	rax, rax
+	jz	__jabara_label_572
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_emit_statements
+__jabara_label_572:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_emit_statements
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_statements_return
+	cmp	rax, 0
+	jne	__jabara_label_574
+	jmp	__jabara_string_after_575
+__jabara_string_575: db 120,111,114,9,101,97,120,44,32,101,97,120,0
+__jabara_string_after_575:
+	lea	rax, [rel __jabara_string_575]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	call	em_return_label
+	jmp	__jabara_string_after_576
+__jabara_string_576: db 58,0
+__jabara_string_after_576:
+	lea	rax, [rel __jabara_string_576]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	call	em_emit_return
+__jabara_label_574:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 56], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 64], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	pop	rdi
+	mov	qword [rdi + 24], rax
 	xor	eax, eax
-__jabara_return_552:
+__jabara_return_543:
+	db 201
+	db 194
+	dw	16
+
+global em_emit_closure_function
+em_emit_closure_function:
+	db 200
+	dw	96
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, 16
+	neg	rax
+	push	rax
+	mov	rax, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 16]
+	add	rax, 1
+	pop	rdi
+	imul	rax, rdi
+	add	rax, 15
+	pop	rdi
+	and	rax, rdi
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 24
+	pop	rdi
+	add	rax, rdi
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	pop	rdi
+	mov	qword [rdi + 24], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_new_label
+	pop	rdi
+	mov	qword [rdi + 56], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 24
+	pop	rdi
+	mov	qword [rdi + 64], rax
+	call	em_newline
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_578
+__jabara_string_578: db 99,108,111,115,117,114,101,0
+__jabara_string_after_578:
+	lea	rax, [rel __jabara_string_578]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_private_label
+	jmp	__jabara_string_after_579
+__jabara_string_579: db 58,0
+__jabara_string_after_579:
+	lea	rax, [rel __jabara_string_579]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_enter
+	jmp	__jabara_string_after_580
+__jabara_string_580: db 109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,51,50,93,0
+__jabara_string_after_580:
+	lea	rax, [rel __jabara_string_580]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_581
+__jabara_string_581: db 109,111,118,9,91,114,98,112,32,45,32,49,54,93,44,32,114,100,120,0
+__jabara_string_after_581:
+	lea	rax, [rel __jabara_string_581]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_582
+__jabara_string_582: db 109,111,118,9,91,114,98,112,32,45,32,50,52,93,44,32,114,115,112,0
+__jabara_string_after_582:
+	lea	rax, [rel __jabara_string_582]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_583
+__jabara_string_583: db 9,108,101,97,9,114,97,120,44,32,91,114,98,112,32,45,32,0
+__jabara_string_after_583:
+	lea	rax, [rel __jabara_string_583]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	call	em_number
+	jmp	__jabara_string_after_584
+__jabara_string_584: db 93,0
+__jabara_string_after_584:
+	lea	rax, [rel __jabara_string_584]
+	push	rax
+	call	em_line
+	jmp	__jabara_string_after_585
+__jabara_string_585: db 109,111,118,9,91,114,98,112,32,45,32,56,93,44,32,114,97,120,0
+__jabara_string_after_585:
+	lea	rax, [rel __jabara_string_585]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_zero_environment
+	jmp	__jabara_string_after_586
+__jabara_string_586: db 109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,50,52,93,0
+__jabara_string_after_586:
+	lea	rax, [rel __jabara_string_586]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_587
+__jabara_string_587: db 109,111,118,9,91,114,97,120,93,44,32,114,100,120,0
+__jabara_string_after_587:
+	lea	rax, [rel __jabara_string_587]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_588
+__jabara_string_588: db 109,111,118,9,114,100,120,44,32,91,114,98,112,32,43,32,49,54,93,0
+__jabara_string_after_588:
+	lea	rax, [rel __jabara_string_588]
+	push	rax
+	call	em_instruction
+	jmp	__jabara_string_after_589
+__jabara_string_589: db 109,111,118,9,91,114,97,120,32,43,32,56,93,44,32,114,100,120,0
+__jabara_string_after_589:
+	lea	rax, [rel __jabara_string_589]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax]
+	mov	rax, [rax + 80]
+	push	rax
+	call	em_emit_statements
+	jmp	__jabara_string_after_590
+__jabara_string_590: db 120,111,114,9,101,97,120,44,32,101,97,120,0
+__jabara_string_after_590:
+	lea	rax, [rel __jabara_string_590]
+	push	rax
+	call	em_instruction
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	call	em_return_label
+	jmp	__jabara_string_after_591
+__jabara_string_591: db 58,0
+__jabara_string_after_591:
+	lea	rax, [rel __jabara_string_591]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 64]
+	push	rax
+	call	em_emit_return
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 56], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 64], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 24], rax
+	xor	eax, eax
+__jabara_return_577:
+	db 201
+	db 194
+	dw	16
+
+global em_emit_program
+em_emit_program:
+	db 200
+	dw	96
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rel __jabara_global_em_emitter]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	em_program_has_closure
+	pop	rdi
+	xor	edx, edx
+	cmp	rax, rdi
+	sete	dl
+	mov	eax, edx
+	pop	rdi
+	mov	qword [rdi + 72], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rel __jabara_global_em_scope]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	pop	rdi
+	mov	qword [rdi + 8], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, 1
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	pop	rdi
+	mov	qword [rdi + 24], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_validate_records
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	em_mark_reachable
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 16]
+	push	rax
+	call	em_collect_locals
+	jmp	__jabara_string_after_593
+__jabara_string_593: db 59,32,103,101,110,101,114,97,116,101,100,32,98,121,32,116,104,101,32,106,97,98,97,114,97,32,99,111,109,112,105,108,101,114,0
+__jabara_string_after_593:
+	lea	rax, [rel __jabara_string_593]
+	push	rax
+	call	em_line
+	jmp	__jabara_string_after_594
+__jabara_string_594: db 98,105,116,115,32,54,52,0
+__jabara_string_after_594:
+	lea	rax, [rel __jabara_string_594]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_595:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_596
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	push	rax
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	pop	rdi
+	xor	edx, edx
+	cmp	rax, rdi
+	sete	dl
+	mov	eax, edx
+	pop	rdi
+	or	rax, rdi
+	push	rax
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 32]
+	pop	rdi
+	xor	edx, edx
+	cmp	rax, rdi
+	sete	dl
+	mov	eax, edx
+	pop	rdi
+	and	rax, rdi
+	test	rax, rax
+	jz	__jabara_label_597
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_function
+__jabara_label_597:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	mov	rax, [rax + 56]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_595
+__jabara_label_596:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_598:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_599
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	call	em_emit_closure_function
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_598
+__jabara_label_599:
+	jmp	__jabara_string_after_600
+__jabara_string_600: db 10,97,108,105,103,110,32,56,0
+__jabara_string_after_600:
+	lea	rax, [rel __jabara_string_600]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_601:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_602
+	jmp	__jabara_string_after_603
+__jabara_string_603: db 95,95,106,97,98,97,114,97,95,103,108,111,98,97,108,95,0
+__jabara_string_after_603:
+	lea	rax, [rel __jabara_string_603]
+	push	rax
+	call	em_text
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	call	em_text
+	jmp	__jabara_string_after_604
+__jabara_string_604: db 58,32,100,113,32,48,0
+__jabara_string_after_604:
+	lea	rax, [rel __jabara_string_604]
+	push	rax
+	call	em_line
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	mov	rax, [rax + 40]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_601
+__jabara_label_602:
+	xor	eax, eax
+__jabara_return_592:
 	db 201
 	db 194
 	dw	8
@@ -5823,11 +9471,20 @@ __jabara_return_552:
 global lx_is_space
 lx_is_space:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, 32
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5836,7 +9493,9 @@ lx_is_space:
 	push	rax
 	mov	rax, 13
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5845,7 +9504,9 @@ lx_is_space:
 	push	rax
 	mov	rax, 10
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5854,7 +9515,9 @@ lx_is_space:
 	push	rax
 	mov	rax, 9
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5891,11 +9554,20 @@ lx_is_space:
 global lx_is_digit
 lx_is_digit:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, 57
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5904,7 +9576,9 @@ lx_is_digit:
 	push	rax
 	mov	rax, 48
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5925,11 +9599,20 @@ lx_is_digit:
 global lx_is_alpha
 lx_is_alpha:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, 95
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5938,7 +9621,9 @@ lx_is_alpha:
 	push	rax
 	mov	rax, 122
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5947,7 +9632,9 @@ lx_is_alpha:
 	push	rax
 	mov	rax, 97
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5964,7 +9651,9 @@ lx_is_alpha:
 	push	rax
 	mov	rax, 90
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -5973,7 +9662,9 @@ lx_is_alpha:
 	push	rax
 	mov	rax, 65
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -6010,12 +9701,25 @@ lx_is_alpha:
 global lx_is_alnum
 lx_is_alnum:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_is_digit
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_is_alpha
 	pop	rdi
 	test	rax, rax
@@ -6032,12 +9736,23 @@ lx_is_alnum:
 global lx_current
 lx_current:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
@@ -6049,48 +9764,83 @@ lx_current:
 global lx_advance
 lx_advance:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	db	255,117,16
-	call	lx_current
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, [rbp - 8]
-	cmp	rax, 0
-	je	__jabara_label_571
-	mov	rax, [rbp + 16]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
+	call	lx_current
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	cmp	rax, 0
+	je	__jabara_label_611
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	add	rax, 1
 	pop	rdi
 	mov	qword [rdi + 8], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 10
-	jne	__jabara_label_573
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_613
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	add	rax, 1
 	pop	rdi
 	mov	qword [rdi + 16], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 1
 	pop	rdi
 	mov	qword [rdi + 24], rax
-	jmp	__jabara_label_572
-__jabara_label_573:
-	mov	rax, [rbp + 16]
+	jmp	__jabara_label_612
+__jabara_label_613:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	add	rax, 1
 	pop	rdi
 	mov	qword [rdi + 24], rax
-__jabara_label_572:
-__jabara_label_571:
+__jabara_label_612:
+__jabara_label_611:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -6098,190 +9848,270 @@ __jabara_label_571:
 global lx_keyword
 lx_keyword:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
-	jmp	__jabara_string_after_576
-__jabara_string_576: db 108,111,99,97,108,0
-__jabara_string_after_576:
-	lea	rax, [rel __jabara_string_576]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_616
+__jabara_string_616: db 108,111,99,97,108,0
+__jabara_string_after_616:
+	lea	rax, [rel __jabara_string_616]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_575
+	jz	__jabara_label_615
 	call	T_LOCAL
 	db 201
 	db 194
 	dw	8
-__jabara_label_575:
-	db	255,117,16
-	jmp	__jabara_string_after_578
-__jabara_string_578: db 105,102,0
-__jabara_string_after_578:
-	lea	rax, [rel __jabara_string_578]
+__jabara_label_615:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_618
+__jabara_string_618: db 105,102,0
+__jabara_string_after_618:
+	lea	rax, [rel __jabara_string_618]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_577
+	jz	__jabara_label_617
 	call	T_IF
 	db 201
 	db 194
 	dw	8
-__jabara_label_577:
-	db	255,117,16
-	jmp	__jabara_string_after_580
-__jabara_string_580: db 116,104,101,110,0
-__jabara_string_after_580:
-	lea	rax, [rel __jabara_string_580]
+__jabara_label_617:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_620
+__jabara_string_620: db 116,104,101,110,0
+__jabara_string_after_620:
+	lea	rax, [rel __jabara_string_620]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_579
+	jz	__jabara_label_619
 	call	T_THEN
 	db 201
 	db 194
 	dw	8
-__jabara_label_579:
-	db	255,117,16
-	jmp	__jabara_string_after_582
-__jabara_string_582: db 101,108,115,101,0
-__jabara_string_after_582:
-	lea	rax, [rel __jabara_string_582]
+__jabara_label_619:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_622
+__jabara_string_622: db 101,108,115,101,0
+__jabara_string_after_622:
+	lea	rax, [rel __jabara_string_622]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_581
+	jz	__jabara_label_621
 	call	T_ELSE
 	db 201
 	db 194
 	dw	8
-__jabara_label_581:
-	db	255,117,16
-	jmp	__jabara_string_after_584
-__jabara_string_584: db 101,110,100,0
-__jabara_string_after_584:
-	lea	rax, [rel __jabara_string_584]
+__jabara_label_621:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_624
+__jabara_string_624: db 101,110,100,0
+__jabara_string_after_624:
+	lea	rax, [rel __jabara_string_624]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_583
+	jz	__jabara_label_623
 	call	T_END
 	db 201
 	db 194
 	dw	8
-__jabara_label_583:
-	db	255,117,16
-	jmp	__jabara_string_after_586
-__jabara_string_586: db 119,104,105,108,101,0
-__jabara_string_after_586:
-	lea	rax, [rel __jabara_string_586]
+__jabara_label_623:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_626
+__jabara_string_626: db 119,104,105,108,101,0
+__jabara_string_after_626:
+	lea	rax, [rel __jabara_string_626]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_585
+	jz	__jabara_label_625
 	call	T_WHILE
 	db 201
 	db 194
 	dw	8
-__jabara_label_585:
-	db	255,117,16
-	jmp	__jabara_string_after_588
-__jabara_string_588: db 100,111,0
-__jabara_string_after_588:
-	lea	rax, [rel __jabara_string_588]
+__jabara_label_625:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_628
+__jabara_string_628: db 100,111,0
+__jabara_string_after_628:
+	lea	rax, [rel __jabara_string_628]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_587
+	jz	__jabara_label_627
 	call	T_DO
 	db 201
 	db 194
 	dw	8
-__jabara_label_587:
-	db	255,117,16
-	jmp	__jabara_string_after_590
-__jabara_string_590: db 115,117,98,0
-__jabara_string_after_590:
-	lea	rax, [rel __jabara_string_590]
+__jabara_label_627:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_630
+__jabara_string_630: db 115,117,98,0
+__jabara_string_after_630:
+	lea	rax, [rel __jabara_string_630]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_589
+	jz	__jabara_label_629
 	call	T_SUB
 	db 201
 	db 194
 	dw	8
-__jabara_label_589:
-	db	255,117,16
-	jmp	__jabara_string_after_592
-__jabara_string_592: db 114,101,116,117,114,110,0
-__jabara_string_after_592:
-	lea	rax, [rel __jabara_string_592]
+__jabara_label_629:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_632
+__jabara_string_632: db 114,101,116,117,114,110,0
+__jabara_string_after_632:
+	lea	rax, [rel __jabara_string_632]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_591
+	jz	__jabara_label_631
 	call	T_RETURN
 	db 201
 	db 194
 	dw	8
-__jabara_label_591:
-	db	255,117,16
-	jmp	__jabara_string_after_594
-__jabara_string_594: db 98,121,116,101,0
-__jabara_string_after_594:
-	lea	rax, [rel __jabara_string_594]
+__jabara_label_631:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_634
+__jabara_string_634: db 98,121,116,101,0
+__jabara_string_after_634:
+	lea	rax, [rel __jabara_string_634]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_593
+	jz	__jabara_label_633
 	call	T_BYTE
 	db 201
 	db 194
 	dw	8
-__jabara_label_593:
-	db	255,117,16
-	jmp	__jabara_string_after_596
-__jabara_string_596: db 102,110,0
-__jabara_string_after_596:
-	lea	rax, [rel __jabara_string_596]
+__jabara_label_633:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_636
+__jabara_string_636: db 102,110,0
+__jabara_string_after_636:
+	lea	rax, [rel __jabara_string_636]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_595
+	jz	__jabara_label_635
 	call	T_FN
 	db 201
 	db 194
 	dw	8
-__jabara_label_595:
-	db	255,117,16
-	jmp	__jabara_string_after_598
-__jabara_string_598: db 114,101,99,111,114,100,0
-__jabara_string_after_598:
-	lea	rax, [rel __jabara_string_598]
+__jabara_label_635:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_638
+__jabara_string_638: db 114,101,99,111,114,100,0
+__jabara_string_after_638:
+	lea	rax, [rel __jabara_string_638]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_597
+	jz	__jabara_label_637
 	call	T_RECORD
 	db 201
 	db 194
 	dw	8
-__jabara_label_597:
-	db	255,117,16
-	jmp	__jabara_string_after_600
-__jabara_string_600: db 101,120,116,101,114,110,0
-__jabara_string_after_600:
-	lea	rax, [rel __jabara_string_600]
+__jabara_label_637:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_640
+__jabara_string_640: db 101,120,116,101,114,110,0
+__jabara_string_after_640:
+	lea	rax, [rel __jabara_string_640]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_599
+	jz	__jabara_label_639
 	call	T_EXTERN
 	db 201
 	db 194
 	dw	8
-__jabara_label_599:
+__jabara_label_639:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_642
+__jabara_string_642: db 110,101,119,0
+__jabara_string_after_642:
+	lea	rax, [rel __jabara_string_642]
+	push	rax
+	call	jc_streq
+	test	rax, rax
+	jz	__jabara_label_641
+	call	T_NEW
+	db 201
+	db 194
+	dw	8
+__jabara_label_641:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_644
+__jabara_string_644: db 108,105,102,116,0
+__jabara_string_after_644:
+	lea	rax, [rel __jabara_string_644]
+	push	rax
+	call	jc_streq
+	test	rax, rax
+	jz	__jabara_label_643
+	call	T_LIFT
+	db 201
+	db 194
+	dw	8
+__jabara_label_643:
 	call	T_ID
 	db 201
 	db 194
@@ -6290,36 +10120,55 @@ __jabara_label_599:
 global lx_skip
 lx_skip:
 	db 200
-	dw	0
+	dw	48
 	db 0
-__jabara_label_602:
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+__jabara_label_646:
 	mov	rax, 1
 	test	rax, rax
-	jz	__jabara_label_603
-__jabara_label_604:
-	db	255,117,16
+	jz	__jabara_label_647
+__jabara_label_648:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	push	rax
 	call	lx_is_space
 	test	rax, rax
-	jz	__jabara_label_605
-	db	255,117,16
+	jz	__jabara_label_649
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
-	jmp	__jabara_label_604
-__jabara_label_605:
-	db	255,117,16
+	jmp	__jabara_label_648
+__jabara_label_649:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	cmp	rax, 59
-	je	__jabara_label_606
+	je	__jabara_label_650
 	mov	rax, 0
 	db 201
 	db 194
 	dw	8
-__jabara_label_606:
-__jabara_label_607:
+__jabara_label_650:
+__jabara_label_651:
 	mov	rax, 10
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	pop	rdi
 	xor	edx, edx
@@ -6329,7 +10178,10 @@ __jabara_label_607:
 	push	rax
 	mov	rax, 0
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	pop	rdi
 	xor	edx, edx
@@ -6345,15 +10197,18 @@ __jabara_label_607:
 	movzx	edi, dil
 	and	eax, edi
 	test	rax, rax
-	jz	__jabara_label_608
-	db	255,117,16
+	jz	__jabara_label_652
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
-	jmp	__jabara_label_607
-__jabara_label_608:
-	jmp	__jabara_label_602
-__jabara_label_603:
+	jmp	__jabara_label_651
+__jabara_label_652:
+	jmp	__jabara_label_646
+__jabara_label_647:
 	xor	eax, eax
-__jabara_return_601:
+__jabara_return_645:
 	db 201
 	db 194
 	dw	8
@@ -6361,26 +10216,58 @@ __jabara_return_601:
 global lx_simple
 lx_simple:
 	db 200
-	dw	0
+	dw	80
 	db 0
-	mov	rax, [rbp + 32]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 40]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 32]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 24], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 32], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 0], rax
-__jabara_label_610:
-	mov	rax, [rbp + 16]
+__jabara_label_654:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
-	jle	__jabara_label_611
-	db	255,117,40
+	jle	__jabara_label_655
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	sub	rax, 1
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_610
-__jabara_label_611:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_654
+__jabara_label_655:
 	xor	eax, eax
-__jabara_return_609:
+__jabara_return_653:
 	db 201
 	db 194
 	dw	32
@@ -6388,190 +10275,355 @@ __jabara_return_609:
 global lx_next
 lx_next:
 	db 200
-	dw	64
+	dw	112
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	mov	[rbp - 40], rax
-	mov	[rbp - 48], rax
-	mov	[rbp - 56], rax
-	push	40
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 112]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
 	mov	qword [rax + 24], 0
 	mov	qword [rax + 32], 0
-	mov	[rbp - 8], rax
-	db	255,117,16
-	call	lx_skip
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	mov	[rbp - 16], rax
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	qword [rax + 64], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 32]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 0
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 0
+	pop	rdi
+	mov	qword [rdi + 8], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 0
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	lx_skip
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	pop	rdi
 	mov	qword [rdi + 24], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	pop	rdi
 	mov	qword [rdi + 32], rax
-	db	255,117,16
-	call	lx_current
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
-	cmp	rax, 0
-	jne	__jabara_label_613
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	lx_current
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_657
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	T_EOF
 	pop	rdi
 	mov	qword [rdi + 0], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 32], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
-__jabara_label_613:
-	db	255,117,232
+__jabara_label_657:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	lx_is_alpha
 	test	rax, rax
-	jz	__jabara_label_614
-__jabara_label_615:
-	db	255,117,16
+	jz	__jabara_label_658
+__jabara_label_659:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	push	rax
 	call	lx_is_alnum
 	test	rax, rax
-	jz	__jabara_label_616
-	db	255,117,16
-	call	lx_advance
-	jmp	__jabara_label_615
-__jabara_label_616:
+	jz	__jabara_label_660
 	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 16]
+	add	rax, 8
 	mov	rax, [rax]
 	push	rax
-	db	255,117,240
-	mov	rax, [rbp + 16]
+	call	lx_advance
+	jmp	__jabara_label_659
+__jabara_label_660:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	jc_slice
 	pop	rdi
 	mov	qword [rdi + 8], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	lx_keyword
 	pop	rdi
 	mov	qword [rdi + 0], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 32], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
-__jabara_label_614:
-	db	255,117,232
+__jabara_label_658:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	lx_is_digit
 	test	rax, rax
-	jz	__jabara_label_617
+	jz	__jabara_label_661
 	mov	rax, 0
-	mov	[rbp - 32], rax
-__jabara_label_618:
-	db	255,117,16
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_662:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	push	rax
 	call	lx_is_digit
 	test	rax, rax
-	jz	__jabara_label_619
-	db	255,117,16
+	jz	__jabara_label_663
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
 	push	rax
 	mov	rax, 10
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	imul	rax, rdi
 	pop	rdi
 	add	rax, rdi
 	sub	rax, 48
-	mov	[rbp - 32], rax
-	jmp	__jabara_label_618
-__jabara_label_619:
-	mov	rax, [rbp - 8]
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_662
+__jabara_label_663:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 16], rax
 	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 16]
+	add	rax, 16
 	mov	rax, [rax]
 	push	rax
-	db	255,117,240
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	jc_slice
 	pop	rdi
 	mov	qword [rdi + 8], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	T_NUMBER
 	pop	rdi
 	mov	qword [rdi + 0], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 32], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
-__jabara_label_617:
-	mov	rax, [rbp - 24]
+__jabara_label_661:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 34
-	jne	__jabara_label_620
-	db	255,117,16
+	jne	__jabara_label_664
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	push	rax
 	call	jc_strlen
 	add	rax, 1
-	mov	[rbp - 56], rax
-	db	255,117,200
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	mov	rax, [rax]
+	push	rax
 	call	jc_alloc
-	mov	[rbp - 40], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, 0
-	mov	[rbp - 48], rax
-__jabara_label_621:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_665:
 	mov	rax, 34
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	pop	rdi
 	xor	edx, edx
@@ -6581,7 +10633,10 @@ __jabara_label_621:
 	push	rax
 	mov	rax, 0
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	pop	rdi
 	xor	edx, edx
@@ -6597,35 +10652,61 @@ __jabara_label_621:
 	movzx	edi, dil
 	and	eax, edi
 	test	rax, rax
-	jz	__jabara_label_622
-	db	255,117,16
-	call	lx_advance
-	mov	[rbp - 32], rax
-	mov	rax, [rbp - 32]
-	cmp	rax, 10
-	jne	__jabara_label_623
+	jz	__jabara_label_666
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	lx_advance
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 10
+	jne	__jabara_label_667
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_624
-__jabara_string_624: db 117,110,116,101,114,109,105,110,97,116,101,100,32,115,116,114,105,110,103,0
-__jabara_string_after_624:
-	lea	rax, [rel __jabara_string_624]
+	jmp	__jabara_string_after_668
+__jabara_string_668: db 117,110,116,101,114,109,105,110,97,116,101,100,32,115,116,114,105,110,103,0
+__jabara_string_after_668:
+	lea	rax, [rel __jabara_string_668]
 	push	rax
 	call	jc_error_at
-__jabara_label_623:
-	mov	rax, [rbp - 32]
+__jabara_label_667:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 92
-	jne	__jabara_label_625
-	db	255,117,16
+	jne	__jabara_label_669
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
-	mov	[rbp - 32], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, 34
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -6634,7 +10715,9 @@ __jabara_label_623:
 	push	rax
 	mov	rax, 92
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -6643,7 +10726,9 @@ __jabara_label_623:
 	push	rax
 	mov	rax, 116
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -6652,7 +10737,9 @@ __jabara_label_623:
 	push	rax
 	mov	rax, 114
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -6661,7 +10748,9 @@ __jabara_label_623:
 	push	rax
 	mov	rax, 110
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -6700,73 +10789,127 @@ __jabara_label_623:
 	movzx	edi, dil
 	and	eax, edi
 	test	rax, rax
-	jz	__jabara_label_626
-	mov	rax, [rbp + 16]
+	jz	__jabara_label_670
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
-	jmp	__jabara_string_after_627
-__jabara_string_627: db 105,110,118,97,108,105,100,32,115,116,114,105,110,103,32,101,115,99,97,112,101,0
-__jabara_string_after_627:
-	lea	rax, [rel __jabara_string_627]
+	jmp	__jabara_string_after_671
+__jabara_string_671: db 105,110,118,97,108,105,100,32,115,116,114,105,110,103,32,101,115,99,97,112,101,0
+__jabara_string_after_671:
+	lea	rax, [rel __jabara_string_671]
 	push	rax
 	call	jc_error_at
-__jabara_label_626:
-	mov	rax, [rbp - 32]
+__jabara_label_670:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 110
-	jne	__jabara_label_628
+	jne	__jabara_label_672
 	mov	rax, 10
-	mov	[rbp - 32], rax
-__jabara_label_628:
-	mov	rax, [rbp - 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_672:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 114
-	jne	__jabara_label_629
+	jne	__jabara_label_673
 	mov	rax, 13
-	mov	[rbp - 32], rax
-__jabara_label_629:
-	mov	rax, [rbp - 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_673:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	cmp	rax, 116
-	jne	__jabara_label_630
+	jne	__jabara_label_674
 	mov	rax, 9
-	mov	[rbp - 32], rax
-__jabara_label_630:
-__jabara_label_625:
-	db	255,117,208
-	mov	rax, [rbp - 40]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_674:
+__jabara_label_669:
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	mov	[rdi], al
-	mov	rax, [rbp - 48]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 48], rax
-	jmp	__jabara_label_621
-__jabara_label_622:
-	db	255,117,16
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_665
+__jabara_label_666:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_current
 	cmp	rax, 34
-	je	__jabara_label_631
+	je	__jabara_label_675
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_632
-__jabara_string_632: db 117,110,116,101,114,109,105,110,97,116,101,100,32,115,116,114,105,110,103,0
-__jabara_string_after_632:
-	lea	rax, [rel __jabara_string_632]
+	jmp	__jabara_string_after_676
+__jabara_string_676: db 117,110,116,101,114,109,105,110,97,116,101,100,32,115,116,114,105,110,103,0
+__jabara_string_after_676:
+	lea	rax, [rel __jabara_string_676]
 	push	rax
 	call	jc_error_at
-__jabara_label_631:
-	db	255,117,16
+__jabara_label_675:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	lx_advance
-	db	255,117,208
-	mov	rax, [rbp - 40]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	push	rax
@@ -6774,642 +10917,1007 @@ __jabara_label_631:
 	pop	rdi
 	mov	[rdi], al
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 40]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	T_STRING
 	pop	rdi
 	mov	qword [rdi + 0], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_620:
-	mov	rax, [rbp - 24]
-	cmp	rax, 40
-	jne	__jabara_label_633
-	db	255,117,16
-	db	255,117,248
-	call	T_LPAREN
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_633:
-	mov	rax, [rbp - 24]
-	cmp	rax, 41
-	jne	__jabara_label_634
-	db	255,117,16
-	db	255,117,248
-	call	T_RPAREN
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_634:
-	mov	rax, [rbp - 24]
-	cmp	rax, 91
-	jne	__jabara_label_635
-	db	255,117,16
-	db	255,117,248
-	call	T_LBRACKET
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_635:
-	mov	rax, [rbp - 24]
-	cmp	rax, 93
-	jne	__jabara_label_636
-	db	255,117,16
-	db	255,117,248
-	call	T_RBRACKET
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_636:
-	mov	rax, [rbp - 24]
-	cmp	rax, 44
-	jne	__jabara_label_637
-	db	255,117,16
-	db	255,117,248
-	call	T_COMMA
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_637:
-	mov	rax, [rbp - 24]
-	cmp	rax, 46
-	jne	__jabara_label_638
-	db	255,117,16
-	db	255,117,248
-	call	T_DOT
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_638:
-	mov	rax, [rbp - 24]
-	cmp	rax, 58
-	jne	__jabara_label_639
-	db	255,117,16
-	db	255,117,248
-	call	T_COLON
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_639:
-	mov	rax, [rbp - 24]
-	cmp	rax, 43
-	jne	__jabara_label_640
-	db	255,117,16
-	db	255,117,248
-	call	T_PLUS
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_640:
-	mov	rax, [rbp - 24]
-	cmp	rax, 45
-	jne	__jabara_label_641
-	db	255,117,16
-	db	255,117,248
-	call	T_MINUS
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_641:
-	mov	rax, [rbp - 24]
-	cmp	rax, 42
-	jne	__jabara_label_642
-	db	255,117,16
-	db	255,117,248
-	call	T_STAR
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_642:
-	mov	rax, [rbp - 24]
-	cmp	rax, 47
-	jne	__jabara_label_643
-	db	255,117,16
-	db	255,117,248
-	call	T_SLASH
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_643:
-	mov	rax, [rbp - 24]
-	cmp	rax, 37
-	jne	__jabara_label_644
-	db	255,117,16
-	db	255,117,248
-	call	T_PERCENT
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_644:
-	mov	rax, [rbp - 24]
-	cmp	rax, 94
-	jne	__jabara_label_645
-	db	255,117,16
-	db	255,117,248
-	call	T_XOR
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_645:
-	mov	rax, [rbp - 24]
-	cmp	rax, 38
-	jne	__jabara_label_646
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
+	add	rax, 16
 	mov	rax, [rax]
 	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 38
-	jne	__jabara_label_648
-	db	255,117,16
-	db	255,117,248
-	call	T_AND
-	push	rax
-	push	2
-	call	lx_simple
-	jmp	__jabara_label_647
-__jabara_label_648:
-	db	255,117,16
-	db	255,117,248
-	call	T_AMP
-	push	rax
-	push	1
-	call	lx_simple
-__jabara_label_647:
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
 	mov	qword [rdi + 32], rax
 	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_646:
-	mov	rax, [rbp - 24]
-	cmp	rax, 124
-	jne	__jabara_label_649
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
+	add	rax, 16
 	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 124
-	jne	__jabara_label_651
-	db	255,117,16
-	db	255,117,248
-	call	T_OR
-	push	rax
-	push	2
-	call	lx_simple
-	jmp	__jabara_label_650
-__jabara_label_651:
-	db	255,117,16
-	db	255,117,248
-	call	T_PIPE
-	push	rax
-	push	1
-	call	lx_simple
-__jabara_label_650:
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_649:
-	mov	rax, [rbp - 24]
-	cmp	rax, 61
-	jne	__jabara_label_652
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 61
-	jne	__jabara_label_654
-	db	255,117,16
-	db	255,117,248
-	call	T_EQ
-	push	rax
-	push	2
-	call	lx_simple
-	jmp	__jabara_label_653
-__jabara_label_654:
-	db	255,117,16
-	db	255,117,248
-	call	T_ASSIGN
-	push	rax
-	push	1
-	call	lx_simple
-__jabara_label_653:
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_652:
-	mov	rax, [rbp - 24]
-	cmp	rax, 33
-	jne	__jabara_label_655
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 61
-	jne	__jabara_label_657
-	db	255,117,16
-	db	255,117,248
-	call	T_NE
-	push	rax
-	push	2
-	call	lx_simple
-	jmp	__jabara_label_656
-__jabara_label_657:
-	db	255,117,16
-	db	255,117,248
-	call	T_NOT
-	push	rax
-	push	1
-	call	lx_simple
-__jabara_label_656:
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_655:
-	mov	rax, [rbp - 24]
-	cmp	rax, 126
-	jne	__jabara_label_658
-	db	255,117,16
-	db	255,117,248
-	call	T_BNOT
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_658:
-	mov	rax, [rbp - 24]
-	cmp	rax, 60
-	jne	__jabara_label_659
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 60
-	jne	__jabara_label_660
-	db	255,117,16
-	db	255,117,248
-	call	T_SHL
-	push	rax
-	push	2
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_660:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 61
-	jne	__jabara_label_661
-	db	255,117,16
-	db	255,117,248
-	call	T_LE
-	push	rax
-	push	2
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_661:
-	db	255,117,16
-	db	255,117,248
-	call	T_LT
-	push	rax
-	push	1
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_659:
-	mov	rax, [rbp - 24]
-	cmp	rax, 62
-	jne	__jabara_label_662
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 62
-	jne	__jabara_label_663
-	db	255,117,16
-	db	255,117,248
-	call	T_SHR
-	push	rax
-	push	2
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	8
-__jabara_label_663:
-	mov	rax, [rbp + 16]
-	mov	rax, [rax + 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	mov	rax, [rax]
-	pop	rdi
-	add	rax, rdi
-	add	rax, 1
-	movzx	eax, byte [rax]
-	cmp	rax, 61
-	jne	__jabara_label_664
-	db	255,117,16
-	db	255,117,248
-	call	T_GE
-	push	rax
-	push	2
-	call	lx_simple
-	mov	rax, [rbp + 16]
-	push	rax
-	mov	rax, [rbp - 8]
-	pop	rdi
-	mov	qword [rdi + 32], rax
-	mov	rax, [rbp - 8]
 	db 201
 	db 194
 	dw	8
 __jabara_label_664:
-	db	255,117,16
-	db	255,117,248
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 40
+	jne	__jabara_label_677
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_LPAREN
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_677:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 41
+	jne	__jabara_label_678
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_RPAREN
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_678:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 91
+	jne	__jabara_label_679
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_LBRACKET
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_679:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 93
+	jne	__jabara_label_680
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_RBRACKET
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_680:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 44
+	jne	__jabara_label_681
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_COMMA
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_681:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 46
+	jne	__jabara_label_682
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_DOT
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_682:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 58
+	jne	__jabara_label_683
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_COLON
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_683:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 43
+	jne	__jabara_label_684
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_PLUS
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_684:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 45
+	jne	__jabara_label_685
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_MINUS
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_685:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 42
+	jne	__jabara_label_686
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_STAR
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_686:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 47
+	jne	__jabara_label_687
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_SLASH
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_687:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 37
+	jne	__jabara_label_688
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_PERCENT
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_688:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 94
+	jne	__jabara_label_689
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_XOR
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_689:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 38
+	jne	__jabara_label_690
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 38
+	jne	__jabara_label_692
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_AND
+	push	rax
+	push	2
+	call	lx_simple
+	jmp	__jabara_label_691
+__jabara_label_692:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_AMP
+	push	rax
+	push	1
+	call	lx_simple
+__jabara_label_691:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_690:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 124
+	jne	__jabara_label_693
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 124
+	jne	__jabara_label_695
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_OR
+	push	rax
+	push	2
+	call	lx_simple
+	jmp	__jabara_label_694
+__jabara_label_695:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_PIPE
+	push	rax
+	push	1
+	call	lx_simple
+__jabara_label_694:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_693:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 61
+	jne	__jabara_label_696
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 61
+	jne	__jabara_label_698
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_EQ
+	push	rax
+	push	2
+	call	lx_simple
+	jmp	__jabara_label_697
+__jabara_label_698:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_ASSIGN
+	push	rax
+	push	1
+	call	lx_simple
+__jabara_label_697:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_696:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 33
+	jne	__jabara_label_699
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 61
+	jne	__jabara_label_701
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_NE
+	push	rax
+	push	2
+	call	lx_simple
+	jmp	__jabara_label_700
+__jabara_label_701:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_NOT
+	push	rax
+	push	1
+	call	lx_simple
+__jabara_label_700:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_699:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 126
+	jne	__jabara_label_702
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_BNOT
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_702:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 60
+	jne	__jabara_label_703
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 60
+	jne	__jabara_label_704
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_SHL
+	push	rax
+	push	2
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_704:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 61
+	jne	__jabara_label_705
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_LE
+	push	rax
+	push	2
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_705:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_LT
+	push	rax
+	push	1
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_703:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	cmp	rax, 62
+	jne	__jabara_label_706
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 62
+	jne	__jabara_label_707
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_SHR
+	push	rax
+	push	2
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_707:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax + 8]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	mov	rax, [rax]
+	pop	rdi
+	add	rax, rdi
+	add	rax, 1
+	movzx	eax, byte [rax]
+	cmp	rax, 61
+	jne	__jabara_label_708
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	T_GE
+	push	rax
+	push	2
+	call	lx_simple
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	db 201
+	db 194
+	dw	8
+__jabara_label_708:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	T_GT
 	push	rax
 	push	1
 	call	lx_simple
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 32], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
-__jabara_label_662:
+__jabara_label_706:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_665
-__jabara_string_665: db 105,110,118,97,108,105,100,32,99,104,97,114,97,99,116,101,114,0
-__jabara_string_after_665:
-	lea	rax, [rel __jabara_string_665]
+	jmp	__jabara_string_after_709
+__jabara_string_709: db 105,110,118,97,108,105,100,32,99,104,97,114,97,99,116,101,114,0
+__jabara_string_after_709:
+	lea	rax, [rel __jabara_string_709]
 	push	rax
 	call	jc_error_at
 	xor	eax, eax
-__jabara_return_612:
-	db 201
-	db 194
-	dw	8
-
-global lx_init
-lx_init:
-	db 200
-	dw	16
-	db 0
-	push	40
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	qword [rax + 32], 0
-	mov	[rbp - 8], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	pop	rdi
-	mov	qword [rdi + 0], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, 1
-	pop	rdi
-	mov	qword [rdi + 16], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, 1
-	pop	rdi
-	mov	qword [rdi + 24], rax
-	db	255,117,248
-	call	lx_next
-	mov	rax, [rbp - 8]
+__jabara_return_656:
 	db 201
 	db 194
 	dw	8
@@ -7417,78 +11925,539 @@ lx_init:
 global main
 main:
 	db 200
-	dw	48
+	dw	112
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 112]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 40], rax
-	mov	[rbp - 48], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	qword [rax + 64], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+	lea	rax, [rel __jabara_closure_711]
+	push	rax
+	push	80
+%define JABARA_ALLOC
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_em_binding]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_712]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_em_lookup_value]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_713]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_em_scope]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_714]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_em_closure_info]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_715]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_em_emitter]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_716]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_lx_init]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_717]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_expr]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_718]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_stmt]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_719]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_named]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_720]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_name]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_721]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_function]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_722]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_record]
+	pop	rdi
+	mov	[rax], rdi
+	lea	rax, [rel __jabara_closure_723]
+	push	rax
+	push	80
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	mov	rcx, [rdx + 24]
+	mov	[rax + 32], rcx
+	mov	rcx, [rdx + 32]
+	mov	[rax + 40], rcx
+	mov	rcx, [rdx + 40]
+	mov	[rax + 48], rcx
+	mov	rcx, [rdx + 48]
+	mov	[rax + 56], rcx
+	mov	rcx, [rdx + 56]
+	mov	[rax + 64], rcx
+	mov	rcx, [rdx + 64]
+	mov	[rax + 72], rcx
+	push	rax
+	lea	rax, [rel __jabara_global_ps_program]
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 32], rax
-	mov	rax, [rbp + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 3
-	jge	__jabara_label_668
+	jge	__jabara_label_724
 	mov	rax, 2
 	mov	[rel __jabara_global_jc_output], rax
-	jmp	__jabara_string_after_669
-__jabara_string_669: db 117,115,97,103,101,58,32,106,99,32,105,110,112,117,116,46,106,97,98,97,114,97,32,91,105,110,112,117,116,46,106,97,98,97,114,97,32,46,46,46,93,32,111,117,116,112,117,116,46,97,115,109,0
-__jabara_string_after_669:
-	lea	rax, [rel __jabara_string_669]
+	jmp	__jabara_string_after_725
+__jabara_string_725: db 117,115,97,103,101,58,32,106,99,32,105,110,112,117,116,46,106,97,98,97,114,97,32,91,105,110,112,117,116,46,106,97,98,97,114,97,32,46,46,46,93,32,111,117,116,112,117,116,46,97,115,109,0
+__jabara_string_after_725:
+	lea	rax, [rel __jabara_string_725]
 	push	rax
 	call	jc_line
 	mov	rax, 1
 	db 201
 	db 194
 	dw	16
-__jabara_label_668:
-	db	255,117,16
-	call	jc_next_argument
-	mov	[rbp - 8], rax
-	mov	rax, [rbp + 24]
-	sub	rax, 2
-	mov	[rbp - 24], rax
+__jabara_label_724:
 	mov	rax, [rbp - 8]
-	mov	[rbp - 16], rax
-__jabara_label_670:
-	db	255,117,232
-	mov	rax, [rbp - 32]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	jc_next_argument
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	sub	rax, 2
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_726:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jge	__jabara_label_671
-	db	255,117,240
+	jge	__jabara_label_727
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	jc_next_argument
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 32], rax
-	jmp	__jabara_label_670
-__jabara_label_671:
-	db	255,117,248
-	db	255,117,232
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_726
+__jabara_label_727:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
 	call	jc_read_sources
-	mov	[rbp - 40], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 %define PITH_creat
-	db	255,117,240
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
 	call	creat
 	mov	[rel __jabara_global_jc_output], rax
 	mov	rax, [rel __jabara_global_jc_output]
 	cmp	rax, 0
-	jge	__jabara_label_672
+	jge	__jabara_label_728
 	push	1
 	push	1
-	jmp	__jabara_string_after_673
-__jabara_string_673: db 99,97,110,110,111,116,32,99,114,101,97,116,101,32,111,117,116,112,117,116,0
-__jabara_string_after_673:
-	lea	rax, [rel __jabara_string_673]
+	jmp	__jabara_string_after_729
+__jabara_string_729: db 99,97,110,110,111,116,32,99,114,101,97,116,101,32,111,117,116,112,117,116,0
+__jabara_string_after_729:
+	lea	rax, [rel __jabara_string_729]
 	push	rax
 	call	jc_error_at
-__jabara_label_672:
-	db	255,117,216
+__jabara_label_728:
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
 	call	ps_parse_program
-	mov	[rbp - 48], rax
-	db	255,117,208
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	mov	rax, [rax]
+	push	rax
 	call	em_emit_program
 %define PITH_close
 	mov	rax, [rel __jabara_global_jc_output]
@@ -7502,8 +12471,12 @@ __jabara_label_672:
 global EX_NUMBER
 EX_NUMBER:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 0
 	db 201
 	ret
@@ -7511,8 +12484,12 @@ EX_NUMBER:
 global EX_STRING
 EX_STRING:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 1
 	db 201
 	ret
@@ -7520,8 +12497,12 @@ EX_STRING:
 global EX_NAME
 EX_NAME:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 2
 	db 201
 	ret
@@ -7529,8 +12510,12 @@ EX_NAME:
 global EX_DEREF
 EX_DEREF:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 3
 	db 201
 	ret
@@ -7538,8 +12523,12 @@ EX_DEREF:
 global EX_BYTE
 EX_BYTE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 4
 	db 201
 	ret
@@ -7547,8 +12536,12 @@ EX_BYTE:
 global EX_UNARY
 EX_UNARY:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 5
 	db 201
 	ret
@@ -7556,8 +12549,12 @@ EX_UNARY:
 global EX_BINARY
 EX_BINARY:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 6
 	db 201
 	ret
@@ -7565,8 +12562,12 @@ EX_BINARY:
 global EX_ASSIGN
 EX_ASSIGN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 7
 	db 201
 	ret
@@ -7574,8 +12575,12 @@ EX_ASSIGN:
 global EX_CALL
 EX_CALL:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 8
 	db 201
 	ret
@@ -7583,8 +12588,12 @@ EX_CALL:
 global EX_CLOSURE
 EX_CLOSURE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 9
 	db 201
 	ret
@@ -7592,17 +12601,51 @@ EX_CLOSURE:
 global EX_MEMBER
 EX_MEMBER:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 10
+	db 201
+	ret
+
+global EX_NEW
+EX_NEW:
+	db 200
+	dw	48
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	rax, 11
+	db 201
+	ret
+
+global EX_LIFT
+EX_LIFT:
+	db 200
+	dw	48
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	rax, 12
 	db 201
 	ret
 
 global ST_LOCAL
 ST_LOCAL:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 0
 	db 201
 	ret
@@ -7610,8 +12653,12 @@ ST_LOCAL:
 global ST_IF
 ST_IF:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 1
 	db 201
 	ret
@@ -7619,8 +12666,12 @@ ST_IF:
 global ST_WHILE
 ST_WHILE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 2
 	db 201
 	ret
@@ -7628,8 +12679,12 @@ ST_WHILE:
 global ST_RETURN
 ST_RETURN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 3
 	db 201
 	ret
@@ -7637,8 +12692,12 @@ ST_RETURN:
 global ST_EXPR
 ST_EXPR:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 4
 	db 201
 	ret
@@ -7646,8 +12705,12 @@ ST_EXPR:
 global T_EOF
 T_EOF:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 0
 	db 201
 	ret
@@ -7655,8 +12718,12 @@ T_EOF:
 global T_ID
 T_ID:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 1
 	db 201
 	ret
@@ -7664,8 +12731,12 @@ T_ID:
 global T_NUMBER
 T_NUMBER:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 2
 	db 201
 	ret
@@ -7673,8 +12744,12 @@ T_NUMBER:
 global T_STRING
 T_STRING:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 3
 	db 201
 	ret
@@ -7682,8 +12757,12 @@ T_STRING:
 global T_LPAREN
 T_LPAREN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 4
 	db 201
 	ret
@@ -7691,8 +12770,12 @@ T_LPAREN:
 global T_RPAREN
 T_RPAREN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 5
 	db 201
 	ret
@@ -7700,8 +12783,12 @@ T_RPAREN:
 global T_LBRACKET
 T_LBRACKET:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 6
 	db 201
 	ret
@@ -7709,8 +12796,12 @@ T_LBRACKET:
 global T_RBRACKET
 T_RBRACKET:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 7
 	db 201
 	ret
@@ -7718,8 +12809,12 @@ T_RBRACKET:
 global T_COMMA
 T_COMMA:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 8
 	db 201
 	ret
@@ -7727,8 +12822,12 @@ T_COMMA:
 global T_DOT
 T_DOT:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 9
 	db 201
 	ret
@@ -7736,8 +12835,12 @@ T_DOT:
 global T_COLON
 T_COLON:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 10
 	db 201
 	ret
@@ -7745,8 +12848,12 @@ T_COLON:
 global T_PLUS
 T_PLUS:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 11
 	db 201
 	ret
@@ -7754,8 +12861,12 @@ T_PLUS:
 global T_MINUS
 T_MINUS:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 12
 	db 201
 	ret
@@ -7763,8 +12874,12 @@ T_MINUS:
 global T_STAR
 T_STAR:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 13
 	db 201
 	ret
@@ -7772,8 +12887,12 @@ T_STAR:
 global T_SLASH
 T_SLASH:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 14
 	db 201
 	ret
@@ -7781,8 +12900,12 @@ T_SLASH:
 global T_PERCENT
 T_PERCENT:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 15
 	db 201
 	ret
@@ -7790,8 +12913,12 @@ T_PERCENT:
 global T_AMP
 T_AMP:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 16
 	db 201
 	ret
@@ -7799,8 +12926,12 @@ T_AMP:
 global T_AND
 T_AND:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 17
 	db 201
 	ret
@@ -7808,8 +12939,12 @@ T_AND:
 global T_PIPE
 T_PIPE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 18
 	db 201
 	ret
@@ -7817,8 +12952,12 @@ T_PIPE:
 global T_OR
 T_OR:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 19
 	db 201
 	ret
@@ -7826,8 +12965,12 @@ T_OR:
 global T_XOR
 T_XOR:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 20
 	db 201
 	ret
@@ -7835,8 +12978,12 @@ T_XOR:
 global T_EQ
 T_EQ:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 21
 	db 201
 	ret
@@ -7844,8 +12991,12 @@ T_EQ:
 global T_ASSIGN
 T_ASSIGN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 22
 	db 201
 	ret
@@ -7853,8 +13004,12 @@ T_ASSIGN:
 global T_NE
 T_NE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 23
 	db 201
 	ret
@@ -7862,8 +13017,12 @@ T_NE:
 global T_BNOT
 T_BNOT:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 24
 	db 201
 	ret
@@ -7871,8 +13030,12 @@ T_BNOT:
 global T_NOT
 T_NOT:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 25
 	db 201
 	ret
@@ -7880,8 +13043,12 @@ T_NOT:
 global T_SHL
 T_SHL:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 26
 	db 201
 	ret
@@ -7889,8 +13056,12 @@ T_SHL:
 global T_LE
 T_LE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 27
 	db 201
 	ret
@@ -7898,8 +13069,12 @@ T_LE:
 global T_LT
 T_LT:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 28
 	db 201
 	ret
@@ -7907,8 +13082,12 @@ T_LT:
 global T_SHR
 T_SHR:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 29
 	db 201
 	ret
@@ -7916,8 +13095,12 @@ T_SHR:
 global T_GE
 T_GE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 30
 	db 201
 	ret
@@ -7925,8 +13108,12 @@ T_GE:
 global T_GT
 T_GT:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 31
 	db 201
 	ret
@@ -7934,8 +13121,12 @@ T_GT:
 global T_LOCAL
 T_LOCAL:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 32
 	db 201
 	ret
@@ -7943,8 +13134,12 @@ T_LOCAL:
 global T_IF
 T_IF:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 33
 	db 201
 	ret
@@ -7952,8 +13147,12 @@ T_IF:
 global T_THEN
 T_THEN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 34
 	db 201
 	ret
@@ -7961,8 +13160,12 @@ T_THEN:
 global T_ELSE
 T_ELSE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 35
 	db 201
 	ret
@@ -7970,8 +13173,12 @@ T_ELSE:
 global T_END
 T_END:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 36
 	db 201
 	ret
@@ -7979,8 +13186,12 @@ T_END:
 global T_WHILE
 T_WHILE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 37
 	db 201
 	ret
@@ -7988,8 +13199,12 @@ T_WHILE:
 global T_DO
 T_DO:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 38
 	db 201
 	ret
@@ -7997,8 +13212,12 @@ T_DO:
 global T_SUB
 T_SUB:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 39
 	db 201
 	ret
@@ -8006,8 +13225,12 @@ T_SUB:
 global T_RETURN
 T_RETURN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 40
 	db 201
 	ret
@@ -8015,8 +13238,12 @@ T_RETURN:
 global T_BYTE
 T_BYTE:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 41
 	db 201
 	ret
@@ -8024,8 +13251,12 @@ T_BYTE:
 global T_FN
 T_FN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 42
 	db 201
 	ret
@@ -8033,8 +13264,12 @@ T_FN:
 global T_RECORD
 T_RECORD:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 43
 	db 201
 	ret
@@ -8042,17 +13277,51 @@ T_RECORD:
 global T_EXTERN
 T_EXTERN:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, 44
+	db 201
+	ret
+
+global T_NEW
+T_NEW:
+	db 200
+	dw	48
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	rax, 45
+	db 201
+	ret
+
+global T_LIFT
+T_LIFT:
+	db 200
+	dw	48
+	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	rax, 46
 	db 201
 	ret
 
 global ps_kind
 ps_kind:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax]
@@ -8062,18 +13331,28 @@ ps_kind:
 global ps_accept
 ps_accept:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	ps_kind
 	pop	rdi
 	cmp	rax, rdi
-	je	__jabara_label_737
+	je	__jabara_label_797
 	mov	rax, 0
 	db 201
 	db 194
 	dw	8
-__jabara_label_737:
+__jabara_label_797:
 	mov	rax, [rel __jabara_global_ps_lexer]
 	push	rax
 	call	lx_next
@@ -8085,17 +13364,27 @@ __jabara_label_737:
 global ps_expect
 ps_expect:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_739
+	jz	__jabara_label_799
 	mov	rax, 0
 	db 201
 	db 194
 	dw	8
-__jabara_label_739:
+__jabara_label_799:
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 24]
@@ -8104,14 +13393,14 @@ __jabara_label_739:
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_740
-__jabara_string_740: db 117,110,101,120,112,101,99,116,101,100,32,116,111,107,101,110,0
-__jabara_string_after_740:
-	lea	rax, [rel __jabara_string_740]
+	jmp	__jabara_string_after_800
+__jabara_string_800: db 117,110,101,120,112,101,99,116,101,100,32,116,111,107,101,110,0
+__jabara_string_after_800:
+	lea	rax, [rel __jabara_string_800]
 	push	rax
 	call	jc_error_at
 	xor	eax, eax
-__jabara_return_738:
+__jabara_return_798:
 	db 201
 	db 194
 	dw	8
@@ -8119,16 +13408,19 @@ __jabara_return_738:
 global ps_text
 ps_text:
 	db 200
-	dw	16
+	dw	48
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
 	call	T_ID
 	push	rax
 	call	ps_kind
 	pop	rdi
 	cmp	rax, rdi
-	je	__jabara_label_742
+	je	__jabara_label_802
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 24]
@@ -8137,133 +13429,49 @@ ps_text:
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_743
-__jabara_string_743: db 101,120,112,101,99,116,101,100,32,105,100,101,110,116,105,102,105,101,114,0
-__jabara_string_after_743:
-	lea	rax, [rel __jabara_string_743]
+	jmp	__jabara_string_after_803
+__jabara_string_803: db 101,120,112,101,99,116,101,100,32,105,100,101,110,116,105,102,105,101,114,0
+__jabara_string_after_803:
+	lea	rax, [rel __jabara_string_803]
 	push	rax
 	call	jc_error_at
-__jabara_label_742:
+__jabara_label_802:
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 8]
 	push	rax
 	call	jc_copy
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, [rel __jabara_global_ps_lexer]
 	push	rax
 	call	lx_next
 	mov	rax, [rbp - 8]
-	db 201
-	ret
-
-global ps_expr
-ps_expr:
-	db 200
-	dw	16
-	db 0
-	push	96
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	qword [rax + 32], 0
-	mov	qword [rax + 40], 0
-	mov	qword [rax + 48], 0
-	mov	qword [rax + 56], 0
-	mov	qword [rax + 64], 0
-	mov	qword [rax + 72], 0
-	mov	qword [rax + 80], 0
-	mov	qword [rax + 88], 0
-	mov	[rbp - 8], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 24]
-	pop	rdi
-	mov	qword [rdi + 0], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	pop	rdi
-	mov	qword [rdi + 8], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	16
-
-global ps_stmt
-ps_stmt:
-	db 200
-	dw	16
-	db 0
-	push	56
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	qword [rax + 32], 0
-	mov	qword [rax + 40], 0
-	mov	qword [rax + 48], 0
-	mov	[rbp - 8], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 24]
-	pop	rdi
-	mov	qword [rdi + 0], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	mov	rax, [rbp + 16]
-	pop	rdi
-	mov	qword [rdi + 8], rax
-	mov	rax, [rbp - 8]
-	db 201
-	db 194
-	dw	16
-
-global ps_name
-ps_name:
-	db 200
-	dw	16
-	db 0
-	push	32
-	call	__jabara_alloc
-	mov	qword [rax + 0], 0
-	mov	qword [rax + 8], 0
-	mov	qword [rax + 16], 0
-	mov	qword [rax + 24], 0
-	mov	[rbp - 8], rax
-	mov	rax, [rbp - 8]
-	push	rax
-	call	ps_text
-	pop	rdi
-	mov	qword [rdi + 0], rax
-	call	T_COLON
-	push	rax
-	call	ps_accept
-	test	rax, rax
-	jz	__jabara_label_747
-	mov	rax, [rbp - 8]
-	push	rax
-	call	ps_text
-	pop	rdi
-	mov	qword [rdi + 8], rax
-__jabara_label_747:
-	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	db 201
 	ret
 
 global ps_parse_statements
 ps_parse_statements:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-__jabara_label_749:
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+__jabara_label_805:
 	call	T_ELSE
 	push	rax
 	call	ps_kind
@@ -8275,7 +13483,9 @@ __jabara_label_749:
 	push	rax
 	mov	rax, 0
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8324,7 +13534,7 @@ __jabara_label_749:
 	movzx	edi, dil
 	and	eax, edi
 	test	rax, rax
-	jz	__jabara_label_750
+	jz	__jabara_label_806
 	call	T_EXTERN
 	push	rax
 	call	ps_kind
@@ -8368,7 +13578,7 @@ __jabara_label_749:
 	movzx	edi, dil
 	or	eax, edi
 	test	rax, rax
-	jz	__jabara_label_751
+	jz	__jabara_label_807
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 24]
@@ -8377,33 +13587,60 @@ __jabara_label_749:
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_752
-__jabara_string_752: db 100,101,99,108,97,114,97,116,105,111,110,32,105,115,32,111,110,108,121,32,97,108,108,111,119,101,100,32,97,116,32,112,114,111,103,114,97,109,32,115,99,111,112,101,0
-__jabara_string_after_752:
-	lea	rax, [rel __jabara_string_752]
+	jmp	__jabara_string_after_808
+__jabara_string_808: db 100,101,99,108,97,114,97,116,105,111,110,32,105,115,32,111,110,108,121,32,97,108,108,111,119,101,100,32,97,116,32,112,114,111,103,114,97,109,32,115,99,111,112,101,0
+__jabara_string_after_808:
+	lea	rax, [rel __jabara_string_808]
 	push	rax
 	call	jc_error_at
-__jabara_label_751:
+__jabara_label_807:
 	call	ps_parse_statement
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 8]
-	cmp	rax, 0
-	jne	__jabara_label_754
-	mov	rax, [rbp - 24]
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_753
-__jabara_label_754:
-	mov	rax, [rbp - 16]
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_810
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_809
+__jabara_label_810:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 48], rax
-__jabara_label_753:
-	mov	rax, [rbp - 24]
-	mov	[rbp - 16], rax
-	jmp	__jabara_label_749
-__jabara_label_750:
+__jabara_label_809:
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_805
+__jabara_label_806:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -8411,59 +13648,140 @@ __jabara_label_750:
 global ps_parse_primary
 ps_parse_primary:
 	db 200
-	dw	64
+	dw	144
 	db 0
-	xor	eax, eax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	mov	[rbp - 40], rax
-	mov	[rbp - 48], rax
-	mov	[rbp - 56], rax
-	mov	[rbp - 64], rax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 144]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	qword [rax + 64], 0
+	mov	qword [rax + 72], 0
+	mov	qword [rax + 80], 0
+	mov	qword [rax + 88], 0
+	mov	qword [rax + 96], 0
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 	call	T_NUMBER
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_757
+	jne	__jabara_label_813
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_NUMBER
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	pop	rdi
 	mov	qword [rdi + 32], rax
 	mov	rax, [rel __jabara_global_ps_lexer]
 	push	rax
 	call	lx_next
-	jmp	__jabara_label_756
-__jabara_label_757:
+	jmp	__jabara_label_812
+__jabara_label_813:
 	call	T_STRING
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_759
+	jne	__jabara_label_815
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_STRING
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	call	jc_copy
@@ -8472,38 +13790,182 @@ __jabara_label_757:
 	mov	rax, [rel __jabara_global_ps_lexer]
 	push	rax
 	call	lx_next
-	jmp	__jabara_label_758
-__jabara_label_759:
+	jmp	__jabara_label_814
+__jabara_label_815:
 	call	T_ID
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_761
+	jne	__jabara_label_817
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_NAME
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_text
 	pop	rdi
 	mov	qword [rdi + 16], rax
-	jmp	__jabara_label_760
-__jabara_label_761:
+	jmp	__jabara_label_816
+__jabara_label_817:
+	call	T_NEW
+	push	rax
+	call	ps_accept
+	test	rax, rax
+	jz	__jabara_label_819
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
+	call	EX_NEW
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	ps_text
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	jmp	__jabara_label_818
+__jabara_label_819:
+	call	T_LIFT
+	push	rax
+	call	ps_accept
+	test	rax, rax
+	jz	__jabara_label_821
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
+	call	EX_LIFT
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	ps_text
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	jmp	__jabara_label_820
+__jabara_label_821:
 	call	T_LBRACKET
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_763
+	jz	__jabara_label_823
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_DEREF
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
@@ -8511,31 +13973,83 @@ __jabara_label_761:
 	call	T_RBRACKET
 	push	rax
 	call	ps_expect
-	jmp	__jabara_label_762
-__jabara_label_763:
+	jmp	__jabara_label_822
+__jabara_label_823:
 	call	T_LPAREN
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_765
+	jz	__jabara_label_825
 	call	ps_parse_expression
-	mov	[rbp - 24], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	T_RPAREN
 	push	rax
 	call	ps_expect
-	jmp	__jabara_label_764
-__jabara_label_765:
+	jmp	__jabara_label_824
+__jabara_label_825:
 	call	T_FN
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_767
+	jz	__jabara_label_827
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_CLOSURE
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	call	T_DO
+	push	rax
+	call	ps_kind
+	pop	rdi
+	cmp	rax, rdi
+	jne	__jabara_label_829
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_830
+__jabara_string_830: db 0
+__jabara_string_after_830:
+	lea	rax, [rel __jabara_string_830]
+	push	rax
+	call	jc_copy
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	jmp	__jabara_label_828
+__jabara_label_829:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_text
 	pop	rdi
@@ -8544,17 +14058,269 @@ __jabara_label_765:
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_768
-	mov	rax, [rbp - 24]
+	jz	__jabara_label_831
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_text
 	pop	rdi
 	mov	qword [rdi + 24], rax
-__jabara_label_768:
+__jabara_label_831:
+__jabara_label_828:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_832:
+	call	T_COMMA
+	push	rax
+	call	ps_accept
+	test	rax, rax
+	jz	__jabara_label_833
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
+	call	EX_CLOSURE
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	call	ps_text
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	call	T_COLON
+	push	rax
+	call	ps_accept
+	test	rax, rax
+	jz	__jabara_label_834
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	call	ps_text
+	pop	rdi
+	mov	qword [rdi + 24], rax
+__jabara_label_834:
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
+	call	ST_LOCAL
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rel __jabara_global_ps_named]
+	push	rax
+	jmp	__jabara_string_after_835
+__jabara_string_835: db 95,95,106,97,98,97,114,97,95,99,117,114,114,121,0
+__jabara_string_after_835:
+	lea	rax, [rel __jabara_string_835]
+	push	rax
+	call	jc_copy
+	push	rax
+	mov	rax, [rsp + 8]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 16
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 80
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 80
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 80
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
+	call	ST_RETURN
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
+	call	EX_LIFT
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
+	push	rax
+	jmp	__jabara_string_after_836
+__jabara_string_836: db 95,95,106,97,98,97,114,97,95,99,117,114,114,121,0
+__jabara_string_after_836:
+	lea	rax, [rel __jabara_string_836]
+	push	rax
+	call	jc_copy
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 88
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 24], rax
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 48], rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 72
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 80], rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_832
+__jabara_label_833:
 	call	T_DO
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	push	rax
 	push	0
 	call	ps_parse_statements
@@ -8563,27 +14329,33 @@ __jabara_label_768:
 	call	T_END
 	push	rax
 	call	ps_expect
-	jmp	__jabara_label_766
-__jabara_label_767:
+	jmp	__jabara_label_826
+__jabara_label_827:
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 24]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 32]
 	push	rax
-	jmp	__jabara_string_after_769
-__jabara_string_769: db 101,120,112,101,99,116,101,100,32,101,120,112,114,101,115,115,105,111,110,0
-__jabara_string_after_769:
-	lea	rax, [rel __jabara_string_769]
+	jmp	__jabara_string_after_837
+__jabara_string_837: db 101,120,112,101,99,116,101,100,32,101,120,112,114,101,115,115,105,111,110,0
+__jabara_string_after_837:
+	lea	rax, [rel __jabara_string_837]
 	push	rax
 	call	jc_error_at
-__jabara_label_766:
-__jabara_label_764:
-__jabara_label_762:
-__jabara_label_760:
-__jabara_label_758:
-__jabara_label_756:
-__jabara_label_770:
+__jabara_label_826:
+__jabara_label_824:
+__jabara_label_822:
+__jabara_label_820:
+__jabara_label_818:
+__jabara_label_816:
+__jabara_label_814:
+__jabara_label_812:
+__jabara_label_838:
 	call	T_DOT
 	push	rax
 	call	ps_kind
@@ -8610,60 +14382,127 @@ __jabara_label_770:
 	movzx	edi, dil
 	or	eax, edi
 	test	rax, rax
-	jz	__jabara_label_771
+	jz	__jabara_label_839
 	call	T_LPAREN
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_773
+	jz	__jabara_label_841
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_CALL
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 32], rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 48], rax
 	mov	rax, 0
-	mov	[rbp - 56], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	T_RPAREN
 	push	rax
 	call	ps_kind
 	pop	rdi
 	cmp	rax, rdi
-	je	__jabara_label_774
+	je	__jabara_label_842
 	mov	rax, 0
-	mov	[rbp - 64], rax
-__jabara_label_775:
-	mov	rax, [rbp - 64]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 96
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_843:
+	mov	rax, [rbp - 8]
+	add	rax, 96
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_776
+	jne	__jabara_label_844
 	call	ps_parse_expression
-	mov	[rbp - 48], rax
-	mov	rax, [rbp - 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 64]
 	cmp	rax, 0
-	jne	__jabara_label_778
-	mov	rax, [rbp - 32]
+	jne	__jabara_label_846
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 48]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 64], rax
-	jmp	__jabara_label_777
-__jabara_label_778:
-	mov	rax, [rbp - 56]
+	jmp	__jabara_label_845
+__jabara_label_846:
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 48]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 88], rax
-__jabara_label_777:
-	mov	rax, [rbp - 48]
-	mov	[rbp - 56], rax
-	mov	rax, [rbp - 32]
+__jabara_label_845:
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax + 72]
 	add	rax, 1
 	pop	rdi
@@ -8672,63 +14511,130 @@ __jabara_label_777:
 	push	rax
 	call	ps_accept
 	cmp	rax, 0
-	jne	__jabara_label_779
+	jne	__jabara_label_847
 	mov	rax, 1
-	mov	[rbp - 64], rax
-__jabara_label_779:
-	jmp	__jabara_label_775
-__jabara_label_776:
-__jabara_label_774:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 96
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_847:
+	jmp	__jabara_label_843
+__jabara_label_844:
+__jabara_label_842:
 	call	T_RPAREN
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp - 32]
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_772
-__jabara_label_773:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_840
+__jabara_label_841:
 	call	T_DOT
 	push	rax
 	call	ps_expect
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_MEMBER
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 40], rax
-	mov	rax, [rbp - 40]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 48], rax
-	mov	rax, [rbp - 40]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	push	rax
 	call	ps_text
 	pop	rdi
 	mov	qword [rdi + 16], rax
-	mov	rax, [rbp - 40]
-	mov	[rbp - 24], rax
-__jabara_label_772:
-	jmp	__jabara_label_770
-__jabara_label_771:
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_840:
+	jmp	__jabara_label_838
+__jabara_label_839:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	ret
 
 global ps_parse_unary
 ps_parse_unary:
 	db 200
-	dw	32
+	dw	64
 	db 0
-	xor	eax, eax
-	mov	[rbp - 24], rax
-	call	ps_kind
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	call	ps_kind
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 24]
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 	call	T_BNOT
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8738,6 +14644,8 @@ ps_parse_unary:
 	call	T_NOT
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8747,6 +14655,8 @@ ps_parse_unary:
 	call	T_MINUS
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8769,48 +14679,110 @@ ps_parse_unary:
 	movzx	edi, dil
 	or	eax, edi
 	test	rax, rax
-	jz	__jabara_label_781
+	jz	__jabara_label_849
 	mov	rax, [rel __jabara_global_ps_lexer]
 	push	rax
 	call	lx_next
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_UNARY
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 40], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_unary
 	pop	rdi
 	mov	qword [rdi + 48], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_781:
+__jabara_label_849:
 	call	T_BYTE
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_782
+	jz	__jabara_label_850
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_BYTE
 	push	rax
-	db	255,117,240
-	call	ps_expr
-	mov	[rbp - 24], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_unary
 	pop	rdi
 	mov	qword [rdi + 48], rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_782:
+__jabara_label_850:
 	call	ps_parse_primary
 	db 201
 	ret
@@ -8818,11 +14790,20 @@ __jabara_label_782:
 global ps_is_binary
 ps_is_binary:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	call	T_NOT
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8831,7 +14812,9 @@ ps_is_binary:
 	push	rax
 	call	T_BNOT
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8840,7 +14823,9 @@ ps_is_binary:
 	push	rax
 	call	T_ASSIGN
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8849,7 +14834,9 @@ ps_is_binary:
 	push	rax
 	call	T_GT
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8858,7 +14845,9 @@ ps_is_binary:
 	push	rax
 	call	T_PLUS
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	cmp	rax, rdi
@@ -8903,63 +14892,126 @@ ps_is_binary:
 global ps_parse_binary
 ps_parse_binary:
 	db 200
-	dw	32
+	dw	64
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	call	ps_parse_unary
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-__jabara_label_785:
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	call	ps_parse_unary
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_853:
 	call	ps_kind
 	push	rax
 	call	ps_is_binary
 	test	rax, rax
-	jz	__jabara_label_786
+	jz	__jabara_label_854
 	call	ps_kind
-	mov	[rbp - 24], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_BINARY
 	push	rax
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 24]
 	push	rax
-	call	ps_expr
-	mov	[rbp - 16], rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, [rel __jabara_global_ps_lexer]
 	push	rax
 	call	lx_next
-	mov	rax, [rbp - 16]
-	push	rax
-	mov	rax, [rbp - 24]
-	pop	rdi
-	mov	qword [rdi + 40], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 40], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 48], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_unary
 	pop	rdi
 	mov	qword [rdi + 56], rax
-	mov	rax, [rbp - 16]
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_785
-__jabara_label_786:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_853
+__jabara_label_854:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	db 201
 	ret
 
 global ps_is_lvalue
 ps_is_lvalue:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	call	EX_MEMBER
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -8969,7 +15021,9 @@ ps_is_lvalue:
 	push	rax
 	call	EX_DEREF
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -8979,7 +15033,9 @@ ps_is_lvalue:
 	push	rax
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -9003,25 +15059,36 @@ ps_is_lvalue:
 	movzx	edi, dil
 	or	eax, edi
 	test	rax, rax
-	jz	__jabara_label_788
+	jz	__jabara_label_856
 	mov	rax, 1
 	db 201
 	db 194
 	dw	8
-__jabara_label_788:
+__jabara_label_856:
 	call	EX_BYTE
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_789
-	mov	rax, [rbp + 16]
+	jne	__jabara_label_857
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 48]
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	EX_MEMBER
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -9031,7 +15098,9 @@ __jabara_label_788:
 	push	rax
 	call	EX_DEREF
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -9041,7 +15110,9 @@ __jabara_label_788:
 	push	rax
 	call	EX_NAME
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
@@ -9067,7 +15138,7 @@ __jabara_label_788:
 	db 201
 	db 194
 	dw	8
-__jabara_label_789:
+__jabara_label_857:
 	mov	rax, 0
 	db 201
 	db 194
@@ -9076,139 +15147,282 @@ __jabara_label_789:
 global ps_parse_expression
 ps_parse_expression:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	call	ps_parse_binary
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	call	ps_parse_binary
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
 	call	T_ASSIGN
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_791
-	db	255,117,248
+	jz	__jabara_label_859
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	ps_is_lvalue
 	cmp	rax, 0
-	jne	__jabara_label_792
+	jne	__jabara_label_860
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_793
-__jabara_string_793: db 97,115,115,105,103,110,109,101,110,116,32,114,101,113,117,105,114,101,115,32,97,110,32,108,118,97,108,117,101,0
-__jabara_string_after_793:
-	lea	rax, [rel __jabara_string_793]
+	jmp	__jabara_string_after_861
+__jabara_string_861: db 97,115,115,105,103,110,109,101,110,116,32,114,101,113,117,105,114,101,115,32,97,110,32,108,118,97,108,117,101,0
+__jabara_string_after_861:
+	lea	rax, [rel __jabara_string_861]
 	push	rax
 	call	jc_error_at
-__jabara_label_792:
+__jabara_label_860:
+	mov	rax, [rel __jabara_global_ps_expr]
+	push	rax
 	call	EX_ASSIGN
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	push	rax
-	call	ps_expr
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 48], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
 	mov	qword [rdi + 56], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_791:
+__jabara_label_859:
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	db 201
 	ret
 
 global ps_parse_statement
 ps_parse_statement:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
 	mov	rax, [rax + 24]
-	mov	[rbp - 8], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
 	call	T_LOCAL
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_795
+	jz	__jabara_label_863
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
 	call	ST_LOCAL
 	push	rax
-	db	255,117,248
-	call	ps_stmt
-	mov	[rbp - 16], rax
-__jabara_label_796:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_864:
 	mov	rax, 1
 	test	rax, rax
-	jz	__jabara_label_797
-	call	ps_name
-	mov	[rbp - 24], rax
+	jz	__jabara_label_865
+	mov	rax, [rel __jabara_global_ps_name]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	T_ASSIGN
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_798
-	mov	rax, [rbp - 24]
+	jz	__jabara_label_866
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
 	mov	qword [rdi + 16], rax
-__jabara_label_798:
-	mov	rax, [rbp - 16]
+__jabara_label_866:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	cmp	rax, 0
-	jne	__jabara_label_800
-	mov	rax, [rbp - 16]
+	jne	__jabara_label_868
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 16], rax
-	jmp	__jabara_label_799
-__jabara_label_800:
-	mov	rax, [rbp - 32]
+	jmp	__jabara_label_867
+__jabara_label_868:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 24], rax
-__jabara_label_799:
-	mov	rax, [rbp - 24]
-	mov	[rbp - 32], rax
+__jabara_label_867:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	T_COMMA
 	push	rax
 	call	ps_accept
 	cmp	rax, 0
-	jne	__jabara_label_801
-	mov	rax, [rbp - 16]
+	jne	__jabara_label_869
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_801:
-	jmp	__jabara_label_796
-__jabara_label_797:
-__jabara_label_795:
+__jabara_label_869:
+	jmp	__jabara_label_864
+__jabara_label_865:
+__jabara_label_863:
 	call	T_IF
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_802
+	jz	__jabara_label_870
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
 	call	ST_IF
 	push	rax
-	db	255,117,248
-	call	ps_stmt
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
@@ -9216,7 +15430,9 @@ __jabara_label_795:
 	call	T_THEN
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	push	1
 	call	ps_parse_statements
@@ -9226,32 +15442,63 @@ __jabara_label_795:
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_803
-	mov	rax, [rbp - 16]
+	jz	__jabara_label_871
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	push	0
 	call	ps_parse_statements
 	pop	rdi
 	mov	qword [rdi + 40], rax
-__jabara_label_803:
+__jabara_label_871:
 	call	T_END
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_802:
+__jabara_label_870:
 	call	T_WHILE
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_804
+	jz	__jabara_label_872
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
 	call	ST_WHILE
 	push	rax
-	db	255,117,248
-	call	ps_stmt
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
@@ -9259,7 +15506,9 @@ __jabara_label_802:
 	call	T_DO
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	push	0
 	call	ps_parse_statements
@@ -9268,64 +15517,138 @@ __jabara_label_802:
 	call	T_END
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_804:
+__jabara_label_872:
 	call	T_RETURN
 	push	rax
 	call	ps_accept
 	test	rax, rax
-	jz	__jabara_label_805
+	jz	__jabara_label_873
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
 	call	ST_RETURN
 	push	rax
-	db	255,117,248
-	call	ps_stmt
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
 	mov	qword [rdi + 24], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_805:
+__jabara_label_873:
+	mov	rax, [rel __jabara_global_ps_stmt]
+	push	rax
 	call	ST_EXPR
 	push	rax
-	db	255,117,248
-	call	ps_stmt
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 16]
+	mov	rdx, [rsp + 8]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_parse_expression
 	pop	rdi
 	mov	qword [rdi + 24], rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	ret
 
 global ps_parse_function
 ps_parse_function:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	push	64
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
 	mov	qword [rax + 24], 0
 	mov	qword [rax + 32], 0
 	mov	qword [rax + 40], 0
-	mov	qword [rax + 48], 0
-	mov	qword [rax + 56], 0
-	mov	[rbp - 8], rax
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rel __jabara_global_ps_function]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
@@ -9333,21 +15656,29 @@ ps_parse_function:
 	pop	rdi
 	mov	qword [rdi + 24], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 32], rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	test	rax, rax
-	jz	__jabara_label_807
+	jz	__jabara_label_875
 	call	T_EXTERN
 	push	rax
 	call	ps_expect
-__jabara_label_807:
+__jabara_label_875:
 	call	T_SUB
 	push	rax
 	call	ps_expect
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	call	ps_text
 	pop	rdi
@@ -9360,52 +15691,100 @@ __jabara_label_807:
 	call	ps_kind
 	pop	rdi
 	cmp	rax, rdi
-	je	__jabara_label_808
+	je	__jabara_label_876
 	mov	rax, 0
-	mov	[rbp - 32], rax
-__jabara_label_809:
-	mov	rax, [rbp - 32]
-	cmp	rax, 0
-	jne	__jabara_label_810
-	call	ps_name
-	mov	[rbp - 16], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_877:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_878
+	mov	rax, [rel __jabara_global_ps_name]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
-	jne	__jabara_label_812
+	jne	__jabara_label_880
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
-	jmp	__jabara_label_811
-__jabara_label_812:
-	mov	rax, [rbp - 24]
+	jmp	__jabara_label_879
+__jabara_label_880:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 24], rax
-__jabara_label_811:
-	mov	rax, [rbp - 16]
-	mov	[rbp - 24], rax
+__jabara_label_879:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	T_COMMA
 	push	rax
 	call	ps_accept
 	cmp	rax, 0
-	jne	__jabara_label_813
+	jne	__jabara_label_881
 	mov	rax, 1
-	mov	[rbp - 32], rax
-__jabara_label_813:
-	jmp	__jabara_label_809
-__jabara_label_810:
-__jabara_label_808:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_881:
+	jmp	__jabara_label_877
+__jabara_label_878:
+__jabara_label_876:
 	call	T_RPAREN
 	push	rax
 	call	ps_expect
-	mov	rax, [rbp + 16]
-	cmp	rax, 0
-	jne	__jabara_label_814
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	cmp	rax, 0
+	jne	__jabara_label_882
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
 	push	0
 	call	ps_parse_statements
@@ -9414,8 +15793,10 @@ __jabara_label_808:
 	call	T_END
 	push	rax
 	call	ps_expect
-__jabara_label_814:
+__jabara_label_882:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -9423,20 +15804,35 @@ __jabara_label_814:
 global ps_parse_record
 ps_parse_record:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	push	32
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
 	mov	qword [rax + 24], 0
-	mov	[rbp - 8], rax
+	mov	qword [rax + 32], 0
+	mov	rax, [rel __jabara_global_ps_record]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	mov	rax, [rel __jabara_global_ps_lexer]
 	mov	rax, [rax + 32]
@@ -9447,140 +15843,250 @@ ps_parse_record:
 	push	rax
 	call	ps_expect
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
 	call	ps_text
 	pop	rdi
 	mov	qword [rdi + 0], rax
-__jabara_label_816:
+__jabara_label_884:
 	mov	rax, 1
 	test	rax, rax
-	jz	__jabara_label_817
-	call	ps_name
-	mov	[rbp - 16], rax
+	jz	__jabara_label_885
+	mov	rax, [rel __jabara_global_ps_name]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
-	mov	[rbp - 32], rax
-__jabara_label_818:
-	mov	rax, [rbp - 32]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_886:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_819
-	mov	rax, [rbp - 32]
+	je	__jabara_label_887
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	push	rax
 	call	jc_streq
 	test	rax, rax
-	jz	__jabara_label_820
+	jz	__jabara_label_888
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	push	rax
 	push	1
-	jmp	__jabara_string_after_821
-__jabara_string_821: db 100,117,112,108,105,99,97,116,101,32,114,101,99,111,114,100,32,102,105,101,108,100,0
-__jabara_string_after_821:
-	lea	rax, [rel __jabara_string_821]
+	jmp	__jabara_string_after_889
+__jabara_string_889: db 100,117,112,108,105,99,97,116,101,32,114,101,99,111,114,100,32,102,105,101,108,100,0
+__jabara_string_after_889:
+	lea	rax, [rel __jabara_string_889]
 	push	rax
 	call	jc_error_at
-__jabara_label_820:
-	mov	rax, [rbp - 32]
-	mov	rax, [rax + 24]
-	mov	[rbp - 32], rax
-	jmp	__jabara_label_818
-__jabara_label_819:
+__jabara_label_888:
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	mov	rax, [rax + 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_886
+__jabara_label_887:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
-	jne	__jabara_label_823
+	jne	__jabara_label_891
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
-	jmp	__jabara_label_822
-__jabara_label_823:
-	mov	rax, [rbp - 24]
+	jmp	__jabara_label_890
+__jabara_label_891:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 24], rax
-__jabara_label_822:
-	mov	rax, [rbp - 16]
-	mov	[rbp - 24], rax
+__jabara_label_890:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	call	T_COMMA
 	push	rax
 	call	ps_accept
 	cmp	rax, 0
-	jne	__jabara_label_824
+	jne	__jabara_label_892
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	db 201
 	ret
-__jabara_label_824:
-	jmp	__jabara_label_816
-__jabara_label_817:
+__jabara_label_892:
+	jmp	__jabara_label_884
+__jabara_label_885:
 	xor	eax, eax
-__jabara_return_815:
+__jabara_return_883:
 	db 201
 	ret
 
 global ps_parse_program
 ps_parse_program:
 	db 200
-	dw	64
+	dw	112
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
-	mov	[rbp - 40], rax
-	mov	[rbp - 48], rax
-	mov	[rbp - 56], rax
-	push	24
-	call	__jabara_alloc
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 112]
+	mov	[rbp - 8], rax
 	mov	qword [rax + 0], 0
 	mov	qword [rax + 8], 0
 	mov	qword [rax + 16], 0
-	mov	[rbp - 8], rax
-	db	255,117,16
-	call	lx_init
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	qword [rax + 64], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rel __jabara_global_ps_program]
+	push	rax
+	mov	rax, [rsp]
+	xor	edx, edx
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 8
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rel __jabara_global_lx_init]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rsp + 8]
+	mov	rdx, [rsp + 0]
+	mov	r8, [rax - 16]
+	lea	rcx, [rax + 8]
+	push	r8
+	push	rcx
+	push	rdx
+	call	[rax]
+	add	rsp, 16
 	mov	[rel __jabara_global_ps_lexer], rax
-__jabara_label_826:
+__jabara_label_894:
 	call	T_EOF
 	push	rax
 	call	ps_kind
 	pop	rdi
 	cmp	rax, rdi
-	je	__jabara_label_827
+	je	__jabara_label_895
 	call	T_RECORD
 	push	rax
 	call	ps_kind
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_829
+	jne	__jabara_label_897
 	call	ps_parse_record
-	mov	[rbp - 16], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_831
+	jne	__jabara_label_899
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 0], rax
-	jmp	__jabara_label_830
-__jabara_label_831:
-	mov	rax, [rbp - 24]
+	jmp	__jabara_label_898
+__jabara_label_899:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 24], rax
-__jabara_label_830:
-	mov	rax, [rbp - 16]
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_828
-__jabara_label_829:
+__jabara_label_898:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_896
+__jabara_label_897:
 	call	T_EXTERN
 	push	rax
 	call	ps_kind
@@ -9607,7 +16113,7 @@ __jabara_label_829:
 	movzx	edi, dil
 	or	eax, edi
 	test	rax, rax
-	jz	__jabara_label_833
+	jz	__jabara_label_901
 	call	T_EXTERN
 	push	rax
 	call	ps_kind
@@ -9618,54 +16124,100 @@ __jabara_label_829:
 	mov	eax, edx
 	push	rax
 	call	ps_parse_function
-	mov	[rbp - 32], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 8]
 	cmp	rax, 0
-	jne	__jabara_label_835
+	jne	__jabara_label_903
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 8], rax
-	jmp	__jabara_label_834
-__jabara_label_835:
-	mov	rax, [rbp - 40]
+	jmp	__jabara_label_902
+__jabara_label_903:
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 32]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 56], rax
-__jabara_label_834:
-	mov	rax, [rbp - 32]
-	mov	[rbp - 40], rax
-	jmp	__jabara_label_832
-__jabara_label_833:
-	call	ps_parse_statement
-	mov	[rbp - 48], rax
+__jabara_label_902:
 	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_900
+__jabara_label_901:
+	call	ps_parse_statement
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	mov	rax, [rax + 16]
 	cmp	rax, 0
-	jne	__jabara_label_837
+	jne	__jabara_label_905
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 48]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 16], rax
-	jmp	__jabara_label_836
-__jabara_label_837:
-	mov	rax, [rbp - 56]
+	jmp	__jabara_label_904
+__jabara_label_905:
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	mov	rax, [rax]
 	push	rax
-	mov	rax, [rbp - 48]
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	pop	rdi
 	mov	qword [rdi + 48], rax
-__jabara_label_836:
-	mov	rax, [rbp - 48]
-	mov	[rbp - 56], rax
-__jabara_label_832:
-__jabara_label_828:
-	jmp	__jabara_label_826
-__jabara_label_827:
+__jabara_label_904:
 	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 64
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_900:
+__jabara_label_896:
+	jmp	__jabara_label_894
+__jabara_label_895:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -9673,22 +16225,35 @@ __jabara_label_827:
 global jc_alloc
 jc_alloc:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, 8
 	neg	rax
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	add	rax, 7
 	pop	rdi
 	and	rax, rdi
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, [rel __jabara_global_jc_heap]
 	cmp	rax, 0
-	jne	__jabara_label_839
+	jne	__jabara_label_907
 %define PITH_brk
 	mov	rax, 1
 	neg	rax
@@ -9697,11 +16262,11 @@ jc_alloc:
 	mov	[rel __jabara_global_jc_heap], rax
 	mov	rax, [rel __jabara_global_jc_incremental_heap]
 	test	rax, rax
-	jz	__jabara_label_841
+	jz	__jabara_label_909
 	mov	rax, [rel __jabara_global_jc_heap]
 	mov	[rel __jabara_global_jc_heap_limit], rax
-	jmp	__jabara_label_840
-__jabara_label_841:
+	jmp	__jabara_label_908
+__jabara_label_909:
 	mov	rax, 64
 	shl	rax, 20
 	push	rax
@@ -9716,31 +16281,43 @@ __jabara_label_841:
 	call	brk
 	pop	rdi
 	cmp	rax, rdi
-	jge	__jabara_label_842
+	jge	__jabara_label_910
 %define PITH_exit
 	push	127
 	call	exit
-__jabara_label_842:
-__jabara_label_840:
-__jabara_label_839:
-	db	255,117,16
+__jabara_label_910:
+__jabara_label_908:
+__jabara_label_907:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	mov	rax, [rel __jabara_global_jc_heap]
 	pop	rdi
 	add	rax, rdi
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, [rel __jabara_global_jc_heap_limit]
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jle	__jabara_label_843
+	jle	__jabara_label_911
 	mov	rax, [rel __jabara_global_jc_incremental_heap]
 	test	rax, rax
-	jz	__jabara_label_845
+	jz	__jabara_label_913
 	mov	rax, 65536
 	neg	rax
 	push	rax
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	add	rax, 65535
 	pop	rdi
 	and	rax, rdi
@@ -9752,24 +16329,34 @@ __jabara_label_839:
 	call	brk
 	pop	rdi
 	cmp	rax, rdi
-	jge	__jabara_label_846
+	jge	__jabara_label_914
 	push	127
 	call	exit
-__jabara_label_846:
-	jmp	__jabara_label_844
-__jabara_label_845:
+__jabara_label_914:
+	jmp	__jabara_label_912
+__jabara_label_913:
 	push	127
 	call	exit
-__jabara_label_844:
-__jabara_label_843:
+__jabara_label_912:
+__jabara_label_911:
 	mov	rax, [rel __jabara_global_jc_heap]
-	mov	[rbp - 8], rax
-	db	255,117,16
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	mov	rax, [rel __jabara_global_jc_heap]
 	pop	rdi
 	add	rax, rdi
 	mov	[rel __jabara_global_jc_heap], rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -9777,24 +16364,50 @@ __jabara_label_843:
 global jc_strlen
 jc_strlen:
 	db 200
-	dw	16
+	dw	64
 	db 0
-	mov	rax, 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
 	mov	[rbp - 8], rax
-__jabara_label_848:
-	db	255,117,248
-	mov	rax, [rbp + 16]
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_916:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	movzx	eax, byte [rax]
 	test	rax, rax
-	jz	__jabara_label_849
+	jz	__jabara_label_917
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_848
-__jabara_label_849:
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_916
+__jabara_label_917:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -9802,42 +16415,93 @@ __jabara_label_849:
 global jc_copy
 jc_copy:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	db	255,117,16
-	call	jc_strlen
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
+	call	jc_strlen
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	add	rax, 1
 	push	rax
 	call	jc_alloc
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 24], rax
-__jabara_label_851:
-	db	255,117,248
-	mov	rax, [rbp - 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_919:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jg	__jabara_label_852
-	db	255,117,232
-	mov	rax, [rbp - 16]
+	jg	__jabara_label_920
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	push	rax
-	db	255,117,232
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	movzx	eax, byte [rax]
 	pop	rdi
 	mov	[rdi], al
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_851
-__jabara_label_852:
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_919
+__jabara_label_920:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	8
@@ -9845,34 +16509,87 @@ __jabara_label_852:
 global jc_slice
 jc_slice:
 	db 200
-	dw	32
+	dw	96
 	db 0
-	db	255,117,24
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	rdx, [rbp + 32]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 24], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	pop	rdi
 	sub	rax, rdi
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	add	rax, 1
 	push	rax
 	call	jc_alloc
-	mov	[rbp - 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 24], rax
-__jabara_label_854:
-	db	255,117,248
-	mov	rax, [rbp - 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+__jabara_label_922:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jge	__jabara_label_855
-	db	255,117,232
-	mov	rax, [rbp - 16]
+	jge	__jabara_label_923
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	push	rax
-	db	255,117,232
-	db	255,117,24
-	mov	rax, [rbp + 32]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	pop	rdi
@@ -9880,20 +16597,34 @@ __jabara_label_854:
 	movzx	eax, byte [rax]
 	pop	rdi
 	mov	[rdi], al
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_854
-__jabara_label_855:
-	db	255,117,248
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_922
+__jabara_label_923:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
 	push	rax
 	mov	rax, 0
 	pop	rdi
 	mov	[rdi], al
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	24
@@ -9901,34 +16632,64 @@ __jabara_label_855:
 global jc_streq
 jc_streq:
 	db 200
-	dw	0
+	dw	64
 	db 0
-__jabara_label_857:
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 64]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
+__jabara_label_925:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	movzx	eax, byte [rax]
 	push	rax
-	mov	rax, [rbp + 24]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	movzx	eax, byte [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jne	__jabara_label_858
-	mov	rax, [rbp + 24]
+	jne	__jabara_label_926
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	movzx	eax, byte [rax]
 	cmp	rax, 0
-	jne	__jabara_label_859
+	jne	__jabara_label_927
 	mov	rax, 1
 	db 201
 	db 194
 	dw	16
-__jabara_label_859:
-	mov	rax, [rbp + 24]
+__jabara_label_927:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp + 24], rax
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_857
-__jabara_label_858:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_925
+__jabara_label_926:
 	mov	rax, 0
 	db 201
 	db 194
@@ -9937,15 +16698,25 @@ __jabara_label_858:
 global jc_putc
 jc_putc:
 	db 200
-	dw	0
+	dw	48
 	db 0
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
 %define PITH_fputch
 	mov	rax, [rel __jabara_global_jc_output]
 	push	rax
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	fputch
 	xor	eax, eax
-__jabara_return_860:
+__jabara_return_928:
 	db 201
 	db 194
 	dw	8
@@ -9953,24 +16724,42 @@ __jabara_return_860:
 global jc_puts
 jc_puts:
 	db 200
-	dw	0
+	dw	48
 	db 0
-__jabara_label_862:
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+__jabara_label_930:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	movzx	eax, byte [rax]
 	test	rax, rax
-	jz	__jabara_label_863
-	mov	rax, [rbp + 16]
+	jz	__jabara_label_931
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	movzx	eax, byte [rax]
 	push	rax
 	call	jc_putc
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_862
-__jabara_label_863:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_930
+__jabara_label_931:
 	xor	eax, eax
-__jabara_return_861:
+__jabara_return_929:
 	db 201
 	db 194
 	dw	8
@@ -9978,77 +16767,145 @@ __jabara_return_861:
 global jc_putn
 jc_putn:
 	db 200
-	dw	32
+	dw	80
 	db 0
-	xor	eax, eax
-	mov	[rbp - 16], rax
-	mov	rax, 1000000000000000000
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, 1000000000000000000
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 0
-	mov	[rbp - 24], rax
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 0
-	jge	__jabara_label_865
+	jge	__jabara_label_933
 	push	45
 	call	jc_putc
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	neg	rax
-	mov	[rbp + 16], rax
-__jabara_label_865:
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_933:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	cmp	rax, 0
-	jne	__jabara_label_866
+	jne	__jabara_label_934
 	push	48
 	call	jc_putc
 	mov	rax, 0
 	db 201
 	db 194
 	dw	8
-__jabara_label_866:
-__jabara_label_867:
+__jabara_label_934:
+__jabara_label_935:
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	cmp	rax, 0
-	jle	__jabara_label_868
-	db	255,117,248
-	mov	rax, [rbp + 16]
+	jle	__jabara_label_936
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	div	rdi
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
-	je	__jabara_label_869
+	je	__jabara_label_937
 	mov	rax, 1
-	mov	[rbp - 24], rax
-__jabara_label_869:
-	mov	rax, [rbp - 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_937:
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	test	rax, rax
-	jz	__jabara_label_870
-	db	255,117,240
+	jz	__jabara_label_938
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	mov	rax, 48
 	pop	rdi
 	add	rax, rdi
 	push	rax
 	call	jc_putc
-__jabara_label_870:
-	db	255,117,248
-	mov	rax, [rbp + 16]
+__jabara_label_938:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	div	rdi
 	mov	rax, rdx
-	mov	[rbp + 16], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	mov	rax, 10
 	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	xor	edx, edx
 	div	rdi
-	mov	[rbp - 8], rax
-	jmp	__jabara_label_867
-__jabara_label_868:
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_935
+__jabara_label_936:
 	xor	eax, eax
-__jabara_return_864:
+__jabara_return_932:
 	db 201
 	db 194
 	dw	8
@@ -10056,14 +16913,24 @@ __jabara_return_864:
 global jc_line
 jc_line:
 	db 200
-	dw	0
+	dw	48
 	db 0
-	db	255,117,16
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_puts
 	push	10
 	call	jc_putc
 	xor	eax, eax
-__jabara_return_871:
+__jabara_return_939:
 	db 201
 	db 194
 	dw	8
@@ -10071,40 +16938,69 @@ __jabara_return_871:
 global jc_error_at
 jc_error_at:
 	db 200
-	dw	16
+	dw	80
 	db 0
-	mov	rax, [rel __jabara_global_jc_output]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 80]
 	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	rdx, [rbp + 32]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 24]
+	mov	[rax + 16], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 24], rdx
+	mov	rax, [rel __jabara_global_jc_output]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 2
 	mov	[rel __jabara_global_jc_output], rax
-	jmp	__jabara_string_after_873
-__jabara_string_873: db 106,97,98,97,114,97,58,0
-__jabara_string_after_873:
-	lea	rax, [rel __jabara_string_873]
+	jmp	__jabara_string_after_941
+__jabara_string_941: db 106,97,98,97,114,97,58,0
+__jabara_string_after_941:
+	lea	rax, [rel __jabara_string_941]
 	push	rax
 	call	jc_puts
-	db	255,117,32
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_putn
 	push	58
 	call	jc_putc
-	db	255,117,24
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
 	call	jc_putn
-	jmp	__jabara_string_after_874
-__jabara_string_874: db 58,32,0
-__jabara_string_after_874:
-	lea	rax, [rel __jabara_string_874]
+	jmp	__jabara_string_after_942
+__jabara_string_942: db 58,32,0
+__jabara_string_after_942:
+	lea	rax, [rel __jabara_string_942]
 	push	rax
 	call	jc_puts
-	db	255,117,16
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	jc_puts
 	push	10
 	call	jc_putc
 	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	mov	[rel __jabara_global_jc_output], rax
 	push	1
 	call	exit
 	xor	eax, eax
-__jabara_return_872:
+__jabara_return_940:
 	db 201
 	db 194
 	dw	24
@@ -10112,19 +17008,37 @@ __jabara_return_872:
 global jc_next_argument
 jc_next_argument:
 	db 200
-	dw	0
+	dw	48
 	db 0
-__jabara_label_876:
-	mov	rax, [rbp + 16]
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 48]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+__jabara_label_944:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	movzx	eax, byte [rax]
 	test	rax, rax
-	jz	__jabara_label_877
-	mov	rax, [rbp + 16]
+	jz	__jabara_label_945
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp + 16], rax
-	jmp	__jabara_label_876
-__jabara_label_877:
-	mov	rax, [rbp + 16]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_944
+__jabara_label_945:
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
 	add	rax, 1
 	db 201
 	db 194
@@ -10133,98 +17047,990 @@ __jabara_label_877:
 global jc_read_sources
 jc_read_sources:
 	db 200
-	dw	48
+	dw	96
 	db 0
-	xor	eax, eax
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 96]
 	mov	[rbp - 8], rax
-	mov	[rbp - 16], rax
-	mov	[rbp - 24], rax
-	mov	[rbp - 32], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax + 8], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 16], rdx
 	mov	rax, 0
-	mov	[rbp - 40], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
 	mov	rax, 128
 	shl	rax, 10
 	add	rax, 1
 	push	rax
-	mov	rax, [rbp + 16]
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
 	pop	rdi
 	imul	rax, rdi
 	push	rax
 	call	jc_alloc
-	mov	[rbp - 16], rax
-	mov	rax, [rbp - 16]
-	mov	[rbp - 24], rax
-__jabara_label_879:
-	db	255,117,16
-	mov	rax, [rbp - 40]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+__jabara_label_947:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	pop	rdi
 	cmp	rax, rdi
-	jge	__jabara_label_880
+	jge	__jabara_label_948
 %define PITH_open
-	db	255,117,24
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	push	0
 	call	open
-	mov	[rbp - 8], rax
+	push	rax
 	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
 	cmp	rax, 0
-	jge	__jabara_label_881
+	jge	__jabara_label_949
 	push	1
 	push	1
-	jmp	__jabara_string_after_882
-__jabara_string_882: db 99,97,110,110,111,116,32,111,112,101,110,32,105,110,112,117,116,0
-__jabara_string_after_882:
-	lea	rax, [rel __jabara_string_882]
+	jmp	__jabara_string_after_950
+__jabara_string_950: db 99,97,110,110,111,116,32,111,112,101,110,32,105,110,112,117,116,0
+__jabara_string_after_950:
+	lea	rax, [rel __jabara_string_950]
 	push	rax
 	call	jc_error_at
-__jabara_label_881:
-__jabara_label_883:
+__jabara_label_949:
+__jabara_label_951:
 %define PITH_read
-	db	255,117,248
-	db	255,117,232
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
+	push	rax
 	push	4096
 	call	read
-	mov	[rbp - 32], rax
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
 	cmp	rax, 0
-	jle	__jabara_label_884
-	db	255,117,224
-	mov	rax, [rbp - 24]
+	jle	__jabara_label_952
+	mov	rax, [rbp - 8]
+	add	rax, 48
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	pop	rdi
 	add	rax, rdi
-	mov	[rbp - 24], rax
-	jmp	__jabara_label_883
-__jabara_label_884:
-	db	255,117,248
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_951
+__jabara_label_952:
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
 	call	close
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 10
 	pop	rdi
 	mov	[rdi], al
-	mov	rax, [rbp - 24]
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 24], rax
-	db	255,117,24
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	push	rax
 	call	jc_next_argument
-	mov	[rbp + 24], rax
-	mov	rax, [rbp - 40]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	mov	rax, [rax]
 	add	rax, 1
-	mov	[rbp - 40], rax
-	jmp	__jabara_label_879
-__jabara_label_880:
-	mov	rax, [rbp - 24]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 56
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	jmp	__jabara_label_947
+__jabara_label_948:
+	mov	rax, [rbp - 8]
+	add	rax, 40
+	mov	rax, [rax]
 	push	rax
 	mov	rax, 0
 	pop	rdi
 	mov	[rdi], al
-	mov	rax, [rbp - 16]
+	mov	rax, [rbp - 8]
+	add	rax, 32
+	mov	rax, [rax]
 	db 201
 	db 194
 	dw	16
 
+__jabara_closure_711:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	48
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+%define JABARA_LIFT
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_953:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_712:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	24
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_954:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_713:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	56
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_955:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_714:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	32
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_956:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_715:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	88
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	qword [rax + 64], 0
+	mov	qword [rax + 72], 0
+	mov	qword [rax + 80], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_957:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_716:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	40
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	push	40
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 24
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 32], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 1
+	pop	rdi
+	mov	qword [rdi + 16], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, 1
+	pop	rdi
+	mov	qword [rdi + 24], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	lx_next
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_958:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_717:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	lea	rax, [rel __jabara_closure_960]
+	push	rax
+	push	32
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_959:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_718:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	lea	rax, [rel __jabara_closure_962]
+	push	rax
+	push	32
+	call	__jabara_alloc
+	pop	rcx
+	mov	[rax], rcx
+	mov	rdx, [rbp - 8]
+	mov	rcx, [rdx + 0]
+	mov	[rax + 8], rcx
+	mov	rcx, [rdx + 8]
+	mov	[rax + 16], rcx
+	mov	rcx, [rdx + 16]
+	mov	[rax + 24], rcx
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_961:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_719:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	32
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_963:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_720:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	32
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	ps_text
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	call	T_COLON
+	push	rax
+	call	ps_accept
+	test	rax, rax
+	jz	__jabara_label_965
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	ps_text
+	pop	rdi
+	mov	qword [rdi + 8], rax
+__jabara_label_965:
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_964:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_721:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	64
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_966:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_722:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	32
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_967:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_723:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	24
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_968:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_960:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	96
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	mov	qword [rax + 56], 0
+	mov	qword [rax + 64], 0
+	mov	qword [rax + 72], 0
+	mov	qword [rax + 80], 0
+	mov	qword [rax + 88], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	mov	rax, [rax]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 8], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_969:
+	db 201
+	db 194
+	dw	24
+
+__jabara_closure_962:
+	db 200
+	dw	56
+	db 0
+	mov	rdx, [rbp + 32]
+	mov	[rbp - 16], rdx
+	mov	[rbp - 24], rsp
+	lea	rax, [rbp - 56]
+	mov	[rbp - 8], rax
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	rdx, [rbp + 24]
+	mov	[rax], rdx
+	mov	rdx, [rbp + 16]
+	mov	[rax + 8], rdx
+	push	56
+	call	__jabara_alloc
+	mov	qword [rax + 0], 0
+	mov	qword [rax + 8], 0
+	mov	qword [rax + 16], 0
+	mov	qword [rax + 24], 0
+	mov	qword [rax + 32], 0
+	mov	qword [rax + 40], 0
+	mov	qword [rax + 48], 0
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	pop	rdi
+	mov	[rax], rdi
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	mov	rax, [rax]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 0], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	mov	rax, [rbp - 8]
+	add	rax, 8
+	mov	rax, [rax]
+	pop	rdi
+	mov	qword [rdi + 8], rax
+	mov	rax, [rbp - 8]
+	add	rax, 16
+	mov	rax, [rax]
+	push	rax
+	call	__jabara_lift
+	db 201
+	db 194
+	dw	24
+	xor	eax, eax
+__jabara_return_970:
+	db 201
+	db 194
+	dw	24
+
 align 8
+__jabara_global_platform: dq 0
+__jabara_global_em_binding: dq 0
+__jabara_global_em_lookup_value: dq 0
+__jabara_global_em_scope: dq 0
+__jabara_global_em_closure_info: dq 0
+__jabara_global_em_emitter: dq 0
+__jabara_global_lx_init: dq 0
 __jabara_global_ps_lexer: dq 0
+__jabara_global_ps_expr: dq 0
+__jabara_global_ps_stmt: dq 0
+__jabara_global_ps_named: dq 0
+__jabara_global_ps_name: dq 0
+__jabara_global_ps_function: dq 0
+__jabara_global_ps_record: dq 0
+__jabara_global_ps_program: dq 0
 __jabara_global_jc_heap: dq 0
 __jabara_global_jc_heap_limit: dq 0
 __jabara_global_jc_output: dq 0
 __jabara_global_jc_incremental_heap: dq 0
-__jabara_global_platform: dq 0

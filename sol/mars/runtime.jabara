@@ -1,0 +1,189 @@
+extern sub close(fd)
+extern sub creat(path)
+extern sub exit(status)
+extern sub fputch(fd, character)
+extern sub mmap(address, length, protection, flags, fd, offset)
+extern sub open(path, flags)
+extern sub read(fd, buffer, count)
+extern sub seek(fd, offset, origin)
+extern sub write(fd, buffer, count)
+
+sub mars_next_argument(argument)
+  while byte [argument] != 0 do argument = argument + 1 end
+  return argument + 1
+end
+
+
+sub mars_streq(a, b)
+  while byte [a] == byte [b] do
+    if byte [a] == 0 then return 1 end
+    a = a + 1
+    b = b + 1
+  end
+  return 0
+end
+
+sub mars_atoi(text)
+  local value = 0, base = 10, c, digit
+  if (byte [text] == 48) && ((byte [text + 1] == 120) || (byte [text + 1] == 88)) then
+    base = 16
+    text = text + 2
+  end
+  c = byte [text]
+  while c != 0 do
+    if (c >= 48) && (c <= 57) then digit = c - 48
+    else
+      if (c >= 97) && (c <= 102) then digit = c - 97 + 10
+      else
+        if (c >= 65) && (c <= 70) then digit = c - 65 + 10
+        else mars_error(0, "invalid numeric option") end
+      end
+    end
+    if digit >= base then mars_error(0, "invalid numeric option") end
+    value = (value * base) + digit
+    text = text + 1
+    c = byte [text]
+  end
+  return value
+end
+
+sub mars_fd_put_slice(fd, text, length)
+  local index = 0
+  while index < length do
+    fputch(fd, byte [text + index])
+    index = index + 1
+  end
+end
+
+sub mars_fd_putn(fd, number)
+  local divisor = 1000000000000000000, digit, started = 0
+  if number < 0 then fputch(fd, 45) number = -number end
+  if number == 0 then fputch(fd, 48) return 0 end
+  while divisor > 0 do
+    digit = number / divisor
+    if digit != 0 then started = 1 end
+    if started then fputch(fd, 48 + digit) end
+    number = number % divisor
+    divisor = divisor / 10
+  end
+end
+
+sub mars_write_map(state:MarsState, path)
+  local fd = creat(path), symbol:MarsSymbol = state.symbols
+  if fd < 0 then mars_error(0, "cannot create symbol map") end
+  while symbol != 0 do
+    if symbol.exported && symbol.defined then
+      mars_fd_put_slice(fd, symbol.name, symbol.length)
+      fputch(fd, 32)
+      fputch(fd, 101)
+      fputch(fd, 113)
+      fputch(fd, 117)
+      fputch(fd, 32)
+      mars_fd_putn(fd, symbol.address)
+      fputch(fd, 10)
+    end
+    symbol = symbol.next
+  end
+  close(fd)
+end
+
+sub mars_putc(character)
+  fputch(2, character)
+end
+
+sub mars_puts(text)
+  while byte [text] != 0 do
+    mars_putc(byte [text])
+    text = text + 1
+  end
+end
+
+sub mars_error(item:SolItem, message)
+  if item != 0 then
+    if item.source_name != 0 then mars_puts(item.source_name) else mars_puts("sol") end
+    mars_putc(58)
+    mars_fd_putn(2, item.line)
+    mars_putc(58)
+    mars_fd_putn(2, item.column)
+    mars_puts(": ")
+  else
+    mars_puts("mars: ")
+  end
+  mars_puts(message)
+  mars_putc(10)
+  exit(1)
+end
+
+sub mars_read_source(path)
+  local fd = open(path, 0), size, buffer, cursor, remaining, count
+  if fd < 0 then mars_error(0, "cannot open input") end
+  size = seek(fd, 0, 2)
+  if size < 0 then mars_error(0, "cannot seek input") end
+  if seek(fd, 0, 0) < 0 then mars_error(0, "cannot seek input") end
+  buffer = mmap(0, size + 1, 3, 34, -1, 0)
+  if buffer < 0 then mars_error(0, "cannot allocate source buffer") end
+  cursor = buffer
+  remaining = size
+  while remaining > 0 do
+    count = read(fd, cursor, remaining)
+    if count < 0 then mars_error(0, "cannot read input") end
+    if count == 0 then mars_error(0, "unexpected end of input") end
+    cursor = cursor + count
+    remaining = remaining - count
+  end
+  close(fd)
+  byte [cursor] = 0
+  return buffer
+end
+
+sub mars_output_init(output:MarsOutput, path)
+  output.fd = creat(path)
+  if output.fd < 0 then mars_error(0, "cannot create output") end
+  output.capacity = 65536
+  output.buffer = mmap(0, output.capacity, 3, 34, -1, 0)
+  if output.buffer < 0 then mars_error(0, "cannot allocate output buffer") end
+  output.used = 0
+end
+
+sub mars_output_flush(output:MarsOutput)
+  local written = 0, count
+  while written < output.used do
+    count = write(output.fd, output.buffer + written, output.used - written)
+    if count <= 0 then mars_error(0, "cannot write output") end
+    written = written + count
+  end
+  output.used = 0
+end
+
+sub mars_output_byte(output:MarsOutput, value)
+  byte [output.buffer + output.used] = value
+  output.used = output.used + 1
+  if output.used == output.capacity then mars_output_flush(output) end
+end
+
+sub mars_output_close(output:MarsOutput)
+  mars_output_flush(output)
+  close(output.fd)
+end
+
+sub mars_put_slice(text, length)
+  local index = 0
+  while index < length do
+    mars_putc(byte [text + index])
+    index = index + 1
+  end
+end
+
+sub mars_symbol_error(symbol:MarsSymbol, message)
+  if symbol.source_name != 0 then mars_puts(symbol.source_name) else mars_puts("sol") end
+  mars_putc(58)
+  mars_fd_putn(2, symbol.line)
+  mars_putc(58)
+  mars_fd_putn(2, symbol.column)
+  mars_puts(": ")
+  mars_puts(message)
+  mars_puts(": ")
+  mars_put_slice(symbol.name, symbol.length)
+  mars_putc(10)
+  exit(1)
+end

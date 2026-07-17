@@ -1,0 +1,5 @@
+cd parser
+clean.psh
+cd ../mars
+clean.psh
+cd ..

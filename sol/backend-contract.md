@@ -26,6 +26,7 @@ Sol itself does not choose these values.
 A correct backend must preserve:
 
 - target-width wraparound;
+- resolution of word-scaled constants using `word_bytes`;
 - signed comparison and unsigned division semantics;
 - canonical Boolean results;
 - source-register capture before destination writes;

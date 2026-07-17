@@ -11,14 +11,20 @@ ELF, PE32+, FAP, or other executable container.
 
 ## Command shape
 
-The current command-line shape is:
+The command-line forms are:
 
 ```text
 mars input.sol [...] output
+mars -o ORIGIN input.sol [...] output
+mars -o ORIGIN -M output.map input.sol [...]
 ```
 
 Input files form one logical Sol stream in command-line order. The output is one
-flat binary image. `org` supplies the target address assigned to its first byte.
+flat binary image. `org` normally supplies the target address assigned to its
+first byte; `-o` provides an implicit origin for streams intended to be placed
+by an image builder. `-M` performs layout only and writes exported symbols as
+`name equ address`. Layout-only mode permits declared externals to remain
+unresolved so another flat region can be assembled before the final Mars pass.
 
 ## Target profile
 
@@ -40,7 +46,7 @@ The intended visible mapping is:
 | Sol | x86-64 realization |
 | --- | --- |
 | `a` | `rax` |
-| `b` | `rdi` |
+| `b` | `rbx` |
 | `c` | `rcx` |
 | `d` | `rdx` |
 | `fp` | `rbp` |
@@ -73,16 +79,17 @@ It does not choose an entry point, initialize a process, or provide a stack.
 The surrounding loader or image builder is responsible for placing the bytes at
 the declared origin and transferring control appropriately.
 
-An unresolved `extern` cannot be represented in a final flat image unless its
-address is supplied by an explicit future mechanism. Mars should reject it
-rather than emit a silent placeholder.
+An `extern` is a declaration across the logical input set. A definition in a
+later input file satisfies it. Any external still unresolved after layout
+cannot be represented in the final flat image, so Mars rejects it rather than
+emitting a silent placeholder.
 
 ## Implementation structure
 
 Mars is implemented in Jabara using records and closures. The preferred style
 is callback-oriented and lazy:
 
-- source files are read only when demanded;
+- input files are cached once so both passes see identical bytes;
 - parsing produces one logical item at a time;
 - layout and emission are separate logical passes;
 - source may be reparsed rather than retaining every parsed instruction;
@@ -112,7 +119,15 @@ cover:
 
 ## Relationship to Orgasm and Peel
 
-Mars is independent of Orgasm.
+Mars does not invoke Orgasm and does not emit assembly. They remain separate
+flat-image tools.
 
-Peel continues to be assembled by Orgasm through its existing build path. The
-Sol project does not modify Peel and does not replace Orgasm in that path.
+Pulp uses both: Haruka/Mars produce the generated region, Orgasm produces the
+handwritten region, and textual absolute-symbol maps resolve calls in both
+directions. Peel continues to use Orgasm through its existing build path and is
+not modified by the Sol project.
+
+## Word-scaled constants
+
+Mars resolves a Sol word-scaled literal `nw` as `n * 8` before lowering. For
+example, `2w` has the value `16` under the Mars target profile.

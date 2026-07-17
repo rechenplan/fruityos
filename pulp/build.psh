@@ -2,8 +2,16 @@ mkdir out
 mkdir out/$1
 mkdir tmp
 mkdir tmp/$1
-jc src/fba.jabara src/fd.jabara src/global.jabara src/heap.jabara src/idt.jabara src/inode.jabara src/kb.jabara src/kmain.jabara src/list.jabara src/page.jabara src/platform.jabara src/ramfs.jabara src/roots.jabara src/scr.jabara src/sys.jabara src/task.jabara src/utils.jabara src/x86.jabara tmp/$1/pulp-generated.asm
-orgasm src/entry.asm src/idt.asm ../lib/$1/juicer-runtime.asm tmp/$1/pulp-generated.asm out/$1/pulp.bin
+
+$root/haruka/out/$platform/haruka src/fba.jabara src/fd.jabara src/global.jabara src/heap.jabara src/idt.jabara src/inode.jabara src/kb.jabara src/kmain.jabara src/list.jabara src/page.jabara src/platform.jabara src/ramfs.jabara src/roots.jabara src/scr.jabara src/sys.jabara src/task.jabara src/utils.jabara src/x86.jabara tmp/$1/pulp.sol
+
+$root/sol/mars/out/$platform/mars -o 70144 -M tmp/$1/sol.map tmp/$1/pulp.sol
+$root/jabara/out/$platform/orgasm -m tmp/$1/asm.map tmp/$1/sol.map src/entry.asm src/idt.asm ../lib/$1/juicer-runtime.asm tmp/$1/pulp-asm.bin
+pad tmp/$1/pulp-asm.bin 4608 4608
+$root/sol/mars/out/$platform/mars -o 70144 tmp/$1/pulp.sol tmp/$1/asm.map tmp/$1/pulp-sol.bin
+
+concat out/$1/pulp.bin tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin
 juicer c out/$1/pulp.bin out/$1/pulp.sys
 pad out/$1/pulp.sys 0 8192
-del tmp/$1/pulp-generated.asm
+
+del tmp/$1/pulp.sol tmp/$1/sol.map tmp/$1/asm.map tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin

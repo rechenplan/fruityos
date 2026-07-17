@@ -1,0 +1,18 @@
+record Child value
+record Parent child:Child, value
+
+sub main()
+  local make = fn do
+    local child:Child = new Child
+    local parent:Parent = new Parent
+    local up:Parent
+    child.value = 7
+    parent.child = child
+    parent.value = 35
+    up = lift parent
+    if up == parent then return 1 end
+    if up.child != child then return 2 end
+    return up.child.value + up.value - 42
+  end
+  return make()
+end

@@ -1,0 +1,10 @@
+record Pair left, right
+record Box value:Pair
+
+sub main()
+  local pair:Pair = new Pair, box:Box = new Box
+  pair.left = 20
+  pair.right = 22
+  box.value = pair
+  return box.value.left + box.value.right - 42
+end
