@@ -1,164 +1,98 @@
-# Gaia migration plan
+# Sol migration plan
 
-The migration must preserve the existing stage0 trust chain while changing the
-canonical assembly language. It cannot be done by flipping Jabara's emitter
-first: the current Orgasm and the current Petit-generated seed understand only
-the x86-like source dialect.
+The migration introduces Sol and its backends without destabilizing the current
+bootstrap chain.
 
-## Assembly inventory
+## Fixed boundary
 
-The repository currently contains 22 `.asm` paths.
+Peel is not part of the Sol migration.
 
-### Generated compiler image
+- Peel continues to use Orgasm exactly as it does now.
+- Peel source and build scripts are not modified for Sol.
+- Orgasm is not converted into Mars and is not repurposed as a Sol backend.
+- Existing stage0 work that depends on Orgasm remains independent until a
+  separately designed transition says otherwise.
 
-These two files are byte-for-byte identical generated Jabara output and will be
-regenerated as Gaia assembly after the emitter changes:
+## Repository layout
 
-```text
-jabara/src/jbc/jbc.asm
-stage0/jbc.asm
-```
-
-`stage0/jbc.asm` remains the one checked-in compiler assembly required by the
-stage0 reconstruction, but its language becomes Gaia.
-
-### Platform start and runtime sources
+The intended project layout is:
 
 ```text
-lib/fruityos-x86_64/fap-module-runtime.asm
-lib/fruityos-x86_64/juicer-runtime.asm
-lib/fruityos-x86_64/peel-runtime.asm
-lib/fruityos-x86_64/peel-start.asm
-lib/fruityos-x86_64/runtime.asm
-lib/fruityos-x86_64/start.asm
-lib/linux-x86_64/juicer-decode-stub.asm
-lib/linux-x86_64/runtime.asm
-lib/linux-x86_64/start.asm
-lib/linux-x86_64/yuzu-runtime.asm
-lib/linux-x86_64/yuzu-start.asm
-lib/windows-x86_64/juicer-decode-stub.asm
-lib/windows-x86_64/runtime.asm
-lib/windows-x86_64/start.asm
+sol/
+    README.md
+    ir.md
+    syntax.md
+    backend-contract.md
+    pluto.md
+    pluto-encoding.md
+    mars/
+        ... Jabara source ...
+    luna/
+        ... future backend ...
+    terra/
+        ... future backend ...
+
+haruka/
+    ... future language frontend ...
 ```
 
-Their ordinary logic must be rewritten in Gaia. Irreducible host entry and
-system-interface fragments move behind Orgasm's x86 backend/runtime boundary.
+Documentation may keep `mars.md`, `luna-terra.md`, and `haruka.md` at the Sol
+root while implementations live in their own directories.
 
-### Kernel entry sources
+## Phase 1: establish Sol
 
-```text
-pulp/src/entry.asm
-pulp/src/idt.asm
-```
+- Freeze the name and responsibility split.
+- Keep Sol width-neutral and encoding-neutral.
+- Define the semantic operation set and textual version marker.
+- Define the backend contract.
+- Remove obsolete documentation that treats the IR as a processor ISA.
 
-Most data movement and setup logic can become Gaia. x86 privilege transitions,
-GDT/IDT loading, and interrupt returns cannot become Gaia core instructions;
-they require x86 backend primitives or generated stubs at the platform boundary.
-Native Gaia will use its own boot and interrupt design later.
+## Phase 2: complete Mars
 
-### Seed and image sources
+- Implement Mars in Jabara under `sol/mars/`.
+- Parse textual Sol and emit x86-64 bytes directly.
+- Use two-pass layout and symbol resolution.
+- Preserve `ip`, aliasing, division, stack, and comparison semantics.
+- Support multiple source files and raw flat output.
+- Exercise large inputs without retaining one permanent record or closure per
+  instruction.
+- Keep Peel and Orgasm untouched.
 
-```text
-seed/src/fdseed/fdseed.bytes.asm
-seed/src/hdseed/hdseed.bytes.asm
-seed/src/uefiseed/uefiseed-prefix.bytes.asm
-seed/src/uefiseed/uefiseed.asm
-```
+## Phase 3: validate the semantic suite
 
-The `.bytes.asm` files are primarily data images and should migrate to neutral
-binary-data sources or Gaia data directives. The UEFI source mixes executable
-x86 code and image layout; its code must move behind the x86 firmware backend
-while its FAT/PE data construction remains assembler-time layout work.
+- Build a target-independent Sol test corpus.
+- Execute Mars output through a small x86-64 harness where practical.
+- Compare memory, registers, control flow, and raw data layout.
+- Add origin, relocation, malformed-source, and overflow tests.
 
-## Ordered transition
+## Phase 4: build Haruka
 
-### Phase 1: freeze the semantic audit
+- Create Haruka as a separate frontend.
+- Lower Haruka language constructs to Sol.
+- Do not describe this as rewriting Jabara.
+- Continue using Jabara where useful for implementing the toolchain.
 
-- Add Gaia documentation and compiler-output tests.
-- Record every instruction and directive emitted by Jabara.
-- Add generated-code histograms for immediates, frame offsets, branches, and
-  instruction frequencies.
+## Phase 5: add Luna and Terra
 
-### Phase 2: teach Orgasm Gaia
+- Define Luna's real-mode address model.
+- Implement 16-bit target-width lowering.
+- Implement Terra's 32-bit protected-mode lowering.
+- Run the shared semantic suite at each target width.
 
-- Add a Gaia lexer/parser and an internal Gaia operation representation.
-- Add Gaia-to-x86-64 lowering.
-- Keep the old x86 source parser temporarily so the current tree can build the
-  transitional backend.
-- Validate Gaia snippets against equivalent current x86 snippets.
+## Phase 6: implement Pluto
 
-At the end of this phase, existing Jabara still emits x86, but the newly built
-Orgasm can assemble Gaia.
+- Freeze a Pluto profile and native encoding after measurements from real Sol
+  programs.
+- Implement a reference interpreter.
+- Implement the FPGA core.
+- Compare committed state between the interpreter and RTL.
 
-### Phase 3: rewrite the Jabara emitter
+## Documentation rename
 
-- Change `jabara/src/jc/emitter.jabara` to emit Gaia.
-- Build that compiler with the old compiler and transitional Orgasm.
-- Self-host Jabara once, then again, and require identical second-generation
-  Gaia output.
-- Regenerate `jabara/src/jbc/jbc.asm` and `stage0/jbc.asm` in Gaia syntax.
+The old project directory and documents should be replaced by `sol/`. Processor
+architecture and encoding material moves under the Pluto name. Backend-specific
+x86 material moves under Mars, Luna, or Terra. Frontend material moves under
+Haruka.
 
-### Phase 4: rewrite handwritten assembly
-
-Convert every ordinary `.asm` source in the inventory to Gaia. Move unavoidable
-x86 boundary operations into explicit Orgasm backend/runtime facilities. Do not
-solve migration failures by adding x86-shaped instructions to Gaia.
-
-Validation should proceed component by component:
-
-1. JBC and Orgasm;
-2. Juicer and Concat;
-3. Pish and Peel;
-4. Yuzu;
-5. Pulp user/kernel boundary;
-6. BIOS and UEFI images.
-
-### Phase 5: repair stage0
-
-The old Petit-generated Orgasm seeds cannot assemble Gaia `jbc.asm`. Therefore:
-
-1. build a Gaia-aware x86 Orgasm using the transitional trusted chain;
-2. regenerate the readable `orglin.pm` and `orgwin.pm` seed images from those
-   exact uncompressed binaries;
-3. verify Petit reproduces both seeds exactly;
-4. let the new seeds assemble Gaia `stage0/jbc.asm`;
-5. retain the existing dependency order: seed Orgasm -> JBC -> current Orgasm ->
-   everything else.
-
-No second checked-in compiler assembly is introduced.
-
-### Phase 6: implement the native Gaia assembler
-
-- Parse the same Gaia source language.
-- Resolve labels and choose the shortest immediate form.
-- Emit native 16-bit parcels.
-- Produce instruction and relocation histograms.
-- Build JBC, Orgasm, Pish, and small tests for a software Gaia emulator before
-  the FPGA core is required.
-
-### Phase 7: FPGA execution
-
-- Implement the v0 single-issue core.
-- Boot a memory image containing a minimal Gaia runtime and Pish.
-- Add memory-mapped console, timer, and storage one at a time.
-- Add asynchronous interrupts only after polling execution is correct.
-
-## Bootstrap invariant
-
-At every commit there must be a complete path from the previous trusted binary
-surface to the next one. We should never require a Gaia assembler to build the
-first Gaia assembler, nor require a Gaia-speaking seed before one has been
-produced and represented in Petit source.
-
-## Completion criteria
-
-The migration is complete when:
-
-- Jabara emits no x86 syntax or raw instruction bytes;
-- ordinary Orgasm source files contain Gaia code only;
-- Orgasm and the Gaia assembler accept the same canonical source;
-- Orgasm builds Linux, Windows, and FruityOS x86-64 binaries;
-- the Gaia assembler builds semantically equivalent native images;
-- stage0 reconstructs the host toolchain from `petit.com` and Gaia `jbc.asm`;
-- second-generation Jabara and Orgasm builds are reproducible;
-- the FPGA and a reference emulator agree instruction by instruction.
+The migration should not leave mixed terminology in active documentation.
+Historical notes may retain old names only when clearly marked as archival.
