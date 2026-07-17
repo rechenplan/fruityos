@@ -26,7 +26,7 @@ The build writes BIOS and UEFI images beneath `out/`. See
 [Getting started](docs/getting-started.md) for bootstrap requirements, outputs,
 cleanup, and first-boot behavior.
 
-After you have built FruityOS, if you would like to run the FruityOS userland on your native environment you may type
+After you have built FruityOS, if you would like to run the FruityOS userland in your host environment you may type
 
 ```text
 bin/pish
