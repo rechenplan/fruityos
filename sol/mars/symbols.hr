@@ -17,8 +17,8 @@ sub mars_find_symbol(state:MarsState, name, length)
   return 0
 end
 
-local mars_new_symbol = fn state:MarsState do
-  local symbol:MarsSymbol = new MarsSymbol
+sub mars_new_symbol(state:MarsState)
+  local symbol:MarsSymbol = sol_alloc(88)
   symbol.name = state.pending_name
   symbol.length = state.pending_length
   if state.item != 0 then
@@ -26,7 +26,6 @@ local mars_new_symbol = fn state:MarsState do
     symbol.line = state.item.line
     symbol.column = state.item.column
   end
-  symbol = lift symbol
   if state.symbols == 0 then state.symbols = symbol else state.symbol_tail.next = symbol end
   state.symbol_tail = symbol
   return symbol

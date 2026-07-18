@@ -1,3 +1,25 @@
+extern sub brk(address)
+extern sub exit(status)
+
+local sol_heap, sol_heap_limit
+
+sub sol_alloc(size)
+  local required, result
+  size = (size + 7) & -8
+  if sol_heap == 0 then
+    sol_heap = brk(-1)
+    sol_heap_limit = sol_heap
+  end
+  required = sol_heap + size
+  if required > sol_heap_limit then
+    sol_heap_limit = (required + 65535) & -65536
+    if brk(sol_heap_limit) < sol_heap_limit then exit(127) end
+  end
+  result = sol_heap
+  sol_heap = required
+  return result
+end
+
 ; Numeric tags below match the SOL_TOKEN, SOL_TERM, SOL_OPERAND, SOL_ITEM,
 ; SOL_REG, and SOL_OP values declared in model.hr.  The named functions
 ; remain the public API; literals keep the parser and Mars FAP compact.
@@ -54,22 +76,13 @@ sub sol_reset(parser:SolParser)
   return parser
 end
 
-local sol_parser_new = fn sources:SolSource do
-  local parser:SolParser = new SolParser, item:SolItem = new SolItem
-  local first:SolOperand = new SolOperand, second:SolOperand = new SolOperand, third:SolOperand = new SolOperand
-  local first_value:SolTerm = new SolTerm, first_base:SolTerm = new SolTerm, first_offset:SolTerm = new SolTerm
-  local second_value:SolTerm = new SolTerm, second_base:SolTerm = new SolTerm, second_offset:SolTerm = new SolTerm
-  local third_value:SolTerm = new SolTerm, third_base:SolTerm = new SolTerm, third_offset:SolTerm = new SolTerm
+sub sol_parser_new(sources:SolSource)
+  local parser:SolParser = sol_alloc(176), item:SolItem = sol_alloc(120)
+  local first:SolOperand = sol_alloc(32), second:SolOperand = sol_alloc(32), third:SolOperand = sol_alloc(32)
+  local first_value:SolTerm = sol_alloc(40), first_base:SolTerm = sol_alloc(40), first_offset:SolTerm = sol_alloc(40)
+  local second_value:SolTerm = sol_alloc(40), second_base:SolTerm = sol_alloc(40), second_offset:SolTerm = sol_alloc(40)
+  local third_value:SolTerm = sol_alloc(40), third_base:SolTerm = sol_alloc(40), third_offset:SolTerm = sol_alloc(40)
 
-  first_value = lift first_value
-  first_base = lift first_base
-  first_offset = lift first_offset
-  second_value = lift second_value
-  second_base = lift second_base
-  second_offset = lift second_offset
-  third_value = lift third_value
-  third_base = lift third_base
-  third_offset = lift third_offset
   first.value = first_value
   first.base = first_base
   first.offset = first_offset
@@ -79,16 +92,11 @@ local sol_parser_new = fn sources:SolSource do
   third.value = third_value
   third.base = third_base
   third.offset = third_offset
-  first = lift first
-  second = lift second
-  third = lift third
   item.first = first
   item.second = second
   item.third = third
-  item = lift item
   parser.first = sources
   parser.item = item
-  parser = lift parser
   return sol_reset(parser)
 end
 
