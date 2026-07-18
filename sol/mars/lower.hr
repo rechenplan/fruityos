@@ -48,7 +48,7 @@ sub mars_fast_move(state:MarsState, item:SolItem, next_ip)
     return 1
   end
   if item.second.value.register == 8 then
-    mars_mov_abs(state, destination, next_ip)
+    mars_lea_rel(state, destination, next_ip)
     return 1
   end
   source = mars_visible_register(item.second.value.register)
@@ -195,7 +195,11 @@ sub mars_load_term(state:MarsState, term:SolTerm, target, next_ip)
     return 0
   end
   if term.kind == 3 then
-    mars_mov_abs(state, target, mars_symbol_value(state, term))
+    local symbol:MarsSymbol = mars_get_symbol(state, term.text, term.length)
+    local address = mars_symbol_value(state, term)
+    if (state.round > 1) && symbol.defined && (symbol.external == 0) && (symbol.absolute == 0) then
+      mars_lea_rel(state, target, address)
+    else mars_mov_abs(state, target, address) end
     return 0
   end
   if term.kind != 1 then mars_error(state.item, "internal operand error") end
@@ -204,7 +208,7 @@ sub mars_load_term(state:MarsState, term:SolTerm, target, next_ip)
     return 0
   end
   if term.register == 8 then
-    mars_mov_abs(state, target, next_ip)
+    mars_lea_rel(state, target, next_ip)
     return 0
   end
   source = mars_visible_register(term.register)
@@ -393,8 +397,8 @@ sub mars_lower_instruction(state:MarsState, item:SolItem, next_ip)
     address = mars_symbol_value(state, item.second.value)
     target = mars_visible_register(item.first.value.register)
     if target < 0 then target = 8 end
-    if (state.round > 1) && symbol.defined && (symbol.external == 0) && (address >= 0) && (address <= 4294967295) then
-      mars_mov_ri(state, target, address)
+    if (state.round > 1) && symbol.defined && (symbol.external == 0) && (symbol.absolute == 0) then
+      mars_lea_rel(state, target, address)
     else mars_mov_abs(state, target, address) end
     if item.first.value.register == 8 then mars_commit(state, 8, target) end
     return 0

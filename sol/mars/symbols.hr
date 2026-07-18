@@ -18,7 +18,7 @@ sub mars_find_symbol(state:MarsState, name, length)
 end
 
 sub mars_new_symbol(state:MarsState)
-  local symbol:MarsSymbol = sol_alloc(88)
+  local symbol:MarsSymbol = sol_alloc(96)
   symbol.name = state.pending_name
   symbol.length = state.pending_length
   if state.item != 0 then
@@ -59,6 +59,7 @@ sub mars_define_absolute_symbol(state:MarsState, name, length, address)
   end
   ; Preserve external so imported assembly addresses retain fixed-width code.
   symbol.defined = 1
+  symbol.absolute = 1
   symbol.address = address
   return symbol
 end

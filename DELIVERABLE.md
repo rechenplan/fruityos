@@ -1,37 +1,31 @@
-# FruityOS `sol` best tested state
+# FruityOS Sol: JUS-aware PC-relative Mars backend
 
-Base commit: `79485a25c94a0d252fe1791438f6a4b20035201f`
+This tree continues from the verified JUS-only, Haruka heap-constructor, and Mars heap-constructor baseline.
 
-This tree combines:
+## Changes
 
-1. checked-in `jus` bootstrap binaries for Linux, Windows, and FruityOS;
-2. removal of checked-in Juicer executables and all active Juicer build/install steps;
-3. canonical 11/5 JUS decoder selection in Jabara bootstrap links;
-4. Haruka internal heap-backed constructors implemented as ordinary private subroutines.
+Mars now uses RIP-relative address materialization for internal labels and virtual instruction-pointer values where safe. Absolute materialization remains for externals and explicit absolute constants.
 
-Haruka and Sol language syntax/semantics are unchanged. No FAP file was added to the system tool set; `jus` replaces the legacy `juicer` bootstrap FAP.
+Haruka and Sol input languages are unchanged. No FAP files were added.
 
-## Verified compressed FAP sizes
+## Verified compressed sizes
 
-- Haruka: 12,150 bytes (baseline 13,246; reduction 1,096)
-- Mars: 14,890 bytes (unchanged)
-- JUS: 2,082 bytes
+- `haruka.fap`: 11,794 bytes
+- `mars.fap`: 14,284 bytes
+- `jus.fap`: 2,082 bytes
+
+Relative to the preceding verified Mars-heap baseline:
+
+- Haruka: -356 bytes
+- Mars: -103 bytes
 
 ## Verification
 
-- clean full Linux-hosted build: passed
-- Haruka semantic execution suite: 9/9 passed
-- Sol parser suite: passed
-- Mars link suite: passed
-- QEMU 10.0.11 + OVMF UEFI boot: passed
-- observed boot log:
+- Normal repository clean/full build completed with exit code 0.
+- Haruka semantic suite passed 9/9.
+- Haruka invalid-program rejection tests passed.
+- Standalone Sol parser suite passed.
+- Mars two-way link suite passed.
+- QEMU/OVMF boot of the exact generated image reached the FruityOS 0.8.1 shell prompt.
 
-```
-U12345EHBooting...
-Welcome to FruityOS 0.8.1!
-/>
-```
-
-The legacy Mars test script remains nonzero after printing `result=42` because its compact-output assertion expects 41 bytes while the unchanged compiler emits 47 bytes. This discrepancy exists independently of these changes.
-
-Juicer source and decoder filenames remain for historical/reference and stream-format implementation purposes, but no active build path invokes or installs a Juicer executable.
+The legacy Mars compactness assertion remains the pre-existing 47-byte output versus stale 41-byte expectation.

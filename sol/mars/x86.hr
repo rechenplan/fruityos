@@ -80,6 +80,22 @@ sub mars_mov_abs(state:MarsState, destination, value)
   mars_bytes(state, value, 8)
 end
 
+sub mars_lea_rel(state:MarsState, destination, target)
+  local start = state.address, displacement
+  mars_rex(state, 1, destination, 0, 5)
+  mars_byte(state, 141)
+  mars_modrm(state, 0, destination, 5)
+  if state.measuring then
+    mars_bytes(state, 0, 4)
+    return 0
+  end
+  displacement = target - (start + 7)
+  if (displacement < -2147483648) || (displacement > 2147483647) then
+    mars_error(state.item, "relative address is out of range")
+  end
+  mars_bytes(state, displacement, 4)
+end
+
 sub mars_rex_byte(state:MarsState, reg, base)
   local prefix = 64
   if reg >= 8 then prefix = prefix | 4 end
