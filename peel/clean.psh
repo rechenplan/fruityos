@@ -1,13 +1,13 @@
-del out/$1/juicer out/$1/jews out/$1/concat out/$1/copy out/$1/del out/$1/dir out/$1/echo
+del out/$1/juicer out/$1/jus out/$1/concat out/$1/copy out/$1/del out/$1/dir out/$1/echo
 del out/$1/fill out/$1/fred out/$1/inode out/$1/jar out/$1/mkdir out/$1/move
 del out/$1/pad out/$1/pish out/$1/rmdir out/$1/type out/$1/uefi out/$1/write
-del out/$1/juicer.elf out/$1/jews.elf out/$1/concat.elf out/$1/copy.elf out/$1/del.elf out/$1/dir.elf out/$1/echo.elf
+del out/$1/juicer.elf out/$1/jus.elf out/$1/concat.elf out/$1/copy.elf out/$1/del.elf out/$1/dir.elf out/$1/echo.elf
 del out/$1/fill.elf out/$1/fred.elf out/$1/inode.elf out/$1/jar.elf out/$1/mkdir.elf out/$1/move.elf
 del out/$1/pad.elf out/$1/pish.elf out/$1/rmdir.elf out/$1/type.elf out/$1/uefi.elf out/$1/write.elf
-del out/$1/juicer.fap out/$1/jews.fap out/$1/concat.fap out/$1/copy.fap out/$1/del.fap out/$1/dir.fap out/$1/echo.fap
+del out/$1/juicer.fap out/$1/jus.fap out/$1/concat.fap out/$1/copy.fap out/$1/del.fap out/$1/dir.fap out/$1/echo.fap
 del out/$1/fill.fap out/$1/fred.fap out/$1/inode.fap out/$1/jar.fap out/$1/mkdir.fap out/$1/move.fap
 del out/$1/pad.fap out/$1/pish.fap out/$1/rmdir.fap out/$1/type.fap out/$1/uefi.fap out/$1/write.fap
-del out/$1/juicer.exe out/$1/jews.exe out/$1/concat.exe out/$1/copy.exe out/$1/del.exe out/$1/dir.exe out/$1/echo.exe
+del out/$1/juicer.exe out/$1/jus.exe out/$1/concat.exe out/$1/copy.exe out/$1/del.exe out/$1/dir.exe out/$1/echo.exe
 del out/$1/fill.exe out/$1/fred.exe out/$1/inode.exe out/$1/jar.exe out/$1/mkdir.exe out/$1/move.exe
 del out/$1/pad.exe out/$1/pish.exe out/$1/rmdir.exe out/$1/type.exe out/$1/uefi.exe out/$1/write.exe
 rmdir out/$1

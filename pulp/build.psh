@@ -11,7 +11,7 @@ $root/bin/pad tmp/$1/pulp-asm.bin 4608 4608
 $root/bin/mars -o 70144 tmp/$1/pulp.sol tmp/$1/asm.map tmp/$1/pulp-sol.bin
 
 $root/bin/concat out/$1/pulp.bin tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin
-$root/bin/jews c out/$1/pulp.bin out/$1/pulp.sys
+$root/bin/jus c out/$1/pulp.bin out/$1/pulp.sys
 $root/bin/pad out/$1/pulp.sys 0 8192
 
 del tmp/$1/pulp.sol tmp/$1/sol.map tmp/$1/asm.map tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin

@@ -1,4 +1,4 @@
 $root/bin/bootstrap/$platform/juicer d out/fruityos-x86_64/jc.fap $root/.jabara-raw
-$root/bin/jews c $root/.jabara-raw out/fruityos-x86_64/jc.fap
+$root/bin/jus c $root/.jabara-raw out/fruityos-x86_64/jc.fap
 $root/bin/bootstrap/$platform/juicer d out/fruityos-x86_64/orgasm.fap $root/.orgasm-raw
-$root/bin/jews c $root/.orgasm-raw out/fruityos-x86_64/orgasm.fap
+$root/bin/jus c $root/.orgasm-raw out/fruityos-x86_64/orgasm.fap

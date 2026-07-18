@@ -4,5 +4,5 @@ $root/bin/pad $root/.jc-prefix 1024 1024
 $root/bin/mars -o 4195328 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
 $root/bin/concat $root/.jc-raw $root/.jc-prefix $root/.jc-code
 $root/bin/orgasm $1/juicer-decode-stub.asm $1/juicer.asm $1/juicer-decode-trailer.asm $root/.jc-stub
-$root/bin/jews c $root/.jc-raw $root/.jc-juiced
+$root/bin/jus c $root/.jc-raw $root/.jc-juiced
 $root/bin/concat $2 $root/.jc-stub $root/.jc-juiced

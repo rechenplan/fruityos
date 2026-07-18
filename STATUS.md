@@ -27,7 +27,7 @@ Validated on Linux x86-64:
 - Haruka locals, records, lift, closures, nested lifted closures, and currying;
 - Mars semantic, deterministic-output, stress, extern, data, and compactness tests;
 - two-way Mars/Orgasm symbol-map linking;
-- canonical 11/5 Juicer encode/decode round trips and JEWS hash-chain compression;
+- canonical 11/5 Juicer encode/decode round trips and JUS hash-chain compression;
 - all 18 Peel host and FruityOS applications through Haruka/Mars;
 - Linux ELF, FruityOS FAP, and Windows PE32+ default linker outputs;
 - complete BIOS HDD, BIOS floppy, EFI application, and UEFI image production;

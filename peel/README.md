@@ -1,7 +1,7 @@
 # Peel
 
 Peel is FruityOS's Jabara-written userland. It provides Pish, RAMFS utilities,
-Fred, Jar, Juicer, Jews, and image-building tools.
+Fred, Jar, Juicer, Jus, and image-building tools.
 
 Peel does not own or build Jabara, Orgasm, or Yuzu.
 
@@ -17,7 +17,7 @@ build.psh platform
 `.exe`, and FruityOS programs as `.fap` beneath `peel/out/$1/`.
 
 For the active host platform, each tool is also installed into root `bin/` as
-soon as it is built. Fresh Concat, Juicer, Jews, and other host binaries take precedence
+soon as it is built. Fresh Concat, Juicer, Jus, and other host binaries take precedence
 over their bootstrap launchers before later components use them. Windows and
 FruityOS rebuild their canonical `pish.exe` or `pish.fap`; Linux publishes
 `pish.elf` beside the checked-in native entrypoint `bin/pish`. During initrd

@@ -45,7 +45,7 @@ build.psh fruityos-x86_64
 cd ..
 
 del initrd/pulp.sys initrd/init.psh
-del initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/jews.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
+del initrd/bin/jar.fap initrd/bin/juicer.fap initrd/bin/jus.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
 del initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
 del initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
 del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jabara.fap initrd/bin/haruka.fap initrd/bin/mars.fap
@@ -82,7 +82,7 @@ copy pulp/out/fruityos-x86_64/pulp.sys initrd/pulp.sys
 copy scripts/init.psh initrd/init.psh
 copy peel/out/fruityos-x86_64/jar.fap initrd/bin/jar.fap
 copy peel/out/fruityos-x86_64/juicer.fap initrd/bin/juicer.fap
-copy peel/out/fruityos-x86_64/jews.fap initrd/bin/jews.fap
+copy peel/out/fruityos-x86_64/jus.fap initrd/bin/jus.fap
 copy jabara/out/fruityos-x86_64/orgasm.fap initrd/bin/orgasm.fap
 copy peel/out/fruityos-x86_64/pish.fap initrd/bin/pish.fap
 copy peel/out/fruityos-x86_64/pad.fap initrd/bin/pad.fap

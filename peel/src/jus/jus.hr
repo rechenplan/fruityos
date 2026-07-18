@@ -188,7 +188,7 @@ end
 sub main(argc, argv)
 	local fin, fout, mode
 	if argc != 4 then
-		puts("usage: jews c infile outfile")
+		puts("usage: jus c infile outfile")
 		putch(10)
 		return 0
 	end
@@ -196,7 +196,7 @@ sub main(argc, argv)
 	argv = nextarg(argv)
 	mode = byte [argv]
 	if mode != byte ["c"] then
-		puts("jews only supports compression")
+		puts("jus only supports compression")
 		putch(10)
 		return 0
 	end

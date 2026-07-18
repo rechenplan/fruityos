@@ -155,6 +155,44 @@ sub mars_binary_rr(state:MarsState, opcode, destination, source)
   mars_modrm(state, 3, source, destination)
 end
 
+sub mars_binary_ri(state:MarsState, group, destination, value)
+  mars_rex(state, 1, 0, 0, destination)
+  if (value >= -128) && (value <= 127) then
+    mars_byte(state, 131)
+    mars_modrm(state, 3, group, destination)
+    mars_byte(state, value)
+  else
+    mars_byte(state, 129)
+    mars_modrm(state, 3, group, destination)
+    mars_bytes(state, value, 4)
+  end
+end
+
+sub mars_imul_ri(state:MarsState, destination, value)
+  mars_rex(state, 1, destination, 0, destination)
+  if (value >= -128) && (value <= 127) then
+    mars_byte(state, 107)
+    mars_modrm(state, 3, destination, destination)
+    mars_byte(state, value)
+  else
+    mars_byte(state, 105)
+    mars_modrm(state, 3, destination, destination)
+    mars_bytes(state, value, 4)
+  end
+end
+
+sub mars_shift_i(state:MarsState, group, target, value)
+  mars_rex(state, 1, 0, 0, target)
+  if value == 1 then
+    mars_byte(state, 209)
+    mars_modrm(state, 3, group, target)
+  else
+    mars_byte(state, 193)
+    mars_modrm(state, 3, group, target)
+    mars_byte(state, value)
+  end
+end
+
 sub mars_imul_rr(state:MarsState, destination, source)
   mars_rex(state, 1, destination, 0, source)
   mars_byte(state, 15)

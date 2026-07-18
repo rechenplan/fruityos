@@ -440,6 +440,12 @@ end
 
 sub em_emit_binary(emitter:Emitter, expr:Expr)
   local instruction = em_binary_name(expr.op)
+  if (expr.right.kind == 0) && (expr.op != 17) && (expr.op != 19) then
+    em_emit_expr(emitter, expr.left)
+    if instruction == 0 then jc_error_at(expr.line, 1, "unsupported binary operator") end
+    em_text("\t") em_text(instruction) em_text("\ta, a, ") em_number(expr.right.number) em_newline()
+    return 0
+  end
   em_emit_push_expr(emitter, expr.right)
   em_emit_expr(emitter, expr.left)
   em_instruction("pop\tb")

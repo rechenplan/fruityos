@@ -61,8 +61,30 @@ sub mars_fast_binary(state:MarsState, item:SolItem)
   local operation = item.operation
   local destination = mars_visible_register(item.first.value.register)
   local left = mars_direct_register(item.second.value)
-  local right = mars_direct_register(item.third.value), source
-  if (destination < 0) || (left < 0) || (right < 0) then return 0 end
+  local right = mars_direct_register(item.third.value), source, immediate
+  if (destination < 0) || (left < 0) then return 0 end
+
+  if (item.third.value.kind == 2) || (item.third.value.kind == 5) then
+    immediate = item.third.value.number
+    if item.third.value.kind == 5 then immediate = immediate * 8 end
+    if destination != left then return 0 end
+    if operation == 2 then mars_binary_ri(state, 0, destination, immediate) return 1 end
+    if operation == 3 then mars_binary_ri(state, 5, destination, immediate) return 1 end
+    if operation == 4 then mars_imul_ri(state, destination, immediate) return 1 end
+    if operation == 7 then mars_binary_ri(state, 4, destination, immediate) return 1 end
+    if operation == 8 then mars_binary_ri(state, 1, destination, immediate) return 1 end
+    if operation == 9 then mars_binary_ri(state, 6, destination, immediate) return 1 end
+    if operation == 10 then mars_shift_i(state, 4, destination, immediate & 63) return 1 end
+    if operation == 11 then mars_shift_i(state, 5, destination, immediate & 63) return 1 end
+    if (operation >= 12) && (operation <= 17) then
+      mars_binary_ri(state, 7, left, immediate)
+      mars_setcc(state, mars_compare_condition(operation), destination)
+      mars_movzx_byte(state, destination, destination)
+      return 1
+    end
+  end
+
+  if right < 0 then return 0 end
 
   if (operation >= 12) && (operation <= 17) then
     mars_cmp_rr(state, left, right)

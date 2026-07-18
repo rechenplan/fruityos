@@ -1,7 +1,7 @@
 # Shell and userland
 
 Peel is FruityOS's Jabara-written userland. It contains the Pish shell, RAMFS
-utilities, Fred editor, Jar archiver, Juicer compressor, fast Jews encoder, and development tools.
+utilities, Fred editor, Jar archiver, Juicer compressor, fast Jus encoder, and development tools.
 
 ## Pish
 
@@ -48,7 +48,7 @@ jobs, or shell conditionals.
 | `jar` | Create or extract Jar archives. |
 | `jc` | Compile Jabara to NASM-compatible assembly. |
 | `juicer` | Reference compressor and Juicer stream decoder. |
-| `jews` | Fast hash-chain Juicer compressor. |
+| `jus` | Fast hash-chain Juicer compressor. |
 | `mkdir` | Create a directory. |
 | `move` | Rename or move a file. |
 | `orgasm` | Assemble FruityOS and Jabara assembly inputs. |
@@ -90,8 +90,8 @@ Juicer groups eight items behind a literal-bit mask. Matches use a two-byte
 length field representing 3 through 34 bytes. A zero match token terminates the
 stream.
 
-Both `juicer` and `jews` emit this format. `juicer` is the small reference
-encoder and decoder; `jews` uses hash chains to find the same matches much
+Both `juicer` and `jus` emit this format. `juicer` is the small reference
+encoder and decoder; `jus` uses hash chains to find the same matches much
 faster and is the encoder used by the build. BIOS Seed, UEFI Seed, Pulp's FAP
 loader, and the `juicer` userland program share the platform decoder.
 
