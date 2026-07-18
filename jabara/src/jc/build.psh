@@ -1,6 +1,8 @@
 $root/lib/$1/link-jabara.psh $root/lib/$1 out/$1/jc-bootstrap $root/jabara/src/jbc/jbc.asm
 $root/jabara/install-$1.psh jabara out/$1/jc-bootstrap
 
+$root/bin/jb.psh $1 out/$1/jc-self emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
+$root/jabara/install-$1.psh jabara out/$1/jc-self
 $root/bin/jb.psh $1 out/$1/jc emitter.jabara lexer.jabara main.jabara model.jabara parser.jabara runtime.jabara
 $root/jabara/install-$1.psh jabara out/$1/jc
 

@@ -27,8 +27,8 @@ sub main(argc, argv)
   parser = sol_parser_new(source)
   while 1 do
     item = sol_next(parser)
-    if item.kind == SOL_ITEM_ERROR() then return 2 end
-    if item.kind == SOL_ITEM_EOF() then
+    if item.kind == 1 then return 2 end
+    if item.kind == 0 then
       if count != 100001 then return 3 end
       return 0
     end

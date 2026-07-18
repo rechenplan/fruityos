@@ -34,22 +34,22 @@ sub lx_advance(lexer:Lexer)
 end
 
 sub lx_keyword(text)
-  if jc_streq(text, "local") then return T_LOCAL() end
-  if jc_streq(text, "if") then return T_IF() end
-  if jc_streq(text, "then") then return T_THEN() end
-  if jc_streq(text, "else") then return T_ELSE() end
-  if jc_streq(text, "end") then return T_END() end
-  if jc_streq(text, "while") then return T_WHILE() end
-  if jc_streq(text, "do") then return T_DO() end
-  if jc_streq(text, "sub") then return T_SUB() end
-  if jc_streq(text, "return") then return T_RETURN() end
-  if jc_streq(text, "byte") then return T_BYTE() end
-  if jc_streq(text, "fn") then return T_FN() end
-  if jc_streq(text, "record") then return T_RECORD() end
-  if jc_streq(text, "extern") then return T_EXTERN() end
-  if jc_streq(text, "new") then return T_NEW() end
-  if jc_streq(text, "lift") then return T_LIFT() end
-  return T_ID()
+  if jc_streq(text, "local") then return 32 end
+  if jc_streq(text, "if") then return 33 end
+  if jc_streq(text, "then") then return 34 end
+  if jc_streq(text, "else") then return 35 end
+  if jc_streq(text, "end") then return 36 end
+  if jc_streq(text, "while") then return 37 end
+  if jc_streq(text, "do") then return 38 end
+  if jc_streq(text, "sub") then return 39 end
+  if jc_streq(text, "return") then return 40 end
+  if jc_streq(text, "byte") then return 41 end
+  if jc_streq(text, "fn") then return 42 end
+  if jc_streq(text, "record") then return 43 end
+  if jc_streq(text, "extern") then return 44 end
+  if jc_streq(text, "new") then return 45 end
+  if jc_streq(text, "lift") then return 46 end
+  return 1
 end
 
 sub lx_skip(lexer:Lexer)
@@ -75,7 +75,7 @@ sub lx_next(lexer:Lexer)
   token.line = lexer.line
   token.column = lexer.column
   character = lx_current(lexer)
-  if character == 0 then token.kind = T_EOF() lexer.token = token return token end
+  if character == 0 then token.kind = 0 lexer.token = token return token end
   if lx_is_alpha(character) then
     while lx_is_alnum(lx_current(lexer)) do lx_advance(lexer) end
     token.text = jc_slice(lexer.source, start, lexer.position)
@@ -90,7 +90,7 @@ sub lx_next(lexer:Lexer)
     end
     token.number = value
     token.text = jc_slice(lexer.source, start, lexer.position)
-    token.kind = T_NUMBER()
+    token.kind = 2
     lexer.token = token
     return token
   end
@@ -119,61 +119,61 @@ sub lx_next(lexer:Lexer)
     lx_advance(lexer)
     byte [result + length] = 0
     token.text = result
-    token.kind = T_STRING()
+    token.kind = 3
     lexer.token = token
     return token
   end
-  if character == 40 then lx_simple(lexer, token, T_LPAREN(), 1) lexer.token = token return token end
-  if character == 41 then lx_simple(lexer, token, T_RPAREN(), 1) lexer.token = token return token end
-  if character == 91 then lx_simple(lexer, token, T_LBRACKET(), 1) lexer.token = token return token end
-  if character == 93 then lx_simple(lexer, token, T_RBRACKET(), 1) lexer.token = token return token end
-  if character == 44 then lx_simple(lexer, token, T_COMMA(), 1) lexer.token = token return token end
-  if character == 46 then lx_simple(lexer, token, T_DOT(), 1) lexer.token = token return token end
-  if character == 58 then lx_simple(lexer, token, T_COLON(), 1) lexer.token = token return token end
-  if character == 43 then lx_simple(lexer, token, T_PLUS(), 1) lexer.token = token return token end
-  if character == 45 then lx_simple(lexer, token, T_MINUS(), 1) lexer.token = token return token end
-  if character == 42 then lx_simple(lexer, token, T_STAR(), 1) lexer.token = token return token end
-  if character == 47 then lx_simple(lexer, token, T_SLASH(), 1) lexer.token = token return token end
-  if character == 37 then lx_simple(lexer, token, T_PERCENT(), 1) lexer.token = token return token end
-  if character == 94 then lx_simple(lexer, token, T_XOR(), 1) lexer.token = token return token end
+  if character == 40 then lx_simple(lexer, token, 4, 1) lexer.token = token return token end
+  if character == 41 then lx_simple(lexer, token, 5, 1) lexer.token = token return token end
+  if character == 91 then lx_simple(lexer, token, 6, 1) lexer.token = token return token end
+  if character == 93 then lx_simple(lexer, token, 7, 1) lexer.token = token return token end
+  if character == 44 then lx_simple(lexer, token, 8, 1) lexer.token = token return token end
+  if character == 46 then lx_simple(lexer, token, 9, 1) lexer.token = token return token end
+  if character == 58 then lx_simple(lexer, token, 10, 1) lexer.token = token return token end
+  if character == 43 then lx_simple(lexer, token, 11, 1) lexer.token = token return token end
+  if character == 45 then lx_simple(lexer, token, 12, 1) lexer.token = token return token end
+  if character == 42 then lx_simple(lexer, token, 13, 1) lexer.token = token return token end
+  if character == 47 then lx_simple(lexer, token, 14, 1) lexer.token = token return token end
+  if character == 37 then lx_simple(lexer, token, 15, 1) lexer.token = token return token end
+  if character == 94 then lx_simple(lexer, token, 20, 1) lexer.token = token return token end
   if character == 38 then
-    if byte [lexer.source + lexer.position + 1] == 38 then lx_simple(lexer, token, T_AND(), 2)
-    else lx_simple(lexer, token, T_AMP(), 1) end
+    if byte [lexer.source + lexer.position + 1] == 38 then lx_simple(lexer, token, 17, 2)
+    else lx_simple(lexer, token, 16, 1) end
     lexer.token = token return token
   end
   if character == 124 then
-    if byte [lexer.source + lexer.position + 1] == 124 then lx_simple(lexer, token, T_OR(), 2)
-    else lx_simple(lexer, token, T_PIPE(), 1) end
+    if byte [lexer.source + lexer.position + 1] == 124 then lx_simple(lexer, token, 19, 2)
+    else lx_simple(lexer, token, 18, 1) end
     lexer.token = token return token
   end
   if character == 61 then
-    if byte [lexer.source + lexer.position + 1] == 61 then lx_simple(lexer, token, T_EQ(), 2)
-    else lx_simple(lexer, token, T_ASSIGN(), 1) end
+    if byte [lexer.source + lexer.position + 1] == 61 then lx_simple(lexer, token, 21, 2)
+    else lx_simple(lexer, token, 22, 1) end
     lexer.token = token return token
   end
   if character == 33 then
-    if byte [lexer.source + lexer.position + 1] == 61 then lx_simple(lexer, token, T_NE(), 2)
-    else lx_simple(lexer, token, T_NOT(), 1) end
+    if byte [lexer.source + lexer.position + 1] == 61 then lx_simple(lexer, token, 23, 2)
+    else lx_simple(lexer, token, 25, 1) end
     lexer.token = token return token
   end
-  if character == 126 then lx_simple(lexer, token, T_BNOT(), 1) lexer.token = token return token end
+  if character == 126 then lx_simple(lexer, token, 24, 1) lexer.token = token return token end
   if character == 60 then
     if byte [lexer.source + lexer.position + 1] == 60 then
-      lx_simple(lexer, token, T_SHL(), 2) lexer.token = token return token
+      lx_simple(lexer, token, 26, 2) lexer.token = token return token
     end
     if byte [lexer.source + lexer.position + 1] == 61 then
-      lx_simple(lexer, token, T_LE(), 2) lexer.token = token return token
+      lx_simple(lexer, token, 27, 2) lexer.token = token return token
     end
-    lx_simple(lexer, token, T_LT(), 1) lexer.token = token return token
+    lx_simple(lexer, token, 28, 1) lexer.token = token return token
   end
   if character == 62 then
     if byte [lexer.source + lexer.position + 1] == 62 then
-      lx_simple(lexer, token, T_SHR(), 2) lexer.token = token return token
+      lx_simple(lexer, token, 29, 2) lexer.token = token return token
     end
     if byte [lexer.source + lexer.position + 1] == 61 then
-      lx_simple(lexer, token, T_GE(), 2) lexer.token = token return token
+      lx_simple(lexer, token, 30, 2) lexer.token = token return token
     end
-    lx_simple(lexer, token, T_GT(), 1) lexer.token = token return token
+    lx_simple(lexer, token, 31, 1) lexer.token = token return token
   end
   jc_error_at(token.line, token.column, "invalid character")
 end

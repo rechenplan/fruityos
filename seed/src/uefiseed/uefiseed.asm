@@ -610,6 +610,9 @@ load_vga_font:
     pop rbx
     ret
 
+%define PITH_juicer_decode64
+%define JUICER_LONG_ONLY
+%define JUICER_FREESTANDING
 %include "../../../lib/fruityos-x86_64/juicer.asm"
 
 text_end:

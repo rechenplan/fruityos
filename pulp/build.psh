@@ -6,12 +6,12 @@ mkdir tmp/$1
 $root/bin/haruka src/fba.hr src/fd.hr src/global.hr src/heap.hr src/idt.hr src/inode.hr src/kb.hr src/kmain.hr src/list.hr src/page.hr src/platform.hr src/ramfs.hr src/roots.hr src/scr.hr src/sys.hr src/task.hr src/utils.hr src/x86.hr tmp/$1/pulp.sol
 
 $root/bin/mars -o 70144 -M tmp/$1/sol.map tmp/$1/pulp.sol
-$root/bin/orgasm -m tmp/$1/asm.map tmp/$1/sol.map src/entry.asm src/idt.asm ../lib/$1/juicer-runtime.asm tmp/$1/pulp-asm.bin
+$root/bin/orgasm -m tmp/$1/asm.map tmp/$1/sol.map src/entry.asm src/idt.asm ../lib/$1/juicer-enable.asm ../lib/$1/juicer.asm tmp/$1/pulp-asm.bin
 $root/bin/pad tmp/$1/pulp-asm.bin 4608 4608
 $root/bin/mars -o 70144 tmp/$1/pulp.sol tmp/$1/asm.map tmp/$1/pulp-sol.bin
 
 $root/bin/concat out/$1/pulp.bin tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin
-$root/bin/juicer c out/$1/pulp.bin out/$1/pulp.sys
+$root/bin/jews c out/$1/pulp.bin out/$1/pulp.sys
 $root/bin/pad out/$1/pulp.sys 0 8192
 
 del tmp/$1/pulp.sol tmp/$1/sol.map tmp/$1/asm.map tmp/$1/pulp-asm.bin tmp/$1/pulp-sol.bin

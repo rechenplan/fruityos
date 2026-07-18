@@ -2,7 +2,7 @@
 	bits 16
 
 %define KERNEL_ADDR 0x10000
-%define STACK_ADDR 0x90000
+%define STACK_ADDR 0x40000
 
 	; Canonicalize IP
 	jmp 0x0000:start
@@ -14,7 +14,7 @@ start:
 	xor ax, ax
 	mov ds, ax
 
-	mov bp, 0x2000	; Output buffer 0x20000
+	mov bp, 0x4000	; Output buffer 0x40000
 	xor bx, bx
 	mov cx, 1	; Cylinder 0, Sector 1
 	xor dh, dh	; Head 0
@@ -23,7 +23,7 @@ start:
 reset: 	mov ah, 0
 	int 0x13
 
-	; Load 22 cylinders into memory (CHS) (396 KiB)
+	; Load 19 cylinders into memory (CHS) (342 KiB)
 load:	mov ax, 0x0201	; Read 1 sector
 	mov es, bp	; ES:BX is output buffer
 	int 0x13
@@ -36,7 +36,7 @@ load:	mov ax, 0x0201	; Read 1 sector
 	xor dh, 1	; Toggle head
 	jnz load	; If head is zero, increment cylinder
 	inc ch
-	cmp ch, 22	; Stop at 0x83000, below the stack and firmware data.
+	cmp ch, 19	; Stop below conventional-memory firmware data.
 	jne load
 
 	; Turn on A20 gate (fast A20)
@@ -106,7 +106,7 @@ lmode:	mov ax, DATA_SEG
 	mov rsp, STACK_ADDR
 
 	; Find /pulp.sys in the initrd Jar after the boot sector.
-	mov rsi, 0x20200
+	mov rsi, 0x40200
 	mov r12, rsi
 	mov rdx, 0x7379732e706c7570
 find_pulp:
@@ -129,6 +129,9 @@ skip_name:
 	call juicer_decode64
 	jmp boot
 
+%define PITH_juicer_decode64
+%define JUICER_LONG_ONLY
+%define JUICER_FREESTANDING
 %include "../../../lib/fruityos-x86_64/juicer.asm"
 
 boot:	mov rsi, r12

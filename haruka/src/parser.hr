@@ -17,7 +17,7 @@ end
 
 sub ps_text()
   local result
-  if ps_kind() != T_ID() then
+  if ps_kind() != 1 then
     jc_error_at(ps_lexer.token.line, ps_lexer.token.column, "expected identifier")
   end
   result = jc_copy(ps_lexer.token.text)
@@ -48,7 +48,7 @@ end
 local ps_name = fn do
   local name:Name = new Name
   name.name = ps_text()
-  if ps_accept(T_COLON()) then name.tag = ps_text() end
+  if ps_accept(10) then name.tag = ps_text() end
   return lift name
 end
 
@@ -69,9 +69,9 @@ end
 
 sub ps_parse_statements(stop_else)
   local head:Stmt, tail:Stmt, statement:Stmt
-  while (ps_kind() != T_EOF()) && (ps_kind() != T_END()) &&
-        ((stop_else == 0) || (ps_kind() != T_ELSE())) do
-    if (ps_kind() == T_SUB()) || (ps_kind() == T_RECORD()) || (ps_kind() == T_EXTERN()) then
+  while (ps_kind() != 0) && (ps_kind() != 36) &&
+        ((stop_else == 0) || (ps_kind() != 35)) do
+    if (ps_kind() == 39) || (ps_kind() == 43) || (ps_kind() == 44) then
       jc_error_at(ps_lexer.token.line, ps_lexer.token.column,
                   "declaration is only allowed at program scope")
     end
@@ -85,65 +85,65 @@ end
 sub ps_parse_primary()
   local token:Token = ps_lexer.token, line = token.line
   local expr:Expr, call:Expr, member:Expr, argument:Expr, argument_tail:Expr, wrapper:Stmt, local_stmt:Stmt, curry:Name, lifted:Expr, done
-  if token.kind == T_NUMBER() then
-    expr = ps_expr(EX_NUMBER(), line)
+  if token.kind == 2 then
+    expr = ps_expr(0, line)
     expr.number = token.number
     lx_next(ps_lexer)
   else
-    if token.kind == T_STRING() then
-      expr = ps_expr(EX_STRING(), line)
+    if token.kind == 3 then
+      expr = ps_expr(1, line)
       expr.text = jc_copy(token.text)
       lx_next(ps_lexer)
     else
-      if token.kind == T_ID() then
-        expr = ps_expr(EX_NAME(), line)
+      if token.kind == 1 then
+        expr = ps_expr(2, line)
         expr.text = ps_text()
       else
-        if ps_accept(T_NEW()) then
-          expr = ps_expr(EX_NEW(), line)
+        if ps_accept(45) then
+          expr = ps_expr(11, line)
           expr.text = ps_text()
         else
-          if ps_accept(T_LIFT()) then
-            expr = ps_expr(EX_LIFT(), line)
+          if ps_accept(46) then
+            expr = ps_expr(12, line)
             expr.text = ps_text()
           else
-            if ps_accept(T_LBRACKET()) then
-          expr = ps_expr(EX_DEREF(), line)
+            if ps_accept(6) then
+          expr = ps_expr(3, line)
           expr.left = ps_parse_expression()
-          ps_expect(T_RBRACKET())
+          ps_expect(7)
         else
-          if ps_accept(T_LPAREN()) then
+          if ps_accept(4) then
             expr = ps_parse_expression()
-            ps_expect(T_RPAREN())
+            ps_expect(5)
           else
-            if ps_accept(T_FN()) then
-              expr = ps_expr(EX_CLOSURE(), line)
-              if ps_kind() == T_DO() then
+            if ps_accept(42) then
+              expr = ps_expr(9, line)
+              if ps_kind() == 38 then
                 expr.text = jc_copy("")
               else
                 expr.text = ps_text()
-                if ps_accept(T_COLON()) then expr.tag = ps_text() end
+                if ps_accept(10) then expr.tag = ps_text() end
               end
               member = expr
-              while ps_accept(T_COMMA()) do
-                call = ps_expr(EX_CLOSURE(), line)
+              while ps_accept(8) do
+                call = ps_expr(9, line)
                 call.text = ps_text()
-                if ps_accept(T_COLON()) then call.tag = ps_text() end
-                local_stmt = ps_stmt(ST_LOCAL(), line)
+                if ps_accept(10) then call.tag = ps_text() end
+                local_stmt = ps_stmt(0, line)
                 curry = ps_named(jc_copy("__jabara_curry"))
                 curry.initializer = call
                 local_stmt.names = curry
-                wrapper = ps_stmt(ST_RETURN(), line)
-                lifted = ps_expr(EX_LIFT(), line)
+                wrapper = ps_stmt(3, line)
+                lifted = ps_expr(12, line)
                 lifted.text = jc_copy("__jabara_curry")
                 wrapper.expr = lifted
                 local_stmt.next = wrapper
                 member.body = local_stmt
                 member = call
               end
-              ps_expect(T_DO())
+              ps_expect(38)
               member.body = ps_parse_statements(0)
-              ps_expect(T_END())
+              ps_expect(36)
             else
               jc_error_at(token.line, token.column, "expected expression")
             end
@@ -154,26 +154,26 @@ sub ps_parse_primary()
   end
 end
 end
-  while (ps_kind() == T_LPAREN()) || (ps_kind() == T_DOT()) do
-    if ps_accept(T_LPAREN()) then
-      call = ps_expr(EX_CALL(), line)
+  while (ps_kind() == 4) || (ps_kind() == 9) do
+    if ps_accept(4) then
+      call = ps_expr(8, line)
       call.left = expr
       argument_tail = 0
-      if ps_kind() != T_RPAREN() then
+      if ps_kind() != 5 then
         done = 0
         while done == 0 do
           argument = ps_parse_expression()
           if call.arguments == 0 then call.arguments = argument else argument_tail.next = argument end
           argument_tail = argument
           call.argument_count = call.argument_count + 1
-          if ps_accept(T_COMMA()) == 0 then done = 1 end
+          if ps_accept(8) == 0 then done = 1 end
         end
       end
-      ps_expect(T_RPAREN())
+      ps_expect(5)
       expr = call
     else
-      ps_expect(T_DOT())
-      member = ps_expr(EX_MEMBER(), line)
+      ps_expect(9)
+      member = ps_expr(10, line)
       member.left = expr
       member.text = ps_text()
       expr = member
@@ -185,15 +185,15 @@ end
 sub ps_parse_unary()
   local kind = ps_kind(), line = ps_lexer.token.line
   local expr:Expr
-  if (kind == T_MINUS()) || (kind == T_NOT()) || (kind == T_BNOT()) then
+  if (kind == 12) || (kind == 25) || (kind == 24) then
     lx_next(ps_lexer)
-    expr = ps_expr(EX_UNARY(), line)
+    expr = ps_expr(5, line)
     expr.op = kind
     expr.left = ps_parse_unary()
     return expr
   end
-  if ps_accept(T_BYTE()) then
-    expr = ps_expr(EX_BYTE(), line)
+  if ps_accept(41) then
+    expr = ps_expr(4, line)
     expr.left = ps_parse_unary()
     return expr
   end
@@ -201,15 +201,15 @@ sub ps_parse_unary()
 end
 
 sub ps_is_binary(kind)
-  return (kind >= T_PLUS()) && (kind <= T_GT()) &&
-         (kind != T_ASSIGN()) && (kind != T_BNOT()) && (kind != T_NOT())
+  return (kind >= 11) && (kind <= 31) &&
+         (kind != 22) && (kind != 24) && (kind != 25)
 end
 
 sub ps_parse_binary()
   local left:Expr = ps_parse_unary(), binary:Expr, operation
   while ps_is_binary(ps_kind()) do
     operation = ps_kind()
-    binary = ps_expr(EX_BINARY(), ps_lexer.token.line)
+    binary = ps_expr(6, ps_lexer.token.line)
     lx_next(ps_lexer)
     binary.op = operation
     binary.left = left
@@ -220,21 +220,21 @@ sub ps_parse_binary()
 end
 
 sub ps_is_lvalue(expr:Expr)
-  if (expr.kind == EX_NAME()) || (expr.kind == EX_DEREF()) ||
-     (expr.kind == EX_MEMBER()) then return 1 end
-  if expr.kind == EX_BYTE() then
+  if (expr.kind == 2) || (expr.kind == 3) ||
+     (expr.kind == 10) then return 1 end
+  if expr.kind == 4 then
     expr = expr.left
-    return (expr.kind == EX_NAME()) || (expr.kind == EX_DEREF()) ||
-           (expr.kind == EX_MEMBER())
+    return (expr.kind == 2) || (expr.kind == 3) ||
+           (expr.kind == 10)
   end
   return 0
 end
 
 sub ps_parse_expression()
   local left:Expr = ps_parse_binary(), assignment:Expr
-  if ps_accept(T_ASSIGN()) then
+  if ps_accept(22) then
     if ps_is_lvalue(left) == 0 then jc_error_at(left.line, 1, "assignment requires an lvalue") end
-    assignment = ps_expr(EX_ASSIGN(), left.line)
+    assignment = ps_expr(7, left.line)
     assignment.left = left
     assignment.right = ps_parse_expression()
     return assignment
@@ -245,39 +245,39 @@ end
 sub ps_parse_statement()
   local line = ps_lexer.token.line
   local statement:Stmt, name:Name, tail:Name
-  if ps_accept(T_LOCAL()) then
-    statement = ps_stmt(ST_LOCAL(), line)
+  if ps_accept(32) then
+    statement = ps_stmt(0, line)
     while 1 do
       name = ps_name()
-      if ps_accept(T_ASSIGN()) then name.initializer = ps_parse_expression() end
+      if ps_accept(22) then name.initializer = ps_parse_expression() end
       if statement.names == 0 then statement.names = name else tail.next = name end
       tail = name
-      if ps_accept(T_COMMA()) == 0 then return statement end
+      if ps_accept(8) == 0 then return statement end
     end
   end
-  if ps_accept(T_IF()) then
-    statement = ps_stmt(ST_IF(), line)
+  if ps_accept(33) then
+    statement = ps_stmt(1, line)
     statement.expr = ps_parse_expression()
-    ps_expect(T_THEN())
+    ps_expect(34)
     statement.body = ps_parse_statements(1)
-    if ps_accept(T_ELSE()) then statement.else_body = ps_parse_statements(0) end
-    ps_expect(T_END())
+    if ps_accept(35) then statement.else_body = ps_parse_statements(0) end
+    ps_expect(36)
     return statement
   end
-  if ps_accept(T_WHILE()) then
-    statement = ps_stmt(ST_WHILE(), line)
+  if ps_accept(37) then
+    statement = ps_stmt(2, line)
     statement.expr = ps_parse_expression()
-    ps_expect(T_DO())
+    ps_expect(38)
     statement.body = ps_parse_statements(0)
-    ps_expect(T_END())
+    ps_expect(36)
     return statement
   end
-  if ps_accept(T_RETURN()) then
-    statement = ps_stmt(ST_RETURN(), line)
+  if ps_accept(40) then
+    statement = ps_stmt(3, line)
     statement.expr = ps_parse_expression()
     return statement
   end
-  statement = ps_stmt(ST_EXPR(), line)
+  statement = ps_stmt(4, line)
   statement.expr = ps_parse_expression()
   return statement
 end
@@ -286,23 +286,23 @@ sub ps_parse_function(is_extern)
   local function:Function = ps_function(), parameter:Name, tail:Name, done
   function.line = ps_lexer.token.line
   function.is_extern = is_extern
-  if is_extern then ps_expect(T_EXTERN()) end
-  ps_expect(T_SUB())
+  if is_extern then ps_expect(44) end
+  ps_expect(39)
   function.name = ps_text()
-  ps_expect(T_LPAREN())
-  if ps_kind() != T_RPAREN() then
+  ps_expect(4)
+  if ps_kind() != 5 then
     done = 0
     while done == 0 do
       parameter = ps_name()
       if function.parameters == 0 then function.parameters = parameter else tail.next = parameter end
       tail = parameter
-      if ps_accept(T_COMMA()) == 0 then done = 1 end
+      if ps_accept(8) == 0 then done = 1 end
     end
   end
-  ps_expect(T_RPAREN())
+  ps_expect(5)
   if is_extern == 0 then
     function.body = ps_parse_statements(0)
-    ps_expect(T_END())
+    ps_expect(36)
   end
   return function
 end
@@ -310,7 +310,7 @@ end
 sub ps_parse_record()
   local definition:Record = ps_record(), field:Name, tail:Name, existing:Name
   definition.line = ps_lexer.token.line
-  ps_expect(T_RECORD())
+  ps_expect(43)
   definition.name = ps_text()
   while 1 do
     field = ps_name()
@@ -323,7 +323,7 @@ sub ps_parse_record()
     end
     if definition.fields == 0 then definition.fields = field else tail.next = field end
     tail = field
-    if ps_accept(T_COMMA()) == 0 then return definition end
+    if ps_accept(8) == 0 then return definition end
   end
 end
 
@@ -333,14 +333,14 @@ sub ps_parse_program(source)
   local function:Function, function_tail:Function
   local statement:Stmt, statement_tail:Stmt
   ps_lexer = lx_init(source)
-  while ps_kind() != T_EOF() do
-    if ps_kind() == T_RECORD() then
+  while ps_kind() != 0 do
+    if ps_kind() == 43 then
       definition = ps_parse_record()
       if program.records == 0 then program.records = definition else record_tail.next = definition end
       record_tail = definition
     else
-      if (ps_kind() == T_SUB()) || (ps_kind() == T_EXTERN()) then
-        function = ps_parse_function(ps_kind() == T_EXTERN())
+      if (ps_kind() == 39) || (ps_kind() == 44) then
+        function = ps_parse_function(ps_kind() == 44)
         if program.functions == 0 then program.functions = function else function_tail.next = function end
         function_tail = function
       else

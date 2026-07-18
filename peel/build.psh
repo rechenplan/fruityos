@@ -2,6 +2,8 @@ $root/bin/jc.psh $1 out/$1/concat src/concat/concat.hr
 rename-$1.psh concat
 $root/bin/jc.psh $1 out/$1/juicer src/juicer/juicer.hr
 rename-$1.psh juicer
+$root/bin/jc.psh $1 out/$1/jews src/jews/jews.hr
+rename-$1.psh jews
 $root/bin/jc.psh $1 out/$1/pish src/pish/pish.hr
 rename-$1.psh pish
 $root/bin/jc.psh $1 out/$1/copy src/copy/copy.hr
@@ -34,6 +36,6 @@ $root/bin/jc.psh $1 out/$1/uefi src/uefi/uefi.hr
 rename-$1.psh uefi
 $root/bin/jc.psh $1 out/$1/write src/write/write.hr
 rename-$1.psh write
-del out/$1/concat out/$1/juicer out/$1/pish out/$1/copy out/$1/del out/$1/dir
+del out/$1/concat out/$1/juicer out/$1/jews out/$1/pish out/$1/copy out/$1/del out/$1/dir
 del out/$1/echo out/$1/fill out/$1/fred out/$1/inode out/$1/jar out/$1/mkdir
 del out/$1/move out/$1/pad out/$1/rmdir out/$1/type out/$1/uefi out/$1/write

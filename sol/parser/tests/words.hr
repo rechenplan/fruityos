@@ -4,19 +4,19 @@ sub main(argc, argv)
   source.text = "sol 1\nadd a, fp, -2w\nld b, [fp + 3w]\nalign 1w\n"
   parser = sol_parser_new(source)
   item = sol_next(parser)
-  if item.kind != SOL_ITEM_VERSION() then return 1 end
+  if item.kind != 2 then return 1 end
   item = sol_next(parser)
-  if item.operation != SOL_OP_ADD() then return 2 end
-  if item.third.value.kind != SOL_TERM_WORDS() then return 3 end
+  if item.operation != 2 then return 2 end
+  if item.third.value.kind != 5 then return 3 end
   if item.third.value.number != -2 then return 4 end
   item = sol_next(parser)
-  if item.operation != SOL_OP_LD() then return 5 end
-  if item.second.offset.kind != SOL_TERM_WORDS() then return 6 end
+  if item.operation != 18 then return 5 end
+  if item.second.offset.kind != 5 then return 6 end
   if item.second.offset.number != 3 then return 7 end
   item = sol_next(parser)
-  if item.kind != SOL_ITEM_ALIGN() then return 8 end
-  if item.first.value.kind != SOL_TERM_WORDS() then return 9 end
+  if item.kind != 7 then return 8 end
+  if item.first.value.kind != 5 then return 9 end
   item = sol_next(parser)
-  if item.kind != SOL_ITEM_EOF() then return 10 end
+  if item.kind != 0 then return 10 end
   return 0
 end

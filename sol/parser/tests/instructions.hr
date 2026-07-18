@@ -4,15 +4,15 @@ sub main(argc, argv)
   source.text = "sol 1\nmov a, 1\nadd a, b, c\nsub a, b, c\nmul a, b, c\ndiv a, b, c\nrem a, b, c\nand a, b, c\nor a, b, c\nxor a, b, c\nshl a, b, c\nshr a, b, c\neq a, b, c\nne a, b, c\nlt a, b, c\nle a, b, c\ngt a, b, c\nge a, b, c\nld a, [fp]\nldb a, [fp + 1]\nst [sp + a], b\nstb [sp], b\nbz a, target\nbnz a, b\njmp target\ncall a\nret 1\npush -1\npop d\nenter 2\naddr a, target\nneg a, b\nnot a, b\nbool a, b\nnop\n"
   parser = sol_parser_new(source)
   item = sol_next(parser)
-  if item.kind != SOL_ITEM_VERSION() then return 1 end
+  if item.kind != 2 then return 1 end
   while 1 do
     item = sol_next(parser)
-    if item.kind == SOL_ITEM_ERROR() then return 2 end
-    if item.kind == SOL_ITEM_EOF() then
+    if item.kind == 1 then return 2 end
+    if item.kind == 0 then
       if expected != 35 then return 3 end
       return 0
     end
-    if item.kind != SOL_ITEM_INSTRUCTION() then return 4 end
+    if item.kind != 9 then return 4 end
     if item.operation != expected then return 5 end
     expected = expected + 1
   end

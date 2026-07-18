@@ -1,7 +1,7 @@
 # Shell and userland
 
 Peel is FruityOS's Jabara-written userland. It contains the Pish shell, RAMFS
-utilities, Fred editor, Jar archiver, Juicer compressor, and development tools.
+utilities, Fred editor, Jar archiver, Juicer compressor, fast Jews encoder, and development tools.
 
 ## Pish
 
@@ -47,7 +47,8 @@ jobs, or shell conditionals.
 | `inode` | Display RAMFS inode information. |
 | `jar` | Create or extract Jar archives. |
 | `jc` | Compile Jabara to NASM-compatible assembly. |
-| `juicer` | Compress or decompress Juicer streams. |
+| `juicer` | Reference compressor and Juicer stream decoder. |
+| `jews` | Fast hash-chain Juicer compressor. |
 | `mkdir` | Create a directory. |
 | `move` | Rename or move a file. |
 | `orgasm` | Assemble FruityOS and Jabara assembly inputs. |
@@ -84,12 +85,15 @@ Directory paths end in `/`. An empty path terminates the archive.
 
 ## Juicer
 
-Juicer writes literal bytes directly and represents repeated sequences as
-backward references within a 1024-byte window. Byte `0xFF` is the control
-marker, and the stream includes an explicit end marker.
+Juicer groups eight items behind a literal-bit mask. Matches use a two-byte
+11/5 token: an 11-bit backward distance of at most 2,047 bytes and a 5-bit
+length field representing 3 through 34 bytes. A zero match token terminates the
+stream.
 
-The same format is decoded by BIOS Seed, UEFI Seed, Pulp's FAP loader, and the
-`juicer` userland program.
+Both `juicer` and `jews` emit this format. `juicer` is the small reference
+encoder and decoder; `jews` uses hash chains to find the same matches much
+faster and is the encoder used by the build. BIOS Seed, UEFI Seed, Pulp's FAP
+loader, and the `juicer` userland program share the platform decoder.
 
 ## Persistence
 

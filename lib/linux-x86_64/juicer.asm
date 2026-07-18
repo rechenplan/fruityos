@@ -1,0 +1,61 @@
+; Canonical Juicer decoder for this platform.
+; Define JUICER_OLD only for legacy 12/4 bootstrap streams.
+
+%ifdef PITH_juicer_decode64
+bits 64
+; Freestanding callers pass RSI = input and RDI = output.
+; Haruka/Jabara callers push output followed by input.
+juicer_decode64:
+	%ifndef JUICER_FREESTANDING
+	pop r10
+	pop rsi
+	pop rdi
+	push r10
+	push rdi
+	push rbx
+	%endif
+.juicer64_flags:
+	db 172 ; lodsb
+	mov ebx, 256
+	mov bl, al
+.juicer64_next:
+	shr ebx, 1
+	jz .juicer64_flags
+	jc .juicer64_literal
+	xor eax, eax
+	db 102, 173 ; lodsw
+	test eax, eax
+	jz .juicer64_done
+	mov ecx, eax
+	%ifdef JUICER_OLD
+	and ecx, 15
+	%else
+	and ecx, 31
+	%endif
+	mov edx, eax
+	%ifdef JUICER_OLD
+	shr edx, 4
+	%else
+	shr edx, 5
+	%endif
+	add ecx, 3
+	push rsi
+	mov rsi, rdi
+	sub rsi, rdx
+	db 243, 164 ; rep movsb
+	pop rsi
+	jmp .juicer64_advance
+.juicer64_literal:
+	db 172 ; lodsb
+	db 170 ; stosb
+.juicer64_advance:
+	jmp .juicer64_next
+.juicer64_done:
+	%ifndef JUICER_FREESTANDING
+	pop rbx
+	pop rax
+	neg rax
+	add rax, rdi
+	%endif
+	ret
+%endif

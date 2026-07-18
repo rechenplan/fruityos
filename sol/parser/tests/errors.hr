@@ -4,8 +4,8 @@ sub parser_has_error(parser:SolParser, source:SolSource, text)
   sol_reset(parser)
   while 1 do
     item = sol_next(parser)
-    if item.kind == SOL_ITEM_ERROR() then return 1 end
-    if item.kind == SOL_ITEM_EOF() then return 0 end
+    if item.kind == 1 then return 1 end
+    if item.kind == 0 then return 0 end
   end
 end
 

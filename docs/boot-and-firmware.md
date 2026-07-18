@@ -34,10 +34,11 @@ entry is `kernel + 0x100`.
 ## BIOS floppy image
 
 `out/fruityos_floppy.img` is a 1.44 MiB image containing `fdseed`, the same
-initrd Jar, and zero padding. The loader reads the first 22 cylinders into physical `0x20000` through
-`0x82fff`, scans the archive for `/pulp.sys`, decompresses it, and hands the
-archive to Pulp. Its stack begins at `0x90000`; the host build limits the boot
-payload to 405,504 bytes.
+initrd Jar, and zero padding. The loader reads the first 19 cylinders (350,208 bytes) into physical
+`0x40000` through `0x957ff`, scans the archive for `/pulp.sys`, decompresses it,
+and hands the archive to Pulp. Its stack begins at `0x40000` and grows below the
+archive, which begins at `0x40200`. The host build limits the boot payload to
+350,208 bytes.
 
 ## Standalone EFI application
 

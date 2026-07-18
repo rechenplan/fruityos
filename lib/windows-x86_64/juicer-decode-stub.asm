@@ -1,3 +1,5 @@
+%define PITH_juicer_decode64
+%define JUICER_FREESTANDING
 ; Compact PE32+ Juicer launcher for windows-x86_64.
 bits 64
 org 0x150000000
@@ -153,7 +155,7 @@ _start:
 	mov r14, rax
 	mov rsi, rbp
 	mov rdi, r14
-	call __stub_decode
+	call juicer_decode64
 
 	; Read the preferred base and image size from the decoded PE header.
 	mov eax, [r14 + 0x3c]
@@ -236,37 +238,6 @@ _start:
 	call __stub_call
 	hlt
 
-__stub_decode:
-.flags:
-	db 172
-	mov ebx, 256
-	mov bl, al
-.next:
-	shr ebx, 1
-	jz .flags
-	jc .literal
-	xor eax, eax
-	db 102, 173
-	test eax, eax
-	jz .done
-	mov ecx, eax
-	and ecx, 15
-	mov edx, eax
-	shr edx, 4
-	add ecx, 3
-	push rsi
-	mov rsi, rdi
-	sub rsi, rdx
-	db 243, 164
-	pop rsi
-	jmp .advance
-.literal:
-	db 172
-	db 170
-.advance:
-	jmp .next
-.done:
-	ret
 
 align 8
 __stub_read: dd 0
@@ -331,9 +302,3 @@ align 2
 __stub_name_VirtualAlloc: dw 0
 	db "VirtualAlloc", 0
 
-__stub_section_end:
-__stub_section_virtual_size equ __stub_section_end-__stub_section_start
-align 512
-__stub_file_end:
-__stub_section_raw_size equ __stub_file_end-__stub_section_start
-__stub_image_size equ __stub_file_end-STUB_IMAGE_BASE

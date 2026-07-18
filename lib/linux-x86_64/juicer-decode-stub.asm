@@ -1,3 +1,5 @@
+%define PITH_juicer_decode64
+%define JUICER_FREESTANDING
 ; Linux x86-64 Juicer executable stub.
 ;
 ; The ELF loader maps this stub at 0x600000. The compressed executable is
@@ -5,7 +7,6 @@
 ; decoded ELF image is written into an executable MAP_FIXED mapping at
 ; 0x400000, matching the origin used by the normal Linux runtime.
 
-%define JUICER_FREESTANDING
 bits 64
 org 0x600000
 
@@ -109,36 +110,4 @@ _start:
 
 self_path: db "/proc/self/exe", 0
 
-juicer_decode64:
-.juicer64_flags:
-	db 172 ; lodsb
-	mov ebx, 256
-	mov bl, al
-.juicer64_next:
-	shr ebx, 1
-	jz .juicer64_flags
-	jc .juicer64_literal
-	xor eax, eax
-	db 102, 173 ; lodsw
-	test eax, eax
-	jz .juicer64_done
-	mov ecx, eax
-	and ecx, 15
-	mov edx, eax
-	shr edx, 4
-	add ecx, 3
-	push rsi
-	mov rsi, rdi
-	sub rsi, rdx
-	db 243, 164 ; rep movsb
-	pop rsi
-	jmp .juicer64_advance
-.juicer64_literal:
-	db 172 ; lodsb
-	db 170 ; stosb
-.juicer64_advance:
-	jmp .juicer64_next
-.juicer64_done:
-	ret
 
-__stub_end:

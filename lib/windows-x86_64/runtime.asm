@@ -958,48 +958,7 @@ exit:
 %endif
 
 %ifdef PITH_juicer_decode64
-bits 64
-juicer_decode64:
-	pop r10
-	pop rsi
-	pop rdi
-	push r10
-	push rdi
-	push rbx
-juicer_decode64_flags:
-	db 172
-	mov ebx, 256
-	mov bl, al
-juicer_decode64_next:
-	shr ebx, 1
-	jz juicer_decode64_flags
-	jc juicer_decode64_literal
-	xor eax, eax
-	db 102, 173
-	test eax, eax
-	jz juicer_decode64_decoded
-	mov ecx, eax
-	and ecx, 15
-	mov edx, eax
-	shr edx, 4
-	add ecx, 3
-	push rsi
-	mov rsi, rdi
-	sub rsi, rdx
-	db 243, 164
-	pop rsi
-	jmp juicer_decode64_advance
-juicer_decode64_literal:
-	db 172
-	db 170
-juicer_decode64_advance:
-	jmp juicer_decode64_next
-juicer_decode64_decoded:
-	pop rbx
-	pop rax
-	neg rax
-	add rax, rdi
-	ret
+%define JUICER_LONG_ONLY
 %endif
 
 align 8

@@ -84,9 +84,9 @@ end
 sub em_mark_reachable_expr(emitter:Emitter, expr:Expr)
   local function:Function
   while expr != 0 do
-    if expr.kind == EX_CALL() then
+    if expr.kind == 8 then
       if expr.left != 0 then
-        if expr.left.kind == EX_NAME() then
+        if expr.left.kind == 2 then
           function = em_find_function_body(emitter, expr.left.text)
           if function != 0 then
             if function.reachable == 0 then
@@ -229,7 +229,7 @@ end
 sub em_collect_locals(emitter:Emitter, scope:Scope, statement:Stmt)
   local name:Name, binding:Binding
   while statement != 0 do
-    if statement.kind == ST_LOCAL() then
+    if statement.kind == 0 then
       name = statement.names
       while name != 0 do
         binding = em_scope_add(emitter, scope, name.name, name.tag, statement.line)
@@ -239,11 +239,11 @@ sub em_collect_locals(emitter:Emitter, scope:Scope, statement:Stmt)
         name = name.next
       end
     end
-    if statement.kind == ST_IF() then
+    if statement.kind == 1 then
       em_collect_locals(emitter, scope, statement.body)
       em_collect_locals(emitter, scope, statement.else_body)
     end
-    if statement.kind == ST_WHILE() then em_collect_locals(emitter, scope, statement.body) end
+    if statement.kind == 2 then em_collect_locals(emitter, scope, statement.body) end
     statement = statement.next
   end
 end
@@ -252,8 +252,8 @@ sub em_statements_return(statement:Stmt)
   local last:Stmt
   while statement != 0 do last = statement statement = statement.next end
   if last == 0 then return 0 end
-  if last.kind == ST_RETURN() then return 1 end
-  if last.kind == ST_IF() then
+  if last.kind == 3 then return 1 end
+  if last.kind == 1 then
     if last.else_body == 0 then return 0 end
     return em_statements_return(last.body) & em_statements_return(last.else_body)
   end
@@ -278,7 +278,7 @@ end
 
 sub em_expr_has_closure(expr:Expr)
   while expr != 0 do
-    if expr.kind == EX_CLOSURE() then return 1 end
+    if expr.kind == 9 then return 1 end
     if em_expr_has_closure(expr.left) then return 1 end
     if em_expr_has_closure(expr.right) then return 1 end
     if em_expr_has_closure(expr.arguments) then return 1 end
@@ -339,20 +339,20 @@ end
 
 sub em_expr_record_type(emitter:Emitter, expr:Expr)
   local lookup:Lookup, definition:Record, field:Name
-  if expr.kind == EX_NAME() then
+  if expr.kind == 2 then
     lookup = em_lookup(emitter.scope, expr.text)
     if lookup.binding != 0 then
       if lookup.binding.tag != 0 then return em_find_record(emitter, lookup.binding.tag) end
     end
   end
-  if expr.kind == EX_NEW() then return em_find_record(emitter, expr.text) end
-  if expr.kind == EX_LIFT() then
+  if expr.kind == 11 then return em_find_record(emitter, expr.text) end
+  if expr.kind == 12 then
     lookup = em_lookup(emitter.scope, expr.text)
     if lookup.binding != 0 then
       if lookup.binding.tag != 0 then return em_find_record(emitter, lookup.binding.tag) end
     end
   end
-  if expr.kind == EX_MEMBER() then
+  if expr.kind == 10 then
     definition = em_expr_record_type(emitter, expr.left)
     if definition != 0 then
       field = em_find_record_field(definition, expr.text)
@@ -360,7 +360,7 @@ sub em_expr_record_type(emitter:Emitter, expr:Expr)
       if field.tag != 0 then return em_find_record(emitter, field.tag) end
     end
   end
-  if expr.kind == EX_ASSIGN() then return em_expr_record_type(emitter, expr.right) end
+  if expr.kind == 7 then return em_expr_record_type(emitter, expr.right) end
   return 0
 end
 
@@ -402,10 +402,10 @@ end
 
 sub em_emit_lvalue_address(emitter:Emitter, expr:Expr)
   local definition:Record, field:Name, offset
-  if expr.kind == EX_BYTE() then expr = expr.left end
-  if expr.kind == EX_NAME() then em_emit_name_address(emitter, expr.text) return 0 end
-  if expr.kind == EX_DEREF() then em_emit_expr(emitter, expr.left) return 0 end
-  if expr.kind == EX_MEMBER() then
+  if expr.kind == 4 then expr = expr.left end
+  if expr.kind == 2 then em_emit_name_address(emitter, expr.text) return 0 end
+  if expr.kind == 3 then em_emit_expr(emitter, expr.left) return 0 end
+  if expr.kind == 10 then
     definition = em_expr_record_type(emitter, expr.left)
     if definition == 0 then jc_error_at(expr.line, 1, "member access requires a record tag") end
     field = em_find_record_field(definition, expr.text)
@@ -419,22 +419,22 @@ sub em_emit_lvalue_address(emitter:Emitter, expr:Expr)
 end
 
 sub em_binary_name(operation)
-  if operation == T_PLUS() then return "add" end
-  if operation == T_MINUS() then return "sub" end
-  if operation == T_STAR() then return "mul" end
-  if operation == T_SLASH() then return "div" end
-  if operation == T_PERCENT() then return "rem" end
-  if operation == T_AMP() then return "and" end
-  if operation == T_PIPE() then return "or" end
-  if operation == T_XOR() then return "xor" end
-  if operation == T_SHL() then return "shl" end
-  if operation == T_SHR() then return "shr" end
-  if operation == T_EQ() then return "eq" end
-  if operation == T_NE() then return "ne" end
-  if operation == T_LT() then return "lt" end
-  if operation == T_LE() then return "le" end
-  if operation == T_GT() then return "gt" end
-  if operation == T_GE() then return "ge" end
+  if operation == 11 then return "add" end
+  if operation == 12 then return "sub" end
+  if operation == 13 then return "mul" end
+  if operation == 14 then return "div" end
+  if operation == 15 then return "rem" end
+  if operation == 16 then return "and" end
+  if operation == 18 then return "or" end
+  if operation == 20 then return "xor" end
+  if operation == 26 then return "shl" end
+  if operation == 29 then return "shr" end
+  if operation == 21 then return "eq" end
+  if operation == 23 then return "ne" end
+  if operation == 28 then return "lt" end
+  if operation == 27 then return "le" end
+  if operation == 31 then return "gt" end
+  if operation == 30 then return "ge" end
   return 0
 end
 
@@ -443,13 +443,13 @@ sub em_emit_binary(emitter:Emitter, expr:Expr)
   em_emit_push_expr(emitter, expr.right)
   em_emit_expr(emitter, expr.left)
   em_instruction("pop\tb")
-  if expr.op == T_AND() then
+  if expr.op == 17 then
     em_instruction("bool\ta, a")
     em_instruction("bool\tb, b")
     em_instruction("and\ta, a, b")
     return 0
   end
-  if expr.op == T_OR() then
+  if expr.op == 19 then
     em_instruction("bool\ta, a")
     em_instruction("bool\tb, b")
     em_instruction("or\ta, a, b")
@@ -460,7 +460,7 @@ sub em_emit_binary(emitter:Emitter, expr:Expr)
 end
 
 sub em_call_is_direct(emitter:Emitter, callee:Expr)
-  if callee.kind != EX_NAME() then return 0 end
+  if callee.kind != 2 then return 0 end
   if em_name_is_bound(emitter, callee.text) then return 0 end
   return em_find_function(emitter, callee.text) != 0
 end
@@ -603,9 +603,9 @@ end
 
 sub em_emit_expr(emitter:Emitter, expr:Expr)
   local lookup:Lookup, definition:Record, field:Name, target:Expr, offset
-  if expr.kind == EX_NUMBER() then em_text("\tmov\ta, ") em_number(expr.number) em_newline() return 0 end
-  if expr.kind == EX_STRING() then em_emit_string(emitter, expr.text) return 0 end
-  if expr.kind == EX_NAME() then
+  if expr.kind == 0 then em_text("\tmov\ta, ") em_number(expr.number) em_newline() return 0 end
+  if expr.kind == 1 then em_emit_string(emitter, expr.text) return 0 end
+  if expr.kind == 2 then
     lookup = em_lookup(emitter.scope, expr.text)
     if lookup.binding == 0 then
       if em_find_function(emitter, expr.text) != 0 then
@@ -627,8 +627,8 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
     end
     return 0
   end
-  if expr.kind == EX_DEREF() then em_emit_expr(emitter, expr.left) em_instruction("ld\ta, [a]") return 0 end
-  if expr.kind == EX_MEMBER() then
+  if expr.kind == 3 then em_emit_expr(emitter, expr.left) em_instruction("ld\ta, [a]") return 0 end
+  if expr.kind == 10 then
     definition = em_expr_record_type(emitter, expr.left)
     if definition == 0 then jc_error_at(expr.line, 1, "member access requires a record tag") end
     field = em_find_record_field(definition, expr.text)
@@ -640,23 +640,23 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
     em_line("]")
     return 0
   end
-  if expr.kind == EX_BYTE() then
+  if expr.kind == 4 then
     em_emit_lvalue_address(emitter, expr.left)
     em_instruction("ldb\ta, [a]")
     return 0
   end
-  if expr.kind == EX_UNARY() then
+  if expr.kind == 5 then
     em_emit_expr(emitter, expr.left)
-    if expr.op == T_MINUS() then em_instruction("neg\ta, a") return 0 end
-    if expr.op == T_BNOT() then em_instruction("not\ta, a") return 0 end
+    if expr.op == 12 then em_instruction("neg\ta, a") return 0 end
+    if expr.op == 24 then em_instruction("not\ta, a") return 0 end
     em_instruction("eq\ta, a, z")
     return 0
   end
-  if expr.kind == EX_BINARY() then em_emit_binary(emitter, expr) return 0 end
-  if expr.kind == EX_NEW() then em_emit_record_constructor(emitter, expr) return 0 end
-  if expr.kind == EX_LIFT() then em_emit_lift(emitter, expr) return 0 end
-  if expr.kind == EX_ASSIGN() then
-    if expr.left.kind == EX_NAME() then
+  if expr.kind == 6 then em_emit_binary(emitter, expr) return 0 end
+  if expr.kind == 11 then em_emit_record_constructor(emitter, expr) return 0 end
+  if expr.kind == 12 then em_emit_lift(emitter, expr) return 0 end
+  if expr.kind == 7 then
+    if expr.left.kind == 2 then
       lookup = em_lookup(emitter.scope, expr.left.text)
       if lookup.binding != 0 then
         if emitter.direct_frames || lookup.owner.is_global then
@@ -674,28 +674,28 @@ sub em_emit_expr(emitter:Emitter, expr:Expr)
       end
     end
     target = expr.left
-    if target.kind == EX_BYTE() then target = target.left end
+    if target.kind == 4 then target = target.left end
     em_emit_lvalue_address(emitter, target)
     em_instruction("push\ta")
     em_emit_expr(emitter, expr.right)
     em_instruction("pop\tb")
-    if expr.left.kind == EX_BYTE() then em_instruction("stb\t[b], a")
+    if expr.left.kind == 4 then em_instruction("stb\t[b], a")
     else em_instruction("st\t[b], a") end
     return 0
   end
-  if expr.kind == EX_CALL() then
-    if (expr.left.kind == EX_NAME()) && (em_name_is_bound(emitter, expr.left.text) == 0) &&
+  if expr.kind == 8 then
+    if (expr.left.kind == 2) && (em_name_is_bound(emitter, expr.left.text) == 0) &&
        (em_find_record(emitter, expr.left.text) != 0) then
       jc_error_at(expr.line, 1, "record construction requires new")
     end
     if em_call_is_direct(emitter, expr.left) then em_emit_direct_call(emitter, expr) return 0 end
-    if (expr.left.kind == EX_NAME()) && (em_name_is_bound(emitter, expr.left.text) == 0) then
+    if (expr.left.kind == 2) && (em_name_is_bound(emitter, expr.left.text) == 0) then
       jc_error_at(expr.line, 1, "call to undeclared sub")
     end
     em_emit_closure_call(emitter, expr)
     return 0
   end
-  if expr.kind == EX_CLOSURE() then em_emit_closure_value(emitter, expr) return 0 end
+  if expr.kind == 9 then em_emit_closure_value(emitter, expr) return 0 end
   jc_error_at(expr.line, 1, "unsupported expression")
 end
 
@@ -727,13 +727,13 @@ end
 sub em_emit_statements(emitter:Emitter, statement:Stmt)
   local otherwise, done, again
   while statement != 0 do
-    if statement.kind == ST_LOCAL() then em_emit_initializers(emitter, statement.names) end
-    if statement.kind == ST_EXPR() then em_emit_expr(emitter, statement.expr) end
-    if statement.kind == ST_RETURN() then
+    if statement.kind == 0 then em_emit_initializers(emitter, statement.names) end
+    if statement.kind == 4 then em_emit_expr(emitter, statement.expr) end
+    if statement.kind == 3 then
       em_emit_expr(emitter, statement.expr)
       em_text("\tret\t") em_number(emitter.return_bytes) em_newline()
     end
-    if statement.kind == ST_IF() then
+    if statement.kind == 1 then
       done = em_new_label(emitter)
       if statement.else_body == 0 then
         em_emit_false_branch(emitter, statement.expr, done)
@@ -750,7 +750,7 @@ sub em_emit_statements(emitter:Emitter, statement:Stmt)
       end
       em_label(emitter, done) em_line(":")
     end
-    if statement.kind == ST_WHILE() then
+    if statement.kind == 2 then
       again = em_new_label(emitter)
       done = em_new_label(emitter)
       em_label(emitter, again) em_line(":")
@@ -779,7 +779,7 @@ end
 
 sub em_emit_function(emitter:Emitter, function:Function)
   local scope:Scope = em_scope(), parameter:Name = function.parameters
-  local count = 0, index = 0, saved_return = emitter.return_bytes
+  local count = 0, index = 0, saved_return = emitter.return_bytes, saved_direct = emitter.direct_frames
   local environment_words, frame_words, binding:Binding
   scope.parent = emitter.global_scope
   scope.next_owned = emitter.function_scopes
@@ -793,6 +793,10 @@ sub em_emit_function(emitter:Emitter, function:Function)
   em_collect_locals(emitter, scope, function.body)
   emitter.scope = scope
   emitter.return_bytes = count
+  emitter.direct_frames = em_statements_have_closure(function.body) == 0
+  if jc_streq(function.name, "main") then
+    if em_statements_have_closure(emitter.program.statements) then emitter.direct_frames = 0 end
+  end
   em_text("\nglobal ") em_line(function.name)
   em_text(function.name) em_line(":")
   if emitter.direct_frames then
@@ -830,15 +834,17 @@ sub em_emit_function(emitter:Emitter, function:Function)
     em_text("\tret\t") em_number(emitter.return_bytes) em_newline()
   end
   emitter.return_bytes = saved_return
+  emitter.direct_frames = saved_direct
   emitter.scope = emitter.global_scope
 end
 
 sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
-  local saved_scope:Scope = emitter.scope, saved_return = emitter.return_bytes
+  local saved_scope:Scope = emitter.scope, saved_return = emitter.return_bytes, saved_direct = emitter.direct_frames
   local environment_words = info.scope.slot_count + 1
   local frame_words = 3 + environment_words
   emitter.scope = info.scope
   emitter.return_bytes = 3
+  emitter.direct_frames = 0
   em_newline() em_private_label(emitter, "closure", info.label) em_line(":")
   em_text("\tenter\t") em_number(frame_words) em_newline()
   em_instruction("ld\tb, [fp + 4w]")
@@ -855,6 +861,7 @@ sub em_emit_closure_function(emitter:Emitter, info:ClosureInfo)
   em_instruction("mov\ta, z")
   em_instruction("ret\t3")
   emitter.return_bytes = saved_return
+  emitter.direct_frames = saved_direct
   emitter.scope = saved_scope
 end
 

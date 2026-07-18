@@ -27,10 +27,11 @@ Validated on Linux x86-64:
 - Haruka locals, records, lift, closures, nested lifted closures, and currying;
 - Mars semantic, deterministic-output, stress, extern, data, and compactness tests;
 - two-way Mars/Orgasm symbol-map linking;
-- literal Juicer encode/decode round trips;
+- canonical 11/5 Juicer encode/decode round trips and JEWS hash-chain compression;
 - all 18 Peel host and FruityOS applications through Haruka/Mars;
 - Linux ELF, FruityOS FAP, and Windows PE32+ default linker outputs;
-- complete BIOS HDD, BIOS floppy, EFI application, and UEFI image production.
+- complete BIOS HDD, BIOS floppy, EFI application, and UEFI image production;
+- QEMU boots of the standard HDD and floppy images to the FruityOS prompt.
 
 OS build integration:
 
@@ -41,5 +42,14 @@ OS build integration:
 - the Juicer-compressed `pulp.sys` remains below its 8 KiB limit;
 - FruityOS Jabara, Haruka, Mars, drivers, runtimes, and both `.hr` and legacy
   Pith surfaces are installed in the initrd;
-- the floppy loader reads 22 cylinders into `0x20000`-`0x82fff`, allowing the
-  expanded toolchain initrd while retaining a 1.44 MiB image.
+- the floppy loader reads 19 cylinders into `0x40000`-`0x957ff`, retaining the
+  known-good BIOS load geometry and a 1.44 MiB image.
+
+Size constraints:
+
+- Haruka FruityOS FAP: 13,558 bytes;
+- Mars FruityOS FAP: 15,167 bytes;
+- the root build rejects either compiler FAP above 16,384 bytes;
+- the reduction comes from selecting direct or closure frames per function, so
+  ordinary functions no longer pay closure-environment overhead merely because
+  another function in the program creates a closure.

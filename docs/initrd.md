@@ -20,6 +20,7 @@ initrd/
 │   ├── jar.fap
 │   ├── jc.fap
 │   ├── juicer.fap
+│   ├── jews.fap
 │   ├── mkdir.fap
 │   ├── move.fap
 │   ├── orgasm.fap

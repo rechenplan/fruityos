@@ -1,0 +1,6 @@
+__stub_section_end:
+__stub_section_virtual_size equ __stub_section_end-__stub_section_start
+align 512
+__stub_file_end:
+__stub_section_raw_size equ __stub_file_end-__stub_section_start
+__stub_image_size equ __stub_file_end-STUB_IMAGE_BASE
