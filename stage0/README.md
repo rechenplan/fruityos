@@ -85,19 +85,19 @@ A completed continuation leaves the bootstrap products directly in
 ```text
 Linux:
   orgasm.elf
-  juicer.elf
+  jus.elf
   concat.elf
   pish.elf
 
 Windows:
   orgasm.exe
-  juicer.exe
+  jus.exe
   concat.exe
   pish.exe
 
 FruityOS:
   orgasm.fap
-  juicer.fap
+  jus.fap
   concat.fap
   pish.fap
 ```

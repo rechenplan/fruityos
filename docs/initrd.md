@@ -19,7 +19,6 @@ initrd/
 │   ├── inode.fap
 │   ├── jar.fap
 │   ├── jc.fap
-│   ├── juicer.fap
 │   ├── jus.fap
 │   ├── mkdir.fap
 │   ├── move.fap
@@ -65,7 +64,7 @@ The initrd supplies these program groups:
 - filesystem utilities: `dir`, `mkdir`, `rmdir`, `del`, `copy`, `move`,
   `concat`, `type`, `fill`, `inode`;
 - output: `echo`;
-- archive and compression: `jar`, `juicer`;
+- archive and compression: `jar`, `jus`;
 - development tools: `jc`, `orgasm`.
 
 The assembly files under `/lib` allow compiler and assembler experiments within

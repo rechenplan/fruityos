@@ -1,26 +1,26 @@
-local em_binding = fn do
-  local value:Binding = new Binding
-  return lift value
+sub em_binding()
+  local value:Binding = jc_alloc(48)
+  return value
 end
 
-local em_lookup_value = fn do
-  local value:Lookup = new Lookup
-  return lift value
+sub em_lookup_value()
+  local value:Lookup = jc_alloc(24)
+  return value
 end
 
-local em_scope = fn do
-  local value:Scope = new Scope
-  return lift value
+sub em_scope()
+  local value:Scope = jc_alloc(72)
+  return value
 end
 
-local em_closure_info = fn do
-  local value:ClosureInfo = new ClosureInfo
-  return lift value
+sub em_closure_info()
+  local value:ClosureInfo = jc_alloc(32)
+  return value
 end
 
-local em_emitter = fn do
-  local value:Emitter = new Emitter
-  return lift value
+sub em_emitter()
+  local value:Emitter = jc_alloc(112)
+  return value
 end
 
 sub em_text(text)

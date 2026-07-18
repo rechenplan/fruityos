@@ -178,13 +178,12 @@ sub lx_next(lexer:Lexer)
   jc_error_at(token.line, token.column, "invalid character")
 end
 
-local lx_init = fn source do
-  local lexer:Lexer = new Lexer, token:Token = new Token
-  token = lift token
+sub lx_init(source)
+  local lexer:Lexer = jc_alloc(48), token:Token = jc_alloc(40)
   lexer.token = token
   lexer.source = source
   lexer.line = 1
   lexer.column = 1
   lx_next(lexer)
-  return lift lexer
+  return lexer
 end

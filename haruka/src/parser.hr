@@ -25,46 +25,46 @@ sub ps_text()
   return result
 end
 
-local ps_expr = fn kind, line do
-  local expr:Expr = new Expr
+sub ps_expr(kind, line)
+  local expr:Expr = jc_alloc(96)
   expr.kind = kind
   expr.line = line
-  return lift expr
+  return expr
 end
 
-local ps_stmt = fn kind, line do
-  local stmt:Stmt = new Stmt
+sub ps_stmt(kind, line)
+  local stmt:Stmt = jc_alloc(56)
   stmt.kind = kind
   stmt.line = line
-  return lift stmt
+  return stmt
 end
 
-local ps_named = fn text do
-  local name:Name = new Name
+sub ps_named(text)
+  local name:Name = jc_alloc(32)
   name.name = text
-  return lift name
+  return name
 end
 
-local ps_name = fn do
-  local name:Name = new Name
+sub ps_name()
+  local name:Name = jc_alloc(32)
   name.name = ps_text()
   if ps_accept(10) then name.tag = ps_text() end
-  return lift name
+  return name
 end
 
-local ps_function = fn do
-  local function:Function = new Function
-  return lift function
+sub ps_function()
+  local function:Function = jc_alloc(64)
+  return function
 end
 
-local ps_record = fn do
-  local definition:Record = new Record
-  return lift definition
+sub ps_record()
+  local definition:Record = jc_alloc(32)
+  return definition
 end
 
-local ps_program = fn do
-  local program:Program = new Program
-  return lift program
+sub ps_program()
+  local program:Program = jc_alloc(24)
+  return program
 end
 
 sub ps_parse_statements(stop_else)

@@ -19,7 +19,7 @@ build() {
     "$root/bin/orgasm" "$root/lib/linux-x86_64/start.asm" "$tmp/$name.asm" \
         "$root/lib/linux-x86_64/runtime.asm" "$tmp/$name.raw"
     "$root/bin/orgasm" "$root/lib/linux-x86_64/juicer-decode-stub.asm" "$tmp/stub"
-    "$root/bin/juicer" c "$tmp/$name.raw" "$tmp/$name.juiced"
+    "$root/bin/jus" c "$tmp/$name.raw" "$tmp/$name.juiced"
     "$root/bin/concat" "$tmp/$name" "$tmp/stub" "$tmp/$name.juiced"
     chmod +x "$tmp/$name"
 }

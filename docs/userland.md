@@ -47,7 +47,6 @@ jobs, or shell conditionals.
 | `inode` | Display RAMFS inode information. |
 | `jar` | Create or extract Jar archives. |
 | `jc` | Compile Jabara to NASM-compatible assembly. |
-| `juicer` | Reference compressor and Juicer stream decoder. |
 | `jus` | Fast hash-chain Juicer compressor. |
 | `mkdir` | Create a directory. |
 | `move` | Rename or move a file. |

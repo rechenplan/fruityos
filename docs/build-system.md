@@ -27,11 +27,11 @@ per target directly in `stage0/out`:
 
 | Host | Pish | Orgasm | Juicer | Concat |
 | --- | --- | --- | --- | --- |
-| Linux | `stage0/out/pish.elf` | `stage0/out/orgasm.elf` | `stage0/out/juicer.elf` | `stage0/out/concat.elf` |
-| Windows | `stage0/out/pish.exe` | `stage0/out/orgasm.exe` | `stage0/out/juicer.exe` | `stage0/out/concat.exe` |
-| FruityOS | `stage0/out/pish.fap` | `stage0/out/orgasm.fap` | `stage0/out/juicer.fap` | `stage0/out/concat.fap` |
+| Linux | `stage0/out/pish.elf` | `stage0/out/orgasm.elf` | `stage0/out/jus.elf` | `stage0/out/concat.elf` |
+| Windows | `stage0/out/pish.exe` | `stage0/out/orgasm.exe` | `stage0/out/jus.exe` | `stage0/out/concat.exe` |
+| FruityOS | `stage0/out/pish.fap` | `stage0/out/orgasm.fap` | `stage0/out/jus.fap` | `stage0/out/concat.fap` |
 
-`bin/orgasm.psh`, `bin/juicer.psh`, and `bin/concat.psh` dispatch to
+`bin/orgasm.psh`, `bin/jus.psh`, and `bin/concat.psh` dispatch to
 `bin/bootstrap/$platform/<tool>` without spelling an extension. Pish appends the
 host suffix. As soon as a rebuilt `bin/<tool>.<suffix>` exists, normal binary
 lookup selects it before the launcher.

@@ -85,19 +85,16 @@ echo "Seed Orgasm: assembling current orgasm.elf"
 chmod +x "$orgasm"
 
 # Nothing below this point is assembled by the seed.
-compile_tool linux-x86_64 elf juicer ../peel/src/juicer/juicer.hr
 compile_tool linux-x86_64 elf jus ../peel/src/jus/jus.hr
 compile_tool linux-x86_64 elf concat ../peel/src/concat/concat.hr
 compile_tool linux-x86_64 elf pish ../peel/src/pish/pish.hr
 
 compile_orgasm windows-x86_64 exe
-compile_tool windows-x86_64 exe juicer ../peel/src/juicer/juicer.hr
 compile_tool windows-x86_64 exe jus ../peel/src/jus/jus.hr
 compile_tool windows-x86_64 exe concat ../peel/src/concat/concat.hr
 compile_tool windows-x86_64 exe pish ../peel/src/pish/pish.hr
 
 compile_orgasm fruityos-x86_64 fap
-compile_tool fruityos-x86_64 fap juicer ../peel/src/juicer/juicer.hr
 compile_tool fruityos-x86_64 fap jus ../peel/src/jus/jus.hr
 compile_tool fruityos-x86_64 fap concat ../peel/src/concat/concat.hr
 compile_tool fruityos-x86_64 fap pish ../peel/src/pish/pish.hr

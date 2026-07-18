@@ -23,7 +23,7 @@ echo Seed Orgasm: assembling current orgasm.exe
 if errorlevel 1 goto fail
 
 rem Nothing below this point is assembled by the seed.
-call :tool windows-x86_64 exe juicer ..\peel\src\juicer\juicer.hr
+call :tool windows-x86_64 exe jus ..\peel\src\jus\jus.hr
 if errorlevel 1 goto fail
 call :tool windows-x86_64 exe concat ..\peel\src\concat\concat.hr
 if errorlevel 1 goto fail
@@ -32,7 +32,7 @@ if errorlevel 1 goto fail
 
 call :makeorg linux-x86_64 elf
 if errorlevel 1 goto fail
-call :tool linux-x86_64 elf juicer ..\peel\src\juicer\juicer.hr
+call :tool linux-x86_64 elf jus ..\peel\src\jus\jus.hr
 if errorlevel 1 goto fail
 call :tool linux-x86_64 elf concat ..\peel\src\concat\concat.hr
 if errorlevel 1 goto fail
@@ -41,7 +41,7 @@ if errorlevel 1 goto fail
 
 call :makeorg fruityos-x86_64 fap
 if errorlevel 1 goto fail
-call :tool fruityos-x86_64 fap juicer ..\peel\src\juicer\juicer.hr
+call :tool fruityos-x86_64 fap jus ..\peel\src\jus\jus.hr
 if errorlevel 1 goto fail
 call :tool fruityos-x86_64 fap concat ..\peel\src\concat\concat.hr
 if errorlevel 1 goto fail

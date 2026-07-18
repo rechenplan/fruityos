@@ -29,7 +29,7 @@ The launchers in `bin/` resolve the bootstrap tool for the active platform:
 
 ```text
 bin/orgasm.psh
-bin/juicer.psh
+bin/jus.psh
 bin/concat.psh
 ```
 

@@ -28,7 +28,7 @@ cross-builds this complete uncompressed bootstrap set:
 
 ```text
 stage0/out/orgasm.{elf,exe,fap}
-stage0/out/juicer.{elf,exe,fap}
+stage0/out/jus.{elf,exe,fap}
 stage0/out/concat.{elf,exe,fap}
 stage0/out/pish.{elf,exe,fap}
 ```
