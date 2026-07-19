@@ -76,7 +76,6 @@ sub main(argc, argv)
 
   item = sol_next(parser)
   if result == 0 then result = parser_check(item.kind == 4, 31) end
-  if result == 0 then result = parser_check(sol_text_equal(item.source_name, 10, "second.sol"), 32) end
 
   item = sol_next(parser)
   if result == 0 then result = parser_check(item.operation == 26, 33) end

@@ -1,14 +1,13 @@
 record SolSource name, text, next:SolSource
 record SolTerm kind, register, number, text, length
 record SolOperand kind, value:SolTerm, base:SolTerm, offset:SolTerm
-record SolItem kind, operation, width, number, name, name_length, message,
-       source_name, line, column, operand_count,
+record SolItem kind, operation, width, number, name, name_length, operand_count,
        first:SolOperand, second:SolOperand, third:SolOperand, more
 record SolParser first:SolSource, source:SolSource,
        position, line, column,
        token_kind, token_start, token_length, token_number,
        token_source_name, token_line, token_column,
-       item:SolItem, failed, error_text,
+       item:SolItem, failed,
        saw_version, pending_data, pending_width,
-       pending_index, pending_source_name, pending_line, pending_column
+       pending_index
 

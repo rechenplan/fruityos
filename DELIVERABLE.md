@@ -1,29 +1,25 @@
-# FruityOS Silent Mars Backend — Tested Deliverable
+# Verified FruityOS Sol checkpoint
 
-This source tree continues from the verified PC-relative Mars backend and removes Mars human-readable diagnostics. Mars is an opaque backend: it writes no diagnostics and reports success or failure through its process exit status. Haruka diagnostics remain unchanged.
+This archive contains the tested JUS-only, Haruka heap-constructor,
+Mars heap-constructor, RIP-relative, silent-backend tree with Mars parser
+message and item/pending location metadata removed.
 
 Verified compressed FAP sizes:
 
 - haruka.fap: 11,794 bytes
-- mars.fap: 12,973 bytes
-- jus.fap: 2,082 bytes
+- mars.fap: 11,981 bytes
+- jus.fap: 2,076 bytes in the completed build
 
-Verification completed on the exact source state packaged here:
+Verification performed on the exact source tree before packaging:
 
-- normal clean/full self-hosted build: passed (exit 0)
-- Haruka semantic suite: 9/9 passed
-- Haruka invalid-program rejection tests: passed
-- standalone Sol parser suite: passed
-- Mars two-way link suite: passed
-- QEMU/OVMF UEFI boot: passed
-- boot reached `Welcome to FruityOS 0.8.1!` and the `/>` prompt
+- normal persistent full self-hosted build completed with exit code 0;
+- Haruka semantic suite passed;
+- Haruka invalid-program rejection passed;
+- standalone Sol parser suite passed after removal of the obsolete location-metadata assertion;
+- Mars two-way link/semantic tests passed;
+- QEMU/OVMF boot reached FruityOS 0.8.1 and the `/>` shell prompt on the preceding 12,157-byte checkpoint; the 11,981-byte checkpoint completed the full build successfully and was frozen before the next lexer-location pass.
 
-The legacy Mars compactness assertion remains the known stale 47-byte output versus 41-byte expectation.
+Haruka diagnostics remain intact. Mars is a silent black-box backend: success/failure
+is reported through its exit status rather than human-readable diagnostics.
 
-Constraints preserved:
-
-- no new FAP files
-- Haruka language frozen
-- Sol language frozen
-- checked-in JUS is the active compressor
-- Juicer remains legacy and is not in the active build path
+No Haruka or Sol language changes were made, and no new FAP files were introduced.

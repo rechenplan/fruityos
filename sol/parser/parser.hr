@@ -46,10 +46,6 @@ sub sol_clear_item(item:SolItem)
   item.number = 0
   item.name = 0
   item.name_length = 0
-  item.message = 0
-  item.source_name = 0
-  item.line = 0
-  item.column = 0
   item.operand_count = 0
   item.more = 0
   sol_clear_operand(item.first)
@@ -63,21 +59,17 @@ sub sol_reset(parser:SolParser)
   parser.line = 1
   parser.column = 1
   parser.failed = 0
-  parser.error_text = 0
   parser.saw_version = 0
   parser.pending_data = 0
   parser.pending_width = 0
   parser.pending_index = 0
-  parser.pending_source_name = 0
-  parser.pending_line = 0
-  parser.pending_column = 0
   sol_clear_item(parser.item)
   sol_lex(parser)
   return parser
 end
 
 sub sol_parser_new(sources:SolSource)
-  local parser:SolParser = sol_alloc(176), item:SolItem = sol_alloc(120)
+  local parser:SolParser = sol_alloc(144), item:SolItem = sol_alloc(88)
   local first:SolOperand = sol_alloc(32), second:SolOperand = sol_alloc(32), third:SolOperand = sol_alloc(32)
   local first_value:SolTerm = sol_alloc(40), first_base:SolTerm = sol_alloc(40), first_offset:SolTerm = sol_alloc(40)
   local second_value:SolTerm = sol_alloc(40), second_base:SolTerm = sol_alloc(40), second_offset:SolTerm = sol_alloc(40)
@@ -102,25 +94,15 @@ end
 
 sub sol_fail(parser:SolParser, message)
   parser.failed = 1
-  parser.error_text = message
   sol_clear_item(parser.item)
   parser.item.kind = 1
-  parser.item.message = message
-  parser.item.source_name = parser.token_source_name
-  parser.item.line = parser.token_line
-  parser.item.column = parser.token_column
   return 0
 end
 
 sub sol_fail_at(parser:SolParser, message, source_name, line, column)
   parser.failed = 1
-  parser.error_text = message
   sol_clear_item(parser.item)
   parser.item.kind = 1
-  parser.item.message = message
-  parser.item.source_name = source_name
-  parser.item.line = line
-  parser.item.column = column
   return 0
 end
 
@@ -138,7 +120,7 @@ end
 sub sol_next_token(parser:SolParser)
   sol_lex(parser)
   if parser.token_kind == 1 then
-    return sol_fail(parser, parser.error_text)
+    return sol_fail(parser, 0)
   end
   return 1
 end
@@ -159,7 +141,7 @@ sub sol_line_end(parser:SolParser)
     return sol_next_token(parser)
   end
   if parser.token_kind == 0 then return 1 end
-  return sol_fail(parser, "expected end of line")
+  return sol_fail(parser, 0)
 end
 
 sub sol_skip_newlines(parser:SolParser)
@@ -222,14 +204,14 @@ end
 sub sol_parse_number(parser:SolParser, term:SolTerm, allow_negative, allow_words)
   local negative = 0
   if parser.token_kind == 11 then
-    if allow_negative == 0 then return sol_fail(parser, "expected nonnegative number") end
+    if allow_negative == 0 then return sol_fail(parser, 0) end
     negative = 1
     if sol_next_token(parser) == 0 then return 0 end
   end
   if (parser.token_kind != 3) &&
-     (parser.token_kind != 12) then return sol_fail(parser, "expected number") end
+     (parser.token_kind != 12) then return sol_fail(parser, 0) end
   if (parser.token_kind == 12) && (allow_words == 0) then
-    return sol_fail(parser, "word-scaled number is not allowed here")
+    return sol_fail(parser, 0)
   end
   if parser.token_kind == 12 then term.kind = 5
   else term.kind = 2 end
@@ -240,9 +222,9 @@ end
 
 sub sol_parse_register_term(parser:SolParser, term:SolTerm)
   local register
-  if parser.token_kind != 2 then return sol_fail(parser, "expected register") end
+  if parser.token_kind != 2 then return sol_fail(parser, 0) end
   register = sol_register(parser.token_start, parser.token_length)
-  if register == 0 then return sol_fail(parser, "unknown register") end
+  if register == 0 then return sol_fail(parser, 0) end
   term.kind = 1
   term.register = register
   term.text = parser.token_start
@@ -251,9 +233,9 @@ sub sol_parse_register_term(parser:SolParser, term:SolTerm)
 end
 
 sub sol_parse_symbol_term(parser:SolParser, term:SolTerm)
-  if parser.token_kind != 2 then return sol_fail(parser, "expected symbol") end
+  if parser.token_kind != 2 then return sol_fail(parser, 0) end
   if sol_register(parser.token_start, parser.token_length) != 0 then
-    return sol_fail(parser, "expected symbol")
+    return sol_fail(parser, 0)
   end
   term.kind = 3
   term.text = parser.token_start
@@ -267,13 +249,13 @@ sub sol_parse_value_term(parser:SolParser, term:SolTerm, allow_symbol)
      (parser.token_kind == 11) then
     return sol_parse_number(parser, term, 1, 1)
   end
-  if parser.token_kind != 2 then return sol_fail(parser, "expected value") end
+  if parser.token_kind != 2 then return sol_fail(parser, 0) end
   register = sol_register(parser.token_start, parser.token_length)
   if register != 0 then
     term.kind = 1
     term.register = register
   else
-    if allow_symbol == 0 then return sol_fail(parser, "expected register or immediate") end
+    if allow_symbol == 0 then return sol_fail(parser, 0) end
     term.kind = 3
   end
   term.text = parser.token_start
@@ -298,7 +280,7 @@ end
 
 sub sol_parse_target_operand(parser:SolParser, operand:SolOperand)
   local register
-  if parser.token_kind != 2 then return sol_fail(parser, "expected register or symbol") end
+  if parser.token_kind != 2 then return sol_fail(parser, 0) end
   operand.kind = 1
   register = sol_register(parser.token_start, parser.token_length)
   if register == 0 then operand.value.kind = 3
@@ -311,7 +293,7 @@ end
 sub sol_parse_memory_operand(parser:SolParser, operand:SolOperand)
   local sign = 1
   operand.kind = 2
-  if sol_expect(parser, 8, "expected left bracket") == 0 then return 0 end
+  if sol_expect(parser, 8, 0) == 0 then return 0 end
   if sol_parse_register_term(parser, operand.base) == 0 then return 0 end
   operand.offset.kind = 2
   operand.offset.number = 0
@@ -325,22 +307,17 @@ sub sol_parse_memory_operand(parser:SolParser, operand:SolOperand)
       operand.offset.number = parser.token_number * sign
       if sol_next_token(parser) == 0 then return 0 end
     else
-      if sign < 0 then return sol_fail(parser, "memory subtraction requires an immediate") end
+      if sign < 0 then return sol_fail(parser, 0) end
       if sol_parse_value_term(parser, operand.offset, 1) == 0 then return 0 end
     end
   end
-  return sol_expect(parser, 9, "expected right bracket")
+  return sol_expect(parser, 9, 0)
 end
 
 sub sol_comma(parser:SolParser)
-  return sol_expect(parser, 6, "expected comma")
+  return sol_expect(parser, 6, 0)
 end
 
-sub sol_set_location(item:SolItem, source_name, line, column)
-  item.source_name = source_name
-  item.line = line
-  item.column = column
-end
 
 sub sol_parse_data_value(parser:SolParser)
   local item:SolItem = parser.item, term:SolTerm = item.first.value
@@ -348,7 +325,6 @@ sub sol_parse_data_value(parser:SolParser)
   item.kind = 8
   item.width = parser.pending_width
   item.number = parser.pending_index
-  sol_set_location(item, parser.pending_source_name, parser.pending_line, parser.pending_column)
   item.operand_count = 1
   item.first.kind = 1
 
@@ -371,7 +347,7 @@ sub sol_parse_data_value(parser:SolParser)
     item.more = 1
     if sol_next_token(parser) == 0 then return item end
     if (parser.token_kind == 5) || (parser.token_kind == 0) then
-      sol_fail(parser, "expected data value")
+      sol_fail(parser, 0)
     end
     return parser.item
   end
@@ -386,7 +362,6 @@ sub sol_parse_instruction(parser:SolParser, operation, source_name, line, column
   sol_clear_item(item)
   item.kind = 9
   item.operation = operation
-  sol_set_location(item, source_name, line, column)
 
   if operation == 34 then
     sol_line_end(parser)
@@ -487,7 +462,7 @@ sub sol_parse_instruction(parser:SolParser, operation, source_name, line, column
     return item
   end
 
-  sol_fail(parser, "unsupported instruction")
+  sol_fail(parser, 0)
   return item
 end
 
@@ -501,15 +476,12 @@ sub sol_next(parser:SolParser)
   if sol_skip_newlines(parser) == 0 then return item end
 
   if parser.token_kind == 0 then
-    if parser.saw_version == 0 then return sol_error_item(parser, "expected sol version declaration") end
+    if parser.saw_version == 0 then return sol_error_item(parser, 0) end
     item.kind = 0
-    item.source_name = parser.token_source_name
-    item.line = parser.token_line
-    item.column = parser.token_column
     return item
   end
 
-  if parser.token_kind != 2 then return sol_error_item(parser, "expected instruction, directive, or label") end
+  if parser.token_kind != 2 then return sol_error_item(parser, 0) end
   text = parser.token_start
   length = parser.token_length
   source_name = parser.token_source_name
@@ -518,23 +490,21 @@ sub sol_next(parser:SolParser)
   if sol_next_token(parser) == 0 then return item end
 
   if parser.token_kind == 7 then
-    if parser.saw_version == 0 then return sol_error_item_at(parser, "expected sol version declaration", source_name, line, column) end
-    if sol_register(text, length) != 0 then return sol_error_item_at(parser, "register name cannot be a symbol", source_name, line, column) end
+    if parser.saw_version == 0 then return sol_error_item_at(parser, 0, source_name, line, column) end
+    if sol_register(text, length) != 0 then return sol_error_item_at(parser, 0, source_name, line, column) end
     if sol_next_token(parser) == 0 then return item end
     item.kind = 4
     item.name = text
     item.name_length = length
-    sol_set_location(item, source_name, line, column)
     return item
   end
 
   if (parser.token_kind == 2) && sol_text_iequal(parser.token_start, parser.token_length, "equ") then
-    if parser.saw_version == 0 then return sol_error_item_at(parser, "expected sol version declaration", source_name, line, column) end
-    if sol_register(text, length) != 0 then return sol_error_item_at(parser, "register name cannot be a symbol", source_name, line, column) end
+    if parser.saw_version == 0 then return sol_error_item_at(parser, 0, source_name, line, column) end
+    if sol_register(text, length) != 0 then return sol_error_item_at(parser, 0, source_name, line, column) end
     item.kind = 10
     item.name = text
     item.name_length = length
-    sol_set_location(item, source_name, line, column)
     if sol_next_token(parser) == 0 then return item end
     item.first.kind = 1
     item.operand_count = 1
@@ -545,23 +515,21 @@ sub sol_next(parser:SolParser)
   end
 
   if sol_text_iequal(text, length, "sol") then
-    if parser.saw_version then return sol_error_item_at(parser, "duplicate sol version declaration", source_name, line, column) end
+    if parser.saw_version then return sol_error_item_at(parser, 0, source_name, line, column) end
     item.kind = 2
-    sol_set_location(item, source_name, line, column)
-    if parser.token_kind != 3 then return sol_error_item(parser, "expected sol version number") end
+    if parser.token_kind != 3 then return sol_error_item(parser, 0) end
     item.number = parser.token_number
-    if item.number != 1 then return sol_error_item(parser, "unsupported sol version") end
+    if item.number != 1 then return sol_error_item(parser, 0) end
     parser.saw_version = 1
     if sol_next_token(parser) == 0 then return item end
     sol_line_end(parser)
     return item
   end
 
-  if parser.saw_version == 0 then return sol_error_item_at(parser, "expected sol version declaration", source_name, line, column) end
+  if parser.saw_version == 0 then return sol_error_item_at(parser, 0, source_name, line, column) end
 
   if sol_text_iequal(text, length, "org") then
     item.kind = 3
-    sol_set_location(item, source_name, line, column)
     item.first.kind = 1
     item.operand_count = 1
     if sol_parse_number(parser, item.first.value, 0, 0) == 0 then return item end
@@ -573,10 +541,9 @@ sub sol_next(parser:SolParser)
   if sol_text_iequal(text, length, "global") || sol_text_iequal(text, length, "extern") then
     if sol_text_iequal(text, length, "global") then item.kind = 5
     else item.kind = 6 end
-    sol_set_location(item, source_name, line, column)
-    if parser.token_kind != 2 then return sol_error_item(parser, "expected symbol") end
+    if parser.token_kind != 2 then return sol_error_item(parser, 0) end
     if sol_register(parser.token_start, parser.token_length) != 0 then
-      return sol_error_item(parser, "register name cannot be a symbol")
+      return sol_error_item(parser, 0)
     end
     item.name = parser.token_start
     item.name_length = parser.token_length
@@ -587,7 +554,6 @@ sub sol_next(parser:SolParser)
 
   if sol_text_iequal(text, length, "align") then
     item.kind = 7
-    sol_set_location(item, source_name, line, column)
     item.first.kind = 1
     item.operand_count = 1
     if sol_parse_number(parser, item.first.value, 0, 1) == 0 then return item end
@@ -606,17 +572,14 @@ sub sol_next(parser:SolParser)
     parser.pending_data = 1
     parser.pending_width = width
     parser.pending_index = 0
-    parser.pending_source_name = source_name
-    parser.pending_line = line
-    parser.pending_column = column
     if (parser.token_kind == 5) || (parser.token_kind == 0) then
-      return sol_error_item(parser, "expected data value")
+      return sol_error_item(parser, 0)
     end
     return sol_parse_data_value(parser)
   end
 
   operation = sol_operation(text, length)
-  if operation == 0 then return sol_error_item_at(parser, "unknown operation", source_name, line, column) end
+  if operation == 0 then return sol_error_item_at(parser, 0, source_name, line, column) end
   return sol_parse_instruction(parser, operation, source_name, line, column)
 end
 

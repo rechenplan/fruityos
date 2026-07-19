@@ -99,7 +99,6 @@ sub sol_token(parser:SolParser, kind, start, length, number, source_name, line, 
 end
 
 sub sol_lex_error(parser:SolParser, message, source_name, line, column)
-  parser.error_text = message
   sol_token(parser, 1, 0, 0, 0, source_name, line, column)
 end
 
@@ -168,7 +167,7 @@ sub sol_lex(parser:SolParser)
             while sol_is_hex(sol_current(parser)) do
               digit = sol_hex_value(sol_advance_character(parser))
               if (value >> 60) != 0 then
-                sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                sol_lex_error(parser, 0, source_name, line, column)
                 return 0
               end
               value = (value << 4) | digit
@@ -182,7 +181,7 @@ sub sol_lex(parser:SolParser)
               while (sol_current(parser) == 48) || (sol_current(parser) == 49) do
                 digit = sol_advance_character(parser) - 48
                 if (value >> 63) != 0 then
-                  sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                  sol_lex_error(parser, 0, source_name, line, column)
                   return 0
                 end
                 value = (value << 1) | digit
@@ -200,7 +199,7 @@ sub sol_lex(parser:SolParser)
               end
               significant_length = number_end - significant_start
               if significant_length > 20 then
-                sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                sol_lex_error(parser, 0, source_name, line, column)
                 return 0
               end
               if significant_length == 20 then
@@ -208,7 +207,7 @@ sub sol_lex(parser:SolParser)
                 compare_index = 0
                 while compare_index < 20 do
                   if byte [significant_start + compare_index] > byte [maximum + compare_index] then
-                    sol_lex_error(parser, "number is wider than 64 bits", source_name, line, column)
+                    sol_lex_error(parser, 0, source_name, line, column)
                     return 0
                   end
                   if byte [significant_start + compare_index] < byte [maximum + compare_index] then
@@ -221,8 +220,8 @@ sub sol_lex(parser:SolParser)
             end
           end
           if digits == 0 then
-            if base == 16 then sol_lex_error(parser, "malformed hexadecimal number", source_name, line, column)
-            else sol_lex_error(parser, "malformed binary number", source_name, line, column) end
+            if base == 16 then sol_lex_error(parser, 0, source_name, line, column)
+            else sol_lex_error(parser, 0, source_name, line, column) end
             return 0
           end
           if ((sol_current(parser) == 119) || (sol_current(parser) == 87)) &&
@@ -234,7 +233,7 @@ sub sol_lex(parser:SolParser)
             return 0
           end
           if sol_is_name_continue(sol_current(parser)) then
-            sol_lex_error(parser, "malformed number", source_name, line, column)
+            sol_lex_error(parser, 0, source_name, line, column)
             return 0
           end
           sol_token(parser, 3, start,
@@ -249,23 +248,23 @@ sub sol_lex(parser:SolParser)
           while (sol_current(parser) != 0) && (sol_current(parser) != 34) do
             character = sol_advance_character(parser)
             if character == 10 then
-              sol_lex_error(parser, "newline in string", source_name, line, column)
+              sol_lex_error(parser, 0, source_name, line, column)
               return 0
             end
             if character == 92 then
               if sol_current(parser) == 0 then
-                sol_lex_error(parser, "unterminated string", source_name, line, column)
+                sol_lex_error(parser, 0, source_name, line, column)
                 return 0
               end
               escape = sol_advance_character(parser)
               if sol_escape_value(escape) < 0 then
-                sol_lex_error(parser, "invalid string escape", source_name, line, column)
+                sol_lex_error(parser, 0, source_name, line, column)
                 return 0
               end
             end
           end
           if sol_current(parser) != 34 then
-            sol_lex_error(parser, "unterminated string", source_name, line, column)
+            sol_lex_error(parser, 0, source_name, line, column)
             return 0
           end
           sol_token(parser, 4, start,
@@ -282,7 +281,7 @@ sub sol_lex(parser:SolParser)
         if character == 93 then sol_token(parser, 9, start, 1, 0, source_name, line, column) return 0 end
         if character == 43 then sol_token(parser, 10, start, 1, 0, source_name, line, column) return 0 end
         if character == 45 then sol_token(parser, 11, start, 1, 0, source_name, line, column) return 0 end
-        sol_lex_error(parser, "invalid character", source_name, line, column)
+        sol_lex_error(parser, 0, source_name, line, column)
         return 0
       end
     end
