@@ -91,7 +91,7 @@ sub mars_lea_rel(state:MarsState, destination, target)
   end
   displacement = target - (start + 7)
   if (displacement < -2147483648) || (displacement > 2147483647) then
-    mars_error(state.item, "relative address is out of range")
+    mars_fail()
   end
   mars_bytes(state, displacement, 4)
 end
@@ -274,7 +274,7 @@ sub mars_rel32(state:MarsState, opcode, target)
   end
   displacement = target - (start + 5)
   if (displacement < -2147483648) || (displacement > 2147483647) then
-    mars_error(state.item, "relative target is out of range")
+    mars_fail()
   end
   mars_bytes(state, displacement, 4)
 end
@@ -289,7 +289,7 @@ sub mars_jcc32(state:MarsState, condition, target)
   end
   displacement = target - (start + 6)
   if (displacement < -2147483648) || (displacement > 2147483647) then
-    mars_error(state.item, "relative target is out of range")
+    mars_fail()
   end
   mars_bytes(state, displacement, 4)
 end
@@ -310,7 +310,7 @@ end
 
 sub mars_enter(state:MarsState, words)
   local bytes
-  if (words < 0) || (words > 268435455) then mars_error(state.item, "frame is too large") end
+  if (words < 0) || (words > 268435455) then mars_fail() end
   bytes = words * 8
   if bytes <= 65535 then
     mars_byte(state, 200)
@@ -328,7 +328,7 @@ end
 
 sub mars_ret(state:MarsState, words)
   local bytes
-  if (words < 0) || (words > 8191) then mars_error(state.item, "return argument count is too large") end
+  if (words < 0) || (words > 8191) then mars_fail() end
   bytes = words * 8
   mars_byte(state, 201)
   if bytes == 0 then

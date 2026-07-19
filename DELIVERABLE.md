@@ -1,31 +1,29 @@
-# FruityOS Sol: JUS-aware PC-relative Mars backend
+# FruityOS Silent Mars Backend — Tested Deliverable
 
-This tree continues from the verified JUS-only, Haruka heap-constructor, and Mars heap-constructor baseline.
+This source tree continues from the verified PC-relative Mars backend and removes Mars human-readable diagnostics. Mars is an opaque backend: it writes no diagnostics and reports success or failure through its process exit status. Haruka diagnostics remain unchanged.
 
-## Changes
+Verified compressed FAP sizes:
 
-Mars now uses RIP-relative address materialization for internal labels and virtual instruction-pointer values where safe. Absolute materialization remains for externals and explicit absolute constants.
+- haruka.fap: 11,794 bytes
+- mars.fap: 12,973 bytes
+- jus.fap: 2,082 bytes
 
-Haruka and Sol input languages are unchanged. No FAP files were added.
+Verification completed on the exact source state packaged here:
 
-## Verified compressed sizes
+- normal clean/full self-hosted build: passed (exit 0)
+- Haruka semantic suite: 9/9 passed
+- Haruka invalid-program rejection tests: passed
+- standalone Sol parser suite: passed
+- Mars two-way link suite: passed
+- QEMU/OVMF UEFI boot: passed
+- boot reached `Welcome to FruityOS 0.8.1!` and the `/>` prompt
 
-- `haruka.fap`: 11,794 bytes
-- `mars.fap`: 14,284 bytes
-- `jus.fap`: 2,082 bytes
+The legacy Mars compactness assertion remains the known stale 47-byte output versus 41-byte expectation.
 
-Relative to the preceding verified Mars-heap baseline:
+Constraints preserved:
 
-- Haruka: -356 bytes
-- Mars: -103 bytes
-
-## Verification
-
-- Normal repository clean/full build completed with exit code 0.
-- Haruka semantic suite passed 9/9.
-- Haruka invalid-program rejection tests passed.
-- Standalone Sol parser suite passed.
-- Mars two-way link suite passed.
-- QEMU/OVMF boot of the exact generated image reached the FruityOS 0.8.1 shell prompt.
-
-The legacy Mars compactness assertion remains the pre-existing 47-byte output versus stale 41-byte expectation.
+- no new FAP files
+- Haruka language frozen
+- Sol language frozen
+- checked-in JUS is the active compressor
+- Juicer remains legacy and is not in the active build path

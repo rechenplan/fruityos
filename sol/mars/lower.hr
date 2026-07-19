@@ -202,7 +202,7 @@ sub mars_load_term(state:MarsState, term:SolTerm, target, next_ip)
     else mars_mov_abs(state, target, address) end
     return 0
   end
-  if term.kind != 1 then mars_error(state.item, "internal operand error") end
+  if term.kind != 1 then mars_fail() end
   if term.register == 1 then
     mars_mov_ri(state, target, 0)
     return 0
@@ -212,7 +212,7 @@ sub mars_load_term(state:MarsState, term:SolTerm, target, next_ip)
     return 0
   end
   source = mars_visible_register(term.register)
-  if source < 0 then mars_error(state.item, "internal register error") end
+  if source < 0 then mars_fail() end
   mars_mov_rr(state, target, source)
 end
 
@@ -224,7 +224,7 @@ sub mars_commit(state:MarsState, register, source)
     return 0
   end
   destination = mars_visible_register(register)
-  if destination < 0 then mars_error(state.item, "internal destination error") end
+  if destination < 0 then mars_fail() end
   mars_mov_rr(state, destination, source)
 end
 
@@ -418,7 +418,7 @@ sub mars_lower_instruction(state:MarsState, item:SolItem, next_ip)
     return 0
   end
 
-  mars_error(item, "Mars has no lowering for this operation")
+  mars_fail()
 end
 
 sub mars_measure_instruction(state:MarsState, item:SolItem)

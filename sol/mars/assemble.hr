@@ -11,7 +11,7 @@ sub mars_check_data_value(state:MarsState, value, width)
   bits = width * 8
   minimum = 0 - (1 << (bits - 1))
   maximum = (1 << bits) - 1
-  if (value < minimum) || (value > maximum) then mars_error(state.item, "data value is out of range") end
+  if (value < minimum) || (value > maximum) then mars_fail() end
 end
 
 sub mars_emit_string(state:MarsState, term:SolTerm)
@@ -31,7 +31,7 @@ sub mars_emit_data(state:MarsState, item:SolItem)
   local width = mars_data_width(item), term:SolTerm = item.first.value, value
   state.item = item
   if term.kind == 4 then
-    if width != 1 then mars_error(item, "string data requires db") end
+    if width != 1 then mars_fail() end
     mars_emit_string(state, term)
     return 0
   end
@@ -45,7 +45,7 @@ sub mars_emit_alignment(state:MarsState, item:SolItem)
   local boundary = item.number, remainder, padding
   state.item = item
   if item.first.value.kind == 5 then boundary = boundary * 8 end
-  if boundary <= 0 then mars_error(item, "alignment must be positive") end
+  if boundary <= 0 then mars_fail() end
   remainder = state.address % boundary
   if remainder == 0 then return 0 end
   padding = boundary - remainder
@@ -59,8 +59,8 @@ sub mars_layout_item(state:MarsState, item:SolItem)
   if item.kind == 2 then return 0 end
 
   if item.kind == 3 then
-    if state.origin_set then mars_error(item, "duplicate origin") end
-    if state.emitted then mars_error(item, "origin must precede layout") end
+    if state.origin_set then mars_fail() end
+    if state.emitted then mars_fail() end
     state.origin = item.number
     state.origin_set = 1
     state.address = state.origin
@@ -99,7 +99,7 @@ sub mars_layout_item(state:MarsState, item:SolItem)
     return 0
   end
 
-  mars_error(item, "unsupported Sol item")
+  mars_fail()
 end
 
 sub mars_emit_item(state:MarsState, item:SolItem)
@@ -109,7 +109,7 @@ sub mars_emit_item(state:MarsState, item:SolItem)
   if item.kind == 2 then return 0 end
 
   if item.kind == 3 then
-    if item.number != state.origin then mars_error(item, "origin changed between passes") end
+    if item.number != state.origin then mars_fail() end
     return 0
   end
 
@@ -118,7 +118,7 @@ sub mars_emit_item(state:MarsState, item:SolItem)
 
   if item.kind == 4 then
     symbol = mars_find_symbol(state, item.name, item.name_length)
-    if (symbol == 0) || (symbol.address != state.address) then mars_error(item, "symbol layout changed between passes") end
+    if (symbol == 0) || (symbol.address != state.address) then mars_fail() end
     return 0
   end
 
@@ -134,12 +134,12 @@ sub mars_emit_item(state:MarsState, item:SolItem)
     return 0
   end
 
-  mars_error(item, "unsupported Sol item")
+  mars_fail()
 end
 
 sub mars_next_item(state:MarsState)
   local item:SolItem = sol_next(state.parser)
-  if item.kind == 1 then mars_error(item, item.message) end
+  if item.kind == 1 then mars_fail() end
   return item
 end
 
@@ -179,7 +179,7 @@ sub mars_emit(state:MarsState)
   while 1 do
     item = mars_next_item(state)
     if item.kind == 0 then
-      if state.offset != state.image_size then mars_error(item, "image size changed between passes") end
+      if state.offset != state.image_size then mars_fail() end
       return 0
     end
     mars_emit_item(state, item)

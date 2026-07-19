@@ -18,14 +18,9 @@ sub mars_find_symbol(state:MarsState, name, length)
 end
 
 sub mars_new_symbol(state:MarsState)
-  local symbol:MarsSymbol = sol_alloc(96)
+  local symbol:MarsSymbol = sol_alloc(72)
   symbol.name = state.pending_name
   symbol.length = state.pending_length
-  if state.item != 0 then
-    symbol.source_name = state.item.source_name
-    symbol.line = state.item.line
-    symbol.column = state.item.column
-  end
   if state.symbols == 0 then state.symbols = symbol else state.symbol_tail.next = symbol end
   state.symbol_tail = symbol
   return symbol
@@ -42,7 +37,7 @@ end
 sub mars_define_symbol(state:MarsState, name, length)
   local symbol:MarsSymbol = mars_get_symbol(state, name, length)
   if symbol.defined then
-    if state.round <= 1 then mars_error(state.item, "duplicate symbol") end
+    if state.round <= 1 then mars_fail() end
   end
   symbol.defined = 1
   symbol.external = 0
@@ -54,7 +49,7 @@ sub mars_define_absolute_symbol(state:MarsState, name, length, address)
   local symbol:MarsSymbol = mars_get_symbol(state, name, length)
   if symbol.defined then
     if symbol.exported then return symbol end
-    if symbol.address != address then mars_error(state.item, "duplicate symbol") end
+    if symbol.address != address then mars_fail() end
     return symbol
   end
   ; Preserve external so imported assembly addresses retain fixed-width code.
@@ -80,7 +75,7 @@ sub mars_symbol_value(state:MarsState, term:SolTerm)
   local symbol:MarsSymbol = mars_get_symbol(state, term.text, term.length)
   symbol.referenced = 1
   if state.pass == 2 then
-    if symbol.defined == 0 then mars_symbol_error(symbol, "undefined symbol") end
+    if symbol.defined == 0 then mars_fail() end
   end
   return symbol.address
 end
@@ -88,11 +83,11 @@ end
 sub mars_validate_symbols(state:MarsState)
   local symbol:MarsSymbol = state.symbols
   while symbol != 0 do
-    if symbol.exported && (symbol.defined == 0) then mars_symbol_error(symbol, "exported symbol is undefined") end
+    if symbol.exported && (symbol.defined == 0) then mars_fail() end
     if symbol.referenced && (symbol.defined == 0) then
       if symbol.external then
-        if state.allow_unresolved == 0 then mars_symbol_error(symbol, "cannot resolve external symbol") end
-      else mars_symbol_error(symbol, "undefined symbol") end
+        if state.allow_unresolved == 0 then mars_fail() end
+      else mars_fail() end
     end
     symbol = symbol.next
   end

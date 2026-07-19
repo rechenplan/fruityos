@@ -1,4 +1,4 @@
-record MarsSymbol name, length, address, defined, external, absolute, exported, referenced, source_name, line, column, next:MarsSymbol
+record MarsSymbol name, length, address, defined, external, absolute, exported, referenced, next:MarsSymbol
 record MarsOutput fd, buffer, used, capacity
 record MarsState parser:SolParser, symbols:MarsSymbol, symbol_tail:MarsSymbol,
        output:MarsOutput, pass, origin, origin_set, base_origin, base_origin_set,

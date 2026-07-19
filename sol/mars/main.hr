@@ -7,7 +7,7 @@ sub main(argc, argv)
   path = mars_next_argument(argv)
   while (remaining > 0) && parsing_options do
     if mars_streq(path, "-o") then
-      if remaining < 2 then mars_error(0, "missing origin value") end
+      if remaining < 2 then mars_fail() end
       path = mars_next_argument(path)
       state.base_origin = mars_atoi(path)
       state.base_origin_set = 1
@@ -15,7 +15,7 @@ sub main(argc, argv)
       remaining = remaining - 2
     else
       if mars_streq(path, "-M") then
-        if remaining < 2 then mars_error(0, "missing map path") end
+        if remaining < 2 then mars_fail() end
         path = mars_next_argument(path)
         map_path = path
         map_only = 1
@@ -29,16 +29,10 @@ sub main(argc, argv)
   end
 
   if map_only then
-    if remaining < 1 then
-      mars_puts("usage: mars [-o origin] -M output.map input.sol [input.sol ...]\n")
-      return 1
-    end
+    if remaining < 1 then return 1 end
     input_count = remaining
   else
-    if remaining < 2 then
-      mars_puts("usage: mars [-o origin] input.sol [input.sol ...] output.bin\n")
-      return 1
-    end
+    if remaining < 2 then return 1 end
     input_count = remaining - 1
   end
 
