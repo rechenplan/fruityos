@@ -50,9 +50,33 @@ sub mars_emit_alignment(state:MarsState, item:SolItem)
   while padding > 0 do mars_byte(state, 0) padding = padding - 1 end
 end
 
+
+sub mars_dead_runtime_name(name, length)
+  if mars_slice_equal(name, length, "__haruka_alloc", 14) then return 1 end
+  if mars_slice_equal(name, length, "__haruka_lift", 13) then return 1 end
+  return 0
+end
+
+sub mars_dead_runtime_symbol(state:MarsState, name, length)
+  local symbol:MarsSymbol
+  if mars_dead_runtime_name(name, length) == 0 then return 0 end
+  symbol = mars_find_symbol(state, name, length)
+  if symbol == 0 then return 1 end
+  return symbol.referenced == 0
+end
+
 sub mars_layout_item(state:MarsState, item:SolItem)
   local size
   if item.kind != 9 then state.zero_valid = 0 end
+  if state.skip_dead_runtime then
+    if (item.kind == 5) || (item.kind == 6) || (item.kind == 10) then state.skip_dead_runtime = 0
+    else return 0 end
+  end
+  if ((item.kind == 5) || (item.kind == 6)) && mars_dead_runtime_symbol(state, item.name, item.name_length) then return 0 end
+  if (item.kind == 4) && mars_dead_runtime_symbol(state, item.name, item.name_length) then
+    state.skip_dead_runtime = 1
+    return 0
+  end
   if item.kind == 2 then return 0 end
 
   if item.kind == 3 then
@@ -75,10 +99,10 @@ sub mars_layout_item(state:MarsState, item:SolItem)
     mars_define_symbol(state, item.name, item.name_length)
     if mars_micro_enabled(state) &&
        mars_slice_equal(item.name, item.name_length, "main", 4) then
-      mars_mov_abs(state, 12, state.origin + 41)
-      mars_mov_abs(state, 13, state.origin + 51)
-      mars_mov_abs(state, 14, state.origin)
-      mars_mov_abs(state, 15, state.origin + 23)
+      mars_lea_rel(state, 12, state.origin + 41)
+      mars_lea_rel(state, 13, state.origin + 51)
+      mars_lea_rel(state, 14, state.origin)
+      mars_lea_rel(state, 15, state.origin + 23)
     end
     return 0
   end
@@ -108,6 +132,15 @@ end
 sub mars_emit_item(state:MarsState, item:SolItem)
   local size, next_ip, zero_valid, symbol:MarsSymbol
   if item.kind != 9 then state.zero_valid = 0 end
+  if state.skip_dead_runtime then
+    if (item.kind == 5) || (item.kind == 6) || (item.kind == 10) then state.skip_dead_runtime = 0
+    else return 0 end
+  end
+  if ((item.kind == 5) || (item.kind == 6)) && mars_dead_runtime_symbol(state, item.name, item.name_length) then return 0 end
+  if (item.kind == 4) && mars_dead_runtime_symbol(state, item.name, item.name_length) then
+    state.skip_dead_runtime = 1
+    return 0
+  end
   if item.kind == 2 then return 0 end
 
   if item.kind == 3 then
@@ -123,10 +156,10 @@ sub mars_emit_item(state:MarsState, item:SolItem)
     if (symbol == 0) || (symbol.address != state.address) then mars_fail() end
     if mars_micro_enabled(state) &&
        mars_slice_equal(item.name, item.name_length, "main", 4) then
-      mars_mov_abs(state, 12, state.origin + 41)
-      mars_mov_abs(state, 13, state.origin + 51)
-      mars_mov_abs(state, 14, state.origin)
-      mars_mov_abs(state, 15, state.origin + 23)
+      mars_lea_rel(state, 12, state.origin + 41)
+      mars_lea_rel(state, 13, state.origin + 51)
+      mars_lea_rel(state, 14, state.origin)
+      mars_lea_rel(state, 15, state.origin + 23)
     end
     return 0
   end
@@ -162,6 +195,7 @@ sub mars_layout(state:MarsState)
     state.origin_set = state.base_origin_set
     state.address = state.base_origin
     state.zero_valid = 0
+    state.skip_dead_runtime = 0
     if mars_micro_enabled(state) then mars_emit_micro_kernel(state) end
     done = 0
     while done == 0 do
@@ -180,6 +214,7 @@ sub mars_emit(state:MarsState)
   sol_reset(state.parser)
   state.address = state.origin
   state.zero_valid = 0
+  state.skip_dead_runtime = 0
   if mars_micro_enabled(state) then mars_emit_micro_kernel(state) end
   while 1 do
     item = mars_next_item(state)

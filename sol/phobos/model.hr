@@ -2,5 +2,5 @@ record MarsSymbol name, length, address, defined, external, absolute, exported, 
 record MarsOutput fd, buffer, used
 record MarsState parser:SolParser, symbols:MarsSymbol,
        output:MarsOutput, origin, origin_set, base_origin, base_origin_set,
-       address, allow_unresolved,
+       address, allow_unresolved, skip_dead_runtime,
        measuring, measure_count, image_size, round, zero_valid

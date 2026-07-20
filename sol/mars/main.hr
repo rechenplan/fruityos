@@ -2,7 +2,7 @@ sub main(argc, argv)
   local input_count, index = 0, path, output_path, map_path, map_only = 0
   local remaining = argc - 1, parsing_options = 1
   local head:SolSource, tail:SolSource, source:SolSource
-  local parser:SolParser, state:MarsState = sol_alloc(112), output:MarsOutput = sol_alloc(24)
+  local parser:SolParser, state:MarsState = sol_alloc(120), output:MarsOutput = sol_alloc(24)
 
   path = mars_next_argument(argv)
   while (remaining > 0) && parsing_options do

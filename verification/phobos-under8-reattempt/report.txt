@@ -1,0 +1,59 @@
+FruityOS Phobos under-8 KiB reattempt
+
+Scope:
+- jc.fap is exempt.
+- Both orgasm.fap copies are ignored for this pass, per request.
+- The target for this attempt is therefore haruka.fap and the Phobos-backed mars.fap/backend slot.
+
+Retained candidate:
+- Phobos/Mars-side suppression of unreferenced Haruka runtime bodies.
+- If __haruka_alloc or __haruka_lift is unreferenced, Phobos skips the corresponding extern/global/label body while preserving referenced-runtime programs.
+- The same source change is applied to sol/mars and the preserved sol/phobos copy.
+
+Validation:
+- Standard clean/full build: PASS, exit 0, from the normal build.psh path.
+- Haruka semantic/rejection tests against the generated Haruka and Mars/Phobos binaries: PASS.
+- FAP inventory: 69 paths before and after.
+- New FAP files: 0.
+- Removed FAP files: 0.
+- QEMU/OVMF boot for this candidate: FAIL/HANG. With QEMU 10.0.11 and OVMF, the debug console reached uefiseed/FruityOS startup text but did not reach the FruityOS banner or shell prompt within the timeout. The observed debug log was:
+
+  U12345EHBooting...
+  0
+
+Size result versus the previous QEMU-tested Haruka/Phobos baseline:
+
+FAP                                           baseline   candidate  delta
+jc.fap (exempt)                                15944       15944       0
+jabara.fap / jc copy                           15944       15944       0
+mars.fap / Phobos backend slot                 10631       10557     -74
+haruka.fap                                     10217        9958    -259
+orgasm.fap (ignored)                            9202        9202       0
+bootstrap orgasm.fap (ignored)                  8316        8316       0
+byc.fap                                         5636        5369    -267
+yc.fap                                          5636        5369    -267
+zest.fap                                        4621        4362    -259
+uefi.fap                                        2629        2363    -266
+pish.fap                                        2551        2294    -257
+jus.fap                                         2136        1875    -261
+fred.fap                                        2121        1860    -261
+
+Conclusion:
+- This attempt does not meet the under-8 KiB objective.
+- Ignoring jc and orgasm, the remaining blockers are:
+  - mars.fap / Phobos backend slot: 10557 bytes
+  - haruka.fap: 9958 bytes
+- It is also not boot-validated; the QEMU boot did not reach the shell prompt.
+
+Rejected variants during this pass:
+- Unconditional frame metadata store elision: smaller, but generated Haruka segfaulted on closure/lift tests.
+- Conditional frame metadata elision: safe, but worse than the retained candidate for mars.fap.
+- Unconditional local zero-initialization removal: smaller, but generated Haruka segfaulted even on basic tests.
+- Safe deferred local zero-store removal: functional, but mars.fap grew to roughly 10959 bytes.
+- Compare/branch threading and related folds: functional in some forms, but compressed-size regressions.
+
+Artifacts:
+- phobos-under8-reattempt-faps.tsv: complete 69-path size table.
+- phobos-under8-reattempt-deltas.tsv: baseline-to-candidate size deltas.
+- phobos-under8-reattempt.patch: source-only patch for the retained candidate.
+- phobos-under8-reattempt-qemu-debug.log: failing QEMU debug-console log.
