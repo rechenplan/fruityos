@@ -62,6 +62,7 @@ Sol follows these rules:
 - [Pluto native ISA](pluto.md)
 - [Pluto native encoding](pluto-encoding.md)
 - [Mars x86-64 backend](mars.md)
+- [Phobos preserved threaded backend](phobos.md)
 - [Luna and Terra](luna-terra.md)
 - [Haruka frontend boundary](haruka.md)
 - [Migration and repository plan](migration.md)

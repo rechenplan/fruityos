@@ -1,25 +1,16 @@
-# Verified FruityOS Sol checkpoint
+# FruityOS with preserved Phobos backend
 
-This archive contains the tested JUS-only, Haruka heap-constructor,
-Mars heap-constructor, RIP-relative, silent-backend tree with Mars parser
-message and item/pending location metadata removed.
+This archive contains the complete radical threaded-control FruityOS tree and
+an independently maintained copy of that Mars implementation under
+`sol/phobos/`.
 
-Verified compressed FAP sizes:
+Phobos:
 
-- haruka.fap: 11,794 bytes
-- mars.fap: 11,981 bytes
-- jus.fap: 2,076 bytes in the completed build
+- preserves the retained Mars Haruka sources byte-for-byte;
+- builds independently with `bin/pish build-phobos.psh`;
+- installs the Linux host executable as `bin/phobos.elf`;
+- is not part of the normal FruityOS build or initrd;
+- introduces no new `.fap` files.
 
-Verification performed on the exact source tree before packaging:
-
-- normal persistent full self-hosted build completed with exit code 0;
-- Haruka semantic suite passed;
-- Haruka invalid-program rejection passed;
-- standalone Sol parser suite passed after removal of the obsolete location-metadata assertion;
-- Mars two-way link/semantic tests passed;
-- QEMU/OVMF boot reached FruityOS 0.8.1 and the `/>` shell prompt on the preceding 12,157-byte checkpoint; the 11,981-byte checkpoint completed the full build successfully and was frozen before the next lexer-location pass.
-
-Haruka diagnostics remain intact. Mars is a silent black-box backend: success/failure
-is reported through its exit status rather than human-readable diagnostics.
-
-No Haruka or Sol language changes were made, and no new FAP files were introduced.
+The normal FruityOS build continues to use `sol/mars/` and retains the same 69
+`.fap` paths.

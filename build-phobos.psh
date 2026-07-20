@@ -1,0 +1,3 @@
+cd sol/phobos
+build.psh $platform
+cd ../..

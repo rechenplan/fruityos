@@ -1,0 +1,20 @@
+Phobos preserved source SHA-256
+
+75d46e93b16f974c65a8faf4eb6de75ef5fc22f223f240cb501131994fee06e5  sol/phobos/assemble.hr
+015695dfd79731ac94bae43b3298115589ce3db71f5c8835ba84e881bba4eea0  sol/phobos/lower.hr
+0b02a6f22b48cf4c03ee2322ec9338ebdb893fe337e91263d13d6a6f2833c695  sol/phobos/main.hr
+1e4e17763411a9f40871244d6d41a534b8de3dad7f056877313f6fcbfadf331c  sol/phobos/model.hr
+211d3d68d34f4f5893e19a6ee246b5924a7b6b6807b1ce8e6e14f862a6a8f6c1  sol/phobos/roots.hr
+af4adc31aae6131b4abc8e3e76362b0b039caaf63a000b9532083bfd06b7d9d5  sol/phobos/runtime.hr
+28d67e42c223a2315d051a293fa53f10ede9655f377223d873dcc3419192d6e8  sol/phobos/symbols.hr
+1155a9e2e4abfebec52fed66a43106673e66492559fd78eed7726f13438682a4  sol/phobos/x86.hr
+
+Corresponding Mars source comparison:
+MATCH  assemble.hr
+MATCH  lower.hr
+MATCH  main.hr
+MATCH  model.hr
+MATCH  roots.hr
+MATCH  runtime.hr
+MATCH  symbols.hr
+MATCH  x86.hr

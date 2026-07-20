@@ -1,0 +1,2 @@
+$root/bin/bootstrap/fruityos-x86_64/concat out/fruityos-x86_64/phobos.fap out/fruityos-x86_64/phobos
+$root/bin/bootstrap/fruityos-x86_64/concat $root/bin/phobos.fap out/fruityos-x86_64/phobos.fap

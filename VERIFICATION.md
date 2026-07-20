@@ -1,38 +1,38 @@
 # Verification
 
-Source baseline: sol branch, commit 79485a2.
+## Phobos preservation
 
-Change:
-- Haruka compiler-internal persistent records are allocated from the existing monotonic heap.
-- Constructor helpers are ordinary subroutines rather than lifted closure values.
-- No Haruka input-language changes.
-- No Sol language changes.
-- No new FAP files.
+- `sol/phobos/*.hr` matches the retained `sol/mars/*.hr` source files byte for
+  byte.
+- Phobos-specific changes are limited to project naming, output names,
+  documentation, and copied test expectations.
+- Linux host build command: `bin/pish build-phobos.psh`.
+- Produced executable: `bin/phobos.elf`.
 
-Clean build:
-- `bin/pish clean.psh`
-- `bin/pish build.psh`
-- Exit status: 0
+## Phobos tests
 
-Compressed FruityOS FAP sizes:
-- Haruka: 12,150 bytes (baseline 13,246; reduction 1,096 bytes)
-- Mars: 14,890 bytes (unchanged)
+Passed:
 
-Haruka semantic tests:
-- `haruka/tests/test-linux.sh haruka/out/linux-x86_64/haruka sol/mars/out/linux-x86_64/mars`
-- Passed all execution and rejection cases.
+- Sol arithmetic and semantic execution fixtures;
+- word-width fixture;
+- compact threaded fixture;
+- multi-file equivalence;
+- external symbol resolution and unresolved-symbol rejection;
+- data layout;
+- deterministic repeat assembly;
+- 100,000-operation streaming stress fixture;
+- mixed Orgasm/Phobos map and image link test.
 
-QEMU UEFI boot:
-- Image: `out/fruityos_uefi.img`
-- Firmware: OVMF
-- Port 0xE9 output:
+## FruityOS build
 
-```
-U12345EHBooting...
-Welcome to FruityOS 0.8.1!
-/> 
-```
+- Normal persistent command: `bin/pish build.psh`.
+- Exit status: 0.
+- `.fap` paths before Phobos preservation: 69.
+- `.fap` paths after Phobos preservation: 69.
+- New `.fap` paths: 0.
+- Removed `.fap` paths: 0.
 
-Known baseline test issue:
-- `sol/mars/tests/test-linux.sh` fails the compact.sol size assertion because Mars emits 47 bytes while the test expects 41.
-- Mars is unchanged by this patch and its FruityOS FAP remains byte-for-byte the baseline size.
+## Boot test
+
+QEMU boot was not run because `qemu-system-x86_64` and OVMF firmware are not
+installed in this environment.

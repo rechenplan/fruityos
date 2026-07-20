@@ -1,0 +1,2 @@
+$root/bin/concat out/windows-x86_64/phobos.exe out/windows-x86_64/phobos
+$root/bin/concat $root/bin/phobos.exe out/windows-x86_64/phobos.exe

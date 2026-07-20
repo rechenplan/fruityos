@@ -1,0 +1,2 @@
+$root/bin/jc.psh $1 out/$1/phobos roots.hr ../parser/model.hr ../parser/lexer.hr ../parser/parser.hr model.hr runtime.hr symbols.hr x86.hr lower.hr assemble.hr main.hr
+rename-$1.psh

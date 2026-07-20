@@ -54,6 +54,7 @@ than a Unix-compatible operating system.
 - [`sol/`](sol/) defines the width-neutral Sol IR, its shared streaming parser,
   and the Mars x86-64 flat-binary backend.
 - [`haruka/`](haruka/) is the default `.hr` compiler frontend and emits Sol.
+- [`sol/phobos/`](sol/phobos/) preserves the radical threaded-control Mars backend as an independently buildable host tool; run `bin/pish build-phobos.psh`.
 - Pluto is the planned native ISA for Sol semantics; Luna and Terra are planned
   16-bit and 32-bit x86 backends.
 

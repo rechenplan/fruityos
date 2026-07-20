@@ -1,0 +1,68 @@
+FruityOS Haruka/Phobos full build and QEMU verification
+
+Build configuration:
+- Standard build command: ./bin/pish build.psh linux-x86_64
+- Standard build script unchanged.
+- In the isolated test tree, sol/mars/*.hr were symlinked to the frozen sol/phobos/*.hr sources.
+- Expected output/tool name remained mars because the existing build and FAP ABI use that name.
+
+Validation:
+- Clean: PASS
+- Full build: PASS (exit 0)
+- Phobos semantic tests against full-build backend: PASS
+- Phobos mixed Orgasm link test: PASS
+- Haruka semantic/rejection tests: PASS
+- QEMU UEFI boot: PASS
+- QEMU: 10.0.11
+- Firmware: /usr/share/qemu/OVMF.fd
+- Boot reached FruityOS 0.8.1 shell prompt.
+
+QEMU debug console:
+  U12345EHBooting...
+  Welcome to FruityOS 0.8.1! 
+  /> 
+Principal FAP sizes:
+FAP                               bytes
+jc.fap (exempt)                   15944
+mars.fap (Phobos backend)         10631
+haruka.fap                        10217
+orgasm.fap                         9202
+bootstrap orgasm.fap               8316
+byc.fap                            5636
+yc.fap                             5636
+zest.fap                           4621
+
+Primary bin/*.fap sizes, descending:
+mars.fap                          10631
+haruka.fap                        10217
+uefi.fap                           2629
+pish.fap                           2551
+jus.fap                            2136
+fred.fap                           2121
+jar.fap                            1703
+inode.fap                          1377
+dir.fap                            1349
+pad.fap                            1289
+write.fap                          1240
+fill.fap                           1124
+copy.fap                           1064
+concat.fap                         1042
+type.fap                           1012
+del.fap                             903
+move.fap                            898
+echo.fap                            867
+mkdir.fap                           867
+rmdir.fap                           867
+
+Inventory:
+- FAP paths: 69
+- Total bytes across all FAP paths: 212044
+- Paths at or above 8192 bytes: 11
+- New FAP files: 0
+- Removed FAP files: 0
+
+Images:
+- out/fruityos_uefi.img: 17825792 bytes
+- out/fruityos.efi: 242688 bytes
+f8d3fec289a39024875c2ccc98a42eddc63a2e3f26de827739e6eb2b2c679f74  out/fruityos_uefi.img
+16c030110a985b31ecb9b5cfd47bd699e2a14b6e254e6032b528e1d77a3f088b  out/fruityos.efi

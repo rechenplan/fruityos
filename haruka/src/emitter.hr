@@ -81,6 +81,15 @@ sub em_find_function_body(emitter:Emitter, name)
   return external
 end
 
+sub em_mark_reachable_function(emitter:Emitter, function:Function)
+  if function == 0 then return 0 end
+  if function.reachable then return 0 end
+  function.reachable = 1
+  if function.is_extern == 0 then
+    em_mark_reachable_statements(emitter, function.body)
+  end
+end
+
 sub em_mark_reachable_expr(emitter:Emitter, expr:Expr)
   local function:Function
   while expr != 0 do
@@ -88,12 +97,7 @@ sub em_mark_reachable_expr(emitter:Emitter, expr:Expr)
       if expr.left != 0 then
         if expr.left.kind == 2 then
           function = em_find_function_body(emitter, expr.left.text)
-          if function != 0 then
-            if function.reachable == 0 then
-              function.reachable = 1
-              em_mark_reachable_statements(emitter, function.body)
-            end
-          end
+          em_mark_reachable_function(emitter, function)
         end
       end
     end
@@ -122,8 +126,15 @@ end
 
 sub em_mark_reachable(emitter:Emitter)
   local roots:Function = em_find_function(emitter, "__jabara_roots")
+  local main_function:Function
   if roots == 0 then return 0 end
   em_mark_reachable_statements(emitter, roots.body)
+  main_function = em_find_function_body(emitter, "main")
+  if main_function != 0 then
+    if main_function.reachable then
+      em_mark_reachable_statements(emitter, emitter.program.statements)
+    end
+  end
   return 1
 end
 
@@ -738,6 +749,7 @@ sub em_emit_statements(emitter:Emitter, statement:Stmt)
     if statement.kind == 3 then
       em_emit_expr(emitter, statement.expr)
       em_text("\tret\t") em_number(emitter.return_bytes) em_newline()
+      return 0
     end
     if statement.kind == 1 then
       done = em_new_label(emitter)
@@ -755,6 +767,11 @@ sub em_emit_statements(emitter:Emitter, statement:Stmt)
         em_emit_statements(emitter, statement.else_body)
       end
       em_label(emitter, done) em_line(":")
+      if em_statements_return(statement.body) then
+        if statement.else_body != 0 then
+          if em_statements_return(statement.else_body) then return 0 end
+        end
+      end
     end
     if statement.kind == 2 then
       again = em_new_label(emitter)
@@ -886,7 +903,9 @@ sub em_emit_program(program:Program)
   function = program.functions
   while function != 0 do
     if function.is_extern then
-      em_text("extern ") em_line(function.name)
+      if (prune == 0) || function.reachable then
+        em_text("extern ") em_line(function.name)
+      end
     else
       if (prune == 0) || function.reachable then em_emit_function(emitter, function) end
     end
