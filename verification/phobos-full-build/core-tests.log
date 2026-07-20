@@ -1,0 +1,17 @@
+[phobos semantics]
+result=0
+result=42
+PASS phobos semantics
+[phobos mixed link]
+PASS phobos mixed link
+[haruka through phobos]
+result=0
+result=0
+result=0
+result=0
+result=0
+result=0
+result=0
+result=0
+result=0
+PASS haruka through phobos

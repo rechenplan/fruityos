@@ -50,7 +50,7 @@ model.
 The test pipeline is:
 
 ```text
-Haruka source (`.hr`) -> Haruka -> Sol -> Mars -> raw x86-64 -> host harness
+Haruka source (`.hr`) -> Haruka -> Sol -> Phobos -> raw x86-64 -> host harness
 ```
 
 Tests cover locals, tagged records, field mutation, shallow pointer

@@ -51,11 +51,15 @@ than a Unix-compatible operating system.
 
 ## Sol toolchain
 
-- [`sol/`](sol/) defines the width-neutral Sol IR, its shared streaming parser,
-  and the Mars x86-64 flat-binary backend.
-- [`haruka/`](haruka/) is the default `.hr` compiler frontend and emits Sol.
-- [`sol/phobos/`](sol/phobos/) preserves the radical threaded-control Mars backend as an independently buildable host tool; run `bin/pish build-phobos.psh`.
+- [`sol/`](sol/) defines the width-neutral Sol IR and its shared streaming parser.
+- [`haruka/`](haruka/) is the `.hr` frontend and emits Sol.
+- [`sol/phobos/`](sol/phobos/) is the active x86-64 Sol backend used by the normal build.
+- [`sol/mars/`](sol/mars/) remains an independently built reference backend.
 - Pluto is the planned native ISA for Sol semantics; Luna and Terra are planned
   16-bit and 32-bit x86 backends.
 
-Peel and the rest of userland build through Haruka/Mars; Orgasm remains the platform-prefix assembler and Jabara bootstrap assembler.
+After the initial Jabara bootstrap, Haruka, Phobos, Mars, Pulp, Peel, Yuzu, and
+other Haruka-language components are compiled through Haruka and Phobos. Mars
+and Phobos are always built from their own source trees and produce distinct
+executables. Orgasm remains the platform-prefix assembler and Jabara remains
+the bootstrap compiler.

@@ -22,6 +22,45 @@ sub nextarg(strPtr)
 	return strPtr + 1
 end
 
+
+sub load_dictionary(inputPath)
+	local scan, slash, pathPtr, suffix, i, fd, dictPack, size, count
+	scan = inputPath
+	slash = 0
+	while byte [scan] != 0 do
+		if byte [scan] == byte ["/"] then slash = scan end
+		scan = scan + 1
+	end
+	if slash == 0 then return 0 end
+	pathPtr = malloc(1024)
+	i = 0
+	scan = inputPath
+	while scan <= slash do
+		byte [pathPtr + i] = byte [scan]
+		i = i + 1
+		scan = scan + 1
+	end
+	suffix = "lib/juicer-dict.bin"
+	scan = suffix
+	while byte [scan] != 0 do
+		byte [pathPtr + i] = byte [scan]
+		i = i + 1
+		scan = scan + 1
+	end
+	byte [pathPtr + i] = 0
+	fd = open(pathPtr, 0)
+	if fd <= 0 then return 0 end
+	dictPack = malloc(2056)
+	size = 0
+	while (count = read(fd, dictPack + 8 + size, 2047 - size)) > 0 do
+		size = size + count
+	end
+	close(fd)
+	[dictPack] = size
+	if size < 3 then return 0 end
+	return dictPack
+end
+
 sub hash3(ptr)
 	local hash
 	hash = byte [ptr]
@@ -30,11 +69,12 @@ sub hash3(ptr)
 	return hash & 65535
 end
 
-sub compress(fin, fout)
+sub compress(fin, fout, dictPack)
 	local bytePtr, filePtr, fileSize, count, headPtr, prevPtr, matchPtr,
 		costPtr, hash, chain, candidatePos, encoderPos, distance, length,
 		bestLength, done, i, phase, nextPhase, bestCost, candidateCost,
-		flags, groupSize, token, bestDistance
+		flags, groupSize, token, bestDistance, dictPtr, dictSize,
+		dictHeadPtr, dictPrevPtr, dictPos
 
 	bytePtr = malloc(17)
 	filePtr = malloc((2 << 20) + 34)
@@ -52,6 +92,30 @@ sub compress(fin, fout)
 	prevPtr = malloc((fileSize + 1) << 3)
 	matchPtr = malloc((fileSize + 1) << 3)
 	costPtr = malloc((fileSize + 1) << 6)
+
+	dictPtr = 0
+	dictSize = 0
+	dictHeadPtr = 0
+	dictPrevPtr = 0
+	if dictPack != 0 then
+		dictSize = [dictPack]
+		dictPtr = dictPack + 8
+		dictHeadPtr = malloc(65536 << 3)
+		i = 0
+		while i < 65536 do
+			[dictHeadPtr + (i << 3)] = 0
+			i = i + 1
+		end
+		dictPrevPtr = malloc((dictSize + 1) << 3)
+		dictPos = 0
+		while dictPos + 2 < dictSize do
+			hash = hash3(dictPtr + dictPos)
+			chain = [dictHeadPtr + (hash << 3)]
+			[dictPrevPtr + (dictPos << 3)] = chain
+			[dictHeadPtr + (hash << 3)] = dictPos + 1
+			dictPos = dictPos + 1
+		end
+	end
 
 	encoderPos = 0
 	while encoderPos < fileSize do
@@ -78,6 +142,29 @@ sub compress(fin, fout)
 						done = 1
 					else
 						chain = [prevPtr + (candidatePos << 3)]
+					end
+				end
+			end
+			if (dictHeadPtr != 0) & (done == 0) then
+				chain = [dictHeadPtr + (hash << 3)]
+				while (chain != 0) & (done == 0) do
+					candidatePos = chain - 1
+					distance = encoderPos + dictSize - candidatePos
+					if distance > 2047 then
+						chain = 0
+					else
+						length = 0
+						while (encoderPos + length < fileSize) & (length < 34) &
+							(candidatePos + length < dictSize) &
+							(byte [filePtr + encoderPos + length] == byte [dictPtr + candidatePos + length]) do
+							length = length + 1
+						end
+						if length > bestLength then bestLength = length end
+						if bestLength == 34 then
+							done = 1
+						else
+							chain = [dictPrevPtr + (candidatePos << 3)]
+						end
 					end
 				end
 			end
@@ -154,6 +241,29 @@ sub compress(fin, fout)
 						end
 					end
 				end
+				if (bestDistance == 0) & (dictHeadPtr != 0) then
+					hash = hash3(filePtr + encoderPos)
+					chain = [dictHeadPtr + (hash << 3)]
+					while (chain != 0) & (bestDistance == 0) do
+						candidatePos = chain - 1
+						distance = encoderPos + dictSize - candidatePos
+						if distance > 2047 then
+							chain = 0
+						else
+							length = 0
+							while (length < bestLength) &
+								(candidatePos + length < dictSize) &
+								(byte [filePtr + encoderPos + length] == byte [dictPtr + candidatePos + length]) do
+								length = length + 1
+							end
+							if length == bestLength then
+								bestDistance = distance
+							else
+								chain = [dictPrevPtr + (candidatePos << 3)]
+							end
+						end
+					end
+				end
 				token = (bestDistance << 5) | (bestLength - 3)
 				byte [bytePtr + groupSize] = token & 255
 				byte [bytePtr + groupSize + 1] = token >> 8
@@ -186,7 +296,7 @@ sub compress(fin, fout)
 end
 
 sub main(argc, argv)
-	local fin, fout, mode
+	local fin, fout, mode, dictPack
 	if argc != 4 then
 		puts("usage: jus c infile outfile")
 		putch(10)
@@ -201,6 +311,7 @@ sub main(argc, argv)
 		return 0
 	end
 	argv = nextarg(argv)
+	dictPack = load_dictionary(argv)
 	fin = open(argv, 0)
 	if fin <= 0 then
 		puts("Unable to open file")
@@ -215,7 +326,7 @@ sub main(argc, argv)
 		close(fin)
 		return 0
 	end
-	compress(fin, fout)
+	compress(fin, fout, dictPack)
 	close(fin)
 	close(fout)
 	return 0

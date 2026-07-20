@@ -1,0 +1,23 @@
+PASS clean.psh linux-x86_64
+PASS build.psh linux-x86_64 (clean full build)
+PASS build.psh linux-x86_64 (repeat full build)
+PASS Phobos semantic/data/multifile/extern/determinism/100k-op tests
+PASS Phobos mixed Orgasm map/link executable test
+PASS Haruka positive and rejection tests through Phobos
+PASS Sol parser tests through normal jc.psh / Phobos linker path
+PASS Mars semantic/data/multifile/extern/determinism/100k-op cases
+PASS Mars mixed Orgasm map/link executable test
+PASS QEMU 10.0.11 + OVMF UEFI boot to FruityOS 0.8.1 shell
+PASS QEMU execution of rebuilt echo.fap
+PASS QEMU execution/return of installed phobos.fap
+
+KNOWN TEST-DATA MISMATCH
+sol/mars/tests/test-linux.sh expects compact.sol to emit 41 bytes.
+The unchanged Mars source emits 44 bytes when compiled by the current Phobos path.
+All executable Mars semantic cases pass. Mars source and its test expectation were
+left untouched as requested.
+
+REPEAT BUILD
+haruka.fap, phobos.fap, mars.fap, pulp.sys, and fruityos.efi were byte-identical.
+The outer FAT UEFI disk image hash changed because filesystem metadata is regenerated.
+The final regenerated image was boot-tested again successfully.

@@ -46,8 +46,11 @@ jobs, or shell conditionals.
 | `fred` | Interactive line editor. |
 | `inode` | Display RAMFS inode information. |
 | `jar` | Create or extract Jar archives. |
-| `jc` | Compile Jabara to NASM-compatible assembly. |
+| `haruka` | Compile `.hr` source to textual Sol. |
+| `jc` | Run the Haruka/Phobos platform compiler driver. |
 | `jus` | Fast hash-chain Juicer compressor. |
+| `mars` | Run the independently built reference Sol backend. |
+| `phobos` | Run the active Sol-to-x86-64 backend. |
 | `mkdir` | Create a directory. |
 | `move` | Rename or move a file. |
 | `orgasm` | Assemble FruityOS and Jabara assembly inputs. |
@@ -57,8 +60,9 @@ jobs, or shell conditionals.
 | `write` | Interactively write lines to a file. |
 
 The root build copies the selected programs into the initrd. Peel builds only
-its own userland sources. Jabara supplies `jc` and Orgasm, while Yuzu supplies
-`byc`, `yc`, and `zest` under its own output tree.
+its own userland sources. Jabara supplies the bootstrap compiler and Orgasm;
+Haruka supplies the frontend; Phobos and Mars supply independent Sol backends;
+and Yuzu supplies `byc`, `yc`, and `zest` under its own output tree.
 
 ## FAP applications
 
@@ -89,10 +93,13 @@ Juicer groups eight items behind a literal-bit mask. Matches use a two-byte
 length field representing 3 through 34 bytes. A zero match token terminates the
 stream.
 
-Both `juicer` and `jus` emit this format. `juicer` is the small reference
-encoder and decoder; `jus` uses hash chains to find the same matches much
-faster and is the encoder used by the build. BIOS Seed, UEFI Seed, Pulp's FAP
-loader, and the `juicer` userland program share the platform decoder.
+Both `juicer` and `jus` emit this token stream. `jus` is the encoder used by
+the build; it uses hash chains and, when `lib/juicer-dict.bin` is present next
+to the input tree, may emit matches that refer to that 396-byte preset
+dictionary before the output buffer. The platform decoder carries the same
+preset dictionary, so legacy no-dictionary streams and dictionary-backed streams
+share one runtime path. BIOS Seed, UEFI Seed, Pulp's FAP loader, and the
+`juicer` userland program share the platform decoder.
 
 ## Persistence
 

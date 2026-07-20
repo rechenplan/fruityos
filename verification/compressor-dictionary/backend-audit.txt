@@ -1,0 +1,31 @@
+Active Sol backend invocations
+
+- lib/linux-x86_64/link.psh:1:$root/bin/phobos -o 4195328 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
+- lib/linux-x86_64/link.psh:4:$root/bin/phobos -o 4195328 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
+- lib/fruityos-x86_64/link.psh:1:$root/bin/phobos -o 8393728 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
+- lib/fruityos-x86_64/link.psh:4:$root/bin/phobos -o 8393728 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
+- lib/windows-x86_64/link.psh:1:$root/bin/phobos -o 5368713216 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
+- lib/windows-x86_64/link.psh:4:$root/bin/phobos -o 5368713216 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
+- pulp/build.psh:8:$root/bin/phobos -o 70144 -M tmp/$1/sol.map tmp/$1/pulp.sol
+- pulp/build.psh:11:$root/bin/phobos -o 70144 tmp/$1/pulp.sol tmp/$1/asm.map tmp/$1/pulp-sol.bin
+- sol/build.psh:3:cd ../mars
+- sol/build.psh:6:cd ../phobos
+- build.psh:12:cd sol/phobos
+- build.psh:21:cd sol/phobos
+- build.psh:25:cd sol/mars
+- build.psh:31:pad sol/phobos/out/fruityos-x86_64/phobos.fap 0 16384
+- build.psh:32:pad sol/mars/out/fruityos-x86_64/mars.fap 0 16384
+- build.psh:57:del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jabara.fap initrd/bin/haruka.fap initrd/bin/mars.fap initrd/bin/phobos.fap
+- build.psh:110:copy sol/mars/out/fruityos-x86_64/mars.fap initrd/bin/mars.fap
+- build.psh:111:copy sol/phobos/out/fruityos-x86_64/phobos.fap initrd/bin/phobos.fap
+
+Mars source diff against verified baseline excluding generated out/:
+none
+
+Mars/Phobos binary identity:
+579298ccebbf314c1dfb9f82327bbce29acad657e6fb38a48a6efd51ab351dc8  bin/mars.elf
+1e7bb5209befbb3cd971ca3d16ae2120ed87a3873957f577b5f21affc9ed80ff  bin/phobos.elf
+970b770ee0da25bbd92a39fb18892005686e1eccf516e6d7e3eb2331e0fe9406  bin/mars.fap
+2709954fb002299ceeb9dc5b14872f4f3f6660715edbe8779b2bcfecbb36e4d3  bin/phobos.fap
+mars_vs_phobos_elf_cmp_status=1
+mars_vs_phobos_fap_cmp_status=1

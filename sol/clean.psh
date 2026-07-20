@@ -3,3 +3,6 @@ clean.psh
 cd ../mars
 clean.psh
 cd ..
+cd ../phobos
+clean.psh $1
+cd ..

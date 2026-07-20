@@ -21,9 +21,9 @@ The sole irreducible executable is `stage0/petit.com`. Its readable source,
 `stage0/out`.
 
 The host continuation first assembles `stage0/jbc.asm`, uses JBC to compile
-current Orgasm, uses the seed to assemble current Orgasm once, and then uses
-current Orgasm for every later assembly. It produces four uncompressed files
-per target directly in `stage0/out`:
+the bootstrap compiler, uses the seed to assemble current Orgasm once, and then
+uses current Orgasm for every later assembly. It produces four uncompressed
+files per target directly in `stage0/out`:
 
 | Host | Pish | Orgasm | Juicer | Concat |
 | --- | --- | --- | --- | --- |
@@ -37,23 +37,29 @@ host suffix. As soon as a rebuilt `bin/<tool>.<suffix>` exists, normal binary
 lookup selects it before the launcher.
 
 No compiler executable is checked in. JBC creates the first Jabara compiler,
-which is installed as `bin/jabara.<suffix>`. The legacy `bin/jb.psh` driver then
-builds current Orgasm plus bootstrap Haruka, Mars, Juicer, and Pad. Every normal
-native or cross build after that uses
-`bin/jc.psh PLATFORM OUTPUT SOURCE.hr...`.
+which is installed as `bin/jabara.<suffix>`. The legacy `bin/jb.psh` driver
+builds current Orgasm, bootstrap Juicer and Pad, and the first runnable copies
+of Haruka and Phobos. Every normal native or cross build after that uses
+`bin/jc.psh PLATFORM OUTPUT SOURCE.hr...`, whose platform linker invokes
+Phobos.
 
 ## Root pipeline
 
-1. `jabara/build.psh $platform fruityos-x86_64` creates legacy Jabara and
-   Orgasm for the host and FruityOS.
-2. `peel/bootstrap.psh`, `haruka/bootstrap.psh`, and `sol/mars/bootstrap.psh`
-   create the minimal host tools needed to leave the legacy chain.
-3. Haruka and Mars rebuild themselves through the default Haruka -> Sol -> Mars
-   path for the host and FruityOS.
-4. Peel rebuilds all host tools through the default path.
-5. Yuzu builds for the host and FruityOS; Peel builds the FruityOS userland.
-6. Seed and Pulp build for `fruityos-x86_64`.
-7. The root script stages the initrd and produces BIOS and UEFI images.
+1. `jabara/build.psh $platform fruityos-x86_64` creates Jabara and Orgasm for
+   the host and FruityOS.
+2. `peel/bootstrap.psh`, `haruka/bootstrap.psh`, and
+   `sol/phobos/bootstrap.psh` create the minimal host tools needed to leave the
+   legacy chain.
+3. Bootstrap Haruka and Phobos rebuild Phobos through
+   Haruka -> Sol -> Phobos.
+4. That Phobos rebuilds Haruka for the host and FruityOS, then rebuilds itself
+   again with the final Haruka frontend.
+5. Phobos compiles Mars from `sol/mars`, preserving Mars as a distinct backend
+   rather than an alias or renamed copy.
+6. Peel, Yuzu, Pulp, and all other Haruka-language native and cross-target
+   programs build through the same Phobos-backed `jc.psh` path.
+7. The root script stages both `mars.fap` and `phobos.fap` in the initrd and
+   produces BIOS and UEFI images.
 
 Every subdirectory build receives its output platform as `$1` and writes only
 beneath its own `out/$1`. Rename helpers publish extension-bearing executables:
@@ -64,20 +70,21 @@ beneath its own `out/$1`. Rename helpers publish extension-bearing executables:
 
 Pulp is linked as two adjacent flat regions. Handwritten x86-64 remains in
 Orgasm; Haruka-language kernel sources are compiled by Haruka to Sol and by
-Mars to x86-64 bytes.
+Phobos to x86-64 bytes.
 
 ```text
-Pulp `.hr` sources          -> Haruka -> pulp.sol
-pulp.sol at 0x11200         -> Mars layout map
-assembly + Sol map          -> Orgasm -> 0x10000 region + assembly map
-pulp.sol + assembly map     -> Mars -> 0x11200 region
-padded assembly + Mars bytes -> Concat -> pulp.bin -> Juicer -> pulp.sys
+Pulp `.hr` sources             -> Haruka -> pulp.sol
+pulp.sol at 0x11200            -> Phobos layout map
+assembly + Sol map             -> Orgasm -> 0x10000 region + assembly map
+pulp.sol + assembly map        -> Phobos -> 0x11200 region
+padded assembly + Phobos bytes -> Concat -> pulp.bin -> Juicer -> pulp.sys
 ```
 
 The handwritten region is fixed at 4,608 bytes (`0x10000` through `0x111ff`).
 `pad` rejects an oversized Orgasm result before padding it to that exact size,
-so the Mars origin cannot silently drift. Mars and Orgasm exchange absolute
-symbols as `name equ address` text files. The final `pad ... 0 8192` command
+so the Phobos origin cannot silently drift. Phobos and Orgasm exchange
+absolute symbols as `name equ address` text files. The final
+`pad ... 0 8192` command
 retains the existing 8 KiB compressed-kernel limit.
 
 ## Platform linkers
@@ -94,14 +101,14 @@ lib/<platform>/link.psh
 
 ### Linux x86-64
 
-Mars first exports the Haruka region's symbols. Orgasm uses that map to build a
-fixed 1 KiB ELF/startup/runtime prefix, then Mars resolves the assembly symbols
-and emits the adjacent code region. Concat joins both regions; Juicer compresses
+Phobos first exports the Haruka region's symbols. Orgasm uses that map to build
+a fixed 1 KiB ELF/startup/runtime prefix, then Phobos resolves the assembly
+symbols and emits the adjacent code region. Concat joins both regions; Juicer compresses
 the result and a small ELF decode stub enters it at its linked address.
 
 ### Windows x86-64
 
-The same two-map protocol builds a fixed 4 KiB PE32+ prefix followed by the Mars
+The same two-map protocol builds a fixed 4 KiB PE32+ prefix followed by the Phobos-generated
 region. The runtime has no CRT or import library and includes only the
 `kernel32.dll` APIs selected by Pith reachability. Juicer compresses that PE and
 Concat appends it to a compact PE32+ launcher that:

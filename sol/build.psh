@@ -3,3 +3,6 @@ build.psh $1
 cd ../mars
 build.psh $1
 cd ..
+cd ../phobos
+build.psh $1
+cd ..

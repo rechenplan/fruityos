@@ -23,9 +23,10 @@ x86-64              x86 real mode       x86 protected mode  native ISA
 flat binary         16-bit binary       32-bit binary       native binary
 ```
 
-Mars is the first concrete Sol backend. It is a flat assembler written in
-Haruka: it reads textual Sol and writes raw x86-64 machine code directly. It
-does not emit assembly language and it does not invoke Orgasm.
+Phobos is the active concrete Sol backend. It is a flat assembler written in
+Haruka: it reads textual Sol and writes raw x86-64 machine code directly. Mars
+implements the same contract as an independently built reference backend.
+Neither backend emits assembly language or invokes Orgasm.
 
 Luna and Terra are planned backends for 16-bit real-mode x86 and 32-bit
 protected-mode x86. Pluto is a processor ISA designed to execute Sol semantics
@@ -73,9 +74,9 @@ Sol version 1 is under active development. The semantic core and the naming
 split are intentional. Exact exceptional behavior and Pluto opcode assignments
 are not frozen.
 
-The repository currently contains a streaming generic Sol parser, a tested
-Mars x86-64 flat-binary backend, and a Haruka frontend whose lexer, grammar, and
-AST match Jabara. Haruka's width-neutral Sol runtime implements frame-local
-allocation and shallow `lift var`, and the complete pipeline is exercised
-through Mars. Future language changes must remain synchronized between the Jabara and Haruka
-frontends.
+The repository currently contains a streaming generic Sol parser, independent
+Phobos and Mars x86-64 flat-binary backends, and a Haruka frontend whose lexer,
+grammar, and AST match Jabara. Haruka's width-neutral Sol runtime implements
+frame-local allocation and shallow `lift var`, and the normal build pipeline is
+exercised through Phobos. Future language changes must remain synchronized
+between the Jabara and Haruka frontends.

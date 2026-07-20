@@ -50,7 +50,8 @@ sub main(argc, args)
 	end
 	size = seek(fd, 0, 2)
 	if size > limit then
-		pad_puts("pad: payload exceeds limit")
+		pad_puts("pad: payload exceeds limit ")
+		pad_puts(path)
 		putch(10)
 		close(fd)
 		return 1

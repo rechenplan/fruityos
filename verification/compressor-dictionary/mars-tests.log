@@ -1,0 +1,6 @@
+== Mars backend ==
+result=0
+result=42
+FAIL mars backend status 1
+== Mars/Orgasm link ==
+PASS mars link

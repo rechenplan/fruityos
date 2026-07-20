@@ -1,8 +1,10 @@
-# Phobos
+# Phobos x86-64 backend
 
-Phobos is the preserved hybrid threaded-native x86-64 backend snapshot derived
-from Mars. Its implementation lives in [`phobos/`](phobos/README.md).
+Phobos is the production x86-64 flat-binary backend for Sol. It is implemented
+in Haruka under [`phobos/`](phobos/README.md) and is invoked by every normal
+Haruka-language native and cross-target build.
 
-It is intentionally outside the normal FruityOS build and initrd. This keeps
-Phobos available for comparison and reuse without introducing another `.fap`
-into the operating-system image.
+Mars remains a separate reference backend under `sol/mars`. Both backends obey
+the same command and map-file contract, but each is compiled from its own
+source and installed independently. The FruityOS initrd contains both
+`phobos.fap` and `mars.fap`; compiler linker scripts select Phobos.

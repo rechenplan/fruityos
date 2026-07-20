@@ -75,10 +75,10 @@ sub mars_layout_item(state:MarsState, item:SolItem)
     mars_define_symbol(state, item.name, item.name_length)
     if mars_micro_enabled(state) &&
        mars_slice_equal(item.name, item.name_length, "main", 4) then
-      mars_mov_abs(state, 12, state.origin + 41)
-      mars_mov_abs(state, 13, state.origin + 51)
-      mars_mov_abs(state, 14, state.origin)
-      mars_mov_abs(state, 15, state.origin + 23)
+      mars_lea_rel(state, 12, state.origin + 41)
+      mars_lea_rel(state, 13, state.origin + 51)
+      mars_lea_rel(state, 14, state.origin)
+      mars_lea_rel(state, 15, state.origin + 23)
     end
     return 0
   end
@@ -123,10 +123,10 @@ sub mars_emit_item(state:MarsState, item:SolItem)
     if (symbol == 0) || (symbol.address != state.address) then mars_fail() end
     if mars_micro_enabled(state) &&
        mars_slice_equal(item.name, item.name_length, "main", 4) then
-      mars_mov_abs(state, 12, state.origin + 41)
-      mars_mov_abs(state, 13, state.origin + 51)
-      mars_mov_abs(state, 14, state.origin)
-      mars_mov_abs(state, 15, state.origin + 23)
+      mars_lea_rel(state, 12, state.origin + 41)
+      mars_lea_rel(state, 13, state.origin + 51)
+      mars_lea_rel(state, 14, state.origin)
+      mars_lea_rel(state, 15, state.origin + 23)
     end
     return 0
   end
