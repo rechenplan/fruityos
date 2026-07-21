@@ -1,1 +1,1 @@
-del out/$1/phobos out/$1/phobos.elf out/$1/phobos.exe out/$1/phobos.fap
+del out/$1/phobos out/$1/phobos.raw out/$1/phobos.elf out/$1/phobos.exe out/$1/phobos.fap

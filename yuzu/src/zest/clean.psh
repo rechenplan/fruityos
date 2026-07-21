@@ -1,3 +1,3 @@
-del out/$1/zest
+del out/$1/zest out/$1/zest.raw out/$1/zest.elf out/$1/zest.exe out/$1/zest.fap
 rmdir out/$1
 rmdir out

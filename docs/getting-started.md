@@ -69,6 +69,8 @@ unpacks the initrd into RAMFS, starts `/bin/pish.fap`, and Pish executes
 ## Clean
 
 Run `clean.psh` through the same host Pish entrypoint. Cleaning removes generated
-component outputs, host replacements in `bin/`, the initrd staging tree, and
-final images. It preserves the checked-in Pish and bootstrap executables,
-launchers, compiler-driver scripts, and stage0 reconstruction sources.
+component outputs, the initrd staging tree, and final images. It retains the
+populated host tools in `bin/` so another normal build can start without a
+stage0 reconstruction. These host tools are ignored by Git; the checked-in
+Pish and bootstrap executables, launchers, compiler-driver scripts, and stage0
+reconstruction sources remain the reproducible bootstrap surface.

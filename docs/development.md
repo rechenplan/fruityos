@@ -23,16 +23,17 @@ and have an entrypoint and import directory inside the executable image.
 
 - Every normal-build orchestration script is Pish source with the `.psh`
   suffix; platform shell scripts are confined to stage0 reconstruction.
-- The irreducible executable is `stage0/petit.com`. The populated host surface
-  additionally retains Pish plus Orgasm, Juicer, and Concat for each platform
-  beneath `bin/`.
+- The irreducible executable is `stage0/petit.com`. A populated workspace also
+  retains its Git-ignored host tools beneath `bin/` so cleaning does not strand
+  the next normal build.
 - No `jc` executable is checked in.
 - Component artifacts are written to local `out/<platform>/` directories.
 - Published executable suffixes are `.elf`, `.exe`, and `.fap`.
 - Linux and Windows native executables are Juicer-compressed launchers.
 - Compiler output remains separate from platform headers and runtimes.
 - Jabara owns JC and Orgasm; Peel owns only Peel utilities; Yuzu owns Yuzu tools.
-- The root `build.psh` application list is the initrd manifest.
+- The root `build.psh` application list is the boot-only initrd manifest;
+  executable compiler backends are staged, but their source trees are not.
 - `pulp.sys` and `orgasm.fap` remain within their FruityOS size limits.
 - BIOS disk payload limits and RAMFS inode layout remain synchronized with their
   writers and inspection tools.

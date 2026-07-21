@@ -1,2 +1,1 @@
-concat out/fruityos-x86_64/$1.fap out/fruityos-x86_64/$1
-concat $root/bin/$1.fap out/fruityos-x86_64/$1.fap
+move out/fruityos-x86_64/$1 out/fruityos-x86_64/$1.fap

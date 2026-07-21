@@ -419,3 +419,16 @@ dup2:
 %ifdef PITH_juicer_decode64
 %define JUICER_LONG_ONLY
 %endif
+
+%ifdef PITH_orgone_enter
+orgone_enter:
+	pop r10
+	pop rdx
+	pop rdi
+	pop rbx
+	mov rax, [rbx + 24]
+	sub rsp, 16
+	mov [rsp], rdi
+	mov [rsp + 8], rdx
+	jmp rax
+%endif

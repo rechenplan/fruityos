@@ -1,6 +1,9 @@
 del out/$1/jus out/$1/concat out/$1/copy out/$1/del out/$1/dir out/$1/echo
 del out/$1/fill out/$1/fred out/$1/inode out/$1/jar out/$1/mkdir out/$1/move
 del out/$1/pad out/$1/pish out/$1/rmdir out/$1/type out/$1/uefi out/$1/write
+del out/$1/jus.raw out/$1/concat.raw out/$1/copy.raw out/$1/del.raw out/$1/dir.raw out/$1/echo.raw
+del out/$1/fill.raw out/$1/fred.raw out/$1/inode.raw out/$1/jar.raw out/$1/mkdir.raw out/$1/move.raw
+del out/$1/pad.raw out/$1/pish.raw out/$1/rmdir.raw out/$1/type.raw out/$1/uefi.raw out/$1/write.raw
 del out/$1/jus.elf out/$1/concat.elf out/$1/copy.elf out/$1/del.elf out/$1/dir.elf out/$1/echo.elf
 del out/$1/fill.elf out/$1/fred.elf out/$1/inode.elf out/$1/jar.elf out/$1/mkdir.elf out/$1/move.elf
 del out/$1/pad.elf out/$1/pish.elf out/$1/rmdir.elf out/$1/type.elf out/$1/uefi.elf out/$1/write.elf

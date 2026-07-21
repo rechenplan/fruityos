@@ -1,4 +1,4 @@
-del out/$1/orgasm out/$2/orgasm
+del out/$1/orgasm out/$1/orgasm.raw out/$2/orgasm out/$2/orgasm.raw
 rmdir out/$1
 rmdir out/$2
 rmdir out

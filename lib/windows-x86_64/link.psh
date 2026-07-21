@@ -1,7 +1,6 @@
-$root/bin/phobos -o 5368713216 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
-$root/bin/orgasm -m $root/.jc-asm.map $root/.jc-sol.map $1/start.asm $1/runtime.asm $1/juicer.asm $root/.jc-prefix
-$root/bin/pad $root/.jc-prefix 4096 4096
-$root/bin/phobos -o 5368713216 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
+$root/bin/mars -o 5368712612 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
+$root/bin/orgasm -m $root/.jc-asm.map $1/pith-all.map $root/.jc-sol.map $1/start.asm $1/runtime.asm $root/.jc-prefix
+$root/bin/mars -o 5368712612 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
 $root/bin/concat $root/.jc-raw $root/.jc-prefix $root/.jc-code
 $root/bin/orgasm $1/juicer-decode-stub.asm $1/juicer.asm $1/juicer-decode-trailer.asm $root/.jc-stub
 $root/bin/jus c $root/.jc-raw $root/.jc-juiced

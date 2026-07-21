@@ -203,6 +203,10 @@ task_init:
 	mov [r8 + 40], rax
 	mov [r8 + 48], r9
 	mov [r8 + 56], r10
+	mov rax, 1330073137
+	mov [r8 + 64], rax
+	mov [r8 + 72], r9
+	mov [r8 + 80], r10
 	mov rax, 0x900000
 	mov [r8 + 248], rax
 	ret

@@ -262,3 +262,12 @@ exit:
 %ifdef PITH_juicer_decode64
 %define JUICER_LONG_ONLY
 %endif
+
+%ifdef PITH_orgone_enter
+orgone_enter:
+	pop r10
+	pop rsi
+	pop rdi
+	pop rax
+	jmp rax
+%endif

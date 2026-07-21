@@ -1,6 +1,7 @@
-$root/bin/phobos -o 8393728 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
-$root/bin/orgasm -m $root/.jc-asm.map $root/.jc-sol.map $1/start.asm $1/runtime.asm $1/juicer.asm $root/.jc-prefix
-$root/bin/pad $root/.jc-prefix 1024 1024
-$root/bin/phobos -o 8393728 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
+$root/bin/mars -o 8393335 -M $root/.jc-sol.map $3 $root/lib/haruka-runtime.sol $1/trailer.sol
+$root/bin/orgasm -m $root/.jc-asm.map $1/pith-all.map $root/.jc-sol.map $1/start.asm $1/runtime.asm $root/.jc-prefix
+$root/bin/mars -o 8393335 $3 $root/lib/haruka-runtime.sol $1/trailer.sol $root/.jc-asm.map $root/.jc-code
 $root/bin/concat $root/.jc-raw $root/.jc-prefix $root/.jc-code
-$root/bin/jus c $root/.jc-raw $2
+$root/bin/concat $2.raw $root/.jc-raw
+$root/bin/orgone w $root/lib/orgone.dct $root/lib/fruityos-x86_64/orgone-stub.bin $root/.jc-raw $root/.jc-orgone
+$root/bin/move $root/.jc-orgone $2

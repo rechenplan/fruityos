@@ -1,2 +1,1 @@
-$root/bin/concat out/fruityos-x86_64/mars.fap out/fruityos-x86_64/mars
-$root/bin/concat $root/bin/mars.fap out/fruityos-x86_64/mars.fap
+$root/bin/move out/fruityos-x86_64/mars out/fruityos-x86_64/mars.fap

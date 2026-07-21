@@ -1223,3 +1223,16 @@ align 512
 __win_file_end:
 __win_section_raw_size equ __win_file_end-__win_section_start
 __win_image_size equ __win_file_end-WIN_IMAGE_BASE
+
+%ifdef PITH_orgone_enter
+orgone_enter:
+	pop r10
+	pop rdx
+	pop rdi
+	pop rbx
+	mov eax, [rbx + 0x3c]
+	lea rcx, [rbx + rax]
+	mov eax, [rcx + 40]
+	add rax, rbx
+	jmp rax
+%endif

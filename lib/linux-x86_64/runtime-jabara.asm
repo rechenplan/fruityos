@@ -421,3 +421,16 @@ __jabara_file_end:
 %define JUICER_LONG_ONLY
 %define JUICER_OLD
 %endif
+
+%ifdef PITH_orgone_enter
+orgone_enter:
+	pop r10
+	pop rdx
+	pop rdi
+	pop rbx
+	mov rax, [rbx + 24]
+	sub rsp, 16
+	mov [rsp], rdi
+	mov [rsp + 8], rdx
+	jmp rax
+%endif

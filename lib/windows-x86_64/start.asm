@@ -1,6 +1,7 @@
 %define PITH_exit
 bits 64
 org 0x140000000
+orgone_image_base:
 WIN_IMAGE_BASE equ 0x140000000
 
 ; Compact one-section PE32+ console executable. File and section alignment are
@@ -69,7 +70,13 @@ platform: db "windows-x86_64",0
 _start:
 	lea rax,[rel platform]
 	mov [rel __haruka_global_platform],rax
+	cmp ebx,1330073137
+	je .orgone
 	call __win_init_args
+	jmp .call_main
+.orgone:
+	mov rax,rcx
+.call_main:
 	push rax
 	push rdx
 	call main

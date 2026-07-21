@@ -1,9 +1,15 @@
 bits 64
 org 0x801000
+orgone_image_base:
 
 _start:
 	lea	rax, [rel platform]
 	mov	[rel __haruka_global_platform], rax
+	cmp	ebx, 1330073137
+	jne	.native
+	mov	rdi, rcx
+	mov	rsi, rdx
+.native:
 	jmp __haruka_fap_start
 
 platform: db "fruityos-x86_64", 0

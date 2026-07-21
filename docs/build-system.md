@@ -133,7 +133,11 @@ built from Peel source. They do not invoke Bash, POSIX `cp`/`rm`, PowerShell,
 
 ## Initrd and clean
 
-The root build copies the Windows compiler frontend and runtime sources into the
-FruityOS initrd, so FruityOS can cross-build Windows `.exe` files. Cleaning
-removes generated `.elf`, `.exe`, and `.fap` files while preserving the exact
-checked-in bootstrap surface above.
+The initrd is a boot environment: it contains Pulp, Pish, the Peel user
+utilities, the executable compiler/backend toolchain, and the shared Orgone
+runtime dictionary. Cross-platform runtimes, linker sources, and other source
+files remain in the repository instead of being copied into the boot image.
+
+Cleaning removes component outputs and images while retaining populated,
+Git-ignored host tools in `bin/`; this leaves the next normal build runnable.
+The exact checked-in bootstrap surface above remains unchanged.

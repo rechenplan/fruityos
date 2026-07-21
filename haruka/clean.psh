@@ -1,3 +1,3 @@
-del out/$1/haruka out/$1/haruka.elf out/$1/haruka.exe out/$1/haruka.fap
+del out/$1/haruka out/$1/haruka.raw out/$1/haruka.elf out/$1/haruka.exe out/$1/haruka.fap
 rmdir out/$1
 rmdir out

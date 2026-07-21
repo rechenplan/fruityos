@@ -9,7 +9,7 @@ cd ..
 cd haruka
 bootstrap.psh $platform
 cd ..
-cd sol/phobos
+cd sol/mars
 bootstrap.psh $platform
 build.psh $platform
 cd ../..
@@ -18,17 +18,12 @@ cd haruka
 build.psh $platform
 build.psh fruityos-x86_64
 cd ..
-cd sol/phobos
-build.psh $platform
-build.psh fruityos-x86_64
-cd ../..
 cd sol/mars
 build.psh $platform
 build.psh fruityos-x86_64
 cd ../..
 
 pad haruka/out/fruityos-x86_64/haruka.fap 0 16384
-pad sol/phobos/out/fruityos-x86_64/phobos.fap 0 16384
 pad sol/mars/out/fruityos-x86_64/mars.fap 0 16384
 
 cd peel
@@ -50,17 +45,70 @@ cd pulp
 build.psh fruityos-x86_64
 cd ..
 
+orgone t lib/orgone.dct jabara/src/jc/out/fruityos-x86_64/jc.raw jabara/src/orgasm/out/fruityos-x86_64/orgasm.raw jabara/src/orgone/out/fruityos-x86_64/orgone.raw peel/out/fruityos-x86_64/mkdir.raw peel/out/fruityos-x86_64/rmdir.raw peel/out/fruityos-x86_64/echo.raw peel/out/fruityos-x86_64/move.raw peel/out/fruityos-x86_64/del.raw peel/out/fruityos-x86_64/type.raw peel/out/fruityos-x86_64/concat.raw peel/out/fruityos-x86_64/copy.raw peel/out/fruityos-x86_64/fill.raw peel/out/fruityos-x86_64/write.raw peel/out/fruityos-x86_64/pad.raw peel/out/fruityos-x86_64/dir.raw peel/out/fruityos-x86_64/inode.raw peel/out/fruityos-x86_64/jar.raw peel/out/fruityos-x86_64/fred.raw peel/out/fruityos-x86_64/jus.raw peel/out/fruityos-x86_64/pish.raw peel/out/fruityos-x86_64/uefi.raw yuzu/src/zest/out/fruityos-x86_64/zest.raw yuzu/src/byc/out/fruityos-x86_64/byc.raw yuzu/src/yc/out/fruityos-x86_64/yc.raw haruka/out/fruityos-x86_64/haruka.raw sol/mars/out/fruityos-x86_64/mars.raw
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin jabara/src/jc/out/fruityos-x86_64/jc.raw .orgone-jc
+move .orgone-jc jabara/out/fruityos-x86_64/jc.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin jabara/src/orgasm/out/fruityos-x86_64/orgasm.raw .orgone-orgasm
+move .orgone-orgasm jabara/out/fruityos-x86_64/orgasm.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin jabara/src/orgone/out/fruityos-x86_64/orgone.raw .orgone-orgone
+move .orgone-orgone jabara/out/fruityos-x86_64/orgone.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/mkdir.raw .orgone-mkdir
+move .orgone-mkdir peel/out/fruityos-x86_64/mkdir.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/rmdir.raw .orgone-rmdir
+move .orgone-rmdir peel/out/fruityos-x86_64/rmdir.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/echo.raw .orgone-echo
+move .orgone-echo peel/out/fruityos-x86_64/echo.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/move.raw .orgone-move
+move .orgone-move peel/out/fruityos-x86_64/move.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/del.raw .orgone-del
+move .orgone-del peel/out/fruityos-x86_64/del.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/type.raw .orgone-type
+move .orgone-type peel/out/fruityos-x86_64/type.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/concat.raw .orgone-concat
+move .orgone-concat peel/out/fruityos-x86_64/concat.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/copy.raw .orgone-copy
+move .orgone-copy peel/out/fruityos-x86_64/copy.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/fill.raw .orgone-fill
+move .orgone-fill peel/out/fruityos-x86_64/fill.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/write.raw .orgone-write
+move .orgone-write peel/out/fruityos-x86_64/write.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/pad.raw .orgone-pad
+move .orgone-pad peel/out/fruityos-x86_64/pad.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/dir.raw .orgone-dir
+move .orgone-dir peel/out/fruityos-x86_64/dir.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/inode.raw .orgone-inode
+move .orgone-inode peel/out/fruityos-x86_64/inode.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/jar.raw .orgone-jar
+move .orgone-jar peel/out/fruityos-x86_64/jar.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/fred.raw .orgone-fred
+move .orgone-fred peel/out/fruityos-x86_64/fred.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/jus.raw .orgone-jus
+move .orgone-jus peel/out/fruityos-x86_64/jus.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/pish.raw .orgone-pish
+move .orgone-pish peel/out/fruityos-x86_64/pish.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin peel/out/fruityos-x86_64/uefi.raw .orgone-uefi
+move .orgone-uefi peel/out/fruityos-x86_64/uefi.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin yuzu/src/zest/out/fruityos-x86_64/zest.raw .orgone-zest
+move .orgone-zest yuzu/src/zest/out/fruityos-x86_64/zest.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin yuzu/src/byc/out/fruityos-x86_64/byc.raw .orgone-byc
+move .orgone-byc yuzu/src/byc/out/fruityos-x86_64/byc.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin yuzu/src/yc/out/fruityos-x86_64/yc.raw .orgone-yc
+move .orgone-yc yuzu/src/yc/out/fruityos-x86_64/yc.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin haruka/out/fruityos-x86_64/haruka.raw .orgone-haruka
+move .orgone-haruka haruka/out/fruityos-x86_64/haruka.fap
+orgone w lib/orgone.dct lib/fruityos-x86_64/orgone-stub.bin sol/mars/out/fruityos-x86_64/mars.raw .orgone-mars
+move .orgone-mars sol/mars/out/fruityos-x86_64/mars.fap
 del initrd/pulp.sys initrd/init.psh
 del initrd/bin/jar.fap initrd/bin/jus.fap initrd/bin/orgasm.fap initrd/bin/pish.fap initrd/bin/pad.fap
 del initrd/bin/fred.fap initrd/bin/dir.fap initrd/bin/mkdir.fap initrd/bin/del.fap initrd/bin/echo.fap
 del initrd/bin/concat.fap initrd/bin/copy.fap initrd/bin/inode.fap initrd/bin/move.fap initrd/bin/rmdir.fap
-del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jabara.fap initrd/bin/haruka.fap initrd/bin/mars.fap initrd/bin/phobos.fap
+del initrd/bin/type.fap initrd/bin/write.fap initrd/bin/fill.fap initrd/bin/jabara.fap initrd/bin/orgone.fap initrd/bin/haruka.fap initrd/bin/mars.fap initrd/bin/phobos.fap
 del initrd/bin/jb.psh initrd/bin/jc.psh initrd/bin/jc-linux-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh initrd/bin/jc-windows-x86_64.psh
 del initrd/lib/linux-x86_64/pith.hr initrd/lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/trailer.sol
 del initrd/lib/linux-x86_64/start-jabara.asm initrd/lib/linux-x86_64/runtime-jabara.asm
 del initrd/lib/linux-x86_64/link.psh initrd/lib/linux-x86_64/link-jabara.psh
 del initrd/lib/haruka-runtime.sol
-del initrd/lib/juicer-dict.bin
+del initrd/lib/orgone.dct initrd/lib/fruityos-x86_64/orgone-stub.bin
 del initrd/lib/linux-x86_64/juicer-decode-stub.asm
 del initrd/lib/fruityos-x86_64/pith.hr initrd/lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/trailer.sol
 del initrd/lib/fruityos-x86_64/start-jabara.asm initrd/lib/fruityos-x86_64/runtime-jabara.asm
@@ -81,10 +129,6 @@ rmdir initrd
 mkdir initrd
 mkdir initrd/bin
 mkdir initrd/lib
-mkdir initrd/src
-mkdir initrd/lib/linux-x86_64
-mkdir initrd/lib/fruityos-x86_64
-mkdir initrd/lib/windows-x86_64
 copy pulp/out/fruityos-x86_64/pulp.sys initrd/pulp.sys
 copy scripts/init.psh initrd/init.psh
 copy peel/out/fruityos-x86_64/jar.fap initrd/bin/jar.fap
@@ -106,51 +150,17 @@ copy peel/out/fruityos-x86_64/type.fap initrd/bin/type.fap
 copy peel/out/fruityos-x86_64/write.fap initrd/bin/write.fap
 copy peel/out/fruityos-x86_64/fill.fap initrd/bin/fill.fap
 copy jabara/out/fruityos-x86_64/jc.fap initrd/bin/jabara.fap
+copy jabara/out/fruityos-x86_64/orgone.fap initrd/bin/orgone.fap
 copy haruka/out/fruityos-x86_64/haruka.fap initrd/bin/haruka.fap
 copy sol/mars/out/fruityos-x86_64/mars.fap initrd/bin/mars.fap
-copy sol/phobos/out/fruityos-x86_64/phobos.fap initrd/bin/phobos.fap
-copy bin/jb.psh initrd/bin/jb.psh
-copy bin/jc.psh initrd/bin/jc.psh
-copy bin/jc-linux-x86_64.psh initrd/bin/jc-linux-x86_64.psh
-copy bin/jc-fruityos-x86_64.psh initrd/bin/jc-fruityos-x86_64.psh
-copy bin/jc-windows-x86_64.psh initrd/bin/jc-windows-x86_64.psh
-copy lib/haruka-runtime.sol initrd/lib/haruka-runtime.sol
-copy lib/juicer-dict.bin initrd/lib/juicer-dict.bin
-copy lib/linux-x86_64/pith.hr initrd/lib/linux-x86_64/pith.hr
-copy lib/linux-x86_64/pith.jabara initrd/lib/linux-x86_64/pith.jabara
-copy lib/linux-x86_64/start.asm initrd/lib/linux-x86_64/start.asm
-copy lib/linux-x86_64/runtime.asm initrd/lib/linux-x86_64/runtime.asm
-copy lib/linux-x86_64/start-jabara.asm initrd/lib/linux-x86_64/start-jabara.asm
-copy lib/linux-x86_64/runtime-jabara.asm initrd/lib/linux-x86_64/runtime-jabara.asm
-copy lib/linux-x86_64/trailer.sol initrd/lib/linux-x86_64/trailer.sol
-copy lib/linux-x86_64/link.psh initrd/lib/linux-x86_64/link.psh
-copy lib/linux-x86_64/link-jabara.psh initrd/lib/linux-x86_64/link-jabara.psh
-copy lib/linux-x86_64/juicer-decode-stub.asm initrd/lib/linux-x86_64/juicer-decode-stub.asm
-copy lib/fruityos-x86_64/pith.hr initrd/lib/fruityos-x86_64/pith.hr
-copy lib/fruityos-x86_64/pith.jabara initrd/lib/fruityos-x86_64/pith.jabara
-copy lib/fruityos-x86_64/start.asm initrd/lib/fruityos-x86_64/start.asm
-copy lib/fruityos-x86_64/runtime.asm initrd/lib/fruityos-x86_64/runtime.asm
-copy lib/fruityos-x86_64/start-jabara.asm initrd/lib/fruityos-x86_64/start-jabara.asm
-copy lib/fruityos-x86_64/runtime-jabara.asm initrd/lib/fruityos-x86_64/runtime-jabara.asm
-copy lib/fruityos-x86_64/trailer.sol initrd/lib/fruityos-x86_64/trailer.sol
-copy lib/fruityos-x86_64/link.psh initrd/lib/fruityos-x86_64/link.psh
-copy lib/fruityos-x86_64/link-jabara.psh initrd/lib/fruityos-x86_64/link-jabara.psh
-copy lib/fruityos-x86_64/juicer-runtime.asm initrd/lib/fruityos-x86_64/juicer-runtime.asm
-copy lib/fruityos-x86_64/fap-module-runtime.asm initrd/lib/fruityos-x86_64/fap-module-runtime.asm
-copy lib/windows-x86_64/pith.hr initrd/lib/windows-x86_64/pith.hr
-copy lib/windows-x86_64/pith.jabara initrd/lib/windows-x86_64/pith.jabara
-copy lib/windows-x86_64/start.asm initrd/lib/windows-x86_64/start.asm
-copy lib/windows-x86_64/runtime.asm initrd/lib/windows-x86_64/runtime.asm
-copy lib/windows-x86_64/start-jabara.asm initrd/lib/windows-x86_64/start-jabara.asm
-copy lib/windows-x86_64/runtime-jabara.asm initrd/lib/windows-x86_64/runtime-jabara.asm
-copy lib/windows-x86_64/trailer.sol initrd/lib/windows-x86_64/trailer.sol
-copy lib/windows-x86_64/link.psh initrd/lib/windows-x86_64/link.psh
-copy lib/windows-x86_64/link-jabara.psh initrd/lib/windows-x86_64/link-jabara.psh
-copy lib/windows-x86_64/juicer-decode-stub.asm initrd/lib/windows-x86_64/juicer-decode-stub.asm
+copy lib/orgone.dct initrd/lib/orgone.dct
 cd initrd
 ../bin/jar c initrd.jar
 ../bin/move initrd.jar ../initrd.jar
 cd ..
+mkdir verification
+mkdir verification/orgone
+copy initrd.jar verification/orgone/initrd.jar
 
 concat out/fruityos_hdd.img seed/out/fruityos-x86_64/hdseed.bin initrd.jar
 pad out/fruityos_hdd.img 1048576 1048576
@@ -158,4 +168,4 @@ concat out/fruityos_floppy.img seed/out/fruityos-x86_64/fdseed.bin initrd.jar
 pad out/fruityos_floppy.img 1474560 350208
 uefi seed/out/fruityos-x86_64/uefiseed-prefix.bin initrd.jar out/fruityos.efi out/fruityos_uefi.img
 
-del initrd.jar .jabara-raw .orgasm-raw .jb-generated.asm .jc-generated.sol .jc-sol.map .jc-asm.map .jc-prefix .jc-code .jc-raw .jc-stub .jc-juiced
+del initrd.jar .orgone-jc .orgone-orgasm .orgone-orgone .jc-orgone .jabara-raw .orgasm-raw .jb-generated.asm .jc-generated.sol .jc-sol.map .jc-asm.map .jc-prefix .jc-code .jc-raw .jc-stub .jc-juiced

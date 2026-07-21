@@ -1,0 +1,5 @@
+del out/$1/orgone out/$1/orgone.raw out/$1/orgone.elf out/$1/orgone.fap out/$1/orgone.exe
+del out/$2/orgone out/$2/orgone.raw out/$2/orgone.elf out/$2/orgone.fap out/$2/orgone.exe
+rmdir out/$1
+rmdir out/$2
+rmdir out

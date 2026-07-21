@@ -1,0 +1,658 @@
+extern sub brk(address)
+extern sub close(fd)
+extern sub creat(path)
+extern sub exit(status)
+extern sub fputch(fd, character)
+extern sub open(path, flags)
+extern sub putch(character)
+extern sub read(fd, buffer, count)
+extern sub write(fd, buffer, count)
+
+sub og_next_arg(arg)
+  while byte [arg] do arg = arg + 1 end
+  return arg + 1
+end
+
+sub og_streq(a, b)
+  while byte [a] == byte [b] do
+    if byte [a] == 0 then return 1 end
+    a = a + 1
+    b = b + 1
+  end
+  return 0
+end
+
+sub og_puts(text)
+  while byte [text] do
+    putch(byte [text])
+    text = text + 1
+  end
+end
+
+sub og_alloc(size)
+  local p
+  p = brk(-1)
+  brk(p + size)
+  return p
+end
+
+sub og_zero(ptr, size)
+  local i = 0
+  while i < size do
+    byte [ptr + i] = 0
+    i = i + 1
+  end
+end
+
+sub og_copy(dst, src, size)
+  local i = 0
+  while i < size do
+    byte [dst + i] = byte [src + i]
+    i = i + 1
+  end
+end
+
+sub og_read_all(path, buffer)
+  local fd, cursor, count
+  fd = open(path, 0)
+  if fd <= 0 then
+    og_puts("orgone: cannot open input")
+    putch(10)
+    exit(1)
+  end
+  cursor = buffer
+  while (count = read(fd, cursor, 4096)) > 0 do
+    cursor = cursor + count
+  end
+  close(fd)
+  return cursor - buffer
+end
+
+sub og_read_optional(path, buffer, limit)
+  local fd, cursor, count, done = 0
+  og_zero(buffer, limit)
+  fd = open(path, 0)
+  if fd <= 0 then return 0 end
+  cursor = buffer
+  while (done == 0) & ((count = read(fd, cursor, limit - (cursor - buffer))) > 0) do
+    cursor = cursor + count
+    if cursor - buffer >= limit then done = 1 end
+  end
+  close(fd)
+  return cursor - buffer
+end
+
+sub og_read_growing(path, sizebox)
+  local fd, buffer, cursor, count, capacity = 4096, done = 0
+  fd = open(path, 0)
+  buffer = brk(-1)
+  brk(buffer + capacity)
+  if fd <= 0 then
+    [sizebox] = 0
+    return buffer
+  end
+  cursor = buffer
+  while done == 0 do
+    if cursor - buffer == capacity then
+      capacity = capacity << 1
+      brk(buffer + capacity)
+    end
+    count = read(fd, cursor, capacity - (cursor - buffer))
+    if count > 0 then cursor = cursor + count else done = 1 end
+  end
+  close(fd)
+  brk(cursor)
+  [sizebox] = cursor - buffer
+  return buffer
+end
+
+sub og_copy_file_to_fd(path, fout)
+  local fd, buffer, count, total
+  buffer = og_alloc(4096)
+  fd = open(path, 0)
+  if fd <= 0 then
+    og_puts("orgone: cannot open stub")
+    putch(10)
+    exit(1)
+  end
+  total = 0
+  while (count = read(fd, buffer, 4096)) > 0 do
+    write(fout, buffer, count)
+    total = total + count
+  end
+  close(fd)
+  return total
+end
+
+sub og_write_u64(fd, value)
+  local i = 0, b
+  while i < 8 do
+    b = value & 255
+    fputch(fd, b)
+    value = value / 256
+    i = i + 1
+  end
+end
+
+sub og_ref_size(cmd)
+  local size = 2
+  if cmd < 253 then return size end
+  cmd = cmd - 253
+  size = 3
+  while cmd >= 128 do
+    size = size + 1
+    cmd = cmd / 128
+  end
+  return size
+end
+
+sub og_write_ref(output, out, cmd)
+  byte [output + out] = 128
+  out = out + 1
+  if cmd < 253 then
+    byte [output + out] = cmd
+    return out + 1
+  end
+  byte [output + out] = 255
+  out = out + 1
+  cmd = cmd - 253
+  while cmd >= 128 do
+    byte [output + out] = (cmd & 127) | 128
+    out = out + 1
+    cmd = cmd / 128
+  end
+  byte [output + out] = cmd
+  return out + 1
+end
+
+sub og_read_ref(ptr)
+  local code, value = 0, scale = 1, used = 1, b
+  code = byte [ptr]
+  if code < 255 then
+    return (code << 8) | 1
+  end
+  ptr = ptr + 1
+  while 1 do
+    b = byte [ptr]
+    ptr = ptr + 1
+    used = used + 1
+    value = value + ((b & 127) * scale)
+    if b < 128 then
+      return ((value + 253) << 8) | used
+    end
+    scale = scale * 128
+  end
+end
+
+sub og_hash_at(ptr, size)
+  local h, i = 0
+  h = size
+  while i < size do
+    h = ((h << 5) - h) + byte [ptr + i]
+    i = i + 1
+  end
+  return h & 4095
+end
+
+sub og_same_bytes(a, b, size)
+  local i = 0
+  while i < size do
+    if byte [a + i] != byte [b + i] then return 0 end
+    i = i + 1
+  end
+  return 1
+end
+
+sub og_copy_bytes(dst, src, size)
+  local i = 0
+  while i < size do
+    byte [dst + i] = byte [src + i]
+    i = i + 1
+  end
+end
+
+sub og_phrase_len(which)
+  if which == 0 then return 8 end
+  if which == 1 then return 12 end
+  if which == 2 then return 16 end
+  if which == 3 then return 24 end
+  if which == 4 then return 32 end
+  if which == 5 then return 48 end
+  if which == 6 then return 64 end
+  if which == 7 then return 96 end
+  return 128
+end
+
+sub og_lit_cost_byte(value)
+  if (value & 255) == 128 then return 2 end
+  return 1
+end
+
+sub og_literal_cost(ptr, size)
+  local i = 0, total = 0
+  while i < size do
+    total = total + og_lit_cost_byte(byte [ptr + i])
+    i = i + 1
+  end
+  return total
+end
+
+sub og_match_rule(input, input_size, pos, exp, explen, cmd)
+  local size, ep
+  size = [explen + (cmd << 3)]
+  if size <= 0 then return 0 end
+  if pos + size > input_size then return 0 end
+  ep = [exp + (cmd << 3)]
+  return og_same_bytes(input + pos, ep, size)
+end
+
+sub og_best_rule(input, input_size, pos, exp, explen, max_cmd)
+  local cmd = 0, best = -1, best_size = 0, size
+  while cmd < max_cmd do
+    size = [explen + (cmd << 3)]
+    if size > best_size then
+      if og_match_rule(input, input_size, pos, exp, explen, cmd) then
+        best = cmd
+        best_size = size
+      end
+    end
+    cmd = cmd + 1
+  end
+  return best
+end
+
+sub og_encoded_size(input, input_size, exp, explen, max_cmd)
+  local pos = 0, total = 0, cmd, size, b
+  while pos < input_size do
+    cmd = og_best_rule(input, input_size, pos, exp, explen, max_cmd)
+    if cmd >= 0 then
+      total = total + og_ref_size(cmd)
+      size = [explen + (cmd << 3)]
+      pos = pos + size
+    else
+      b = byte [input + pos]
+      total = total + og_lit_cost_byte(b)
+      pos = pos + 1
+    end
+  end
+  return total
+end
+
+sub og_encode_to_buffer(input, input_size, exp, explen, max_cmd, output)
+  local pos = 0, out = 0, cmd, size, b
+  while pos < input_size do
+    cmd = og_best_rule(input, input_size, pos, exp, explen, max_cmd)
+    if cmd >= 0 then
+      out = og_write_ref(output, out, cmd)
+      size = [explen + (cmd << 3)]
+      pos = pos + size
+    else
+      b = byte [input + pos]
+      if b == 128 then
+        byte [output + out] = 128
+        byte [output + out + 1] = 254
+        out = out + 2
+      else
+        byte [output + out] = b
+        out = out + 1
+      end
+      pos = pos + 1
+    end
+  end
+  return out
+end
+
+sub og_score_dataset(starts, sizes, file_count, exp, explen, dict_used, max_cmd)
+  local index = 0, total = dict_used
+  while index < file_count do
+    total = total + og_encoded_size([starts + (index << 3)], [sizes + (index << 3)], exp, explen, max_cmd)
+    index = index + 1
+  end
+  return total
+end
+
+sub og_record_candidate(table, ptr, size)
+  local h, entry
+  h = og_hash_at(ptr, size)
+  entry = table + (h * 272)
+  if [entry + 256] == 0 then
+    og_copy_bytes(entry, ptr, size)
+    [entry + 256] = size
+    [entry + 264] = 1
+    return 0
+  end
+  if [entry + 256] == size then
+    if og_same_bytes(entry, ptr, size) then [entry + 264] = [entry + 264] + 1 end
+  end
+  return 0
+end
+
+sub og_collect_candidates(table, input, input_size)
+  local pos = 0, k, size
+  while pos < input_size do
+    k = 0
+    while k < 9 do
+      size = og_phrase_len(k)
+      if pos + size <= input_size then
+        if og_valid_token_slice(input + pos, size) then og_record_candidate(table, input + pos, size) end
+      end
+      k = k + 1
+    end
+    pos = pos + 1
+  end
+end
+
+sub og_take_best_candidate(table, out)
+  local i = 0, entry, best = -1, best_score = 0, score, size, count
+  while i < 4096 do
+    entry = table + (i * 272)
+    size = [entry + 256]
+    count = [entry + 264]
+    if count > 1 then
+      score = count * size
+      if score > best_score then
+        best_score = score
+        best = entry
+      end
+    end
+    i = i + 1
+  end
+  if best < 0 then return 0 end
+  size = [best + 256]
+  og_copy_bytes(out, best, size)
+  [out + 256] = size
+  [out + 264] = [best + 264]
+  [best + 264] = 0
+  return 1
+end
+
+sub og_find_longest_repeated(table, input, input_size, out)
+  local size = 254, pos
+  while size >= 4 do
+    og_zero(table, 4096 * 272)
+    pos = 0
+    while pos + size <= input_size do
+      if og_valid_token_slice(input + pos, size) then og_record_candidate(table, input + pos, size) end
+      pos = pos + 1
+    end
+    if og_take_best_candidate(table, out) then return 1 end
+    size = size - 1
+  end
+  return 0
+end
+
+sub og_valid_token_slice(ptr, size)
+  local i = 0, b, cmd, used, ref
+  while i < size do
+    b = byte [ptr + i]
+    i = i + 1
+    if b == 128 then
+      if i >= size then return 0 end
+      ref = og_read_ref(ptr + i)
+      used = ref & 255
+      cmd = ref >> 8
+      i = i + used
+      if i > size then return 0 end
+      if cmd == 253 then return 0 end
+    end
+  end
+  return 1
+end
+
+sub og_expand_token_slice(ptr, size, exp, explen, out)
+  local i = 0, outpos = 0, b, cmd, ep, esize, j, used, ref
+  while i < size do
+    b = byte [ptr + i]
+    i = i + 1
+    if b == 128 then
+      ref = og_read_ref(ptr + i)
+      used = ref & 255
+      cmd = ref >> 8
+      i = i + used
+      if cmd == 254 then
+        if out then byte [out + outpos] = 128 end
+        outpos = outpos + 1
+      else
+        esize = [explen + (cmd << 3)]
+        ep = [exp + (cmd << 3)]
+        j = 0
+        while j < esize do
+          if out then byte [out + outpos] = byte [ep + j] end
+          outpos = outpos + 1
+          j = j + 1
+        end
+      end
+    else
+      if out then byte [out + outpos] = b end
+      outpos = outpos + 1
+    end
+  end
+  return outpos
+end
+
+sub og_build_current_corpus(output, starts, sizes, file_count, dict, dict_used, exp, explen, max_cmd)
+  local out = 0, i = 0, size
+  while i < file_count do
+    size = og_encode_to_buffer([starts + (i << 3)], [sizes + (i << 3)], exp, explen, max_cmd, output + out)
+    out = out + size
+    byte [output + out] = 128
+    byte [output + out + 1] = 253
+    out = out + 2
+    i = i + 1
+  end
+  if dict_used > 0 then
+    og_copy_bytes(output + out, dict, dict_used)
+    out = out + dict_used
+  end
+  return out
+end
+
+sub og_align32(value)
+  while value & 31 do value = value + 1 end
+  return value
+end
+
+sub og_make_rule(rulebuf, phrase, size, exp, explen, max_cmd)
+  og_copy_bytes(rulebuf, phrase, size)
+  byte [rulebuf + size] = 128
+  byte [rulebuf + size + 1] = 253
+  return size + 2
+end
+
+sub og_train(dict_path, argc, argv)
+  local fd, dict, rulebuf, table, candidate, input, corpus, starts, sizes, exp, explen
+  local input_size, path, argleft, file_count, corpus_size
+  local dict_used, dict_capacity, cmd, current_score, trial_score, rule_size, padded, accepted, done, exp_size, ep
+  rulebuf = og_alloc(512)
+  table = og_alloc(4096 * 272)
+  candidate = og_alloc(272)
+  input = og_alloc(8 << 20)
+  corpus = og_alloc(16 << 20)
+  starts = og_alloc(512)
+  sizes = og_alloc(512)
+
+  path = dict_path
+  argleft = argc
+  file_count = 0
+  corpus_size = 0
+  while argleft > 3 do
+    path = og_next_arg(path)
+    [starts + (file_count << 3)] = input + corpus_size
+    input_size = og_read_all(path, input + corpus_size)
+    [sizes + (file_count << 3)] = input_size
+    corpus_size = corpus_size + input_size
+    file_count = file_count + 1
+    argleft = argleft - 1
+  end
+
+  dict_capacity = (corpus_size << 1) + 4096
+  dict = og_alloc(dict_capacity)
+  exp = og_alloc((dict_capacity / 4) + 16)
+  explen = og_alloc((dict_capacity / 4) + 16)
+  og_zero(dict, dict_capacity)
+  og_zero(exp, (dict_capacity / 4) + 16)
+  og_zero(explen, (dict_capacity / 4) + 16)
+
+  fd = creat(dict_path)
+  if fd <= 0 then
+    og_puts("orgone: cannot create dictionary")
+    putch(10)
+    exit(1)
+  end
+  dict_used = 0
+  current_score = og_score_dataset(starts, sizes, file_count, exp, explen, dict_used, 0)
+  accepted = 0
+  done = 0
+  while done == 0 do
+    cmd = dict_used / 32
+    corpus_size = og_build_current_corpus(corpus, starts, sizes, file_count, dict, dict_used, exp, explen, cmd)
+    if og_find_longest_repeated(table, corpus, corpus_size, candidate) then
+      rule_size = og_make_rule(rulebuf, candidate, [candidate + 256], exp, explen, cmd)
+      padded = og_align32(dict_used + rule_size)
+      if padded > dict_capacity then
+        done = 1
+      else
+        exp_size = og_expand_token_slice(candidate, [candidate + 256], exp, explen, 0)
+        if exp_size <= 0 then
+          done = 1
+        else
+          ep = og_alloc(exp_size)
+          og_expand_token_slice(candidate, [candidate + 256], exp, explen, ep)
+          [exp + (cmd << 3)] = ep
+          [explen + (cmd << 3)] = exp_size
+          trial_score = og_score_dataset(starts, sizes, file_count, exp, explen, padded, cmd + 1)
+          if trial_score < current_score then
+            og_zero(rulebuf + rule_size, padded - dict_used - rule_size)
+            og_copy_bytes(dict + dict_used, rulebuf, padded - dict_used)
+            write(fd, rulebuf, padded - dict_used)
+            current_score = trial_score
+            dict_used = padded
+            accepted = accepted + 1
+          else
+            [explen + (cmd << 3)] = 0
+            done = 1
+          end
+        end
+      end
+    else
+      done = 1
+    end
+  end
+
+  close(fd)
+  return 0
+end
+
+sub og_expand_rule(dict, dict_size, offset, exp, explen, out, endptr)
+  local ip = offset, outpos = 0, b, cmd, size, ep, j, ref, used
+  while ip < dict_size do
+    b = byte [dict + ip]
+    ip = ip + 1
+    if b == 128 then
+      ref = og_read_ref(dict + ip)
+      used = ref & 255
+      cmd = ref >> 8
+      ip = ip + used
+      if cmd == 253 then
+        [endptr] = ip
+        return outpos
+      end
+      if cmd == 254 then
+        if out then byte [out + outpos] = 128 end
+        outpos = outpos + 1
+      else
+        size = [explen + (cmd << 3)]
+        ep = [exp + (cmd << 3)]
+        j = 0
+        while j < size do
+          if out then byte [out + outpos] = byte [ep + j] end
+          outpos = outpos + 1
+          j = j + 1
+        end
+      end
+    else
+      if out then byte [out + outpos] = b end
+      outpos = outpos + 1
+    end
+  end
+  [endptr] = ip
+  return 0
+end
+
+sub og_parse_dictionary(dict, dict_size, exp, explen)
+  local p = 0, cmd = 0, size, endbox, ep
+  endbox = og_alloc(8)
+  while p < dict_size do
+    cmd = p / 32
+    size = og_expand_rule(dict, dict_size, p, exp, explen, 0, endbox)
+    ep = og_alloc(size)
+    og_expand_rule(dict, dict_size, p, exp, explen, ep, endbox)
+    [exp + (cmd << 3)] = ep
+    [explen + (cmd << 3)] = size
+    p = og_align32([endbox])
+    cmd = p / 32
+  end
+  return cmd
+end
+
+sub og_wrap(dict_path, stub_path, input_path, output_path)
+  local input, input_size, dict, dict_size, encoded, encoded_size, fout, exp, explen, max_cmd, sizebox, slots
+  input = og_alloc(4 << 20)
+  encoded = og_alloc(8 << 20)
+  input_size = og_read_all(input_path, input)
+  sizebox = og_alloc(8)
+  dict = og_read_growing(dict_path, sizebox)
+  dict_size = [sizebox]
+  slots = (dict_size / 32) + 2
+  exp = og_alloc(slots << 3)
+  explen = og_alloc(slots << 3)
+  og_zero(exp, slots << 3)
+  og_zero(explen, slots << 3)
+  max_cmd = og_parse_dictionary(dict, dict_size, exp, explen)
+
+  encoded_size = og_encode_to_buffer(input, input_size, exp, explen, max_cmd, encoded)
+  byte [encoded + encoded_size] = 128
+  byte [encoded + encoded_size + 1] = 253
+  encoded_size = encoded_size + 2
+
+  fout = creat(output_path)
+  if fout <= 0 then
+    og_puts("orgone: cannot create output")
+    putch(10)
+    exit(1)
+  end
+  og_copy_file_to_fd(stub_path, fout)
+  og_write_u64(fout, encoded_size)
+  write(fout, encoded, encoded_size)
+  close(fout)
+  return 0
+end
+
+sub main(argc, argv)
+  local mode, dict_path, stub_path, input_path, output_path
+  if argc < 3 then
+    og_puts("usage: orgone t dict {raw...} | orgone w dict stub raw out")
+    putch(10)
+    return 1
+  end
+  mode = og_next_arg(argv)
+  if og_streq(mode, "t") then
+    dict_path = og_next_arg(mode)
+    return og_train(dict_path, argc, argv)
+  end
+  if og_streq(mode, "w") then
+    if argc != 6 then
+      og_puts("usage: orgone w dict stub raw out")
+      putch(10)
+      return 1
+    end
+    dict_path = og_next_arg(mode)
+    stub_path = og_next_arg(dict_path)
+    input_path = og_next_arg(stub_path)
+    output_path = og_next_arg(input_path)
+    return og_wrap(dict_path, stub_path, input_path, output_path)
+  end
+  og_puts("orgone: unknown mode")
+  putch(10)
+  return 1
+end

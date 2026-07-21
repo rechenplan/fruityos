@@ -376,9 +376,15 @@ sub mars_lower_instruction(state:MarsState, item:SolItem, next_ip)
         else mars_rel32(state, 232, target) end
       end
     else
-      mars_load_term(state, item.first.value, 8, next_ip)
-      if operation == 24 then mars_jmp_r(state, 8)
-      else mars_call_r(state, 8) end
+      target = mars_direct_register(item.first.value)
+      if target >= 0 then
+        if operation == 24 then mars_jmp_r(state, target)
+        else mars_call_r(state, target) end
+      else
+        mars_load_term(state, item.first.value, 8, next_ip)
+        if operation == 24 then mars_jmp_r(state, 8)
+        else mars_call_r(state, 8) end
+      end
     end
     return 0
   end

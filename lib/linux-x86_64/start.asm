@@ -1,6 +1,7 @@
 %define PITH_exit
 bits 64
 org 0x400000
+orgone_image_base:
 
 __elf_header:
 	db 127,69,76,70,2,1,1,0,0,0,0,0,0,0,0,0
@@ -25,8 +26,14 @@ platform: db "linux-x86_64", 0
 _start:
 	lea	rax, [rel platform]
 	mov	[rel __haruka_global_platform], rax
+	cmp	ebx, 1330073137
+	je	.orgone
 	mov rax, [rsp]
 	mov rdx, [rsp + 8]
+	jmp	.call_main
+.orgone:
+	mov	rax, rcx
+.call_main:
 	push rax
 	push rdx
 	call main
